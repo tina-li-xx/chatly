@@ -3,5 +3,5 @@ node_modules
 .env
 .env.local
 dist
+coverage
 npm-debug.log*
-
