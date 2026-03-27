@@ -1,13 +1,13 @@
-# Chatly
+# Chatting
 
-Async founder chat for high-intent visitors. This MVP gives each SaaS account:
+Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 - An embeddable widget loaded with `<script src="https://yourapp.com/widget.js" data-site-id="xxx"></script>`
 - Per-account authentication with owned sites and isolated inbox data
 - Postgres-backed message capture with page URL, referrer, user agent, email, and session tracking
-- A founder inbox to read threads, tag conversations, and reply by email
+- A team inbox to read threads, tag conversations, and reply by email
 - Email-based thread continuation with a webhook endpoint for inbound replies
-- Helpful / not helpful feedback capture after each founder reply
+- Helpful / not helpful feedback capture after each team reply
 
 ## Stack
 
@@ -16,6 +16,49 @@ Async founder chat for high-intent visitors. This MVP gives each SaaS account:
 - Tailwind CSS
 - Postgres via `pg`
 - Resend for outbound email and inbound reply threading
+
+## Recent Updates
+
+- Redesigned the public landing, login, and signup flows around the new Chatting brand.
+- Added a guided onboarding flow for widget customization, installation, and verification.
+- Shipped the embeddable widget runtime, public conversation APIs, and live conversation plumbing.
+- Rebuilt the dashboard into modular inbox, visitors, analytics, settings, team, and widget surfaces.
+
+## 🚀 Key Modules
+
+### Public Site & Auth
+
+- Editorial landing page with modular sections and brand-aligned auth entry flows.
+- Dedicated login and signup screens with shared form controls and direct onboarding handoff.
+
+### Onboarding
+
+- Post-signup setup flow for widget customization, install verification, and completion.
+- Live verification state that surfaces the actual site URL the widget was detected on.
+
+### Widget & Public APIs
+
+- Embeddable widget with optimistic sending, typing, conversation polling, and install detection.
+- Public API endpoints for conversation messages, status, typing, site config, and attachments.
+
+### Dashboard
+
+- Shared dashboard shell with focused pages for inbox, visitors, analytics, team, settings, and widget setup.
+- Optimistic inbox interactions for replies and tags, plus modularized page components throughout.
+
+### Billing & Operations
+
+- Stripe-backed billing flows for checkout, portal access, invoice sync, and webhook handling.
+- Cloudflare R2-backed team photo uploads for widget presentation.
+- Vitest-based app test suite covering routes, pages, helpers, onboarding, widget flows, and billing.
+
+## Ops Note
+
+- Resend is currently managed from the Triggla Gmail account.
+- Vercel is currently connected through the personal GitHub account.
+- The production Postgres database is hosted on Neon.
+- Neon is currently managed from the Letterflow account `tina@letterflow.so`.
+- This is only an account-ownership note. Runtime config still comes from environment variables.
 
 ## Quick Start
 
@@ -34,6 +77,8 @@ npm install
 - `RESEND_WEBHOOK_SECRET`
 - `MAIL_FROM`
 - `REPLY_DOMAIN` if you want inbound email replies to continue threads
+- `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, and `R2_PUBLIC_BASE_URL` if you want real uploaded team photos in the widget
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `STRIPE_PRICE_PRO_MONTHLY` if you want real Stripe-backed billing
 
 3. Start the app:
 
@@ -41,7 +86,31 @@ npm install
 npm run dev
 ```
 
+Run the test suite:
+
+```bash
+npm test
+```
+
+Generate coverage:
+
+```bash
+npm run test:coverage
+```
+
 The app auto-creates the MVP tables on first request.
+
+For live billing, point Stripe webhooks at:
+
+```text
+POST /api/stripe/webhook
+```
+
+For local testing, the easiest setup is:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
 
 ## Account Auth
 
@@ -54,7 +123,7 @@ The app auto-creates the MVP tables on first request.
 
 ```html
 <script
-  src="http://localhost:3000/widget.js"
+  src="http://localhost:3983/widget.js"
   data-site-id="your-site-id"
   data-brand-color="#0f766e"
   data-greeting="Ask us anything before you bounce"
