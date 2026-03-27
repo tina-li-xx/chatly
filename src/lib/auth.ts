@@ -2,23 +2,28 @@ import { createHash, randomBytes, scrypt as nodeScrypt, timingSafeEqual } from "
 import { promisify } from "node:util";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createSiteForUser } from "@/lib/data";
-import { query } from "@/lib/db";
+import { createSiteForUser } from "@/lib/data/sites";
+import {
+  type AuthSessionUserRecord,
+  deleteAuthSessionByTokenHash,
+  findAuthUserByEmail,
+  findAuthUserById,
+  findCurrentUserByTokenHash,
+  findExistingUserIdByEmail,
+  insertAuthSession,
+  insertAuthUser,
+  updateAuthUserPassword
+} from "@/lib/repositories/auth-repository";
+import { isProductionRuntime } from "@/lib/env";
+import { normalizeSiteDomain } from "@/lib/widget-settings";
 import type { CurrentUser } from "@/lib/types";
 
 const AUTH_COOKIE_NAME = "chatly_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 const scrypt = promisify(nodeScrypt);
 
-type UserRow = {
-  id: string;
-  email: string;
-  password_hash: string;
-  created_at: string;
-};
-
 function getAuthSecret() {
-  return process.env.AUTH_SECRET?.trim() || (process.env.NODE_ENV === "production" ? "" : "chatly-dev-secret");
+  return process.env.AUTH_SECRET?.trim() || (isProductionRuntime() ? "" : "chatly-dev-secret");
 }
 
 function requireAuthSecret() {
@@ -41,11 +46,13 @@ function hashSessionToken(token: string) {
     .digest("hex");
 }
 
-function mapUser(row: Pick<UserRow, "id" | "email" | "created_at">): CurrentUser {
+function mapUser(
+  row: Pick<CurrentUser, "id" | "email" | "createdAt"> | AuthSessionUserRecord
+): CurrentUser {
   return {
     id: row.id,
     email: row.email,
-    createdAt: row.created_at
+    createdAt: "createdAt" in row ? row.createdAt : row.created_at
   };
 }
 
@@ -72,6 +79,36 @@ async function verifyPasswordHash(password: string, storedHash: string) {
   return timingSafeEqual(derived, expected);
 }
 
+export async function changeUserPassword(userId: string, currentPassword: string, nextPassword: string) {
+  const trimmedCurrentPassword = currentPassword.trim();
+  const trimmedNextPassword = nextPassword.trim();
+
+  if (!trimmedCurrentPassword) {
+    throw new Error("MISSING_CURRENT_PASSWORD");
+  }
+
+  if (!trimmedNextPassword) {
+    throw new Error("MISSING_PASSWORD");
+  }
+
+  if (trimmedNextPassword.length < 8) {
+    throw new Error("WEAK_PASSWORD");
+  }
+
+  const row = await findAuthUserById(userId);
+  if (!row) {
+    throw new Error("USER_NOT_FOUND");
+  }
+
+  const matches = await verifyPasswordHash(trimmedCurrentPassword, row.password_hash);
+  if (!matches) {
+    throw new Error("INVALID_CURRENT_PASSWORD");
+  }
+
+  const passwordHash = await hashPassword(trimmedNextPassword);
+  await updateAuthUserPassword(userId, passwordHash);
+}
+
 function defaultSiteNameForEmail(email: string) {
   const domain = normalizeEmail(email).split("@")[1];
   if (!domain) {
@@ -85,11 +122,12 @@ function defaultSiteNameForEmail(email: string) {
 export async function signUpUser(input: {
   email: string;
   password: string;
-  siteName?: string;
+  websiteUrl?: string;
 }) {
   const email = normalizeEmail(input.email);
   const password = input.password.trim();
-  const siteName = input.siteName?.trim() || defaultSiteNameForEmail(email);
+  const siteName = defaultSiteNameForEmail(email);
+  const websiteUrl = normalizeSiteDomain(input.websiteUrl);
 
   if (!email) {
     throw new Error("MISSING_EMAIL");
@@ -99,37 +137,34 @@ export async function signUpUser(input: {
     throw new Error("MISSING_PASSWORD");
   }
 
+  if (!websiteUrl) {
+    throw new Error("MISSING_DOMAIN");
+  }
+
   if (password.length < 8) {
     throw new Error("WEAK_PASSWORD");
   }
 
-  const existing = await query<{ id: string }>(
-    `
-      SELECT id
-      FROM users
-      WHERE email = $1
-      LIMIT 1
-    `,
-    [email]
-  );
+  const existingUserId = await findExistingUserIdByEmail(email);
 
-  if (existing.rowCount) {
+  if (existingUserId) {
     throw new Error("EMAIL_TAKEN");
   }
 
   const userId = randomBytes(16).toString("hex");
   const passwordHash = await hashPassword(password);
 
-  await query(
-    `
-      INSERT INTO users (id, email, password_hash)
-      VALUES ($1, $2, $3)
-    `,
-    [userId, email, passwordHash]
-  );
+  await insertAuthUser({
+    userId,
+    email,
+    passwordHash,
+    onboardingStep: "customize",
+    onboardingCompletedAt: null
+  });
 
   await createSiteForUser(userId, {
-    name: siteName
+    name: siteName,
+    domain: websiteUrl
   });
 
   return {
@@ -140,17 +175,7 @@ export async function signUpUser(input: {
 
 export async function signInUser(email: string, password: string) {
   const normalizedEmail = normalizeEmail(email);
-  const result = await query<UserRow>(
-    `
-      SELECT id, email, password_hash, created_at
-      FROM users
-      WHERE email = $1
-      LIMIT 1
-    `,
-    [normalizedEmail]
-  );
-
-  const row = result.rows[0];
+  const row = await findAuthUserByEmail(normalizedEmail);
   if (!row) {
     return null;
   }
@@ -169,13 +194,11 @@ export async function setUserSession(userId: string) {
   const tokenHash = hashSessionToken(token);
   const cookieStore = await cookies();
 
-  await query(
-    `
-      INSERT INTO auth_sessions (id, user_id, token_hash, expires_at)
-      VALUES ($1, $2, $3, NOW() + INTERVAL '30 days')
-    `,
-    [sessionId, userId, tokenHash]
-  );
+  await insertAuthSession({
+    sessionId,
+    userId,
+    tokenHash
+  });
 
   cookieStore.set(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
@@ -191,13 +214,7 @@ export async function clearUserSession() {
   const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
   if (token) {
-    await query(
-      `
-        DELETE FROM auth_sessions
-        WHERE token_hash = $1
-      `,
-      [hashSessionToken(token)]
-    );
+    await deleteAuthSessionByTokenHash(hashSessionToken(token));
   }
 
   cookieStore.delete(AUTH_COOKIE_NAME);
@@ -211,26 +228,8 @@ export async function getCurrentUser() {
     return null;
   }
 
-  const result = await query<{
-    id: string;
-    email: string;
-    created_at: string;
-  }>(
-    `
-      SELECT u.id, u.email, u.created_at
-      FROM auth_sessions s
-      INNER JOIN users u
-        ON u.id = s.user_id
-      WHERE s.token_hash = $1
-        AND s.expires_at > NOW()
-      LIMIT 1
-    `,
-    [hashSessionToken(token)]
-  );
-
-  const row = result.rows[0];
+  const row = await findCurrentUserByTokenHash(hashSessionToken(token));
   if (!row) {
-    cookieStore.delete(AUTH_COOKIE_NAME);
     return null;
   }
 
