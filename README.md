@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Removed the visible onboarding step counts to keep setup screens cleaner.
 - Split the dashboard home into focused modules and cleaned up empty-state conversation actions.
 - Redesigned the public landing, login, and signup flows around the new Chatting brand.
 - Added a guided onboarding flow for widget customization, installation, and verification.
@@ -36,6 +37,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Onboarding
 
 - Post-signup setup flow for widget customization, install verification, and completion.
+- Setup screens now rely on the dot progress indicator without repeating step-count copy.
 - Live verification state that surfaces the actual site URL the widget was detected on.
 
 ### Widget & Public APIs

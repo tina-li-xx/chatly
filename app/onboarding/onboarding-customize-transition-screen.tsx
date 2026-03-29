@@ -19,14 +19,12 @@ function websiteLabel(value: string) {
 export function OnboardingCustomizeTransitionScreen({
   websiteUrl,
   siteName,
-  stepLabel = "Step 1 of 3",
   title = "Customize",
   description = "Opening your widget setup now.",
   buttonLabel = "Opening setup..."
 }: {
   websiteUrl: string;
   siteName: string;
-  stepLabel?: string;
   title?: string;
   description?: string;
   buttonLabel?: string;
@@ -65,8 +63,7 @@ export function OnboardingCustomizeTransitionScreen({
             </div>
 
             <div className="mb-8">
-              <p className="text-sm font-medium text-blue-600">{stepLabel}</p>
-              <h1 className="display-font mt-4 text-[2.75rem] leading-tight text-slate-900">{title}</h1>
+              <h1 className="display-font text-[2.75rem] leading-tight text-slate-900">{title}</h1>
               <p className="mt-3 text-[15px] leading-7 text-slate-500">{description}</p>
             </div>
 

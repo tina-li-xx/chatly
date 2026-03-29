@@ -143,8 +143,7 @@ export function OnboardingLeftPanel({
 
         {activeStep === "install" && showInstallSuccess ? null : (
           <div className="mb-8">
-            <p className="text-sm font-medium text-blue-600">{`Step ${stepIndex + 1} of ${STEP_META.length}`}</p>
-            <h1 className="display-font mt-4 text-[2.75rem] leading-tight text-slate-900">{stepMeta.title}</h1>
+            <h1 className="display-font text-[2.75rem] leading-tight text-slate-900">{stepMeta.title}</h1>
             <p className="mt-3 text-[15px] leading-7 text-slate-500">
               {activeStep === "customize" && "Match the widget to your brand and choose where it should appear."}
               {activeStep === "install" && "Add one line of code to your site and let Chatting verify the install."}
