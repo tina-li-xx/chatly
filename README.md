@@ -24,6 +24,8 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Tightened the social content generator rules around lowercase output, Chatting branding, and the canonical site URL.
 - Removed the visible onboarding step counts to keep setup screens cleaner.
 - Split the dashboard home into focused modules and cleaned up empty-state conversation actions.
+- Added referral links, signup attribution, and referral reward tracking in billing.
+- Added recurring affiliate commission ledger entries tied to paid billing activity.
 - Redesigned the public landing, login, and signup flows around the new Chatting brand.
 - Added a guided onboarding flow for widget customization, installation, and verification.
 - Shipped the embeddable widget runtime, public conversation APIs, and live conversation plumbing.
@@ -35,7 +37,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Public Site & Auth
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
-- Dedicated login and signup screens with shared form controls and direct onboarding handoff.
+- Dedicated login and signup screens with shared form controls, referral-code signup support, and direct onboarding handoff.
 
 ### Onboarding
 

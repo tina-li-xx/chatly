@@ -68,6 +68,12 @@ export type {
   DashboardBillingSummary
 } from "./data/billing";
 export type {
+  DashboardReferralAttribution,
+  DashboardReferralProgram,
+  DashboardReferralReward,
+  DashboardReferralSummary
+} from "./referrals";
+export type {
   DashboardSettingsData,
   DashboardSettingsEmail,
   DashboardSettingsNotifications,
