@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { getPublicAppUrl } from "@/lib/env";
+import { ToastProvider } from "./ui/toast-provider";
 import ChattingScript from "./chatly-script";
 import "./globals.css";
 
@@ -42,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>
-        {children}
+        <ToastProvider>{children}</ToastProvider>
         <ChattingScript />
         <Script
           defer

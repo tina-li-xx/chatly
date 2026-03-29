@@ -74,56 +74,7 @@ export const setupSteps = [
     number: "3",
     title: "Start chatting",
     body:
-      "When a visitor says hello, you'll know. Desktop notifications, mobile app, email alerts. Never miss a message."
-  }
-];
-
-export const plans = [
-  {
-    name: "Starter",
-    subtitle: "For teams testing the waters",
-    price: "Free",
-    cadence: "",
-    features: [
-      "50 conversations/month",
-      "1 team member",
-      "Basic analytics",
-      "Widget customization",
-      "Email notifications",
-      "Chatting branding"
-    ],
-    cta: "Get started free",
-    featured: false
-  },
-  {
-    name: "Growth",
-    subtitle: "For growing teams who take chat seriously",
-    price: "$29",
-    cadence: "/month",
-    features: [
-      "Unlimited conversations",
-      "Up to 5 team members",
-      "Full analytics suite",
-      "Visitor tracking",
-      "Priority support",
-      "No Chatting branding"
-    ],
-    cta: "Start 14-day free trial",
-    featured: true
-  },
-  {
-    name: "Pro",
-    subtitle: "For teams who want everything",
-    price: "$79",
-    cadence: "/month",
-    features: [
-      "Everything in Growth",
-      "Unlimited team members",
-      "Advanced reporting",
-      "API access"
-    ],
-    cta: "Start 14-day free trial",
-    featured: false
+      "When a visitor says hello, you'll know. Desktop notifications and email alerts help your team stay on top of every conversation."
   }
 ];
 

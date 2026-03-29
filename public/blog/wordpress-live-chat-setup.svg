@@ -1,0 +1,21 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="40" fill="#F8FAFC"/>
+  <rect x="74" y="62" width="1052" height="506" rx="34" fill="url(#bg)"/>
+  <rect x="142" y="126" width="330" height="314" rx="28" fill="#0F172A"/>
+  <rect x="514" y="126" width="550" height="314" rx="28" fill="white"/>
+  <circle cx="230" cy="208" r="26" fill="#2563EB"/>
+  <rect x="274" y="194" width="126" height="20" rx="10" fill="#DBEAFE"/>
+  <rect x="214" y="270" width="192" height="16" rx="8" fill="#334155"/>
+  <rect x="214" y="314" width="164" height="16" rx="8" fill="#334155"/>
+  <rect x="580" y="192" width="330" height="28" rx="14" fill="#E2E8F0"/>
+  <rect x="580" y="252" width="254" height="18" rx="9" fill="#CBD5E1"/>
+  <rect x="580" y="296" width="308" height="18" rx="9" fill="#CBD5E1"/>
+  <text x="140" y="520" fill="#0F172A" font-family="Fraunces, serif" font-size="42" font-weight="600">WordPress Live Chat Setup</text>
+  <defs>
+    <linearGradient id="bg" x1="110" y1="84" x2="1090" y2="546" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFF6FF"/>
+      <stop offset="0.46" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F8FAFC"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -20,6 +20,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## Recent Updates
 
 - Added dashboard growth insights for activation, workspace health, and expansion signals on the home view.
+- Added a public blog, shared newsletter signup, and free-tools directory with calculators, generators, templates, and tone analysis for small teams.
 - Added scheduled lifecycle growth nudges for activation, health, and upgrade reminders without running email checks on widget requests.
 - Tightened the social content generator rules around lowercase output, Chatting branding, and the canonical site URL.
 - Removed the visible onboarding step counts to keep setup screens cleaner.
@@ -37,6 +38,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Public Site & Auth
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
+- Public growth surfaces now include the blog, free-tools directory, shared footer/legal pages, and newsletter capture flows.
 - Dedicated login and signup screens with shared form controls, referral-code signup support, and direct onboarding handoff.
 
 ### Onboarding
@@ -48,6 +50,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Widget & Public APIs
 
 - Embeddable widget with optimistic sending, typing, conversation polling, and install detection.
+- Public growth endpoints now handle newsletter signups, free-tool exports, and response-tone analysis.
 - Public API endpoints for conversation messages, status, typing, site config, and attachments.
 
 ### Dashboard

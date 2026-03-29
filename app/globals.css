@@ -207,6 +207,87 @@ button:disabled {
   background: rgba(37, 99, 235, 0.18);
 }
 
+.blog-prose {
+  color: #334155;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.blog-prose > section + section {
+  margin-top: 3rem;
+}
+
+.blog-prose p,
+.blog-prose ul,
+.blog-prose ol,
+.blog-prose blockquote,
+.blog-prose aside,
+.blog-prose pre,
+.blog-prose section > div,
+.blog-prose section > table,
+.blog-prose section > section {
+  margin-bottom: 1.5rem;
+}
+
+.blog-prose h2 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #0f172a;
+}
+
+.blog-prose h3 {
+  margin: 0 0 0.65rem;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #0f172a;
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.5rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose li + li {
+  margin-top: 0.55rem;
+}
+
+.blog-prose blockquote {
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 2rem 3rem;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-style: italic;
+  text-align: center;
+  color: #475569;
+}
+
+.blog-prose code {
+  border-radius: 4px;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  color: #0f172a;
+}
+
+.blog-prose pre {
+  overflow-x: auto;
+  border-radius: 12px;
+  background: #0f172a;
+  padding: 1.5rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
