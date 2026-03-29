@@ -1,7 +1,9 @@
+import { parseConversationRating } from "@/lib/conversation-feedback";
 import {
   listAnalyticsConversations,
   listAnalyticsReplyEvents
 } from "@/lib/repositories/analytics-repository";
+import type { ConversationRating } from "@/lib/types";
 
 export type AnalyticsConversationRecord = {
   id: string;
@@ -10,7 +12,7 @@ export type AnalyticsConversationRecord = {
   status: "open" | "resolved";
   pageUrl: string | null;
   referrer: string | null;
-  helpful: boolean | null;
+  rating: ConversationRating | null;
   firstResponseSeconds: number | null;
   resolutionSeconds: number | null;
   tags: string[];
@@ -44,7 +46,7 @@ export async function getAnalyticsDataset(userId: string): Promise<AnalyticsData
       status: row.status,
       pageUrl: row.page_url,
       referrer: row.referrer,
-      helpful: row.helpful,
+      rating: parseConversationRating(row.rating),
       firstResponseSeconds: toNullableNumber(row.first_response_seconds),
       resolutionSeconds: toNullableNumber(row.resolution_seconds),
       tags: row.tags ?? []

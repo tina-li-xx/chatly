@@ -13,14 +13,16 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1018.0",
+    "@aws-sdk/client-ses": "^3.1019.0",
+    "mailparser": "^3.9.6",
     "next": "latest",
     "pg": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "resend": "latest",
     "stripe": "^21.0.1"
   },
   "devDependencies": {
+    "@types/mailparser": "^3.4.6",
     "@types/node": "latest",
     "@types/pg": "^8.20.0",
     "@types/react": "latest",

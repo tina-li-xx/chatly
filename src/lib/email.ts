@@ -1,12 +1,14 @@
-import { Resend } from "resend";
+import { renderNewMessageNotificationEmail } from "@/lib/chatly-notification-emails";
+import { buildConversationFeedbackLinks } from "@/lib/conversation-feedback";
+import {
+  renderConversationFeedbackScale,
+  renderConversationFeedbackText
+} from "@/lib/conversation-feedback-email";
+import { type EmailAttachment } from "@/lib/email-mime";
 import { getPublicAppUrl } from "@/lib/env";
+import { getAppDisplayName, getMailFromAddress, getReplyDomain } from "@/lib/env.server";
+import { sendSesEmail } from "@/lib/ses-email";
 import { escapeHtml } from "@/lib/utils";
-
-type EmailAttachment = {
-  fileName: string;
-  contentType: string;
-  content: Buffer;
-};
 
 type SendRichEmailInput = {
   to: string;
@@ -17,30 +19,12 @@ type SendRichEmailInput = {
   attachments?: EmailAttachment[];
 };
 
-function getMailer() {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-
-  if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not configured.");
-  }
-
-  return new Resend(apiKey);
-}
-
-function getFromAddress() {
-  return process.env.MAIL_FROM?.trim() || "Chatting <hello@example.com>";
-}
-
-function getAppName() {
-  return process.env.APP_NAME?.trim() || "Chatting";
-}
-
 function getAppUrl() {
   return getPublicAppUrl();
 }
 
 function getReplyToAddress(conversationId: string) {
-  const domain = process.env.REPLY_DOMAIN?.trim();
+  const domain = getReplyDomain();
 
   if (!domain) {
     return undefined;
@@ -60,11 +44,9 @@ export async function sendFounderReplyEmail({
   content: string;
   attachments?: EmailAttachment[];
 }) {
-  const mailer = getMailer();
-  const appName = getAppName();
+  const appName = getAppDisplayName();
   const appUrl = getAppUrl();
-  const helpfulYesUrl = `${appUrl}/feedback?conversationId=${encodeURIComponent(conversationId)}&helpful=yes`;
-  const helpfulNoUrl = `${appUrl}/feedback?conversationId=${encodeURIComponent(conversationId)}&helpful=no`;
+  const feedbackLinks = buildConversationFeedbackLinks(appUrl, conversationId);
   const escapedBody = escapeHtml(content).replace(/\n/g, "<br />");
   const replyToAddress = getReplyToAddress(conversationId);
 
@@ -76,9 +58,8 @@ export async function sendFounderReplyEmail({
 
 Reply to this email to continue the conversation.
 
-Was this helpful?
-Yes: ${helpfulYesUrl}
-No: ${helpfulNoUrl}`,
+Rate this reply:
+${renderConversationFeedbackText(feedbackLinks)}`,
     bodyHtml: `
       <div style="font-family: Avenir Next, Segoe UI, sans-serif; line-height: 1.6; color: #0d1b1e;">
         <p>${escapedBody}</p>
@@ -90,11 +71,8 @@ No: ${helpfulNoUrl}`,
             : ""
         }
         <p style="margin-top: 24px;">Reply to this email to continue the conversation.</p>
-        <p style="margin-top: 24px; font-weight: 600;">Was this helpful?</p>
-        <p>
-          <a href="${helpfulYesUrl}" style="display: inline-block; margin-right: 12px; color: #0f766e;">Yes</a>
-          <a href="${helpfulNoUrl}" style="display: inline-block; color: #ef7a5d;">No</a>
-        </p>
+        <p style="margin-top: 24px; font-weight: 600;">Rate this reply</p>
+        <div style="margin-top: 16px;">${renderConversationFeedbackScale(feedbackLinks)}</div>
       </div>
     `,
     attachments
@@ -118,37 +96,29 @@ export async function sendTeamNewMessageEmail({
   pageUrl: string | null;
   attachmentsCount: number;
 }) {
-  const mailer = getMailer();
-  const appName = getAppName();
   const appUrl = getAppUrl();
   const dashboardUrl = `${appUrl}/dashboard?id=${encodeURIComponent(conversationId)}`;
-  const escapedBody = escapeHtml(content).replace(/\n/g, "<br />");
+  const replyToAddress = getReplyToAddress(conversationId);
+  const rendered = renderNewMessageNotificationEmail({
+    visitorName: visitorEmail || "Visitor",
+    visitorEmail,
+    currentPage: pageUrl,
+    messagePreview: content,
+    replyNowUrl: replyToAddress ? `mailto:${replyToAddress}` : dashboardUrl,
+    inboxUrl: dashboardUrl
+  });
 
   await sendRichEmail({
     to,
-    subject: `New message in ${siteName}`,
-    bodyText: `A visitor sent a new message in ${siteName}.
-
-${content}
-
-Visitor email: ${visitorEmail || "Unknown"}
-Page: ${pageUrl || "Unknown"}
-Attachments: ${attachmentsCount}
-
-Open the conversation:
-${dashboardUrl}`,
-    bodyHtml: `
-      <div style="font-family: Avenir Next, Segoe UI, sans-serif; line-height: 1.6; color: #0d1b1e;">
-        <p style="font-weight: 600; margin-bottom: 8px;">New visitor message in ${escapeHtml(siteName)}</p>
-        <p>${escapedBody}</p>
-        <p style="margin-top: 20px;">Visitor email: ${escapeHtml(visitorEmail || "Unknown")}</p>
-        <p>Page: ${escapeHtml(pageUrl || "Unknown")}</p>
-        <p>Attachments: ${attachmentsCount}</p>
-        <p style="margin-top: 24px;">
-          <a href="${dashboardUrl}" style="color: #0f766e;">Open in ${escapeHtml(appName)}</a>
-        </p>
-      </div>
-    `
+    replyTo: replyToAddress,
+    subject: rendered.subject,
+    bodyText: `${rendered.bodyText}\n\nWorkspace: ${siteName}\nAttachments: ${attachmentsCount}`,
+    bodyHtml: rendered.bodyHtml.replace(
+      "</table></td></tr></table>",
+      `<tr><td style="padding:0 32px 32px;font:400 13px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">Workspace: ${escapeHtml(
+        siteName
+      )}<br />Attachments: ${attachmentsCount}</td></tr></table></td></tr></table>`
+    )
   });
 }
 
@@ -160,20 +130,14 @@ export async function sendRichEmail({
   bodyHtml,
   attachments = []
 }: SendRichEmailInput) {
-  const mailer = getMailer();
-
-  await mailer.emails.send({
-    from: getFromAddress(),
-    to: [to],
+  await sendSesEmail({
+    from: getMailFromAddress(),
+    to,
     replyTo: replyTo || undefined,
     subject,
-    text: bodyText,
-    attachments: attachments.map((attachment) => ({
-      filename: attachment.fileName,
-      content: attachment.content,
-      content_type: attachment.contentType
-    })),
-    html: `
+    bodyText,
+    attachments,
+    bodyHtml: `
       <div style="font-family:Avenir Next,Segoe UI,sans-serif;line-height:1.6;color:#334155;">
         ${bodyHtml}
       </div>
