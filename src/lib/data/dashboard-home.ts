@@ -5,9 +5,11 @@ import {
   getPreviousWeekConversationCount,
   listDashboardHomeChartPoints
 } from "@/lib/repositories/dashboard-home-repository";
+import { findAuthUserById } from "@/lib/repositories/auth-repository";
 import { isSiteWidgetInstalled } from "@/lib/site-installation";
 import type { ConversationSummary } from "@/lib/types";
 import { listConversationSummaries } from "./conversations";
+import { getDashboardGrowthData, type DashboardHomeGrowthData } from "./dashboard-growth";
 import { listSitesForUser } from "./sites";
 
 export type DashboardHomeData = {
@@ -31,6 +33,7 @@ export type DashboardHomeData = {
       count: number;
     }>;
   };
+  growth: DashboardHomeGrowthData;
 };
 
 function toNumber(value: string | null | undefined) {
@@ -50,8 +53,9 @@ function percentChange(current: number | null, previous: number | null) {
 }
 
 export async function getDashboardHomeData(userId: string): Promise<DashboardHomeData> {
-  const [summaries, sites, overview, response, satisfaction, chartRows, previousWeekCount] =
+  const [user, summaries, sites, overview, response, satisfaction, chartRows, previousWeekCount] =
     await Promise.all([
+      findAuthUserById(userId),
       listConversationSummaries(userId),
       listSitesForUser(userId),
       getDashboardHomeOverview(userId),
@@ -60,6 +64,10 @@ export async function getDashboardHomeData(userId: string): Promise<DashboardHom
       listDashboardHomeChartPoints(userId),
       getPreviousWeekConversationCount(userId)
     ]);
+
+  if (!user) {
+    throw new Error("USER_NOT_FOUND");
+  }
 
   const currentWeekPoints = chartRows.map((row) => ({
     label: row.day_label.trim(),
@@ -77,9 +85,16 @@ export async function getDashboardHomeData(userId: string): Promise<DashboardHom
 
   const currentSatisfaction = roundToWhole(toNumber(satisfaction?.current_rate));
   const previousSatisfaction = roundToWhole(toNumber(satisfaction?.previous_rate));
+  const hasWidgetInstalled = sites.some((site) => isSiteWidgetInstalled(site));
+  const growth = await getDashboardGrowthData(
+    userId,
+    user.created_at,
+    hasWidgetInstalled,
+    currentAvgResponse
+  );
 
   return {
-    hasWidgetInstalled: sites.some((site) => isSiteWidgetInstalled(site)),
+    hasWidgetInstalled,
     widgetSiteIds: sites.map((site) => site.id),
     unreadCount: summaries.reduce((count, conversation) => count + conversation.unreadCount, 0),
     openConversations: Number(overview?.open_conversations ?? 0),
@@ -96,6 +111,7 @@ export async function getDashboardHomeData(userId: string): Promise<DashboardHom
       total: currentWeekTotal,
       changePercent: percentChange(currentWeekTotal, previousWeekTotal),
       points: currentWeekPoints
-    }
+    },
+    growth
   };
 }
