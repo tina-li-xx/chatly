@@ -1,4 +1,8 @@
-import { createDashboardBillingCheckoutSession, createDashboardBillingPortalSession } from "@/lib/data";
+import {
+  createDashboardBillingCheckoutSession,
+  createDashboardBillingPortalSession,
+  getDashboardBillingSummary
+} from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 
 export async function POST(request: Request) {
@@ -7,12 +11,22 @@ export async function POST(request: Request) {
     return auth.response;
   }
 
+  if (auth.user.workspaceRole === "member") {
+    return jsonError("forbidden", 403);
+  }
+
   try {
     const payload = (await request.json()) as Record<string, unknown>;
-    const plan = payload.plan === "pro" ? "pro" : "starter";
+    const plan = payload.plan === "growth" || payload.plan === "pro" ? payload.plan : "starter";
+    const interval = payload.interval === "annual" ? "annual" : "monthly";
+    const billing = await getDashboardBillingSummary(auth.user.id);
     const redirectUrl =
-      plan === "pro"
-        ? await createDashboardBillingCheckoutSession(auth.user.id, auth.user.email)
+      plan !== "starter" && billing.planKey === "starter"
+        ? await createDashboardBillingCheckoutSession(auth.user.id, auth.user.email, {
+            planKey: plan,
+            billingInterval: interval,
+            seatQuantity: Math.max(1, billing.usedSeats)
+          })
         : await createDashboardBillingPortalSession(auth.user.id, auth.user.email);
 
     return jsonOk({ redirectUrl });

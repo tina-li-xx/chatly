@@ -174,10 +174,16 @@ export function billingErrorMessage(code: string) {
       return "Stripe is not configured yet.";
     case "stripe_checkout_unavailable":
       return "We couldn't open Stripe Checkout right now.";
+    case "proactive_chat_requires_growth":
+      return "Proactive chat is available on Growth and Pro plans.";
+    case "trial_extension_unavailable":
+      return "This workspace is not eligible for another trial extension right now.";
     case "billing-portal-session-failed":
       return "We couldn't open the Stripe billing portal right now.";
     case "billing-sync-failed":
       return "We couldn't refresh billing from Stripe right now.";
+    case "billing-trial-extension-failed":
+      return "We couldn't extend the trial right now.";
     default:
       return "We couldn't update billing just now.";
   }

@@ -42,8 +42,18 @@ export {
   updateSiteWidgetSettings,
   updateSiteWidgetTitle
 } from "./data/sites";
+export { listVisitorPresenceSessions, recordVisitorPresence } from "./data/visitors";
+export {
+  getConversationVisitorNote,
+  getSiteVisitorNote,
+  migrateVisitorNoteIdentity,
+  updateConversationVisitorNote,
+  updateSiteVisitorNote
+} from "./data/visitor-notes";
 export { getDashboardStats } from "./data/stats";
 export { recordUserPresence } from "./data/presence";
+export { subscribeToNewsletter } from "./data/newsletter";
+export { requestFreeToolExport } from "./data/free-tool-export";
 export {
   getDashboardEmailTemplateSettings,
   createTeamInvite,
@@ -59,10 +69,13 @@ export {
   createDashboardBillingCheckoutSession,
   createDashboardBillingPortalSession,
   getDashboardBillingSummary,
+  requestDashboardTrialExtension,
   syncDashboardBillingSummary
 } from "./data/billing";
 export type {
+  BillingInterval,
   BillingPlanKey,
+  BillingPlanFeatures,
   DashboardBillingInvoice,
   DashboardBillingPaymentMethod,
   DashboardBillingSummary

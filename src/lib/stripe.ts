@@ -1,24 +1,15 @@
 import Stripe from "stripe";
+import {
+  type BillingInterval,
+  type BillingPlanKey,
+  isPaidPlan
+} from "@/lib/billing-plans";
 import { getPublicAppUrl } from "@/lib/env";
-import { getOptionalServerEnv, getRequiredServerEnv } from "@/lib/env.server";
+import { getRequiredServerEnv } from "@/lib/env.server";
 
 let stripeClient: Stripe | null = null;
 
-function hasRequiredStripeValue(name: string) {
-  return Boolean(getOptionalServerEnv(name));
-}
-
-export function isStripeConfigured() {
-  return Boolean(
-    hasRequiredStripeValue("STRIPE_SECRET_KEY") &&
-      hasRequiredStripeValue("STRIPE_PRICE_PRO_MONTHLY") &&
-      hasRequiredStripeValue("NEXT_PUBLIC_APP_URL")
-  );
-}
-
-export function isStripeBillingReady() {
-  return Boolean(isStripeConfigured() && hasRequiredStripeValue("STRIPE_WEBHOOK_SECRET"));
-}
+export { isStripeBillingReady, isStripeConfigured } from "@/lib/env.server";
 
 export function getStripe() {
   if (stripeClient) {
@@ -35,8 +26,21 @@ export function getStripeWebhookSecret() {
   return getRequiredServerEnv("STRIPE_WEBHOOK_SECRET", { errorCode: "STRIPE_NOT_CONFIGURED" });
 }
 
-export function getStripeProPriceId() {
-  return getRequiredServerEnv("STRIPE_PRICE_PRO_MONTHLY", { errorCode: "STRIPE_NOT_CONFIGURED" });
+export function getStripePriceId(planKey: BillingPlanKey, interval: BillingInterval) {
+  if (!isPaidPlan(planKey)) {
+    throw new Error("STRIPE_CHECKOUT_UNAVAILABLE");
+  }
+
+  const envName =
+    planKey === "growth"
+      ? interval === "annual"
+        ? "STRIPE_PRICE_GROWTH_ANNUAL"
+        : "STRIPE_PRICE_GROWTH_MONTHLY"
+      : interval === "annual"
+        ? "STRIPE_PRICE_PRO_ANNUAL"
+        : "STRIPE_PRICE_PRO_MONTHLY";
+
+  return getRequiredServerEnv(envName, { errorCode: "STRIPE_NOT_CONFIGURED" });
 }
 
 export function getStripeAppUrl() {

@@ -1,14 +1,20 @@
 import { query } from "@/lib/db";
+import type { BillingInterval, BillingPlanKey } from "@/lib/billing-plans";
 
 export type BillingAccountRow = {
   user_id: string;
-  plan_key: "starter" | "pro";
+  plan_key: BillingPlanKey;
+  billing_interval: BillingInterval;
+  seat_quantity: number;
   next_billing_date: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   stripe_price_id: string | null;
   stripe_status: string | null;
   stripe_current_period_end: string | null;
+  trial_started_at: string | null;
+  trial_ends_at: string | null;
+  trial_extension_used_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -29,7 +35,9 @@ export type BillingInvoiceRow = {
   id: string;
   user_id: string;
   stripe_invoice_id: string | null;
-  plan_key: "starter" | "pro";
+  plan_key: BillingPlanKey;
+  billing_interval: BillingInterval | null;
+  seat_quantity: number | null;
   description: string;
   amount_cents: number;
   currency: string;
@@ -52,7 +60,10 @@ export async function findBillingUsageRow(userId: string) {
   const result = await query<BillingUsageRow>(
     `
       SELECT
-        COUNT(c.id)::text AS conversation_count,
+        COUNT(c.id) FILTER (
+          WHERE c.created_at >= DATE_TRUNC('month', NOW())
+            AND c.created_at < DATE_TRUNC('month', NOW()) + INTERVAL '1 month'
+        )::text AS conversation_count,
         COUNT(DISTINCT s.id)::text AS site_count
       FROM sites s
       LEFT JOIN conversations c
@@ -71,12 +82,17 @@ export async function findBillingAccountRow(userId: string) {
       SELECT
         user_id,
         plan_key,
+        billing_interval,
+        seat_quantity,
         next_billing_date,
         stripe_customer_id,
         stripe_subscription_id,
         stripe_price_id,
         stripe_status,
         stripe_current_period_end,
+        trial_started_at,
+        trial_ends_at,
+        trial_extension_used_at,
         created_at,
         updated_at
       FROM billing_accounts
@@ -91,47 +107,67 @@ export async function findBillingAccountRow(userId: string) {
 
 export async function upsertBillingAccountRow(input: {
   userId: string;
-  planKey: "starter" | "pro";
+  planKey: BillingPlanKey;
+  billingInterval: BillingInterval;
+  seatQuantity: number;
   nextBillingDate: string | null;
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
   stripePriceId?: string | null;
   stripeStatus?: string | null;
   stripeCurrentPeriodEnd?: string | null;
+  trialStartedAt?: string | null;
+  trialEndsAt?: string | null;
+  trialExtensionUsedAt?: string | null;
 }) {
   await query(
     `
       INSERT INTO billing_accounts (
         user_id,
         plan_key,
+        billing_interval,
+        seat_quantity,
         next_billing_date,
         stripe_customer_id,
         stripe_subscription_id,
         stripe_price_id,
         stripe_status,
         stripe_current_period_end,
+        trial_started_at,
+        trial_ends_at,
+        trial_extension_used_at,
         updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
       ON CONFLICT (user_id) DO UPDATE SET
         plan_key = EXCLUDED.plan_key,
+        billing_interval = EXCLUDED.billing_interval,
+        seat_quantity = EXCLUDED.seat_quantity,
         next_billing_date = EXCLUDED.next_billing_date,
         stripe_customer_id = COALESCE(EXCLUDED.stripe_customer_id, billing_accounts.stripe_customer_id),
         stripe_subscription_id = EXCLUDED.stripe_subscription_id,
         stripe_price_id = EXCLUDED.stripe_price_id,
         stripe_status = EXCLUDED.stripe_status,
         stripe_current_period_end = EXCLUDED.stripe_current_period_end,
+        trial_started_at = EXCLUDED.trial_started_at,
+        trial_ends_at = EXCLUDED.trial_ends_at,
+        trial_extension_used_at = EXCLUDED.trial_extension_used_at,
         updated_at = NOW()
     `,
     [
       input.userId,
       input.planKey,
+      input.billingInterval,
+      input.seatQuantity,
       input.nextBillingDate,
       input.stripeCustomerId ?? null,
       input.stripeSubscriptionId ?? null,
       input.stripePriceId ?? null,
       input.stripeStatus ?? null,
-      input.stripeCurrentPeriodEnd ?? null
+      input.stripeCurrentPeriodEnd ?? null,
+      input.trialStartedAt ?? null,
+      input.trialEndsAt ?? null,
+      input.trialExtensionUsedAt ?? null
     ]
   );
 }
@@ -142,12 +178,17 @@ export async function findBillingAccountRowByStripeCustomerId(stripeCustomerId: 
       SELECT
         user_id,
         plan_key,
+        billing_interval,
+        seat_quantity,
         next_billing_date,
         stripe_customer_id,
         stripe_subscription_id,
         stripe_price_id,
         stripe_status,
         stripe_current_period_end,
+        trial_started_at,
+        trial_ends_at,
+        trial_extension_used_at,
         created_at,
         updated_at
       FROM billing_accounts
@@ -166,12 +207,17 @@ export async function findBillingAccountRowByStripeSubscriptionId(stripeSubscrip
       SELECT
         user_id,
         plan_key,
+        billing_interval,
+        seat_quantity,
         next_billing_date,
         stripe_customer_id,
         stripe_subscription_id,
         stripe_price_id,
         stripe_status,
         stripe_current_period_end,
+        trial_started_at,
+        trial_ends_at,
+        trial_extension_used_at,
         created_at,
         updated_at
       FROM billing_accounts
@@ -268,6 +314,8 @@ export async function listBillingInvoiceRows(userId: string, limit = 12) {
         user_id,
         stripe_invoice_id,
         plan_key,
+        billing_interval,
+        seat_quantity,
         description,
         amount_cents,
         currency,
@@ -294,7 +342,9 @@ export async function insertBillingInvoiceRow(input: {
   id: string;
   userId: string;
   stripeInvoiceId?: string | null;
-  planKey: "starter" | "pro";
+  planKey: BillingPlanKey;
+  billingInterval?: BillingInterval | null;
+  seatQuantity?: number | null;
   description: string;
   amountCents: number;
   currency: string;
@@ -313,6 +363,8 @@ export async function insertBillingInvoiceRow(input: {
         user_id,
         stripe_invoice_id,
         plan_key,
+        billing_interval,
+        seat_quantity,
         description,
         amount_cents,
         currency,
@@ -325,10 +377,12 @@ export async function insertBillingInvoiceRow(input: {
         period_end,
         created_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
       ON CONFLICT (id) DO UPDATE SET
         stripe_invoice_id = EXCLUDED.stripe_invoice_id,
         plan_key = EXCLUDED.plan_key,
+        billing_interval = EXCLUDED.billing_interval,
+        seat_quantity = EXCLUDED.seat_quantity,
         description = EXCLUDED.description,
         amount_cents = EXCLUDED.amount_cents,
         currency = EXCLUDED.currency,
@@ -345,6 +399,8 @@ export async function insertBillingInvoiceRow(input: {
       input.userId,
       input.stripeInvoiceId ?? null,
       input.planKey,
+      input.billingInterval ?? null,
+      input.seatQuantity ?? null,
       input.description,
       input.amountCents,
       input.currency,

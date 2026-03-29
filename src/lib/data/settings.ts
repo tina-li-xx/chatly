@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { changeUserPassword } from "@/lib/auth";
+import { seatCountFromActiveMemberships } from "@/lib/billing-seats";
+import { sendTeamInvitationEmail } from "@/lib/chatly-transactional-email-senders";
 import { getDashboardBillingSummary, type DashboardBillingSummary } from "@/lib/data/billing";
 import {
   parseDashboardEmailTemplates,
@@ -21,9 +23,13 @@ import {
   updateSettingsUserEmail,
   upsertUserSettingsRecord
 } from "@/lib/repositories/settings-repository";
+import { countActiveTeamMembershipRows, listActiveTeamMemberRows } from "@/lib/repositories/workspace-repository";
+import { getPublicAppUrl } from "@/lib/env";
 import { maybeSendTeamExpansionEmail } from "@/lib/growth-outreach";
 import { displayNameFromEmail, firstNameFromDisplayName, initialsFromLabel } from "@/lib/user-display";
 import { optionalText } from "@/lib/utils";
+import { getWorkspaceAccess } from "@/lib/workspace-access";
+import { listSitesForUser } from "./sites";
 
 export type DashboardSettingsProfile = {
   firstName: string;
@@ -62,7 +68,7 @@ export type DashboardTeamMember = {
   name: string;
   email: string;
   initials: string;
-  role: "owner";
+  role: "owner" | "admin" | "member";
   status: "online" | "offline";
   lastActiveLabel: string;
   isCurrentUser: boolean;
@@ -215,21 +221,54 @@ export async function getDashboardEmailTemplateSettings(
 }
 
 export async function getDashboardSettingsData(userId: string): Promise<DashboardSettingsData> {
-  const [row, inviteRows] = await Promise.all([
+  const workspace = await getWorkspaceAccess(userId);
+  const [row, ownerRow, inviteRows, activeTeamRows] = await Promise.all([
     findDashboardSettingsRow(userId),
-    listPendingTeamInviteRows(userId)
+    workspace.ownerUserId === userId ? Promise.resolve(null) : findDashboardSettingsRow(workspace.ownerUserId),
+    listPendingTeamInviteRows(workspace.ownerUserId),
+    listActiveTeamMemberRows(workspace.ownerUserId)
   ]);
 
   if (!row) {
     throw new Error("User not found.");
   }
 
+  const workspaceOwnerRow = workspace.ownerUserId === userId ? row : ownerRow;
+  if (!workspaceOwnerRow) {
+    throw new Error("Workspace owner not found.");
+  }
+
   const name = splitName(row.email, row.first_name, row.last_name);
-  const ownerName = [name.firstName, name.lastName].filter(Boolean).join(" ").trim() || displayNameFromEmail(row.email);
-  const activeOnline = isOnline(row.last_seen_at);
+  const ownerNameParts = splitName(
+    workspaceOwnerRow.email,
+    workspaceOwnerRow.first_name,
+    workspaceOwnerRow.last_name
+  );
+  const ownerName =
+    [ownerNameParts.firstName, ownerNameParts.lastName].filter(Boolean).join(" ").trim() ||
+    displayNameFromEmail(workspaceOwnerRow.email);
+  const activeOnline = isOnline(workspaceOwnerRow.last_seen_at);
   const pendingInvites = inviteRows.filter((invite) => invite.status === "pending");
-  const usedSeats = 1 + pendingInvites.length;
-  const billing = await getDashboardBillingSummary(userId, usedSeats);
+  const activeMembers = activeTeamRows.map((member) => {
+    const memberNameParts = splitName(member.email, member.first_name, member.last_name);
+    const memberName =
+      [memberNameParts.firstName, memberNameParts.lastName].filter(Boolean).join(" ").trim() ||
+      displayNameFromEmail(member.email);
+
+    return {
+      id: member.user_id,
+      name: memberName,
+      email: member.email,
+      initials: initialsFromLabel(memberName),
+      role: member.role,
+      status: isOnline(member.last_seen_at) ? "online" : "offline",
+      lastActiveLabel: formatLastActiveLabel(member.last_seen_at),
+      isCurrentUser: member.user_id === userId,
+      avatarDataUrl: optionalText(member.avatar_data_url)
+    } satisfies DashboardTeamMember;
+  });
+  const usedSeats = seatCountFromActiveMemberships(activeMembers.length);
+  const billing = await getDashboardBillingSummary(workspace.ownerUserId, usedSeats);
 
   return {
     profile: {
@@ -248,16 +287,17 @@ export async function getDashboardSettingsData(userId: string): Promise<Dashboar
     },
     teamMembers: [
       {
-        id: row.user_id,
+        id: workspaceOwnerRow.user_id,
         name: ownerName,
-        email: row.email,
+        email: workspaceOwnerRow.email,
         initials: initialsFromLabel(ownerName),
         role: "owner",
         status: activeOnline ? "online" : "offline",
-        lastActiveLabel: formatLastActiveLabel(row.last_seen_at),
-        isCurrentUser: true,
-        avatarDataUrl: optionalText(row.avatar_data_url)
-      }
+        lastActiveLabel: formatLastActiveLabel(workspaceOwnerRow.last_seen_at),
+        isCurrentUser: workspaceOwnerRow.user_id === userId,
+        avatarDataUrl: optionalText(workspaceOwnerRow.avatar_data_url)
+      },
+      ...activeMembers
     ],
     teamInvites: pendingInvites.map((invite) => ({
       id: invite.id,
@@ -278,6 +318,39 @@ async function ensureEmailAvailable(email: string, userId: string) {
   if (existingUserId) {
     throw new Error("EMAIL_TAKEN");
   }
+}
+
+function buildInviteUrl(inviteId: string, email: string) {
+  const url = new URL("/invite", getPublicAppUrl());
+  url.searchParams.set("invite", inviteId);
+  url.searchParams.set("email", email);
+  return url.toString();
+}
+
+async function sendPendingInviteEmail(ownerUserId: string, invite: DashboardTeamInvite) {
+  const [profileRow, sites, activeMembershipCount] = await Promise.all([
+    findEmailTemplateSettingsRow(ownerUserId),
+    listSitesForUser(ownerUserId),
+    countActiveTeamMembershipRows(ownerUserId)
+  ]);
+
+  if (!profileRow) {
+    return;
+  }
+
+  const inviterName =
+    [profileRow.first_name, profileRow.last_name].filter(Boolean).join(" ").trim() ||
+    displayNameFromEmail(profileRow.email);
+  const primarySite = sites[0];
+
+  await sendTeamInvitationEmail({
+    to: invite.email,
+    inviterName,
+    teamName: primarySite?.name || `${displayNameFromEmail(profileRow.email)} Team`,
+    teamWebsite: primarySite?.domain ?? null,
+    memberCount: 1 + activeMembershipCount,
+    inviteUrl: buildInviteUrl(invite.id, invite.email)
+  });
 }
 
 export async function updateDashboardSettings(userId: string, input: UpdateDashboardSettingsInput) {
@@ -338,8 +411,18 @@ export async function createTeamInvite(input: {
     message: input.message?.trim() || ""
   });
   await maybeSendTeamExpansionEmail(input.ownerUserId);
+  const invites = await listTeamInvites(input.ownerUserId);
+  const newestInvite = invites.find((invite) => invite.email === email) ?? invites[0];
 
-  return listTeamInvites(input.ownerUserId);
+  if (newestInvite) {
+    try {
+      await sendPendingInviteEmail(input.ownerUserId, newestInvite);
+    } catch (error) {
+      console.error("team invite email failed", error);
+    }
+  }
+
+  return invites;
 }
 
 export async function listTeamInvites(ownerUserId: string) {
@@ -358,8 +441,18 @@ export async function listTeamInvites(ownerUserId: string) {
 
 export async function resendTeamInvite(ownerUserId: string, inviteId: string) {
   await touchPendingTeamInvite(ownerUserId, inviteId);
+  const invites = await listTeamInvites(ownerUserId);
+  const invite = invites.find((entry) => entry.id === inviteId);
 
-  return listTeamInvites(ownerUserId);
+  if (invite) {
+    try {
+      await sendPendingInviteEmail(ownerUserId, invite);
+    } catch (error) {
+      console.error("team invite resend email failed", error);
+    }
+  }
+
+  return invites;
 }
 
 export async function updateTeamInviteRole(ownerUserId: string, inviteId: string, role: "admin" | "member") {

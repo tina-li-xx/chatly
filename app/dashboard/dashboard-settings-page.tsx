@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import type {
+  BillingInterval,
   BillingPlanKey,
   DashboardBillingSummary,
   DashboardSettingsData,
@@ -56,9 +57,13 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
   const [isSaving, setIsSaving] = useState(false);
   const [notice, setNotice] = useState<DashboardNoticeState>(null);
   const [billing, setBilling] = useState<DashboardBillingSummary>(initialData.billing);
-  const [billingPlanPending, setBillingPlanPending] = useState<BillingPlanKey | null>(null);
+  const [billingPlanPending, setBillingPlanPending] = useState<string | null>(null);
+  const [selectedBillingInterval, setSelectedBillingInterval] = useState<BillingInterval>(
+    initialData.billing.billingInterval ?? "monthly"
+  );
   const [billingPortalPending, setBillingPortalPending] = useState(false);
   const [billingSyncPending, setBillingSyncPending] = useState(false);
+  const [trialExtensionPending, setTrialExtensionPending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const billingSyncedRef = useRef(false);
 
@@ -270,6 +275,9 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
       }
 
       setBilling(payload.billing);
+      if (payload.billing.billingInterval) {
+        setSelectedBillingInterval(payload.billing.billingInterval);
+      }
     } catch (error) {
       setNotice({
         tone: "error",
@@ -280,12 +288,17 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
     }
   }
 
-  async function handleBillingPlanChange(planKey: BillingPlanKey) {
-    if (billingPlanPending || billing.planKey === planKey) {
+  async function handleBillingPlanChange(planKey: BillingPlanKey, billingInterval: BillingInterval) {
+    const pendingKey = `${planKey}:${billingInterval}`;
+
+    if (
+      billingPlanPending ||
+      (billing.planKey === planKey && (billing.planKey === "starter" || billing.billingInterval === billingInterval))
+    ) {
       return;
     }
 
-    setBillingPlanPending(planKey);
+    setBillingPlanPending(pendingKey);
 
     try {
       const response = await fetch("/dashboard/settings/billing/plan", {
@@ -293,7 +306,7 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
         headers: {
           "content-type": "application/json"
         },
-        body: JSON.stringify({ plan: planKey })
+        body: JSON.stringify({ plan: planKey, interval: billingInterval })
       });
 
       const payload = (await response.json()) as
@@ -346,6 +359,48 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
     }
   }
 
+  async function handleTrialExtensionRequest() {
+    if (trialExtensionPending) {
+      return;
+    }
+
+    setTrialExtensionPending(true);
+
+    try {
+      const response = await fetch("/dashboard/settings/billing/trial-extension", {
+        method: "POST"
+      });
+
+      const payload = (await response.json()) as
+        | { ok: true; billing: DashboardBillingSummary; outreachQueued: boolean }
+        | { ok: false; error: string };
+
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.ok ? "billing-trial-extension-failed" : payload.error);
+      }
+
+      setBilling(payload.billing);
+      if (payload.billing.billingInterval) {
+        setSelectedBillingInterval(payload.billing.billingInterval);
+      }
+      setNotice({
+        tone: "success",
+        message: payload.outreachQueued
+          ? "Trial extended by 7 days and personal outreach has been queued."
+          : "Trial extended by 7 days. Personal outreach email could not be queued."
+      });
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        message: billingErrorMessage(
+          error instanceof Error ? error.message : "billing-trial-extension-failed"
+        )
+      });
+    } finally {
+      setTrialExtensionPending(false);
+    }
+  }
+
   useEffect(() => {
     if (activeSection !== "billing" || billingSyncedRef.current) {
       return;
@@ -354,6 +409,12 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
     billingSyncedRef.current = true;
     void syncBillingFromStripe();
   }, [activeSection]);
+
+  useEffect(() => {
+    if (billing.billingInterval) {
+      setSelectedBillingInterval(billing.billingInterval);
+    }
+  }, [billing.billingInterval, billing.planKey]);
 
   function handleAvatarPick(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -393,7 +454,7 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
       case "billing":
         return {
           title: "Plans & Billing",
-          subtitle: "Manage your subscription and payment methods"
+          subtitle: "Manage your subscription, usage, and billing history"
         };
     }
   })();
@@ -440,6 +501,8 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
             email={draftSettings.email}
             profileEmail={draftSettings.profile.email}
             profileName={currentProfileName}
+            profileAvatarDataUrl={draftSettings.profile.avatarDataUrl}
+            showTranscriptBrandingPreview={billing.planKey !== "pro"}
             onUpdateEmail={updateEmail}
             onNotice={setNotice}
           />
@@ -450,10 +513,14 @@ export function DashboardSettingsPage({ initialData }: { initialData: DashboardS
             subtitle={pageTitle.subtitle}
             billing={billing}
             billingPlanPending={billingPlanPending}
+            selectedInterval={selectedBillingInterval}
             billingPortalPending={billingPortalPending}
             billingSyncPending={billingSyncPending}
+            trialExtensionPending={trialExtensionPending}
             onOpenBillingPortal={openBillingPortal}
             onChangePlan={handleBillingPlanChange}
+            onRequestTrialExtension={() => void handleTrialExtensionRequest()}
+            onSetSelectedInterval={setSelectedBillingInterval}
             onSyncBilling={() => void syncBillingFromStripe()}
           />
         ) : null}

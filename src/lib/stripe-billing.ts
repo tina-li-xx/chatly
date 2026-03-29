@@ -1,5 +1,11 @@
 import type Stripe from "stripe";
 import {
+  BILLING_TRIAL_DAYS,
+  type BillingInterval,
+  type BillingPlanKey,
+  isPaidPlan
+} from "@/lib/billing-plans";
+import {
   clearBillingPaymentMethodRow,
   findBillingAccountRow,
   findBillingAccountRowByStripeCustomerId,
@@ -12,7 +18,7 @@ import { syncReferralRewardsForUser } from "@/lib/referrals";
 import {
   getStripe,
   getStripeAppUrl,
-  getStripeProPriceId,
+  getStripePriceId,
   isStripeBillingReady,
   isStripeConfigured
 } from "@/lib/stripe";
@@ -21,11 +27,7 @@ function toIsoFromUnix(value: number | null | undefined) {
   return typeof value === "number" ? new Date(value * 1000).toISOString() : null;
 }
 
-function mapStripeStatusToPlan(priceId: string | null | undefined) {
-  return priceId === getStripeProPriceId() ? ("pro" as const) : ("starter" as const);
-}
-
-function getStripePriceId(value: string | Stripe.Price | null | undefined) {
+function getStripePriceIdValue(value: string | Stripe.Price | null | undefined) {
   if (!value) {
     return null;
   }
@@ -33,7 +35,27 @@ function getStripePriceId(value: string | Stripe.Price | null | undefined) {
   return typeof value === "string" ? value : value.id;
 }
 
-function getActiveSubscription(subscriptions: Stripe.Subscription[]) {
+function resolvePlanFromPriceId(priceId: string | null | undefined) {
+  const paidPlans: Array<{ planKey: BillingPlanKey; billingInterval: BillingInterval }> = [
+    { planKey: "growth", billingInterval: "monthly" },
+    { planKey: "growth", billingInterval: "annual" },
+    { planKey: "pro", billingInterval: "monthly" },
+    { planKey: "pro", billingInterval: "annual" }
+  ];
+
+  for (const plan of paidPlans) {
+    if (priceId === getStripePriceId(plan.planKey, plan.billingInterval)) {
+      return plan;
+    }
+  }
+
+  return {
+    planKey: "starter" as const,
+    billingInterval: "monthly" as const
+  };
+}
+
+function getActiveSubscription(subscriptions: Stripe.Subscription[]): Stripe.Subscription | null {
   const priority = ["active", "trialing", "past_due", "unpaid", "incomplete", "canceled", "incomplete_expired"];
 
   return [...subscriptions].sort((left, right) => {
@@ -61,6 +83,25 @@ function getDefaultPaymentMethod(customer: Stripe.Customer) {
   return candidate;
 }
 
+function metadataValue(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized || null;
+}
+
+function subscriptionTimestamp(
+  subscription: Stripe.Subscription | null | undefined,
+  key: "current_period_end" | "trial_start" | "trial_end"
+) {
+  const value = (
+    subscription as
+      | (Stripe.Subscription &
+          Partial<Record<"current_period_end" | "trial_start" | "trial_end", number>>)
+      | null
+      | undefined
+  )?.[key];
+  return typeof value === "number" ? value : null;
+}
+
 async function ensureStripeCustomer(userId: string, email: string) {
   const account = await findBillingAccountRow(userId);
   const stripe = getStripe();
@@ -82,12 +123,17 @@ async function ensureStripeCustomer(userId: string, email: string) {
   await upsertBillingAccountRow({
     userId,
     planKey: account?.plan_key ?? "starter",
+    billingInterval: account?.billing_interval ?? "monthly",
+    seatQuantity: account?.seat_quantity ?? 1,
     nextBillingDate: account?.next_billing_date ?? null,
     stripeCustomerId: customer.id,
     stripeSubscriptionId: account?.stripe_subscription_id ?? null,
     stripePriceId: account?.stripe_price_id ?? null,
     stripeStatus: account?.stripe_status ?? null,
-    stripeCurrentPeriodEnd: account?.stripe_current_period_end ?? null
+    stripeCurrentPeriodEnd: account?.stripe_current_period_end ?? null,
+    trialStartedAt: account?.trial_started_at ?? null,
+    trialEndsAt: account?.trial_ends_at ?? null,
+    trialExtensionUsedAt: account?.trial_extension_used_at ?? null
   });
 
   return {
@@ -96,22 +142,68 @@ async function ensureStripeCustomer(userId: string, email: string) {
   };
 }
 
-export async function createStripeCheckoutSession(userId: string, email: string) {
+async function syncSubscriptionSeatQuantityIfNeeded(
+  stripe: Stripe,
+  subscription: Stripe.Subscription | null,
+  desiredSeatCount?: number
+) {
+  if (!subscription || !desiredSeatCount) {
+    return subscription;
+  }
+
+  const item = subscription.items.data[0];
+  if (!item || subscription.status === "canceled") {
+    return subscription;
+  }
+
+  const currentQuantity = item.quantity ?? 1;
+  const nextQuantity = Math.max(1, Math.floor(desiredSeatCount));
+
+  if (currentQuantity === nextQuantity) {
+    return subscription;
+  }
+
+  return stripe.subscriptions.update(subscription.id, {
+    items: [
+      {
+        id: item.id,
+        quantity: nextQuantity
+      }
+    ],
+    proration_behavior: subscription.status === "trialing" ? "none" : "create_prorations"
+  });
+}
+
+export async function createStripeCheckoutSession(
+  userId: string,
+  email: string,
+  input: {
+    planKey: BillingPlanKey;
+    billingInterval: BillingInterval;
+    seatQuantity: number;
+  }
+) {
   if (!isStripeBillingReady()) {
     throw new Error("STRIPE_NOT_CONFIGURED");
+  }
+
+  if (!isPaidPlan(input.planKey)) {
+    throw new Error("STRIPE_CHECKOUT_UNAVAILABLE");
   }
 
   const stripe = getStripe();
   const { customerId } = await ensureStripeCustomer(userId, email);
   const appUrl = getStripeAppUrl();
+  const seatQuantity = Math.max(1, Math.floor(input.seatQuantity || 1));
+  const priceId = getStripePriceId(input.planKey, input.billingInterval);
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
     line_items: [
       {
-        price: getStripeProPriceId(),
-        quantity: 1
+        price: priceId,
+        quantity: seatQuantity
       }
     ],
     success_url: `${appUrl}/dashboard/settings?section=billing&billing=checkout-success`,
@@ -119,11 +211,18 @@ export async function createStripeCheckoutSession(userId: string, email: string)
     allow_promotion_codes: true,
     billing_address_collection: "auto",
     metadata: {
-      userId
+      userId,
+      planKey: input.planKey,
+      billingInterval: input.billingInterval,
+      seatQuantity: String(seatQuantity)
     },
     subscription_data: {
+      trial_period_days: BILLING_TRIAL_DAYS,
       metadata: {
-        userId
+        userId,
+        planKey: input.planKey,
+        billingInterval: input.billingInterval,
+        seatQuantity: String(seatQuantity)
       }
     }
   });
@@ -152,13 +251,14 @@ export async function createStripeBillingPortalSession(userId: string, email: st
   return session.url;
 }
 
-export async function syncStripeBillingState(userId: string, email?: string) {
+export async function syncStripeBillingState(userId: string, email?: string, desiredSeatCount?: number) {
   if (!isStripeConfigured()) {
     return null;
   }
 
   const account = await findBillingAccountRow(userId);
-  const stripeCustomerId = account?.stripe_customer_id ?? (email ? (await ensureStripeCustomer(userId, email)).customerId : null);
+  const stripeCustomerId =
+    account?.stripe_customer_id ?? (email ? (await ensureStripeCustomer(userId, email)).customerId : null);
 
   if (!stripeCustomerId) {
     return null;
@@ -185,24 +285,37 @@ export async function syncStripeBillingState(userId: string, email?: string) {
   }
 
   const customer = customerResult;
-  const subscription = getActiveSubscription(subscriptions.data);
+  let subscription = getActiveSubscription(subscriptions.data);
+  subscription = await syncSubscriptionSeatQuantityIfNeeded(stripe, subscription, desiredSeatCount);
+
   const subscriptionItem = subscription?.items.data[0] ?? null;
   const priceId = subscriptionItem?.price?.id ?? null;
-  const planKey = mapStripeStatusToPlan(priceId);
+  const plan = resolvePlanFromPriceId(priceId);
   const nextBillingDate =
     subscription && subscription.status !== "canceled"
-      ? toIsoFromUnix(subscriptionItem?.current_period_end)
+      ? toIsoFromUnix(subscriptionTimestamp(subscription, "current_period_end"))
       : null;
+  const seatQuantity = Math.max(
+    1,
+    subscriptionItem?.quantity ?? desiredSeatCount ?? account?.seat_quantity ?? 1
+  );
+  const trialExtensionUsedAt =
+    metadataValue(subscription?.metadata?.trialExtensionUsedAt) ?? account?.trial_extension_used_at ?? null;
 
   await upsertBillingAccountRow({
     userId,
-    planKey,
+    planKey: plan.planKey,
+    billingInterval: plan.billingInterval,
+    seatQuantity,
     nextBillingDate,
     stripeCustomerId,
     stripeSubscriptionId: subscription?.id ?? null,
     stripePriceId: priceId,
     stripeStatus: subscription?.status ?? null,
-    stripeCurrentPeriodEnd: nextBillingDate
+    stripeCurrentPeriodEnd: nextBillingDate,
+    trialStartedAt: toIsoFromUnix(subscriptionTimestamp(subscription, "trial_start")),
+    trialEndsAt: toIsoFromUnix(subscriptionTimestamp(subscription, "trial_end")),
+    trialExtensionUsedAt
   });
 
   const paymentMethod = getDefaultPaymentMethod(customer);
@@ -222,12 +335,17 @@ export async function syncStripeBillingState(userId: string, email?: string) {
 
   for (const invoice of invoices.data) {
     const invoiceLine = invoice.lines.data[0];
+    const invoicePlan = resolvePlanFromPriceId(
+      getStripePriceIdValue(invoiceLine?.pricing?.price_details?.price)
+    );
 
     await insertBillingInvoiceRow({
       id: invoice.id,
       userId,
       stripeInvoiceId: invoice.id,
-      planKey: mapStripeStatusToPlan(getStripePriceId(invoiceLine?.pricing?.price_details?.price)),
+      planKey: invoicePlan.planKey,
+      billingInterval: invoicePlan.billingInterval,
+      seatQuantity: invoiceLine?.quantity ?? null,
       description: invoice.description || invoiceLine?.description || "Chatting billing event",
       amountCents: invoice.amount_paid || invoice.amount_due || 0,
       currency: invoice.currency?.toUpperCase() || "USD",
@@ -244,6 +362,73 @@ export async function syncStripeBillingState(userId: string, email?: string) {
   return {
     customerId: stripeCustomerId,
     subscriptionId: subscription?.id ?? null
+  };
+}
+
+export async function extendStripeTrial(
+  userId: string,
+  extensionDays: number,
+  desiredSeatCount?: number
+) {
+  if (!isStripeBillingReady()) {
+    throw new Error("STRIPE_NOT_CONFIGURED");
+  }
+
+  const account = await findBillingAccountRow(userId);
+  const subscriptionId = account?.stripe_subscription_id;
+
+  if (!subscriptionId) {
+    throw new Error("TRIAL_EXTENSION_UNAVAILABLE");
+  }
+
+  const stripe = getStripe();
+  let subscription: Stripe.Subscription | null = await stripe.subscriptions.retrieve(subscriptionId);
+  subscription = await syncSubscriptionSeatQuantityIfNeeded(stripe, subscription, desiredSeatCount);
+
+  const trialEnd = subscriptionTimestamp(subscription, "trial_end");
+
+  if (!subscription || subscription.status !== "trialing" || !trialEnd) {
+    throw new Error("TRIAL_EXTENSION_UNAVAILABLE");
+  }
+
+  const extensionUsedAt = new Date().toISOString();
+  const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
+    trial_end: trialEnd + extensionDays * 24 * 60 * 60,
+    metadata: {
+      ...subscription.metadata,
+      userId,
+      trialExtensionUsedAt: extensionUsedAt
+    },
+    proration_behavior: "none"
+  });
+
+  const subscriptionItem = updatedSubscription.items.data[0] ?? null;
+  const priceId = subscriptionItem?.price?.id ?? null;
+  const plan = resolvePlanFromPriceId(priceId);
+  const trialEndsAt = toIsoFromUnix(subscriptionTimestamp(updatedSubscription, "trial_end"));
+  const nextBillingDate = toIsoFromUnix(subscriptionTimestamp(updatedSubscription, "current_period_end")) ?? trialEndsAt;
+
+  await upsertBillingAccountRow({
+    userId,
+    planKey: plan.planKey,
+    billingInterval: plan.billingInterval,
+    seatQuantity: Math.max(1, subscriptionItem?.quantity ?? desiredSeatCount ?? account?.seat_quantity ?? 1),
+    nextBillingDate,
+    stripeCustomerId:
+      typeof updatedSubscription.customer === "string"
+        ? updatedSubscription.customer
+        : updatedSubscription.customer?.id ?? account?.stripe_customer_id ?? null,
+    stripeSubscriptionId: updatedSubscription.id,
+    stripePriceId: priceId,
+    stripeStatus: updatedSubscription.status,
+    stripeCurrentPeriodEnd: nextBillingDate,
+    trialStartedAt: toIsoFromUnix(subscriptionTimestamp(updatedSubscription, "trial_start")),
+    trialEndsAt,
+    trialExtensionUsedAt: extensionUsedAt
+  });
+
+  return {
+    trialEndsAt
   };
 }
 
@@ -278,12 +463,17 @@ export async function syncStripeBillingStateFromEvent(input: {
     await upsertBillingAccountRow({
       userId,
       planKey: existing?.plan_key ?? "starter",
+      billingInterval: existing?.billing_interval ?? "monthly",
+      seatQuantity: existing?.seat_quantity ?? 1,
       nextBillingDate: existing?.next_billing_date ?? null,
       stripeCustomerId: customerId,
       stripeSubscriptionId: existing?.stripe_subscription_id ?? null,
       stripePriceId: existing?.stripe_price_id ?? null,
       stripeStatus: existing?.stripe_status ?? null,
-      stripeCurrentPeriodEnd: existing?.stripe_current_period_end ?? null
+      stripeCurrentPeriodEnd: existing?.stripe_current_period_end ?? null,
+      trialStartedAt: existing?.trial_started_at ?? null,
+      trialEndsAt: existing?.trial_ends_at ?? null,
+      trialExtensionUsedAt: existing?.trial_extension_used_at ?? null
     });
   }
 

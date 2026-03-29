@@ -1,5 +1,6 @@
 export type Sender = "user" | "founder";
 export type ConversationStatus = "open" | "resolved";
+export type ConversationRating = 1 | 2 | 3 | 4 | 5;
 export type OnboardingStep = "signup" | "team" | "customize" | "install" | "done";
 export type WidgetLauncherPosition = "left" | "right";
 export type WidgetAvatarStyle = "photos" | "initials" | "icon";
@@ -23,6 +24,8 @@ export type CurrentUser = {
   id: string;
   email: string;
   createdAt: string;
+  workspaceOwnerId: string;
+  workspaceRole: "owner" | "admin" | "member";
 };
 
 export type Site = {
@@ -72,8 +75,35 @@ export type ConversationSummary = {
   lastMessageAt: string | null;
   lastMessagePreview: string | null;
   unreadCount: number;
-  helpful: boolean | null;
+  rating: ConversationRating | null;
   tags: string[];
+};
+
+export type VisitorPresenceSession = {
+  siteId: string;
+  sessionId: string;
+  conversationId: string | null;
+  email: string | null;
+  currentPageUrl: string | null;
+  referrer: string | null;
+  userAgent: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  timezone: string | null;
+  locale: string | null;
+  startedAt: string;
+  lastSeenAt: string;
+};
+
+export type VisitorNoteIdentityType = "email" | "session";
+
+export type VisitorNote = {
+  siteId: string;
+  identityType: VisitorNoteIdentityType;
+  identityValue: string;
+  note: string;
+  updatedAt: string;
 };
 
 export type MessageAttachment = {
@@ -111,6 +141,6 @@ export type ConversationThread = ConversationSummary & {
 export type DashboardStats = {
   totalConversations: number;
   answeredConversations: number;
-  helpfulResponses: number;
+  ratedConversations: number;
   topTags: Array<{ tag: string; count: number }>;
 };

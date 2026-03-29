@@ -1,12 +1,14 @@
 const mocks = vi.hoisted(() => ({
   createDashboardBillingCheckoutSession: vi.fn(),
   createDashboardBillingPortalSession: vi.fn(),
+  getDashboardBillingSummary: vi.fn(),
   requireJsonRouteUser: vi.fn()
 }));
 
 vi.mock("@/lib/data", () => ({
   createDashboardBillingCheckoutSession: mocks.createDashboardBillingCheckoutSession,
-  createDashboardBillingPortalSession: mocks.createDashboardBillingPortalSession
+  createDashboardBillingPortalSession: mocks.createDashboardBillingPortalSession,
+  getDashboardBillingSummary: mocks.getDashboardBillingSummary
 }));
 
 vi.mock("@/lib/route-helpers", async () => {
@@ -23,12 +25,19 @@ import { POST } from "./route";
 
 describe("billing plan route", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
         email: "hello@chatly.example",
-        createdAt: "2026-03-27T00:00:00.000Z"
+        createdAt: "2026-03-27T00:00:00.000Z",
+        workspaceOwnerId: "owner_123",
+        workspaceRole: "admin"
       }
+    });
+    mocks.getDashboardBillingSummary.mockResolvedValue({
+      planKey: "starter",
+      usedSeats: 3
     });
   });
 
@@ -61,6 +70,54 @@ describe("billing plan route", () => {
       ok: true,
       redirectUrl: "https://checkout.stripe.com/session"
     });
+    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatly.example", {
+      planKey: "pro",
+      billingInterval: "monthly",
+      seatQuantity: 3
+    });
+  });
+
+  it("blocks members from changing billing", async () => {
+    mocks.requireJsonRouteUser.mockResolvedValueOnce({
+      user: {
+        id: "user_123",
+        email: "hello@chatly.example",
+        createdAt: "2026-03-27T00:00:00.000Z",
+        workspaceOwnerId: "owner_123",
+        workspaceRole: "member"
+      }
+    });
+
+    const response = await POST(
+      new Request("http://localhost/dashboard/settings/billing/plan", {
+        method: "POST",
+        body: JSON.stringify({ plan: "pro" })
+      })
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ ok: false, error: "forbidden" });
+  });
+
+  it("passes annual growth upgrades through checkout with seat counts", async () => {
+    mocks.createDashboardBillingCheckoutSession.mockResolvedValueOnce("https://checkout.stripe.com/growth");
+
+    const response = await POST(
+      new Request("http://localhost/dashboard/settings/billing/plan", {
+        method: "POST",
+        body: JSON.stringify({ plan: "growth", interval: "annual" })
+      })
+    );
+
+    expect(await response.json()).toEqual({
+      ok: true,
+      redirectUrl: "https://checkout.stripe.com/growth"
+    });
+    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatly.example", {
+      planKey: "growth",
+      billingInterval: "annual",
+      seatQuantity: 3
+    });
   });
 
   it("opens the billing portal for starter downgrade flow", async () => {
@@ -77,6 +134,27 @@ describe("billing plan route", () => {
       ok: true,
       redirectUrl: "https://billing.stripe.com/session"
     });
+  });
+
+  it("sends paid workspaces to the billing portal for plan changes", async () => {
+    mocks.getDashboardBillingSummary.mockResolvedValueOnce({
+      planKey: "growth",
+      usedSeats: 4
+    });
+    mocks.createDashboardBillingPortalSession.mockResolvedValueOnce("https://billing.stripe.com/manage");
+
+    const response = await POST(
+      new Request("http://localhost/dashboard/settings/billing/plan", {
+        method: "POST",
+        body: JSON.stringify({ plan: "pro", interval: "annual" })
+      })
+    );
+
+    expect(await response.json()).toEqual({
+      ok: true,
+      redirectUrl: "https://billing.stripe.com/manage"
+    });
+    expect(mocks.createDashboardBillingPortalSession).toHaveBeenCalledWith("user_123", "hello@chatly.example");
   });
 
   it("maps stripe-specific failures", async () => {

@@ -7,6 +7,10 @@ export async function POST() {
     return auth.response;
   }
 
+  if (auth.user.workspaceRole === "member") {
+    return jsonError("forbidden", 403);
+  }
+
   try {
     const billing = await syncDashboardBillingSummary(auth.user.id, auth.user.email);
     return jsonOk({ billing });

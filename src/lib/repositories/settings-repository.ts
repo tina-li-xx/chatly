@@ -24,8 +24,10 @@ export type TeamInviteRow = {
   id: string;
   email: string;
   role: "admin" | "member";
-  status: "pending" | "revoked";
+  status: "pending" | "accepted" | "revoked";
   message: string;
+  accepted_at: string | null;
+  accepted_by_user_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -148,6 +150,8 @@ export async function listPendingTeamInviteRows(ownerUserId: string) {
         role,
         status,
         message,
+        accepted_at,
+        accepted_by_user_id,
         created_at,
         updated_at
       FROM team_invites

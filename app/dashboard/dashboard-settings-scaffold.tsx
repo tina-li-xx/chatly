@@ -121,7 +121,7 @@ export function DashboardSettingsScaffold({
             <div className="mx-auto w-full max-w-[860px] space-y-6">
               {children}
 
-              {isDirty ? (
+              {isDirty && activeSection !== "billing" ? (
                 <div className="sticky bottom-4 z-20">
                   <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">

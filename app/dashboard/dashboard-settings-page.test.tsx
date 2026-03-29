@@ -79,17 +79,47 @@ async function renderSettingsPage(section: SettingsSection) {
       planKey: "starter",
       planName: "Starter Plan",
       priceLabel: "$0/month",
+      billingInterval: null,
       usedSeats: 1,
+      billedSeats: null,
       seatLimit: 5,
       siteCount: 1,
       conversationCount: 12,
+      messageCount: 34,
+      avgResponseSeconds: 72,
+      conversationLimit: 50,
+      conversationUsagePercent: 24,
+      upgradePromptThreshold: 30,
+      remainingConversations: 38,
+      showUpgradePrompt: false,
+      limitReached: false,
       nextBillingDate: null,
+      trialEndsAt: null,
+      trialExtensionEligible: false,
+      trialExtensionUsedAt: null,
+      activityQualifiedForTrialExtension: false,
       subscriptionStatus: null,
       customerId: null,
       portalAvailable: false,
       checkoutAvailable: true,
+      features: {
+        billedPerSeat: false,
+        proactiveChat: false,
+        removeBranding: false,
+        trialExtensions: false
+      },
       paymentMethod: null,
-      invoices: []
+      invoices: [],
+      referrals: {
+        programs: [],
+        attributedSignups: [],
+        rewards: [],
+        pendingRewardCount: 0,
+        earnedRewardCount: 0,
+        earnedFreeMonths: 0,
+        earnedDiscountCents: 0,
+        earnedCommissionCents: 0
+      }
     }
   };
 
@@ -127,11 +157,19 @@ describe("dashboard settings page", () => {
 
   it("renders the billing section", async () => {
     const html = await renderSettingsPage("billing");
+    const currentPlanMatches = html.match(/Current plan/g) ?? [];
 
-    expect(html).toContain("Manage your subscription and payment methods");
+    expect(html).toContain("Manage your subscription, usage, and billing history");
     expect(html).toContain("Starter Plan");
+    expect(html).toContain("Usage this billing period");
+    expect(html).toContain("messages sent");
+    expect(html).toContain("avg response time");
     expect(html).toContain("Compare plans");
-    expect(html).toContain("Payment method");
+    expect(html).toContain("Current plan");
+    expect(currentPlanMatches).toHaveLength(1);
+    expect(html).toContain("Recommended");
+    expect(html).toContain("Referral programs");
+    expect(html).toContain("50 conversations each month");
     expect(html).toContain("Billing history");
   });
 });
