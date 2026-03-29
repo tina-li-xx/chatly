@@ -164,7 +164,7 @@ Built for small teams, priced for small teams. No enterprise bloat. Real-time th
 
 ### Pricing
 
-- **Free**: 100 conversations/mo, 1 team member
+- **Free**: 50 conversations/mo, 1 team member
 - **Growth**: $29/mo (unlimited conversations, 5 team members)
 - **Pro**: $79/mo (unlimited everything, API access, white-label)
 
