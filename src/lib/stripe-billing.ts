@@ -8,6 +8,7 @@ import {
   upsertBillingAccountRow,
   upsertBillingPaymentMethodRow
 } from "@/lib/repositories/billing-repository";
+import { syncReferralRewardsForUser } from "@/lib/referrals";
 import {
   getStripe,
   getStripeAppUrl,
@@ -287,4 +288,5 @@ export async function syncStripeBillingStateFromEvent(input: {
   }
 
   await syncStripeBillingState(userId);
+  await syncReferralRewardsForUser(userId);
 }

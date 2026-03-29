@@ -61,6 +61,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 - Stripe-backed billing flows for checkout, portal access, invoice sync, and webhook handling.
 - Scheduled lifecycle nudges now deliver activation, health, and upgrade reminders from the node runtime instead of widget pageviews.
+- Affiliate commission ledger visibility tied to paid billing activity.
 - Cloudflare R2-backed team photo uploads for widget presentation.
 - Vitest-based app test suite covering routes, pages, helpers, onboarding, widget flows, and billing.
 
