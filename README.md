@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Added referral-aware owner signup with seeded workspace billing, welcome emails, and preserved referral codes through auth forms.
 - Expanded backend route and data coverage across public APIs, Stripe webhook handling, repositories, and growth/billing services.
 - Expanded dashboard coverage across shell, inbox, visitors, widget settings, and dashboard route workflows.
 - Renamed the remaining product-facing Chatly references across docs, service labels, invite copy, and pricing-driven blog content to Chatting.
@@ -48,7 +49,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
 - Landing pricing now mirrors the dashboard billing format with Starter and Growth plans driven by shared pricing helpers.
-- Dedicated login and signup screens with shared form controls, referral-code signup support, and direct onboarding handoff.
+- Dedicated login and signup screens with shared form controls, referral-aware owner signup, and direct onboarding handoff.
 
 ### Onboarding
 

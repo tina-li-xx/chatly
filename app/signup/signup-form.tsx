@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormButton, FormErrorMessage, FormPasswordField, FormTextField } from "../ui/form-controls";
 import { AuthFormIntro, AuthPageShell } from "../login/auth-shell";
 import { signupAction, type AuthActionState } from "../login/actions";
@@ -15,7 +15,8 @@ const INITIAL_AUTH_STATE: AuthActionState = {
   fields: {
     email: "",
     password: "",
-    websiteUrl: ""
+    websiteUrl: "",
+    referralCode: ""
   }
 };
 
@@ -29,8 +30,10 @@ const SIGNUP_ONBOARDING_PATH = "/onboarding?step=customize";
 
 export function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [signupState, setSignupState] = useState<AuthActionState>(INITIAL_AUTH_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const referralCodeFromQuery = String(searchParams.get("ref") ?? "").trim().toUpperCase();
 
   useEffect(() => {
     router.prefetch(SIGNUP_ONBOARDING_PATH);
@@ -43,6 +46,7 @@ export function SignupForm() {
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
+    const referralCode = String(formData.get("referralCode") ?? referralCodeFromQuery).trim().toUpperCase();
 
     setIsSubmitting(true);
     setSignupState({
@@ -52,9 +56,14 @@ export function SignupForm() {
       fields: {
         email,
         password,
-        websiteUrl
+        websiteUrl,
+        referralCode
       }
     });
+
+    if (referralCode) {
+      formData.set("referralCode", referralCode);
+    }
 
     try {
       const result = await signupAction(INITIAL_AUTH_STATE, formData);
@@ -74,7 +83,8 @@ export function SignupForm() {
         fields: {
           email,
           password,
-          websiteUrl
+          websiteUrl,
+          referralCode
         }
       });
     }
@@ -115,6 +125,15 @@ export function SignupForm() {
             autoComplete="url"
             defaultValue={signupState.fields.websiteUrl}
             placeholder="https://yoursite.com"
+          />
+
+          <FormTextField
+            label="Referral code"
+            name="referralCode"
+            type="text"
+            autoComplete="off"
+            defaultValue={signupState.fields.referralCode || referralCodeFromQuery}
+            placeholder="Optional"
           />
 
           <div>

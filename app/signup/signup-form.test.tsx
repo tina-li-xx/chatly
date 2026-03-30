@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 
-async function renderSignupForm() {
+async function renderSignupForm(searchParams?: Record<string, string>) {
   vi.resetModules();
 
   vi.doMock("next/navigation", () => ({
@@ -9,6 +9,9 @@ async function renderSignupForm() {
       push: vi.fn(),
       refresh: vi.fn(),
       prefetch: vi.fn()
+    }),
+    useSearchParams: () => ({
+      get: (key: string) => searchParams?.[key] ?? null
     })
   }));
 
@@ -47,6 +50,7 @@ describe("signup form", () => {
     expect(html).toContain("Start chatting in minutes");
     expect(html).toContain("Create your account");
     expect(html).toContain("Website URL");
+    expect(html).toContain("Referral code");
     expect(html).toContain("Free");
     expect(html).toContain("5 min");
     expect(html).toContain("No CC");

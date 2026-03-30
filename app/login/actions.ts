@@ -1,7 +1,9 @@
 "use server";
 
 import { setUserSession, signInUser, signUpUser } from "@/lib/auth";
+import { sendAccountWelcomeEmail } from "@/lib/chatly-transactional-email-senders";
 import { getPostAuthPath } from "@/lib/data";
+import { getPublicAppUrl } from "@/lib/env";
 
 export type AuthActionState = {
   error: string | null;
@@ -11,6 +13,7 @@ export type AuthActionState = {
     email: string;
     password: string;
     websiteUrl: string;
+    referralCode: string;
   };
 };
 
@@ -38,6 +41,10 @@ function formatAuthError(message: string, mode: "login" | "signup") {
 
   if (message === "MISSING_DOMAIN") {
     return "Website URL is required.";
+  }
+
+  if (message === "INVALID_REFERRAL_CODE" || message === "SELF_REFERRAL") {
+    return "That referral code wasn't recognized.";
   }
 
   if (message.includes("DATABASE_URL")) {
@@ -69,7 +76,9 @@ function isExpectedAuthError(message: string) {
     message === "WEAK_PASSWORD" ||
     message === "MISSING_PASSWORD" ||
     message === "MISSING_EMAIL" ||
-    message === "MISSING_DOMAIN"
+    message === "MISSING_DOMAIN" ||
+    message === "INVALID_REFERRAL_CODE" ||
+    message === "SELF_REFERRAL"
   );
 }
 
@@ -83,7 +92,8 @@ export async function loginAction(
   const fields = {
     email,
     password,
-    websiteUrl: ""
+    websiteUrl: "",
+    referralCode: ""
   };
 
   if (!email) {
@@ -146,21 +156,34 @@ export async function signupAction(
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
+  const referralCode = String(formData.get("referralCode") ?? "").trim();
 
   const fields = {
     email,
     password,
-    websiteUrl
+    websiteUrl,
+    referralCode
   };
 
   try {
     const user = await signUpUser({
       email,
       password,
-      websiteUrl
+      websiteUrl,
+      referralCode
     });
 
     await setUserSession(user.id);
+    try {
+      await sendAccountWelcomeEmail({
+        to: user.email,
+        firstName: user.email.split("@")[0] || "there",
+        dashboardUrl: `${getPublicAppUrl()}/dashboard`
+      });
+    } catch (emailError) {
+      console.error("signup welcome email failed", emailError);
+    }
+
     return {
       ok: true,
       error: null,

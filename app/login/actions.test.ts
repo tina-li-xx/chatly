@@ -4,11 +4,16 @@ const authMocks = vi.hoisted(() => ({
   signUpUser: vi.fn()
 }));
 
+const emailMocks = vi.hoisted(() => ({
+  sendAccountWelcomeEmail: vi.fn()
+}));
+
 const dataMocks = vi.hoisted(() => ({
   getPostAuthPath: vi.fn()
 }));
 
 vi.mock("@/lib/auth", () => authMocks);
+vi.mock("@/lib/chatly-transactional-email-senders", () => emailMocks);
 vi.mock("@/lib/data", () => dataMocks);
 
 import { loginAction, signupAction, type AuthActionState } from "./actions";
@@ -20,7 +25,8 @@ const INITIAL_STATE: AuthActionState = {
   fields: {
     email: "",
     password: "",
-    websiteUrl: ""
+    websiteUrl: "",
+    referralCode: ""
   }
 };
 
@@ -29,7 +35,12 @@ describe("login actions", () => {
 
   beforeEach(() => {
     consoleErrorSpy.mockClear();
+    authMocks.signInUser.mockReset();
+    authMocks.signUpUser.mockReset();
+    authMocks.setUserSession.mockReset();
     dataMocks.getPostAuthPath.mockReset();
+    emailMocks.sendAccountWelcomeEmail.mockReset();
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
   });
 
   afterAll(() => {
@@ -45,7 +56,8 @@ describe("login actions", () => {
       fields: {
         email: "",
         password: "",
-        websiteUrl: ""
+        websiteUrl: "",
+        referralCode: ""
       }
     });
 
@@ -58,7 +70,8 @@ describe("login actions", () => {
       fields: {
         email: "hello@chatly.example",
         password: "",
-        websiteUrl: ""
+        websiteUrl: "",
+        referralCode: ""
       }
     });
   });
@@ -129,6 +142,19 @@ describe("login actions", () => {
     expect(result.error).toContain("server setup error");
   });
 
+  it("maps invalid referral codes into a readable signup error", async () => {
+    authMocks.signUpUser.mockRejectedValueOnce(new Error("INVALID_REFERRAL_CODE"));
+
+    const form = new FormData();
+    form.set("email", "hello@chatly.example");
+    form.set("password", "password123");
+    form.set("websiteUrl", "https://chatly.example");
+    form.set("referralCode", "BAD-CODE");
+
+    const result = await signupAction(INITIAL_STATE, form);
+    expect(result.error).toBe("That referral code wasn't recognized.");
+  });
+
   it("creates a session on successful signup", async () => {
     authMocks.signUpUser.mockResolvedValueOnce({
       id: "user_signup",
@@ -139,6 +165,7 @@ describe("login actions", () => {
     form.set("email", "new@chatly.example");
     form.set("password", "password123");
     form.set("websiteUrl", "https://chatly.example");
+    form.set("referralCode", "AFF-ABC123");
 
     const result = await signupAction(INITIAL_STATE, form);
     expect(result).toEqual({
@@ -148,9 +175,22 @@ describe("login actions", () => {
       fields: {
         email: "new@chatly.example",
         password: "password123",
-        websiteUrl: "https://chatly.example"
+        websiteUrl: "https://chatly.example",
+        referralCode: "AFF-ABC123"
       }
     });
+    expect(authMocks.signUpUser).toHaveBeenCalledWith({
+      email: "new@chatly.example",
+      password: "password123",
+      websiteUrl: "https://chatly.example",
+      referralCode: "AFF-ABC123"
+    });
     expect(authMocks.setUserSession).toHaveBeenCalledWith("user_signup");
+    expect(emailMocks.sendAccountWelcomeEmail).toHaveBeenCalledWith({
+      to: "new@chatly.example",
+      firstName: "new",
+      dashboardUrl: "https://chatly.example/dashboard"
+    });
   });
+
 });

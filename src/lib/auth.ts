@@ -2,7 +2,9 @@ import { createHash, randomBytes, scrypt as nodeScrypt, timingSafeEqual } from "
 import { promisify } from "node:util";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-account";
 import { createSiteForUser } from "@/lib/data/sites";
+import { applyReferralCodeForSignup, validateReferralCodeForSignup } from "@/lib/referrals";
 import {
   type AuthSessionUserRecord,
   deleteAuthSessionByTokenHash,
@@ -15,8 +17,8 @@ import {
   updateAuthUserPassword
 } from "@/lib/repositories/auth-repository";
 import { isProductionRuntime } from "@/lib/env";
-import { normalizeSiteDomain } from "@/lib/widget-settings";
 import type { CurrentUser } from "@/lib/types";
+import { normalizeSiteDomain } from "@/lib/widget-settings";
 
 const AUTH_COOKIE_NAME = "chatly_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
@@ -123,6 +125,7 @@ export async function signUpUser(input: {
   email: string;
   password: string;
   websiteUrl?: string;
+  referralCode?: string | null;
 }) {
   const email = normalizeEmail(input.email);
   const password = input.password.trim();
@@ -151,6 +154,8 @@ export async function signUpUser(input: {
     throw new Error("EMAIL_TAKEN");
   }
 
+  await validateReferralCodeForSignup(input.referralCode);
+
   const userId = randomBytes(16).toString("hex");
   const passwordHash = await hashPassword(password);
 
@@ -165,6 +170,13 @@ export async function signUpUser(input: {
   await createSiteForUser(userId, {
     name: siteName,
     domain: websiteUrl
+  });
+
+  await ensureOwnerGrowthTrialBillingAccount(userId);
+  await applyReferralCodeForSignup({
+    userId,
+    email,
+    referralCode: input.referralCode
   });
 
   return {
