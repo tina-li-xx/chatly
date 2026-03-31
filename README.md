@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Added broad onboarding regression coverage across flow actions, shared helpers, page entry, team setup, and screen states.
 - Added focused regression coverage for the free-tool export gate plus the response-time, response-tone, and welcome-message tools.
 - Aligned the public landing and pricing surfaces with Chatting copy, shared section typing, and route-level marketing page coverage.
 - Updated the shared app button link typing so route-object hrefs work cleanly across invite and landing actions.
@@ -77,6 +78,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Post-signup setup flow for widget customization, install verification, and completion.
 - Setup screens now rely on the dot progress indicator without repeating step-count copy.
 - Live verification state that surfaces the actual site URL the widget was detected on.
+- Onboarding now has dedicated regression coverage across flow sections, shared helpers, UI states, and the team route.
 
 ### Widget & Public APIs
 
