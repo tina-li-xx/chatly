@@ -1,4 +1,6 @@
-import type { BlogComparisonBlock } from "@/lib/blog-types";
+import type { BlogSectionBlock } from "@/lib/blog-types";
+
+type BlogComparisonBlock = Extract<BlogSectionBlock, { type: "comparison" }>;
 
 export function BlogComparisonTable({ block }: { block: BlogComparisonBlock }) {
   return (

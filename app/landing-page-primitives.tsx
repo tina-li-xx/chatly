@@ -43,12 +43,12 @@ export function LandingHeader() {
             <NavLink href="#pricing">Pricing</NavLink>
             <NavLink href="#how-it-works">How it works</NavLink>
             <NavLink href="#docs">Docs</NavLink>
+          </nav>
+
+          <div className="flex items-center justify-center gap-4 lg:justify-end">
             <Link href="/login" className="text-sm font-medium text-slate-600 transition hover:text-slate-900">
               Sign in
             </Link>
-          </nav>
-
-          <div className="flex justify-center lg:justify-end">
             <ButtonLink
               href="/login"
               size="md"

@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Aligned the public landing and pricing surfaces with Chatting copy, shared section typing, and route-level marketing page coverage.
 - Updated the shared app button link typing so route-object hrefs work cleanly across invite and landing actions.
 - Finished the remaining billing settings cleanup so dashboard pricing and referral surfaces no longer carry trial-extension-era fixture shapes.
 - Centralized MiniMax response-tone configuration in the shared env helpers and documented the required API settings in `.env.example`.
@@ -63,6 +64,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Public Site & Auth
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
+- The public landing now keeps the header/CTA framing stable while using the new proof and conversion section split.
 - Landing pricing now mirrors the dashboard billing format with Starter and Growth plans driven by shared pricing helpers.
 - Dedicated login and signup screens with shared form controls, referral-aware owner signup, invite-based teammate access, password reset flows, and direct onboarding handoff.
 - Auth failures now stay in shared toast notifications with generic user-safe copy instead of showing deployment or server setup details in the UI.

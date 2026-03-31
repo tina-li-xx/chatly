@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CHATLY_GROWTH_MONTHLY_PRICE } from "@/lib/chatly-pricing-copy";
+import { CHATTING_PAID_PLANS_COPY } from "@/lib/pricing";
 import type { FreeTool, FreeToolFaqItem } from "@/lib/free-tools-data";
 
 export const roiCalculatorFaqItems: FreeToolFaqItem[] = [
@@ -77,7 +77,7 @@ export function RoiCalculatorMethodology() {
       <div className="rounded-[24px] border border-slate-200 bg-white px-6 py-6 shadow-[0_18px_40px_rgba(15,23,42,0.05)] sm:px-8">
         <h2 className="display-font text-3xl text-slate-900">How we calculate your ROI</h2>
         <p className="mt-4 text-base leading-7 text-slate-600">
-          We apply a conservative 20% lift to your current conversion rate, then compare the extra revenue against Chatting&apos;s Growth price of {CHATLY_GROWTH_MONTHLY_PRICE}.
+          We apply a conservative 20% lift to your current conversion rate, then compare the extra revenue against Chatting&apos;s pricing once you move past free: {CHATTING_PAID_PLANS_COPY}.
         </p>
         <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-600">
           <li>E-commerce average conversion: 2-3%</li>
