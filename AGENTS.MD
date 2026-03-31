@@ -1,6 +1,6 @@
-# Chatly Agent Instructions
+# Chatting Agent Instructions
 
-## Chatly Development Rules
+## Chatting Development Rules
 
 ### Git & Commits
 
@@ -110,15 +110,15 @@ Once user approves the commit:
 
 ### General
 
-- **Branding**: Use the business name "Chatly" only in team-facing dashboard interfaces and internal communications. The embeddable widget should support white-labeling where configured.
+- **Branding**: Use the business name "Chatting" only in team-facing dashboard interfaces and internal communications. The embeddable widget should support white-labeling where configured.
 - **Design System**: Follow `chatly-ui-ux-design.md` for all dashboard, inbox, and settings UI. For the embeddable widget, follow `chatly-widget-design-spec.md`.
-- **Widget Customization**: The chat widget must respect user-configured brand colors, welcome messages, and positioning. Never hardcode Chatly Blue in widget surfaces that should be customizable.
+- **Widget Customization**: The chat widget must respect user-configured brand colors, welcome messages, and positioning. Never hardcode Chatting Blue in widget surfaces that should be customizable.
 - **Typography**: 
   - Display/headings: Fraunces (serif), -0.02em tracking
   - Body/UI text: DM Sans or Söhne, system-ui fallback
   - Apply consistent font styles at the page container level
 - **Color Palette**:
-  - Primary: Chatly Blue `#2563EB`, Dark `#1D4ED8`, Light `#DBEAFE`
+  - Primary: Chatting Blue `#2563EB`, Dark `#1D4ED8`, Light `#DBEAFE`
   - Neutrals: Slate scale (900 `#0F172A` to 50 `#F8FAFC`)
   - Status: Green `#10B981` (online/success), Amber `#F59E0B` (away), Red `#EF4444` (offline/error)
   - Chat bubbles: Visitor `#F1F5F9`, Team `#2563EB`, System `#FEF3C7`
@@ -126,9 +126,9 @@ Once user approves the commit:
 <frontend_aesthetics>
 You tend to converge toward generic, "on distribution" outputs. In frontend design, this creates what users call the "AI slop" aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight. Focus on:
 
-**Typography**: Choose fonts that are beautiful, unique, and interesting. Chatly uses Fraunces for display and DM Sans for UI — respect this but apply it with intention.
+**Typography**: Choose fonts that are beautiful, unique, and interesting. Chatting uses Fraunces for display and DM Sans for UI — respect this but apply it with intention.
 
-**Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Chatly Blue (#2563EB) is the anchor — build palettes around it with sharp accents.
+**Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Chatting Blue (#2563EB) is the anchor — build palettes around it with sharp accents.
 
 **Motion**: Use animations for effects and micro-interactions. The widget should feel instant — typing indicators appear immediately, messages animate in smoothly. Focus on high-impact moments: message arrival, conversation open/close, status changes.
 
@@ -140,7 +140,7 @@ You tend to converge toward generic, "on distribution" outputs. In frontend desi
 - Predictable layouts and component patterns
 - Cookie-cutter design that lacks context-specific character
 
-Chatly's philosophy is "Conversational, Not Corporate" — every interface should feel warm, immediate, and human.
+Chatting's philosophy is "Conversational, Not Corporate" — every interface should feel warm, immediate, and human.
 </frontend_aesthetics>
 
 - **Concerns Log (Required)**: Add every identified implementation concern to `CONCERNS.md` and keep that file up to date in each relevant task.
@@ -227,7 +227,7 @@ Chatly's philosophy is "Conversational, Not Corporate" — every interface shoul
 
 ---
 
-## Karpathy-Style System Prompt (Chatly)
+## Karpathy-Style System Prompt (Chatting)
 
 ---------------------------------
 SENIOR SOFTWARE ENGINEER
@@ -237,7 +237,7 @@ SENIOR SOFTWARE ENGINEER
 <role>
 You are a senior software engineer embedded in an agentic coding workflow. You write, refactor, debug, and architect code alongside a human developer who reviews your work in a side-by-side IDE setup.
 
-You are working in the Chatly codebase (a live chat platform for small teams) built with Next.js App Router, React, TypeScript, and Tailwind CSS. You must respect existing patterns in `app/`, especially `app/(dashboard)/` and `app/components/ui`.
+You are working in the Chatting codebase (a live chat platform for small teams) built with Next.js App Router, React, TypeScript, and Tailwind CSS. You must respect existing patterns in `app/`, especially `app/(dashboard)/` and `app/components/ui`.
 
 Your operational philosophy: You are the hands; the human is the architect. Move fast, but never faster than the human can verify. Your code will be watched like a hawk — write accordingly.
 </role>
@@ -253,7 +253,7 @@ Your operational philosophy: You are the hands; the human is the architect. Move
 </codebase_context>
 
 <product_context>
-- Chatly is a live chat platform built for small teams who want to talk to website visitors in real-time.
+- Chatting is a live chat platform built for small teams who want to talk to website visitors in real-time.
 - Core surfaces: Team Inbox, Visitors page, Analytics, Widget Settings, Embeddable Chat Widget.
 - Design philosophy: "Conversational, Not Corporate" — warm, immediate, human interactions.
 - Speed is a feature: < 100ms message latency, instant typing indicators, snappy transitions.
@@ -508,7 +508,7 @@ You have unlimited stamina. The human does not. Use your persistence wisely — 
 - **Better UX**: Skeleton loaders show users what to expect and prevent layout shift
 - **More professional**: Loading text looks unpolished and cheap
 - **Consistency**: All loading states should feel the same across the app
-- **Speed perception**: Chatly's philosophy is "Speed is a Feature" — skeletons feel faster
+- **Speed perception**: Chatting's philosophy is "Speed is a Feature" — skeletons feel faster
 
 ---
 

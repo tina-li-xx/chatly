@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatting OG Image Layout Templates</title>
+    <!-- Tailwind CSS (for quick prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chatting: {
+                            blue: '#2563EB',
+                            dark: '#1D4ED8',
+                            light: '#DBEAFE',
+                        },
+                        blue: {
+                            50: '#EFF6FF',
+                        },
+                        slate: {
+                            900: '#0F172A',
+                            800: '#1E293B',
+                            700: '#334155',
+                            600: '#475569',
+                            200: '#E2E8F0',
+                            100: '#F1F5F9',
+                            50: '#F8FAFC',
+                        },
+                        green: '#10B981',
+                        amber: '#F59E0B',
+                        red: '#EF4444',
+                        warm: {
+                            cream: '#FFFBF5',
+                            creamDark: '#FFF7ED',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Fraunces', 'Georgia', 'serif'],
+                        body: ['"DM Sans"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #333; display: flex; flex-direction: column; gap: 48px; padding: 48px; align-items: center; }
+        .og-card { width: 1200px; height: 630px; position: relative; box-sizing: border-box; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow: hidden; }
+        .safe-zone { position: absolute; top: 48px; left: 48px; right: 48px; bottom: 48px; display: flex; }
+        .content-zone { width: 1000px; height: 500px; margin: auto; position: relative; display: flex; }
+        .tracking-fraunces { letter-spacing: -0.02em; }
+        .category-pill { text-transform: uppercase; letter-spacing: 0.05em; }
+        .bg-chatting-gradient { background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%), linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); }
+        .bg-warm-gradient { background: linear-gradient(180deg, #FFFBF5 0%, #FFF7ED 100%); }
+        .bg-slate-gradient { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); }
+        .bg-clean-gradient { background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%); }
+    </style>
+</head>
+<body>
+
+    <!-- TAG: Template A (Centered Headline) - Landing Page -->
+    <div><h2 class="text-white text-xl mb-2 font-body font-bold">Template A: Centered Headline (Homepage)</h2>
+    <div class="og-card bg-chatting-gradient">
+        <div class="safe-zone text-white text-center flex-col justify-between items-center">
+            <div class="content-zone flex-col justify-center items-center">
+                <h1 class="font-display font-semibold text-[72px] leading-[1.1] tracking-fraunces max-w-[900px]">
+                    Talk to your visitors.<br>Not at them.
+                </h1>
+                <p class="font-body font-medium text-[32px] mt-6 text-white/80">
+                    Live chat for small teams who care.
+                </p>
+                <div class="absolute bottom-0 w-full flex justify-center">
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-12 h-12">
+                            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 4C11.163 4 4 11.163 4 20C4 28.837 11.163 36 20 36C21.85 36 23.619 35.6845 25.253 35.107L32.414 37.495C33.195 37.755 33.955 36.995 33.695 36.214L31.307 29.053C34.258 26.541 36 23.428 36 20C36 11.163 28.837 4 20 4Z" fill="white"/>
+                                <circle cx="14" cy="20" r="2.5" fill="#1D4ED8"/>
+                                <circle cx="20" cy="20" r="2.5" fill="#1D4ED8"/>
+                                <circle cx="26" cy="20" r="2.5" fill="#1D4ED8"/>
+                            </svg>
+                        </div>
+                        <span class="font-display font-semibold text-white tracking-fraunces text-[42px]">Chatting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- TAG: Template B (Left-Aligned + Visual) - Blog Post -->
+    <div><h2 class="text-white text-xl mb-2 font-body font-bold">Template B: Left-Aligned with Visual (Blog Post)</h2>
+    <div class="og-card bg-warm-gradient">
+        <div class="safe-zone">
+            <div class="content-zone flex-row items-center justify-between">
+                <div class="flex flex-col h-full justify-center max-w-[60%]">
+                    <div class="category-pill bg-blue-50 text-chatting-blue font-body font-semibold text-[14px] px-3 py-1.5 rounded w-max mb-6">
+                        LIVE CHAT
+                    </div>
+                    <h1 class="font-display font-semibold text-[60px] leading-[1.15] text-slate-900 tracking-fraunces mb-4 max-w-[500px]">
+                        10 Live Chat Best<br/>Practices for 2024
+                    </h1>
+                    <p class="font-body font-normal text-[28px] text-slate-600">
+                        Stop losing customers to slow responses.
+                    </p>
+                    <div class="absolute bottom-0">
+                        <div class="flex items-center gap-3">
+                            <div class="relative w-[36px] h-[36px]">
+                                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 4C11.163 4 4 11.163 4 20C4 28.837 11.163 36 20 36C21.85 36 23.619 35.6845 25.253 35.107L32.414 37.495C33.195 37.755 33.955 36.995 33.695 36.214L31.307 29.053C34.258 26.541 36 23.428 36 20C36 11.163 28.837 4 20 4Z" fill="#0F172A"/>
+                                    <circle cx="14" cy="20" r="2.5" fill="#FFF7ED"/>
+                                    <circle cx="20" cy="20" r="2.5" fill="#FFF7ED"/>
+                                    <circle cx="26" cy="20" r="2.5" fill="#FFF7ED"/>
+                                </svg>
+                            </div>
+                            <span class="font-display font-semibold text-slate-900 tracking-fraunces text-[36px]">Chatting</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative w-[350px] h-[350px] right-0 flex items-center justify-center">
+                    <div class="absolute top-10 right-0 w-[240px] h-[90px] bg-chatting-blue rounded-2xl rounded-br-none shadow-xl flex flex-col justify-center px-6 gap-3 z-20">
+                        <div class="w-full h-3 bg-white/30 rounded-full"></div>
+                        <div class="w-[60%] h-3 bg-white/30 rounded-full"></div>
+                    </div>
+                    <div class="absolute bottom-16 right-[60px] w-[200px] h-[72px] bg-green rounded-2xl rounded-bl-none shadow-xl flex items-center px-6 gap-3 z-30">
+                        <div class="w-[12px] h-[12px] bg-white rounded-full"></div>
+                        <div class="w-[12px] h-[12px] bg-white rounded-full"></div>
+                        <div class="w-[12px] h-[12px] bg-white rounded-full"></div>
+                    </div>
+                    <div class="absolute top-[160px] left-10 w-12 h-12 border-[5px] border-amber rounded-full z-10"></div>
+                    <div class="absolute bottom-8 right-0 w-8 h-8 bg-chatting-light rounded-full z-10"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- TAG: Template C (Split / Comparison) -->
+    <div><h2 class="text-white text-xl mb-2 font-body font-bold">Template C: Split / Comparison</h2>
+    <div class="og-card bg-clean-gradient flex justify-center items-center flex-col">
+        <div class="safe-zone flex-col items-center">
+            <div class="content-zone flex-col items-center justify-center relative">
+                <div class="flex items-center gap-[60px] w-[900px] h-[260px] justify-center relative -ml-[30px] mb-12">
+                    <div class="bg-white border-2 border-chatting-blue/10 rounded-2xl flex-1 flex flex-col justify-center items-center h-full shadow-[0_8px_30px_rgba(0,0,0,0.06)] px-10">
+                        <div class="flex items-center gap-4">
+                            <span class="font-display font-semibold text-slate-900 text-[64px] tracking-fraunces">Chatting</span>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl flex-1 flex flex-col justify-center items-center h-full shadow-[0_8px_30px_rgba(0,0,0,0.03)] px-10 grayscale-[60%]">
+                        <div class="flex items-center gap-4">
+                            <span class="font-body font-bold text-slate-800 text-[48px] tracking-widest leading-none mt-1">INTERCOM</span>
+                        </div>
+                    </div>
+                    <div class="absolute w-[80px] h-[80px] rounded-full bg-slate-900 border-[6px] border-[#F1F5F9] left-1/2 top-1/2 -ml-[10px] transform -translate-x-1/2 -translate-y-1/2 flex justify-center items-center font-display font-semibold text-white text-[32px] tracking-widest z-10 shadow-lg">
+                        VS
+                    </div>
+                </div>
+                <p class="font-body font-normal text-[32px] text-slate-600 text-center mb-4">
+                    Built for small teams. Priced for small teams.
+                </p>
+                <h1 class="font-display font-semibold text-[56px] leading-[1.2] tracking-fraunces text-slate-900 text-center">
+                    Chatting vs Intercom
+                </h1>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- TAG: Template D (Bold Statement) -->
+    <div><h2 class="text-white text-xl mb-2 font-body font-bold">Template D: Bold Statement</h2>
+    <div class="og-card bg-slate-gradient">
+        <div class="safe-zone">
+            <div class="content-zone flex-col justify-center items-center text-center">
+                <h1 class="font-display font-semibold text-[50px] leading-[1.3] text-white tracking-fraunces px-[40px] max-w-[900px]">
+                    "Your next customer is on your site right now. Are you going to answer—or is someone else?"
+                </h1>
+                <div class="w-[80px] h-1 bg-chatting-blue rounded-full my-12"></div>
+                <div class="flex items-center gap-[12px]">
+                    <div class="relative w-[32px] h-[32px]">
+                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 4C11.163 4 4 11.163 4 20C4 28.837 11.163 36 20 36C21.85 36 23.619 35.6845 25.253 35.107L32.414 37.495C33.195 37.755 33.955 36.995 33.695 36.214L31.307 29.053C34.258 26.541 36 23.428 36 20C36 11.163 28.837 4 20 4Z" fill="white"/>
+                            <circle cx="14" cy="20" r="2.5" fill="#1E293B"/>
+                            <circle cx="20" cy="20" r="2.5" fill="#1E293B"/>
+                            <circle cx="26" cy="20" r="2.5" fill="#1E293B"/>
+                        </svg>
+                    </div>
+                    <p class="font-body font-normal text-[28px] text-white opacity-80 mt-1">usechatting.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- TAG: 5. Default/Fallback -->
+    <div><h2 class="text-white text-xl mb-2 font-body font-bold">Default Fallback</h2>
+    <div class="og-card bg-slate-gradient">
+        <div class="safe-zone">
+            <div class="content-zone flex-col justify-center items-center text-center">
+                <div class="flex items-center gap-[24px] mb-8">
+                    <div class="relative w-[80px] h-[80px]">
+                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 4C11.163 4 4 11.163 4 20C4 28.837 11.163 36 20 36C21.85 36 23.619 35.6845 25.253 35.107L32.414 37.495C33.195 37.755 33.955 36.995 33.695 36.214L31.307 29.053C34.258 26.541 36 23.428 36 20C36 11.163 28.837 4 20 4Z" fill="white"/>
+                            <circle cx="14" cy="20" r="2.5" fill="#0F172A"/>
+                            <circle cx="20" cy="20" r="2.5" fill="#0F172A"/>
+                            <circle cx="26" cy="20" r="2.5" fill="#0F172A"/>
+                        </svg>
+                    </div>
+                    <span class="font-display font-semibold text-white text-[120px] tracking-fraunces">Chatting</span>
+                </div>
+                <p class="font-body font-normal text-[36px] mt-2 text-white/90">
+                    Live chat for teams who care.
+                </p>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+</body>
+</html>

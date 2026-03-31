@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Refreshed contributor docs and planning notes with Chatting branding, a current concerns log, growth strategy notes, and OG image reference guides.
 - Added shared app-shell, public auth wrapper, toast, newsletter, and form-control regression coverage.
 - Added broad onboarding regression coverage across flow actions, shared helpers, page entry, team setup, and screen states.
 - Added focused regression coverage for the free-tool export gate plus the response-time, response-tone, and welcome-message tools.
@@ -120,6 +121,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Contributor Docs
 
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
+- Contributor docs now include a refreshed concerns log, growth strategy notes, TODO tracking, and Chatting-branded OG image guidance/templates.
 - Product docs, service labels, and pricing-driven blog copy now use the Chatting brand consistently.
 - The social content generator now enforces lowercase output, `https://usechatting.com`, and Chatting-first branding.
 - The app now includes an internal Chatting distribution playbook markdown file for channel planning and launch messaging.
