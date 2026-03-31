@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getOptionalServerEnv, getRequiredServerEnv } from "@/lib/env.server";
+import { getMiniMaxConfig } from "@/lib/env.server";
 import {
   normalizeResponseToneContext,
   parseResponseToneAnalysis,
@@ -8,17 +8,7 @@ import {
   type ResponseToneContext
 } from "@/lib/response-tone-checker";
 
-const MINIMAX_DEFAULT_BASE_URL = "https://api.minimax.io";
-const MINIMAX_DEFAULT_MODEL = "MiniMax-M2";
 const SYSTEM_PROMPT = "You are a customer service tone analyzer. Analyze the message and return JSON only.";
-
-function getMiniMaxConfig() {
-  return {
-    apiKey: getRequiredServerEnv("MINIMAX_API_KEY", { errorCode: "MINIMAX_NOT_CONFIGURED" }),
-    model: getOptionalServerEnv("MINIMAX_MODEL")?.trim() || MINIMAX_DEFAULT_MODEL,
-    baseUrl: (getOptionalServerEnv("MINIMAX_BASE_URL")?.trim() || MINIMAX_DEFAULT_BASE_URL).replace(/\/+$/, "")
-  };
-}
 
 function readString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";

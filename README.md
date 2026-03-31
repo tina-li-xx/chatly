@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Centralized MiniMax response-tone configuration in the shared env helpers and documented the required API settings in `.env.example`.
 - Finished the hosted conversation handoff with a shared resume-message component and fuller conversation template context.
 - Hardened dashboard refresh behavior against failed network fetches and aligned public feedback links with the 1-to-5 rating model.
 - Kept auth failures user-safe by moving login and signup errors to shared toasts, removing deployment-detail copy from auth screens, and splitting the login auth container into smaller modules.
@@ -111,6 +112,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - The social content generator now enforces lowercase output, `https://usechatting.com`, and Chatting-first branding.
 - The app now includes an internal Chatting distribution playbook markdown file for channel planning and launch messaging.
 - Env definitions and runtime guards now keep node-only startup and service config isolated from client bundles.
+- The example env file now documents the MiniMax API settings used by the response-tone checker service.
 
 ## Ops Note
 
