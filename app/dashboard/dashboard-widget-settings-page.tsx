@@ -5,11 +5,9 @@ import type { Site } from "@/lib/types";
 import { classNames } from "@/lib/utils";
 import {
   CheckCircleIcon,
-  ChevronDownIcon,
-  LaptopIcon,
-  PhoneIcon
+  ChevronDownIcon
 } from "./dashboard-ui";
-import { WidgetPreviewFrame } from "./dashboard-widget-settings-preview";
+import { WidgetPreviewPane } from "./dashboard-widget-settings-preview-pane";
 import { TAB_OPTIONS } from "./dashboard-widget-settings-shared";
 import { WidgetAppearancePanel } from "./dashboard-widget-settings-appearance-panel";
 import { WidgetBehaviorPanel } from "./dashboard-widget-settings-behavior-panel";
@@ -181,37 +179,7 @@ export function DashboardWidgetSettingsPage({ initialSites, initialBilling }: Da
           </div>
         </section>
 
-        <aside className="rounded-xl bg-slate-100 p-8 xl:sticky xl:top-24 xl:self-start">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-slate-500">Preview</p>
-            </div>
-            <div className="flex rounded-lg border border-slate-200 bg-white p-1">
-              {[
-                { value: "desktop" as const, icon: LaptopIcon, label: "Desktop" },
-                { value: "mobile" as const, icon: PhoneIcon, label: "Mobile" }
-              ].map((option) => {
-                const Icon = option.icon;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setPreviewDevice(option.value)}
-                    className={classNames(
-                      "flex h-8 w-8 items-center justify-center rounded-md transition",
-                      previewDevice === option.value ? "bg-slate-100 text-slate-900" : "text-slate-500"
-                    )}
-                    aria-label={option.label}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <WidgetPreviewFrame site={activeSite} device={previewDevice} />
-        </aside>
+        <WidgetPreviewPane site={activeSite} device={previewDevice} onSetPreviewDevice={setPreviewDevice} />
       </div>
 
       {showSavedToast ? (

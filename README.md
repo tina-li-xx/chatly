@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Swapped the root app-shell analytics embed to the hosted Grometrics runtime for `usechatting.com` with the new production website id.
 - Streamlined dashboard live updates so each tab shares one `/dashboard/live` connection, unread badges use lightweight count fetches, and the visitors page patches presence/message changes incrementally instead of reloading the full snapshot on every live event.
 - Removed the dashboard’s custom pending overlays so navigation now relies on the shared route skeleton, while tightening inbox thread loading state to avoid stale loading flashes.
 - Preserved the original page URL where a visitor started a conversation in the dashboard thread detail, removed page/location badges from preview lists, and consolidated shared conversation display formatting across inbox and home cards.
@@ -82,6 +83,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Public Site & Auth
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
+- The root app shell now loads the hosted Grometrics analytics runtime with the production `usechatting.com` domain and website id.
 - The landing header now stays sticky in flow on desktop and uses a dedicated small-screen nav row so the top bar stays compact without layout seams.
 - The public landing now keeps the header/CTA framing stable while using the new proof and conversion section split.
 - Landing pricing now mirrors the dashboard billing format with Starter and Growth plans driven by shared pricing helpers, and the Growth card total now follows the team-size slider directly.
@@ -274,3 +276,6 @@ The inbound route now:
 - handles SES `Received` notifications
 - parses raw MIME email content with `mailparser`
 - strips common quoted reply blocks before saving the new user message
+- Added configurable offline and away widget copy with matching dashboard preview states, persisted site settings, and live widget rendering from public config.
+- Widget settings now persist customizable offline and away titles/messages, and the live widget renders those saved empty-state messages from site config.
+- Dashboard widget settings now preview online, away, and offline states directly in settings.

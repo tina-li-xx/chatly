@@ -2,14 +2,17 @@
 
 import type { Site } from "@/lib/types";
 import { classNames } from "@/lib/utils";
+import type { WidgetPreviewMode } from "./dashboard-widget-settings-preview-mode";
+import { ChatBubbleIcon } from "./dashboard-ui";
+import type { PreviewDevice } from "./dashboard-widget-settings-shared";
 import {
-  ChatBubbleIcon
-} from "./dashboard-ui";
-import { previewStatus, type PreviewDevice } from "./dashboard-widget-settings-shared";
-
+  widgetPreviewEmptyState,
+  widgetPreviewHeaderStatus,
+  widgetPreviewStatusTone,
+  WIDGET_PREVIEW_PANEL_HEIGHT
+} from "./dashboard-widget-settings-preview-content";
 export function PreviewAvatar({ site, compact = false }: { site: Site; compact?: boolean }) {
   const size = compact ? "h-7 w-7 text-[11px]" : "h-10 w-10 text-sm";
-
   if (site.avatarStyle === "icon") {
     return (
       <span className={classNames("flex items-center justify-center rounded-full bg-blue-100 text-blue-700", size)}>
@@ -17,7 +20,6 @@ export function PreviewAvatar({ site, compact = false }: { site: Site; compact?:
       </span>
     );
   }
-
   if (site.avatarStyle === "photos") {
     if (site.teamPhotoUrl) {
       return (
@@ -38,7 +40,6 @@ export function PreviewAvatar({ site, compact = false }: { site: Site; compact?:
       </span>
     );
   }
-
   const initials =
     site.widgetTitle
       .split(/\s+/)
@@ -56,15 +57,17 @@ export function PreviewAvatar({ site, compact = false }: { site: Site; compact?:
 
 export function WidgetPreviewFrame({
   site,
-  device
+  device,
+  mode = "online"
 }: {
   site: Site;
   device: PreviewDevice;
+  mode?: WidgetPreviewMode;
 }) {
-  const alignClass = site.launcherPosition === "left" ? "left-6" : "right-6";
-  const headerStatus = previewStatus(site);
+  const headerStatus = widgetPreviewHeaderStatus(site, mode);
+  const statusTone = widgetPreviewStatusTone(mode);
   const welcomeCopy = site.greetingText.slice(0, 150);
-
+  const emptyState = mode === "online" ? null : widgetPreviewEmptyState(site, mode);
   const widget = (
     <div
       className={classNames(
@@ -76,64 +79,77 @@ export function WidgetPreviewFrame({
     >
       <div
         className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-        style={{ width: device === "desktop" ? "360px" : "240px", height: "420px" }}
+        style={{ width: device === "desktop" ? "360px" : "240px", height: WIDGET_PREVIEW_PANEL_HEIGHT }}
       >
         <div className="flex h-14 items-center justify-between px-4 text-white" style={{ backgroundColor: site.brandColor }}>
-          <div className="min-w-0">
-            <div className="truncate text-[15px] font-medium">{site.widgetTitle}</div>
-            {headerStatus ? <div className="truncate text-[12px] text-white/80">{headerStatus}</div> : null}
+          <div className="flex min-w-0 items-center gap-2">
+            {headerStatus ? <span className={classNames("h-2 w-2 rounded-full", statusTone)} /> : null}
+            <div className="min-w-0">
+              <div className="truncate text-[15px] font-medium">{site.widgetTitle}</div>
+              {headerStatus ? <div className="truncate text-[12px] text-white/80">{headerStatus}</div> : null}
+            </div>
           </div>
           <span className="text-base text-white/90">×</span>
         </div>
-
-        <div className="flex h-[calc(100%-56px)] flex-col bg-white">
-          <div className="flex-1 space-y-4 overflow-hidden px-4 py-4">
-            <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-[12px] rounded-bl-[4px] bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-900">
-                {welcomeCopy}
+        {mode === "online" ? (
+          <div className="flex h-[calc(100%-56px)] flex-col bg-white">
+            <div className="flex-1 space-y-4 overflow-hidden px-4 py-4">
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-[12px] rounded-bl-[4px] bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-900">
+                  {welcomeCopy}
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <div className="max-w-[80%] rounded-[12px] rounded-br-[4px] px-4 py-3 text-sm leading-6 text-white" style={{ backgroundColor: site.brandColor }}>
+                  Hi! I have a quick question.
+                </div>
+              </div>
+              <div className="flex items-end gap-2">
+                <PreviewAvatar site={site} compact />
+                <div className="max-w-[78%] rounded-[12px] rounded-bl-[4px] bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-900">
+                  Happy to help. Tell us what you’re looking for.
+                </div>
               </div>
             </div>
-            <div className="flex justify-end">
-              <div className="max-w-[80%] rounded-[12px] rounded-br-[4px] px-4 py-3 text-sm leading-6 text-white" style={{ backgroundColor: site.brandColor }}>
-                Hi! I have a quick question.
-              </div>
-            </div>
-            <div className="flex items-end gap-2">
-              <PreviewAvatar site={site} compact />
-              <div className="max-w-[78%] rounded-[12px] rounded-bl-[4px] bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-900">
-                Happy to help. Tell us what you’re looking for.
+            <div className="border-t border-slate-200 px-4 py-3">
+              <div className="flex items-end gap-2">
+                <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-500">
+                  +
+                </button>
+                <div className="min-h-10 flex-1 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-400">Type a message…</div>
+                <button
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-white"
+                  style={{ backgroundColor: site.brandColor }}
+                >
+                  ↗
+                </button>
               </div>
             </div>
           </div>
-
-          <div className="border-t border-slate-200 px-4 py-3">
-            <div className="flex items-end gap-2">
-              <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 text-slate-500">
-                +
-              </button>
-              <div className="min-h-10 flex-1 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-400">Type a message…</div>
+        ) : (
+          <div className="flex h-[calc(100%-56px)] flex-col items-center justify-center bg-white px-6 py-8 text-center">
+            <div className="mb-4 text-4xl text-slate-300">✉</div>
+            <div className="text-base font-medium text-slate-900">{emptyState?.title}</div>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{emptyState?.message}</p>
+            <div className="mt-6 w-full space-y-3">
+              <div className="h-11 rounded-lg border border-slate-200 px-3 text-left text-sm leading-[42px] text-slate-400">
+                Your email
+              </div>
+              <div className="h-24 rounded-lg border border-slate-200 px-3 py-3 text-left text-sm text-slate-400">
+                Your message...
+              </div>
               <button
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-white"
+                className="h-11 w-full rounded-lg text-sm font-medium text-white"
                 style={{ backgroundColor: site.brandColor }}
               >
-                ↗
+                Send Message →
               </button>
             </div>
           </div>
-        </div>
+        )}
       </div>
-
-      {device === "desktop" ? (
-        <button
-          className={classNames("absolute -bottom-2 flex h-[60px] w-[60px] items-center justify-center rounded-full text-white shadow-lg", alignClass)}
-          style={{ backgroundColor: site.brandColor }}
-        >
-          <ChatBubbleIcon className="h-6 w-6" />
-        </button>
-      ) : null}
     </div>
   );
-
   if (device === "mobile") {
     return (
       <div className="relative mx-auto h-[560px] w-[280px] overflow-hidden rounded-[32px] border-[8px] border-slate-900 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
@@ -151,7 +167,10 @@ export function WidgetPreviewFrame({
         <span className="h-3 w-3 rounded-full bg-emerald-400" />
         <div className="mx-auto h-7 w-[220px] rounded-full bg-slate-200" />
       </div>
-      <div className="relative h-[420px] overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 px-6 py-6">
+      <div
+        className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 px-6 py-6"
+        style={{ height: WIDGET_PREVIEW_PANEL_HEIGHT }}
+      >
         <div className="space-y-4">
           <div className="h-2 w-40 rounded-full bg-slate-200" />
           <div className="h-2 w-64 rounded-full bg-slate-200" />

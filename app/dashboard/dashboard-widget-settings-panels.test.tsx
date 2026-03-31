@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createSite } from "./use-dashboard-actions.test-helpers";
 import { WidgetBehaviorPanel } from "./dashboard-widget-settings-behavior-panel";
+import { WidgetOfflineCopyPanel } from "./dashboard-widget-settings-offline-copy-panel";
 import { WidgetInstallationPanel } from "./dashboard-widget-settings-installation-panel";
 
 function collectElements(node: ReactNode, predicate: (element: ReactElement) => boolean): ReactElement[] {
@@ -89,5 +90,51 @@ describe("widget behavior and installation panels", () => {
     expect(onVerifyInstallation).toHaveBeenCalled();
     expect(renderToStaticMarkup(installTree)).toContain("Widget not detected");
     expect(renderToStaticMarkup(installTree)).toContain("Unable to check installation right now.");
+  });
+
+  it("updates offline and away copy settings", () => {
+    const onUpdateActiveSite = vi.fn();
+    const site = createSite({
+      offlineMessage: "Leave your email and we'll reply within 2 hours.",
+      awayMessage: "Support is away right now, but we'll email you back."
+    });
+    const tree = WidgetOfflineCopyPanel({ activeSite: site, onUpdateActiveSite });
+    const controls = collectElements(
+      tree,
+      (element) => typeof element.type === "function" && typeof element.props?.onChange === "function"
+    );
+
+    controls.find((element) => element.props.value === site.offlineTitle)?.props.onChange({
+      target: { value: "We're in meetings right now" }
+    });
+    expect(onUpdateActiveSite.mock.lastCall?.[0](site)).toEqual(
+      expect.objectContaining({ offlineTitle: "We're in meetings right now" })
+    );
+
+    controls.find((element) => element.props.value === site.offlineMessage)?.props.onChange({
+      target: { value: "Leave a message and we'll be back after lunch." }
+    });
+    expect(onUpdateActiveSite.mock.lastCall?.[0](site)).toEqual(
+      expect.objectContaining({ offlineMessage: "Leave a message and we'll be back after lunch." })
+    );
+
+    controls.find((element) => element.props.value === site.awayTitle)?.props.onChange({
+      target: { value: "We're stepping out for a bit" }
+    });
+    expect(onUpdateActiveSite.mock.lastCall?.[0](site)).toEqual(
+      expect.objectContaining({ awayTitle: "We're stepping out for a bit" })
+    );
+
+    controls.find((element) => element.props.value === site.awayMessage)?.props.onChange({
+      target: { value: "Leave your email and we'll follow up later today." }
+    });
+    expect(onUpdateActiveSite.mock.lastCall?.[0](site)).toEqual(
+      expect.objectContaining({ awayMessage: "Leave your email and we'll follow up later today." })
+    );
+
+    const html = renderToStaticMarkup(tree);
+    expect(html).toContain("Offline and away copy");
+    expect(html).toContain("Offline title");
+    expect(html).toContain("Away message");
   });
 });

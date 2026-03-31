@@ -41,6 +41,10 @@ export type Site = {
   teamPhotoUrl: string | null;
   showOnlineStatus: boolean;
   requireEmailOffline: boolean;
+  offlineTitle: string;
+  offlineMessage: string;
+  awayTitle: string;
+  awayMessage: string;
   soundNotifications: boolean;
   autoOpenPaths: string[];
   responseTimeMode: WidgetResponseTimeMode;

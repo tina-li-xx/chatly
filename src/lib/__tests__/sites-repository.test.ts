@@ -79,6 +79,10 @@ describe("sites repository", () => {
         avatarStyle: "team-photo",
         showOnlineStatus: true,
         requireEmailOffline: false,
+        offlineTitle: "We're not online right now",
+        offlineMessage: "Leave a message and we'll get back to you via email.",
+        awayTitle: "We're away right now",
+        awayMessage: "Leave a message and we'll get back to you via email.",
         soundNotifications: true,
         autoOpenPaths: ["/pricing"],
         responseTimeMode: "minutes",
@@ -99,6 +103,10 @@ describe("sites repository", () => {
         avatarStyle: "logo",
         showOnlineStatus: false,
         requireEmailOffline: true,
+        offlineTitle: "Offline for now",
+        offlineMessage: "Leave us a note.",
+        awayTitle: "In meetings",
+        awayMessage: "We'll reply this afternoon.",
         soundNotifications: false,
         autoOpenPaths: [],
         responseTimeMode: "instant",
@@ -110,7 +118,8 @@ describe("sites repository", () => {
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("RETURNING widget_title");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("SET\n        name = $3");
-    expect(mocks.query.mock.calls[3]?.[0]).toContain("operating_hours_json = $16");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("away_message = $14");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("operating_hours_json = $20");
   });
 
   it("reads and mutates site team photo records", async () => {
@@ -146,7 +155,10 @@ describe("sites repository", () => {
     await touchSiteWidgetSeenRecord("site_1", "/pricing");
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("widget_install_verified_at = NOW()");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("LEFT JOIN user_presence up");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("MAX(up.last_seen_at) AS last_seen_at");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("FROM team_memberships tm");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("tm.status = 'active'");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("GROUP BY s.id");
     expect(mocks.query.mock.calls[2]?.[0]).toContain("widget_last_seen_url = COALESCE($2, widget_last_seen_url)");
     expect(mocks.query.mock.calls[2]?.[1]).toEqual(["site_1", "/pricing"]);
   });

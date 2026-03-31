@@ -1,4 +1,5 @@
 import type { Pool } from "pg";
+import { runSiteWidgetCopySchemaInitialization } from "./db-schema-site-widget-copy";
 
 export async function runSiteSchemaInitialization(pool: Pool) {
   await pool.query(`
@@ -215,6 +216,8 @@ export async function runSiteSchemaInitialization(pool: Pool) {
     SET response_time_mode = 'minutes'
     WHERE response_time_mode IS NULL OR response_time_mode NOT IN ('minutes', 'hours', 'day', 'hidden');
   `);
+
+  await runSiteWidgetCopySchemaInitialization(pool);
 
   await pool.query(`
     UPDATE sites

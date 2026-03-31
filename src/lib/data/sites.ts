@@ -34,6 +34,10 @@ import { getWorkspaceAccess } from "@/lib/workspace-access";
 import {
   DEFAULT_BRAND_COLOR,
   DEFAULT_GREETING_TEXT,
+  DEFAULT_AWAY_MESSAGE,
+  DEFAULT_AWAY_TITLE,
+  DEFAULT_OFFLINE_MESSAGE,
+  DEFAULT_OFFLINE_TITLE,
   DEFAULT_OPERATING_TIMEZONE,
   DEFAULT_WIDGET_TITLE,
   normalizeAutoOpenPaths,
@@ -42,6 +46,7 @@ import {
   normalizeLauncherPosition,
   normalizeSiteDomain,
   normalizeResponseTimeMode,
+  normalizeWidgetCopy,
   serializeOperatingHours
 } from "@/lib/widget-settings";
 import { mapSite, querySites } from "./shared";
@@ -65,6 +70,10 @@ export type UpdateSiteWidgetSettingsInput = {
   avatarStyle: WidgetAvatarStyle;
   showOnlineStatus: boolean;
   requireEmailOffline: boolean;
+  offlineTitle: string;
+  offlineMessage: string;
+  awayTitle: string;
+  awayMessage: string;
   soundNotifications: boolean;
   autoOpenPaths: string[];
   responseTimeMode: WidgetResponseTimeMode;
@@ -169,6 +178,10 @@ export async function updateSiteWidgetSettings(
     avatarStyle: normalizeAvatarStyle(input.avatarStyle),
     showOnlineStatus: input.showOnlineStatus,
     requireEmailOffline: input.requireEmailOffline,
+    offlineTitle: normalizeWidgetCopy(input.offlineTitle, DEFAULT_OFFLINE_TITLE, 80),
+    offlineMessage: normalizeWidgetCopy(input.offlineMessage, DEFAULT_OFFLINE_MESSAGE, 180),
+    awayTitle: normalizeWidgetCopy(input.awayTitle, DEFAULT_AWAY_TITLE, 80),
+    awayMessage: normalizeWidgetCopy(input.awayMessage, DEFAULT_AWAY_MESSAGE, 180),
     soundNotifications: input.soundNotifications,
     autoOpenPaths: normalizeAutoOpenPaths(input.autoOpenPaths),
     responseTimeMode: normalizeResponseTimeMode(input.responseTimeMode),
@@ -212,6 +225,10 @@ export async function getSiteWidgetConfig(siteId: string) {
     teamPhotoUrl: site.teamPhotoUrl,
     showOnlineStatus: site.showOnlineStatus,
     requireEmailOffline: site.requireEmailOffline,
+    offlineTitle: site.offlineTitle,
+    offlineMessage: site.offlineMessage,
+    awayTitle: site.awayTitle,
+    awayMessage: site.awayMessage,
     soundNotifications: site.soundNotifications,
     autoOpenPaths: features.proactiveChat ? site.autoOpenPaths : [],
     responseTimeMode: site.responseTimeMode,

@@ -40,6 +40,10 @@ export async function findCreatedSiteRow(siteId: string) {
     team_photo_url: string | null;
     show_online_status: boolean | null;
     require_email_offline: boolean | null;
+    offline_title: string | null;
+    offline_message: string | null;
+    away_title: string | null;
+    away_message: string | null;
     sound_notifications: boolean | null;
     auto_open_paths: string[] | null;
     response_time_mode: string | null;
@@ -67,6 +71,10 @@ export async function findCreatedSiteRow(siteId: string) {
         team_photo_url,
         show_online_status,
         require_email_offline,
+        offline_title,
+        offline_message,
+        away_title,
+        away_message,
         sound_notifications,
         auto_open_paths,
         response_time_mode,
@@ -139,6 +147,10 @@ export async function updateSiteWidgetSettingsRecord(input: {
   avatarStyle: string;
   showOnlineStatus: boolean;
   requireEmailOffline: boolean;
+  offlineTitle: string;
+  offlineMessage: string;
+  awayTitle: string;
+  awayMessage: string;
   soundNotifications: boolean;
   autoOpenPaths: string[];
   responseTimeMode: string;
@@ -158,12 +170,16 @@ export async function updateSiteWidgetSettingsRecord(input: {
         avatar_style = $8,
         show_online_status = $9,
         require_email_offline = $10,
-        sound_notifications = $11,
-        auto_open_paths = $12,
-        response_time_mode = $13,
-        operating_hours_enabled = $14,
-        operating_hours_timezone = $15,
-        operating_hours_json = $16
+        offline_title = $11,
+        offline_message = $12,
+        away_title = $13,
+        away_message = $14,
+        sound_notifications = $15,
+        auto_open_paths = $16,
+        response_time_mode = $17,
+        operating_hours_enabled = $18,
+        operating_hours_timezone = $19,
+        operating_hours_json = $20
       WHERE id = $1
         AND user_id = $2
       RETURNING id
@@ -179,6 +195,10 @@ export async function updateSiteWidgetSettingsRecord(input: {
       input.avatarStyle,
       input.showOnlineStatus,
       input.requireEmailOffline,
+      input.offlineTitle,
+      input.offlineMessage,
+      input.awayTitle,
+      input.awayMessage,
       input.soundNotifications,
       input.autoOpenPaths,
       input.responseTimeMode,
@@ -269,11 +289,20 @@ export async function markSiteWidgetInstallVerifiedRecord(siteId: string, userId
 export async function findSitePresenceRow(siteId: string) {
   const result = await query<{ last_seen_at: string | null }>(
     `
-      SELECT up.last_seen_at
+      SELECT MAX(up.last_seen_at) AS last_seen_at
       FROM sites s
+      LEFT JOIN LATERAL (
+        SELECT s.user_id AS user_id
+        UNION ALL
+        SELECT tm.member_user_id AS user_id
+        FROM team_memberships tm
+        WHERE tm.owner_user_id = s.user_id
+          AND tm.status = 'active'
+      ) workspace_members ON TRUE
       LEFT JOIN user_presence up
-        ON up.user_id = s.user_id
+        ON up.user_id = workspace_members.user_id
       WHERE s.id = $1
+      GROUP BY s.id
       LIMIT 1
     `,
     [siteId]

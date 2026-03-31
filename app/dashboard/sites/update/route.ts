@@ -51,6 +51,10 @@ export async function POST(request: Request) {
           parsed.avatarStyle === "photos" || parsed.avatarStyle === "icon" ? parsed.avatarStyle : "initials",
         showOnlineStatus: Boolean(parsed.showOnlineStatus),
         requireEmailOffline: Boolean(parsed.requireEmailOffline),
+        offlineTitle: String(parsed.offlineTitle ?? ""),
+        offlineMessage: String(parsed.offlineMessage ?? ""),
+        awayTitle: String(parsed.awayTitle ?? ""),
+        awayMessage: String(parsed.awayMessage ?? ""),
         soundNotifications: Boolean(parsed.soundNotifications),
         autoOpenPaths,
         responseTimeMode:

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Site } from "@/lib/types";
+import { WidgetOfflineCopyPanel } from "./dashboard-widget-settings-offline-copy-panel";
 import { ChevronDownIcon } from "./dashboard-ui";
 import {
   DAYS,
@@ -10,9 +11,7 @@ import {
 } from "./dashboard-widget-settings-shared";
 
 export function WidgetBehaviorPanel({
-  activeSite,
-  proactiveChatUnlocked,
-  onUpdateActiveSite
+  activeSite, proactiveChatUnlocked, onUpdateActiveSite
 }: {
   activeSite: Site;
   proactiveChatUnlocked: boolean;
@@ -38,7 +37,6 @@ export function WidgetBehaviorPanel({
         checked={activeSite.soundNotifications}
         onToggle={() => onUpdateActiveSite((site) => ({ ...site, soundNotifications: !site.soundNotifications }))}
       />
-
       <div className={!proactiveChatUnlocked ? "opacity-70" : ""}>
         <ToggleRow
           label="Auto-open on specific pages"
@@ -82,7 +80,6 @@ export function WidgetBehaviorPanel({
           </p>
         ) : null}
       </div>
-
       <div>
         <label className="mb-2 block text-sm font-medium text-slate-700">Response time message</label>
         <div className="relative">
@@ -102,7 +99,7 @@ export function WidgetBehaviorPanel({
           <ChevronDownIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         </div>
       </div>
-
+      <WidgetOfflineCopyPanel activeSite={activeSite} onUpdateActiveSite={onUpdateActiveSite} />
       <div>
         <ToggleRow
           label="Set operating hours"

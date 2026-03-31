@@ -56,7 +56,7 @@ async function loadPage(hookValue: Record<string, unknown>) {
   vi.doMock("./dashboard-widget-settings-appearance-panel", () => ({ WidgetAppearancePanel: (props: unknown) => ((captures.appearance = props), <div>appearance</div>) }));
   vi.doMock("./dashboard-widget-settings-behavior-panel", () => ({ WidgetBehaviorPanel: (props: unknown) => ((captures.behavior = props), <div>behavior</div>) }));
   vi.doMock("./dashboard-widget-settings-installation-panel", () => ({ WidgetInstallationPanel: (props: unknown) => ((captures.installation = props), <div>installation</div>) }));
-  vi.doMock("./dashboard-widget-settings-preview", () => ({ WidgetPreviewFrame: (props: unknown) => ((captures.preview = props), <div>preview</div>) }));
+  vi.doMock("./dashboard-widget-settings-preview-pane", () => ({ WidgetPreviewPane: (props: unknown) => ((captures.previewPane = props), <div>preview</div>) }));
 
   const module = await import("./dashboard-widget-settings-page");
   return { DashboardWidgetSettingsPage: module.DashboardWidgetSettingsPage, captures };
@@ -97,7 +97,7 @@ describe("dashboard widget settings page", () => {
     expect(html).toContain("Once you have a site in Chatting");
   });
 
-  it("wires page actions, tab switches, and preview device toggles through the hook", async () => {
+  it("wires page actions, tab switches, and preview pane props through the hook", async () => {
     const setActiveSiteId = vi.fn();
     const setActiveTab = vi.fn();
     const setPreviewDevice = vi.fn();
@@ -143,15 +143,15 @@ describe("dashboard widget settings page", () => {
     buttons.find((element) => textContent(element.props.children).includes("Discard"))?.props.onClick();
     buttons.find((element) => textContent(element.props.children).includes("Saved!"))?.props.onClick();
     buttons.find((element) => textContent(element.props.children).includes("Appearance"))?.props.onClick();
-    buttons.find((element) => element.props["aria-label"] === "Mobile")?.props.onClick();
 
     expect(setActiveSiteId).toHaveBeenCalledWith("site_2");
     expect(discardChanges).toHaveBeenCalled();
     expect(saveChanges).toHaveBeenCalled();
     expect(setActiveTab).toHaveBeenCalledWith("appearance");
-    expect(setPreviewDevice).toHaveBeenCalledWith("mobile");
     expect(captures.installation).toMatchObject({ activeSite: draftSites[0], installPlatform: "html" });
-    expect(captures.preview).toMatchObject({ site: draftSites[0], device: "desktop" });
+    expect(captures.previewPane).toMatchObject({ site: draftSites[0], device: "desktop", onSetPreviewDevice: setPreviewDevice });
+    (captures.previewPane as { onSetPreviewDevice: (device: string) => void }).onSetPreviewDevice("mobile");
+    expect(setPreviewDevice).toHaveBeenCalledWith("mobile");
     expect(html).toContain("Unable to save widget settings.");
     expect(html).toContain("Widget settings saved");
   });

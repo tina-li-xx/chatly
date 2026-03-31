@@ -15,7 +15,7 @@ declare global {
   var __chatlySchemaVersion: string | undefined;
 }
 
-const SCHEMA_VERSION = "2026-03-30-weekly-performance-schema";
+const SCHEMA_VERSION = "2026-03-31-site-widget-copy-schema";
 
 async function createPool() {
   const config = getDatabaseConfig();

@@ -48,6 +48,8 @@ describe("dashboard sites update route edge cases", () => {
         avatarStyle: "emoji",
         responseTimeMode: "weeks",
         autoOpenPaths: "bad",
+        offlineTitle: 42,
+        awayMessage: false,
         operatingHoursEnabled: 0,
         operatingHours: "bad"
       })
@@ -63,6 +65,8 @@ describe("dashboard sites update route edge cases", () => {
         domain: "example.com",
         launcherPosition: "right",
         avatarStyle: "initials",
+        offlineTitle: "42",
+        awayMessage: "false",
         autoOpenPaths: [],
         responseTimeMode: "minutes",
         operatingHoursEnabled: false

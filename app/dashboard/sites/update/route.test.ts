@@ -61,6 +61,10 @@ describe("dashboard sites update route", () => {
         avatarStyle: "photos",
         showOnlineStatus: true,
         requireEmailOffline: true,
+        offlineTitle: "We're offline",
+        offlineMessage: "Leave a note.",
+        awayTitle: "We're away",
+        awayMessage: "We will reply soon.",
         soundNotifications: false,
         autoOpenPaths: ["/pricing"],
         responseTimeMode: "hours",
@@ -88,6 +92,10 @@ describe("dashboard sites update route", () => {
         brandColor: "#2563EB",
         launcherPosition: "left",
         avatarStyle: "photos",
+        offlineTitle: "We're offline",
+        offlineMessage: "Leave a note.",
+        awayTitle: "We're away",
+        awayMessage: "We will reply soon.",
         autoOpenPaths: ["/pricing"],
         responseTimeMode: "hours"
       })

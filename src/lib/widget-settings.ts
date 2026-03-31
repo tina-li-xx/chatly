@@ -11,6 +11,10 @@ import { optionalText } from "@/lib/utils";
 export const DEFAULT_BRAND_COLOR = "#2563EB";
 export const DEFAULT_WIDGET_TITLE = "Talk to the team";
 export const DEFAULT_GREETING_TEXT = "Hi there. Have a question? We're here to help.";
+export const DEFAULT_OFFLINE_TITLE = "We're not online right now";
+export const DEFAULT_OFFLINE_MESSAGE = "Leave a message and we'll get back to you via email.";
+export const DEFAULT_AWAY_TITLE = "We're away right now";
+export const DEFAULT_AWAY_MESSAGE = "Leave a message and we'll get back to you via email.";
 export const DEFAULT_LAUNCHER_POSITION: WidgetLauncherPosition = "right";
 export const DEFAULT_AVATAR_STYLE: WidgetAvatarStyle = "initials";
 export const DEFAULT_RESPONSE_TIME_MODE: WidgetResponseTimeMode = "minutes";
@@ -61,6 +65,15 @@ export function normalizeSiteDomain(value: string | null | undefined) {
   }
 
   return normalized.replace(/\/+$/, "");
+}
+
+export function normalizeWidgetCopy(
+  value: string | null | undefined,
+  fallback: string,
+  maxLength: number
+) {
+  const normalized = optionalText(value);
+  return normalized ? normalized.slice(0, maxLength) : fallback;
 }
 
 export function normalizeLauncherPosition(value: string | null | undefined): WidgetLauncherPosition {
@@ -143,6 +156,10 @@ export function buildWidgetSettingsPayload(site: Site) {
     avatarStyle: site.avatarStyle,
     showOnlineStatus: site.showOnlineStatus,
     requireEmailOffline: site.requireEmailOffline,
+    offlineTitle: site.offlineTitle,
+    offlineMessage: site.offlineMessage,
+    awayTitle: site.awayTitle,
+    awayMessage: site.awayMessage,
     soundNotifications: site.soundNotifications,
     autoOpenPaths: site.autoOpenPaths,
     responseTimeMode: site.responseTimeMode,

@@ -16,6 +16,10 @@ export type SiteRow = {
   team_photo_url: string | null;
   show_online_status: boolean | null;
   require_email_offline: boolean | null;
+  offline_title: string | null;
+  offline_message: string | null;
+  away_title: string | null;
+  away_message: string | null;
   sound_notifications: boolean | null;
   auto_open_paths: string[] | null;
   response_time_mode: string | null;
@@ -84,6 +88,10 @@ const SITE_SELECT = `
   s.team_photo_url,
   s.show_online_status,
   s.require_email_offline,
+  s.offline_title,
+  s.offline_message,
+  s.away_title,
+  s.away_message,
   s.sound_notifications,
   s.auto_open_paths,
   s.response_time_mode,
@@ -111,6 +119,10 @@ const SITE_GROUP_BY = `
   s.team_photo_url,
   s.show_online_status,
   s.require_email_offline,
+  s.offline_title,
+  s.offline_message,
+  s.away_title,
+  s.away_message,
   s.sound_notifications,
   s.auto_open_paths,
   s.response_time_mode,
