@@ -23,7 +23,7 @@ describe("dashboard widget install card", () => {
     } as unknown as Window & typeof globalThis;
   });
 
-  it("renders the installed state immediately when the widget is already live", async () => {
+  it("renders nothing when the widget is already live", async () => {
     const { DashboardWidgetInstallCard, reactMocks } = await loadInstallCard();
     reactMocks.beginRender();
 
@@ -31,11 +31,10 @@ describe("dashboard widget install card", () => {
       <DashboardWidgetInstallCard initialInstalled siteIds={["site_1"]} />
     );
 
-    expect(html).toContain("Widget is live");
-    expect(html).toContain("Customize widget");
+    expect(html).toBe("");
   });
 
-  it("promotes the card to installed when the site is already mounted", async () => {
+  it("hides the card immediately when the site is already mounted", async () => {
     const { DashboardWidgetInstallCard, reactMocks } = await loadInstallCard();
     window.__chatlyMountedSiteIds = ["site_1"];
     reactMocks.beginRender();
@@ -47,11 +46,11 @@ describe("dashboard widget install card", () => {
       <DashboardWidgetInstallCard initialInstalled={false} siteIds={["site_1"]} />
     );
 
-    expect(html).toContain("Widget is live");
+    expect(html).toBe("");
     expect(window.addEventListener).not.toHaveBeenCalled();
   });
 
-  it("listens for the widget mounted event when installation is still pending", async () => {
+  it("keeps the install CTA until a matching mounted event arrives", async () => {
     const { DashboardWidgetInstallCard, reactMocks } = await loadInstallCard();
     reactMocks.beginRender();
     renderToStaticMarkup(<DashboardWidgetInstallCard initialInstalled={false} siteIds={["site_1"]} />);
@@ -69,7 +68,7 @@ describe("dashboard widget install card", () => {
     );
     cleanups[0]?.();
 
-    expect(installedHtml).toContain("Widget is live");
+    expect(installedHtml).toBe("");
     expect(window.removeEventListener).toHaveBeenCalledWith("chatly:widget:mounted", mountedListener);
   });
 });

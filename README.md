@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Aligned dashboard inbox install prompts with the live widget state and split the inbox surface into smaller shared helpers.
 - Tightened the landing-page header so it stays in flow on desktop, removes the white seam below the nav, and collapses into a cleaner mobile nav/action layout.
 - Switched Next.js 16 development and production builds back to the default Turbopack path, cleared the stale webpack reload loop, and tightened shared email section typing so builds pass cleanly.
 - Added dynamic Edge ImageResponse generation for customized Open Graph social cards and a brand-aligned SVG favicon.
@@ -100,6 +101,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Dashboard
 
 - Shared dashboard shell with focused pages for inbox, visitors, analytics, team, settings, and widget setup.
+- Dashboard inbox install prompts now disappear once the widget is live and share the same install-state wiring across the sidebar card and empty conversation list.
 - Dashboard home now uses dedicated metrics, recent-conversations, and sidebar modules with cleaner empty states.
 - Dashboard home now surfaces activation, health, and expansion growth signals for the workspace.
 - Optimistic inbox interactions for replies and tags, plus modularized page components throughout.

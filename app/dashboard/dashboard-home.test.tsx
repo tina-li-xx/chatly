@@ -27,7 +27,7 @@ vi.mock("./dashboard-shell", () => ({
 
 vi.mock("./dashboard-widget-install-card", () => ({
   DashboardWidgetInstallCard: ({ initialInstalled }: { initialInstalled: boolean }) => (
-    <div>{initialInstalled ? "Widget installed" : "Widget install needed"}</div>
+    initialInstalled ? null : <div>Widget install needed</div>
   )
 }));
 
@@ -42,7 +42,7 @@ vi.mock("./dashboard-ui", async () => {
 import { DashboardHome } from "./dashboard-home";
 
 describe("dashboard home", () => {
-  it("renders metrics, conversations, and installation state", async () => {
+  it("renders metrics and conversations without the live widget card", async () => {
     mocks.getDashboardHomeData.mockResolvedValueOnce(createHomeData());
 
     const html = renderToStaticMarkup(
@@ -63,7 +63,9 @@ describe("dashboard home", () => {
     expect(html).not.toContain("Unlock deeper analytics and API access");
     expect(html).toContain("Recent conversations");
     expect(html).toContain("Quick question about pricing...");
-    expect(html).toContain("Widget installed");
+    expect(html).not.toContain("Widget install needed");
+    expect(html).not.toContain("Widget is live");
+    expect(html).not.toContain("Customize widget");
   });
 
   it("renders empty-state copy and neutral badges when data is missing", async () => {

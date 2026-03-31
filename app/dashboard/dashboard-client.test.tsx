@@ -125,6 +125,8 @@ describe("dashboard client", () => {
     listeners.focus?.();
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(panels).toHaveLength(1);
+    expect(panels[0]?.props.initialWidgetInstalled).toBe(true);
+    expect(panels[0]?.props.widgetSiteIds).toEqual(["site_1"]);
     expect(details[0]?.props.showBackButton).toBe(true);
     expect(details[0]?.props.isLiveDisconnected).toBe(true);
     expect(reactMocks.states[4]?.current).toBe(false);

@@ -9,7 +9,7 @@ import { toSummary } from "./dashboard-state-helpers";
 import { useDashboardLiveSync } from "./use-dashboard-live-sync";
 import { createDashboardActions } from "./use-dashboard-actions";
 
-type ThreadFilter = "all" | "open" | "resolved";
+export type ThreadFilter = "all" | "open" | "resolved";
 
 export function useDashboardState({
   initialStats,
@@ -387,3 +387,5 @@ export function useDashboardState({
     setSearchQuery
   };
 }
+
+export type DashboardState = ReturnType<typeof useDashboardState>;

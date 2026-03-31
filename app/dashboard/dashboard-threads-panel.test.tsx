@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createConversationSummary } from "./use-dashboard-actions.test-helpers";
+import { createMockReactHooks } from "./test-react-hooks";
 
 vi.mock("./dashboard-shell", () => ({
   DashboardLink: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
@@ -11,6 +12,22 @@ vi.mock("./dashboard-shell", () => ({
 }));
 
 import { DashboardThreadsPanel } from "./dashboard-threads-panel";
+
+async function loadThreadsPanel() {
+  vi.resetModules();
+  const reactMocks = createMockReactHooks();
+  vi.doMock("react", () => reactMocks.moduleFactory());
+  vi.doMock("./dashboard-shell", () => ({
+    DashboardLink: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
+      <a href={href} {...props}>
+        {children}
+      </a>
+    )
+  }));
+
+  const module = await import("./dashboard-threads-panel");
+  return { DashboardThreadsPanel: module.DashboardThreadsPanel, reactMocks };
+}
 
 function collectElements(node: ReactNode, predicate: (element: ReactElement) => boolean): ReactElement[] {
   if (!node || typeof node === "string" || typeof node === "number" || typeof node === "boolean") {
@@ -45,6 +62,20 @@ describe("dashboard threads panel", () => {
       <DashboardThreadsPanel
         allConversations={[]}
         conversations={[]}
+        initialWidgetInstalled={false}
+        widgetSiteIds={["site_1"]}
+        threadFilter="all"
+        searchQuery=""
+        onThreadFilterChange={vi.fn()}
+        onSearchQueryChange={vi.fn()}
+      />
+    );
+    const installedEmptyHtml = renderToStaticMarkup(
+      <DashboardThreadsPanel
+        allConversations={[]}
+        conversations={[]}
+        initialWidgetInstalled
+        widgetSiteIds={["site_1"]}
         threadFilter="all"
         searchQuery=""
         onThreadFilterChange={vi.fn()}
@@ -55,6 +86,8 @@ describe("dashboard threads panel", () => {
       <DashboardThreadsPanel
         allConversations={[createConversationSummary()]}
         conversations={[]}
+        initialWidgetInstalled={false}
+        widgetSiteIds={["site_1"]}
         threadFilter="open"
         searchQuery="pricing"
         onThreadFilterChange={vi.fn()}
@@ -64,6 +97,7 @@ describe("dashboard threads panel", () => {
 
     expect(emptyHtml).toContain("No conversations yet");
     expect(emptyHtml).toContain("Install widget");
+    expect(installedEmptyHtml).not.toContain("Install widget");
     expect(searchHtml).toContain("No conversations found");
     expect(searchHtml).toContain("Showing 0 of 1 conversations");
   });
@@ -79,6 +113,8 @@ describe("dashboard threads panel", () => {
           createConversationSummary({ unreadCount: 2 }),
           createConversationSummary({ id: "conv_2", status: "resolved", unreadCount: 0, email: null })
         ]}
+        initialWidgetInstalled={false}
+        widgetSiteIds={["site_1"]}
         activeConversationId="conv_1"
         highlightedConversationId="conv_2"
         threadFilter="resolved"
@@ -94,14 +130,18 @@ describe("dashboard threads panel", () => {
     expect(html).toContain("/pricing");
   });
 
-  it("forwards filter, search, clear, and select handlers", () => {
+  it("forwards filter, search, clear, and select handlers", async () => {
     const onThreadFilterChange = vi.fn();
     const onSearchQueryChange = vi.fn();
     const onClearSearch = vi.fn();
     const onSelectConversation = vi.fn();
+    const { DashboardThreadsPanel, reactMocks } = await loadThreadsPanel();
+    reactMocks.beginRender();
     const tree = DashboardThreadsPanel({
       allConversations: [createConversationSummary(), createConversationSummary({ id: "conv_2" })],
       conversations: [createConversationSummary(), createConversationSummary({ id: "conv_2" })],
+      initialWidgetInstalled: false,
+      widgetSiteIds: ["site_1"],
       activeConversationId: "conv_1",
       highlightedConversationId: "conv_2",
       threadFilter: "all",

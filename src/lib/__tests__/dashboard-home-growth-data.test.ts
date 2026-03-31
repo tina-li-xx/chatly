@@ -3,6 +3,11 @@ describe("dashboard home and growth data", () => {
 
   it("builds dashboard home data and throws when the user is missing", async () => {
     vi.resetModules();
+    const getDashboardGrowthData = vi.fn().mockResolvedValue({
+      activation: { status: "healthy" },
+      health: { status: "healthy" },
+      expansion: { prompts: [] }
+    });
     vi.doMock("@/lib/repositories/auth-repository", () => ({ findAuthUserById: vi.fn().mockResolvedValueOnce(null).mockResolvedValueOnce({ created_at: "2026-03-01T00:00:00.000Z" }) }));
     vi.doMock("@/lib/site-installation", () => ({ isSiteWidgetInstalled: vi.fn((site: { installed: boolean }) => site.installed) }));
     vi.doMock("@/lib/data/conversations", () => ({ listConversationSummaries: vi.fn().mockResolvedValue([{ id: "conv_1", unreadCount: 2 }, { id: "conv_2", unreadCount: 1 }]) }));
@@ -14,7 +19,7 @@ describe("dashboard home and growth data", () => {
       listDashboardHomeChartPoints: vi.fn().mockResolvedValue([{ day_label: "Mon", count: "5" }, { day_label: "Tue", count: "3" }]),
       getPreviousWeekConversationCount: vi.fn().mockResolvedValue("4")
     }));
-    vi.doMock("@/lib/data/dashboard-growth", () => ({ getDashboardGrowthData: vi.fn().mockResolvedValue({ activation: { status: "healthy" }, health: { status: "healthy" }, expansion: { prompts: [] } }) }));
+    vi.doMock("@/lib/data/dashboard-growth", () => ({ getDashboardGrowthData }));
 
     const module = await import("@/lib/data/dashboard-home");
     await expect(module.getDashboardHomeData("user_1")).rejects.toThrow("USER_NOT_FOUND");
@@ -24,6 +29,12 @@ describe("dashboard home and growth data", () => {
       unreadCount: 3,
       chart: { total: 8, changePercent: 100 }
     });
+    expect(getDashboardGrowthData).toHaveBeenCalledWith(
+      "user_1",
+      "2026-03-01T00:00:00.000Z",
+      true,
+      45
+    );
   });
 
 });
