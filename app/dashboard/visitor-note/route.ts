@@ -4,6 +4,7 @@ import {
   updateConversationVisitorNote,
   updateSiteVisitorNote
 } from "@/lib/data";
+import { sendConversationMentionNotifications } from "@/lib/mention-notifications";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 
 function readIdentity(request: Request) {
@@ -69,6 +70,21 @@ export async function POST(request: Request) {
     const saved = await updateConversationVisitorNote(conversationId, note, auth.user.id);
     if (!saved) {
       return jsonError("not-found", 404);
+    }
+
+    if (saved.note) {
+      try {
+        await sendConversationMentionNotifications({
+          conversationId,
+          note: saved.note,
+          updatedAt: saved.updatedAt,
+          mentionerUserId: auth.user.id,
+          mentionerEmail: auth.user.email,
+          workspaceOwnerId: auth.user.workspaceOwnerId
+        });
+      } catch (error) {
+        console.error("conversation mention notification failed", error);
+      }
     }
 
     return jsonOk(saved);

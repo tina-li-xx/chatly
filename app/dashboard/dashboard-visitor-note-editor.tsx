@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { FormButton, FormTextarea } from "../ui/form-controls";
 import { useToast } from "../ui/toast-provider";
+import { getVisitorNoteSelection, readVisitorNoteDeeplink } from "./dashboard-visitor-note-deeplink";
+import { buildVisitorNoteIdentityParams } from "./dashboard-visitor-note-shared";
+import { DashboardVisitorNoteSkeleton } from "./dashboard-visitor-note-skeleton";
 import { errorMessageForCode } from "./dashboard-client.utils";
 import { formatRelativeTime } from "@/lib/utils";
 
@@ -20,46 +23,16 @@ type VisitorNotePayload = {
   error?: string;
 };
 
-function buildIdentityParams(props: VisitorNoteEditorProps) {
-  const params = new URLSearchParams();
-
-  if (props.conversationId) {
-    params.set("conversationId", props.conversationId);
-    return params;
-  }
-
-  if (!props.siteId || (!props.email && !props.sessionId)) {
-    return null;
-  }
-
-  params.set("siteId", props.siteId);
-  if (props.email) {
-    params.set("email", props.email);
-  }
-  if (props.sessionId) {
-    params.set("sessionId", props.sessionId);
-  }
-
-  return params;
-}
-
-function NoteEditorSkeleton() {
-  return (
-    <div className="space-y-3 animate-pulse">
-      <div className="h-28 rounded-2xl bg-slate-100" />
-      <div className="space-y-2">
-        <div className="h-4 w-40 rounded bg-slate-100" />
-        <div className="ml-auto h-10 w-24 rounded-2xl bg-slate-100" />
-      </div>
-    </div>
-  );
-}
-
 export function DashboardVisitorNoteEditor(props: VisitorNoteEditorProps) {
   const { showToast } = useToast();
   const params = useMemo(
-    () => buildIdentityParams(props),
+    () => buildVisitorNoteIdentityParams(props),
     [props.conversationId, props.email, props.sessionId, props.siteId]
+  );
+  const deeplink = useMemo(() => readVisitorNoteDeeplink(props.conversationId), [props.conversationId]);
+  const textareaId = useMemo(
+    () => `dashboard-visitor-note-${props.conversationId ?? props.siteId ?? "current"}`,
+    [props.conversationId, props.siteId]
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -123,6 +96,23 @@ export function DashboardVisitorNoteEditor(props: VisitorNoteEditorProps) {
     };
   }, [params, showToast]);
 
+  useEffect(() => {
+    if (loading || !deeplink?.focusNote) {
+      return;
+    }
+
+    const field = document.getElementById(textareaId) as HTMLTextAreaElement | null;
+    if (!field) {
+      return;
+    }
+
+    const selection = getVisitorNoteSelection(savedNote || draft, deeplink);
+    field.focus();
+    if (selection) {
+      field.setSelectionRange(selection.start, selection.end);
+    }
+  }, [deeplink, draft, loading, savedNote, textareaId]);
+
   async function handleSave() {
     if (!params || saving) {
       return;
@@ -166,12 +156,19 @@ export function DashboardVisitorNoteEditor(props: VisitorNoteEditorProps) {
   }
 
   if (loading) {
-    return <NoteEditorSkeleton />;
+    return <DashboardVisitorNoteSkeleton />;
   }
 
   return (
     <div className="space-y-3">
+      {deeplink?.note ? (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-slate-500">Mentioned note</p>
+          <p className="mt-2 text-sm leading-6 text-slate-700">{deeplink.note}</p>
+        </div>
+      ) : null}
       <FormTextarea
+        id={textareaId}
         rows={5}
         value={draft}
         onChange={(event) => setDraft(event.target.value)}

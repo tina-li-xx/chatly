@@ -40,9 +40,10 @@ describe("conversation template emails more", () => {
     });
     mocks.findConversationTemplateContext.mockResolvedValue({
       conversation_id: "conv_1",
+      site_id: "site_1",
+      session_id: "session_1",
       user_id: "user_1",
       site_name: "Acme Support",
-      domain: null,
       email: "alex@example.com",
       plan_key: "starter"
     });
@@ -55,7 +56,7 @@ describe("conversation template emails more", () => {
     mocks.findConversationTemplateContext.mockResolvedValueOnce(null);
     await expect(sendWelcomeTemplateEmail({ conversationId: "conv_1", userId: "user_1" })).resolves.toBe("skipped");
 
-    mocks.findConversationTemplateContext.mockResolvedValueOnce({ conversation_id: "conv_1", user_id: "user_1", site_name: "Acme", domain: null, email: null, plan_key: "starter" });
+    mocks.findConversationTemplateContext.mockResolvedValueOnce({ conversation_id: "conv_1", site_id: "site_1", session_id: "session_1", user_id: "user_1", site_name: "Acme", email: null, plan_key: "starter" });
     await expect(sendWelcomeTemplateEmail({ conversationId: "conv_1", userId: "user_1" })).resolves.toBe("skipped");
 
     mocks.getDashboardEmailTemplateSettings.mockResolvedValueOnce({

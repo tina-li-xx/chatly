@@ -1,6 +1,7 @@
 const mocks = vi.hoisted(() => ({
   getConversationVisitorNote: vi.fn(),
   getSiteVisitorNote: vi.fn(),
+  sendConversationMentionNotifications: vi.fn(),
   updateConversationVisitorNote: vi.fn(),
   updateSiteVisitorNote: vi.fn(),
   requireJsonRouteUser: vi.fn()
@@ -11,6 +12,9 @@ vi.mock("@/lib/data", () => ({
   getSiteVisitorNote: mocks.getSiteVisitorNote,
   updateConversationVisitorNote: mocks.updateConversationVisitorNote,
   updateSiteVisitorNote: mocks.updateSiteVisitorNote
+}));
+vi.mock("@/lib/mention-notifications", () => ({
+  sendConversationMentionNotifications: mocks.sendConversationMentionNotifications
 }));
 vi.mock("@/lib/route-helpers", () => ({
   jsonError: (error: string, status: number) => Response.json({ ok: false, error }, { status }),
@@ -23,7 +27,13 @@ import { GET, POST } from "./route";
 describe("visitor note route extra coverage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.requireJsonRouteUser.mockResolvedValue({ user: { id: "user_1" } });
+    mocks.requireJsonRouteUser.mockResolvedValue({
+      user: {
+        id: "user_1",
+        email: "owner@example.com",
+        workspaceOwnerId: "owner_1"
+      }
+    });
   });
 
   it("returns auth responses and missing records for gets", async () => {
@@ -64,5 +74,25 @@ describe("visitor note route extra coverage", () => {
     mocks.updateSiteVisitorNote.mockResolvedValueOnce(null);
     const saved = await POST(new Request("https://chatting.test", { method: "POST", body: formData }));
     expect(saved.status).toBe(404);
+  });
+
+  it("keeps note saves successful when mention email delivery fails", async () => {
+    const formData = new FormData();
+    formData.set("conversationId", "conv_1");
+    formData.set("note", "@Tina can you take this one?");
+    mocks.updateConversationVisitorNote.mockResolvedValueOnce({
+      note: "@Tina can you take this one?",
+      updatedAt: "2026-03-30T15:44:00.000Z"
+    });
+    mocks.sendConversationMentionNotifications.mockRejectedValueOnce(new Error("mail down"));
+
+    const response = await POST(new Request("https://chatting.test", { method: "POST", body: formData }));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      ok: true,
+      note: "@Tina can you take this one?",
+      updatedAt: "2026-03-30T15:44:00.000Z"
+    });
   });
 });

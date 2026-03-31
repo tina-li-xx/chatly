@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Added signed conversation resume links for visitor emails plus inbox deeplinks for teammate mention notifications.
 - Unified transactional, notification, lifecycle, and visitor emails on a single Chatting email shell with matching dashboard previews.
 - Added scheduled daily digests and weekly performance emails with per-user delivery tracking from the node runtime.
 - Removed legacy Stripe Pro price-id fallbacks so billing now resolves only against the active Growth monthly and annual prices.
@@ -73,6 +74,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Dashboard home now uses dedicated metrics, recent-conversations, and sidebar modules with cleaner empty states.
 - Dashboard home now surfaces activation, health, and expansion growth signals for the workspace.
 - Optimistic inbox interactions for replies and tags, plus modularized page components throughout.
+- Visitor emails and teammate mention alerts now deeplink back into the exact conversation or note context instead of generic inbox entry points.
 - Dashboard email settings now preview transcript and visitor email layouts through the same canonical shell used for live sends.
 - Dashboard shell, inbox, visitors, widget settings, and route handlers now have broad Vitest coverage across interactive and edge-case flows.
 

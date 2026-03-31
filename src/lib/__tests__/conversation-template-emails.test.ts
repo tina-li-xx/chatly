@@ -89,9 +89,10 @@ describe("conversation template emails", () => {
   it("adds the Chatting transcript footer for starter accounts", async () => {
     mocks.findConversationTemplateContext.mockResolvedValue({
       conversation_id: "conv_1",
+      site_id: "site_1",
+      session_id: "session_1",
       user_id: "user_1",
       site_name: "Acme Support",
-      domain: "https://acme.example",
       email: "alex@example.com",
       plan_key: "starter"
     });
@@ -114,7 +115,7 @@ describe("conversation template emails", () => {
     expect(transcriptEmail.bodyText).toContain("Thanks for chatting with us!");
     expect(transcriptEmail.bodyText).toContain("March 28, 2026 • 2 messages");
     expect(transcriptEmail.bodyText).toContain("Reply to This Email: mailto:reply+conv_1@reply.chatly.example");
-    expect(transcriptEmail.bodyText).toContain("Visit Our Site: https://acme.example");
+    expect(transcriptEmail.bodyText).toContain("Continue on the web: https://chatly.example/conversation/");
     expect(transcriptEmail.bodyText).toContain("Try Chatting Free →");
     expect(transcriptEmail.bodyText).toContain("utm_content=variant_a&ref=acme-support");
     expect(transcriptEmail.bodyText).toContain("This email was sent by Acme Support using Chatting.");
@@ -127,9 +128,10 @@ describe("conversation template emails", () => {
   it("keeps growth transcript emails free of Chatting branding", async () => {
     mocks.findConversationTemplateContext.mockResolvedValue({
       conversation_id: "conv_1",
+      site_id: "site_1",
+      session_id: "session_1",
       user_id: "user_1",
       site_name: "Acme Support",
-      domain: "https://acme.example",
       email: "alex@example.com",
       plan_key: "growth"
     });

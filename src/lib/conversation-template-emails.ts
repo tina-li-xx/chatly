@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { BillingPlanKey } from "@/lib/billing-plans";
 import { buildConversationFeedbackLinks } from "@/lib/conversation-feedback";
+import { buildConversationResumeLink } from "@/lib/conversation-resume-link";
 import { shouldShowTranscriptViralFooter } from "@/lib/conversation-transcript-footer";
 import { renderConversationTranscriptEmailTemplate } from "@/lib/conversation-transcript-email";
 import { renderVisitorConversationEmailTemplate } from "@/lib/conversation-visitor-email";
@@ -21,9 +22,10 @@ import { optionalText } from "@/lib/utils";
 
 type ConversationTemplateContext = {
   conversationId: string;
+  siteId: string;
+  sessionId: string;
   userId: string;
   siteName: string;
-  siteDomain: string | null;
   visitorEmail: string | null;
   planKey: BillingPlanKey | null;
 };
@@ -48,19 +50,6 @@ function getReplyAlias(conversationId: string) {
   return `reply+${conversationId}@${domain}`;
 }
 
-function buildSiteUrl(domain: string | null) {
-  const normalized = optionalText(domain);
-  if (!normalized) {
-    return getAppUrl();
-  }
-
-  if (normalized.startsWith("http://") || normalized.startsWith("https://")) {
-    return normalized;
-  }
-
-  return `https://${normalized}`;
-}
-
 function profileNameFromSettings(settings: Awaited<ReturnType<typeof getDashboardEmailTemplateSettings>>) {
   const name = [settings.profile.firstName, settings.profile.lastName].filter(Boolean).join(" ").trim();
   return name || displayNameFromEmail(settings.profile.email);
@@ -78,9 +67,10 @@ async function getConversationTemplateContext(conversationId: string): Promise<C
 
   return {
     conversationId: row.conversation_id,
+    siteId: row.site_id,
+    sessionId: row.session_id,
     userId: row.user_id,
     siteName: row.site_name,
-    siteDomain: row.domain,
     visitorEmail: row.email,
     planKey: row.plan_key
   };
@@ -165,7 +155,11 @@ async function sendConversationTemplateEmail(input: {
 
   const profileName = profileNameFromSettings(settings);
   const agentName = settings.profile.firstName.trim() || profileName.split(/\s+/)[0] || "Support";
-  const conversationLink = buildSiteUrl(conversation.siteDomain);
+  const conversationLink = buildConversationResumeLink(getAppUrl(), {
+    siteId: conversation.siteId,
+    sessionId: conversation.sessionId,
+    conversationId: conversation.conversationId
+  });
   const feedbackLinks = buildFeedbackLinks(input.conversationId);
   const transcriptRows =
     input.templateKey === "conversation_transcript"
@@ -197,7 +191,7 @@ async function sendConversationTemplateEmail(input: {
           templateContext,
           {
             appUrl: getAppUrl(),
-            siteUrl: conversationLink,
+            conversationUrl: conversationLink,
             replyToEmail: replyTo,
             messages: (transcriptRows ?? []).map((message) => ({
               sender: message.sender,
@@ -217,7 +211,7 @@ async function sendConversationTemplateEmail(input: {
           {
             templateKey: input.templateKey,
             appUrl: getAppUrl(),
-            siteUrl: conversationLink,
+            conversationUrl: conversationLink,
             replyToEmail: replyTo,
             teamAvatarUrl: settings.profile.avatarDataUrl,
             showViralFooter: shouldShowTranscriptViralFooter(conversation.planKey),

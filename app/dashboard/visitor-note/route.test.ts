@@ -1,6 +1,7 @@
 const mocks = vi.hoisted(() => ({
   getConversationVisitorNote: vi.fn(),
   getSiteVisitorNote: vi.fn(),
+  sendConversationMentionNotifications: vi.fn(),
   updateConversationVisitorNote: vi.fn(),
   updateSiteVisitorNote: vi.fn(),
   requireJsonRouteUser: vi.fn()
@@ -11,6 +12,9 @@ vi.mock("@/lib/data", () => ({
   getSiteVisitorNote: mocks.getSiteVisitorNote,
   updateConversationVisitorNote: mocks.updateConversationVisitorNote,
   updateSiteVisitorNote: mocks.updateSiteVisitorNote
+}));
+vi.mock("@/lib/mention-notifications", () => ({
+  sendConversationMentionNotifications: mocks.sendConversationMentionNotifications
 }));
 
 vi.mock("@/lib/route-helpers", () => ({
@@ -25,8 +29,14 @@ import { GET, POST } from "./route";
 
 describe("dashboard visitor-note route", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     mocks.requireJsonRouteUser.mockResolvedValue({
-      user: { id: "user_123", email: "hello@chatly.example", createdAt: "2026-03-27T00:00:00.000Z" }
+      user: {
+        id: "user_123",
+        email: "hello@chatly.example",
+        createdAt: "2026-03-27T00:00:00.000Z",
+        workspaceOwnerId: "owner_123"
+      }
     });
   });
 
@@ -81,6 +91,7 @@ describe("dashboard visitor-note route", () => {
       note: "Warm lead from pricing page.",
       updatedAt: "2026-03-29T11:00:00.000Z"
     });
+    expect(mocks.sendConversationMentionNotifications).not.toHaveBeenCalled();
   });
 
   it("returns not found when a conversation note cannot be updated", async () => {
@@ -95,5 +106,29 @@ describe("dashboard visitor-note route", () => {
 
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ ok: false, error: "not-found" });
+  });
+
+  it("sends mention emails for saved conversation notes", async () => {
+    const formData = new FormData();
+    formData.set("conversationId", "conv_1");
+    formData.set("note", "@Tina can you confirm this pricing edge case?");
+    mocks.updateConversationVisitorNote.mockResolvedValueOnce({
+      note: "@Tina can you confirm this pricing edge case?",
+      updatedAt: "2026-03-30T15:42:00.000Z"
+    });
+
+    const response = await POST(
+      new Request("http://localhost/dashboard/visitor-note", { method: "POST", body: formData })
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.sendConversationMentionNotifications).toHaveBeenCalledWith({
+      conversationId: "conv_1",
+      note: "@Tina can you confirm this pricing edge case?",
+      updatedAt: "2026-03-30T15:42:00.000Z",
+      mentionerUserId: "user_123",
+      mentionerEmail: "hello@chatly.example",
+      workspaceOwnerId: "owner_123"
+    });
   });
 });
