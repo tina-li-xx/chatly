@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Refreshed the shipped `/widget.js` runtime so it carries the latest branding-aware site config, richer site-status payloads, and route-change refresh behavior.
 - Renamed the app-side widget injector from `chatly-script` to `chatting-script` and removed a stale email transport concern from the contributor log.
 - Refreshed contributor docs and planning notes with Chatting branding, a current concerns log, growth strategy notes, and OG image reference guides.
 - Added shared app-shell, public auth wrapper, toast, newsletter, and form-control regression coverage.
@@ -87,6 +88,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Widget & Public APIs
 
 - Embeddable widget with optimistic sending, typing, conversation polling, and install detection.
+- The shipped widget runtime now reads branding-aware site config, sends fuller visitor context to public config/status routes, and refreshes site state on route changes.
 - Public API endpoints for conversation messages, status, typing, site config, and attachments.
 
 ### Dashboard
