@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { getPublicAppUrl } from "@/lib/env";
 import { ToastProvider } from "./ui/toast-provider";
-import ChattingScript from "./chatly-script";
+import ChattingScript from "./chatting-script";
 import "./globals.css";
 
 const ANALYTICS_SCRIPT_SRC = "https://grometrics.com/js/script.js";

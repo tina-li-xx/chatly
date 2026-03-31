@@ -13,7 +13,7 @@ vi.mock("@/lib/env", () => ({ getPublicAppUrl: mocks.getPublicAppUrl }));
 vi.mock("./ui/toast-provider", () => ({
   ToastProvider: ({ children }: { children: React.ReactNode }) => ((mocks.toastProvider(children), <>{children}</>))
 }));
-vi.mock("./chatly-script", () => ({ default: () => <div>chatting-script</div> }));
+vi.mock("./chatting-script", () => ({ default: () => <div>chatting-script</div> }));
 
 describe("root layout", () => {
   beforeEach(() => {
