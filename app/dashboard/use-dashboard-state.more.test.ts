@@ -72,7 +72,9 @@ describe("use dashboard state additional coverage", () => {
   });
 
   it("skips URL cleanup without search params and leaves state alone on failed refreshes", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: false });
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: false })
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
     vi.stubGlobal("fetch", fetchMock);
     vi.stubGlobal("window", { history: { replaceState: vi.fn() } });
     const { liveSyncCalls, reactMocks, useDashboardState } = await loadDashboardState({
@@ -90,6 +92,7 @@ describe("use dashboard state additional coverage", () => {
 
     await sync.refreshConversationList();
     await expect(sync.refreshConversation("missing")).resolves.toBeNull();
+    await expect(sync.refreshConversationList()).resolves.toBeUndefined();
 
     expect(reactMocks.states[1]?.current).toHaveLength(2);
     expect((globalThis.window as Window).history.replaceState).not.toHaveBeenCalled();

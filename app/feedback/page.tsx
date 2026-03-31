@@ -1,21 +1,21 @@
 import Link from "next/link";
+import { parseConversationRating } from "@/lib/conversation-feedback";
 import { recordFeedback } from "@/lib/data";
 
 type FeedbackPageProps = {
   searchParams: Promise<{
     conversationId?: string;
-    helpful?: string;
+    rating?: string;
   }>;
 };
 
 export default async function FeedbackPage({ searchParams }: FeedbackPageProps) {
   const params = await searchParams;
   const conversationId = params.conversationId?.trim();
-  const helpfulValue = params.helpful?.trim().toLowerCase();
-  const helpful = helpfulValue === "yes" ? true : helpfulValue === "no" ? false : null;
+  const rating = parseConversationRating(params.rating);
 
-  if (conversationId && helpful !== null) {
-    await recordFeedback(conversationId, helpful);
+  if (conversationId && rating !== null) {
+    await recordFeedback(conversationId, rating);
   }
 
   return (
@@ -25,11 +25,9 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
           <p className="text-sm uppercase tracking-[0.28em] text-tide">Feedback captured</p>
           <h1 className="display-font mt-3 text-4xl text-ink">Thanks for the signal.</h1>
           <p className="mt-4 text-sm leading-6 text-slate-600">
-            {helpful === null
+            {rating === null
               ? "We couldn't read that feedback link."
-              : helpful
-                ? "You marked the reply as helpful."
-                : "You marked the reply as not helpful."}
+              : `You rated this conversation ${rating} out of 5.`}
           </p>
           <Link
             href="/"
@@ -42,4 +40,3 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
     </main>
   );
 }
-

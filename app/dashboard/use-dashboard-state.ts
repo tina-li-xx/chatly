@@ -82,32 +82,40 @@ export function useDashboardState({
   }
 
   async function refreshConversationList() {
-    const response = await fetch("/dashboard/conversations", {
-      method: "GET",
-      cache: "no-store"
-    });
+    try {
+      const response = await fetch("/dashboard/conversations", {
+        method: "GET",
+        cache: "no-store"
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        return;
+      }
+
+      const payload = (await response.json()) as { ok: true; conversations: ConversationSummary[] };
+      setConversations(payload.conversations);
+    } catch {
       return;
     }
-
-    const payload = (await response.json()) as { ok: true; conversations: ConversationSummary[] };
-    setConversations(payload.conversations);
   }
 
   async function fetchConversationById(conversationId: string) {
-    const response = await fetch(`/dashboard/conversation?conversationId=${encodeURIComponent(conversationId)}`, {
-      method: "GET",
-      cache: "no-store"
-    });
+    try {
+      const response = await fetch(`/dashboard/conversation?conversationId=${encodeURIComponent(conversationId)}`, {
+        method: "GET",
+        cache: "no-store"
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        return null;
+      }
+
+      const payload = (await response.json()) as { ok: true; conversation: ConversationThread };
+      conversationCacheRef.current.set(payload.conversation.id, payload.conversation);
+      return payload.conversation;
+    } catch {
       return null;
     }
-
-    const payload = (await response.json()) as { ok: true; conversation: ConversationThread };
-    conversationCacheRef.current.set(payload.conversation.id, payload.conversation);
-    return payload.conversation;
   }
 
   async function refreshConversation(conversationId: string) {

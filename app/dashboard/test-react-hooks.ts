@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+
 type StateRecord<T> = {
   get current(): T;
   set: (value: T | ((previous: T) => T)) => void;

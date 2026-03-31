@@ -1,4 +1,5 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { vi } from "vitest";
 import { createDefaultOperatingHours } from "@/lib/widget-settings";
 import type { BannerState } from "./dashboard-client.types";
 import { createDashboardActions } from "./use-dashboard-actions";
@@ -101,18 +102,28 @@ export function createConversationThread(
   };
 }
 
+function resolveActiveConversation(
+  options?: { activeConversation?: ConversationThread | null }
+) {
+  if (!options || !("activeConversation" in options)) {
+    return createConversationThread();
+  }
+
+  return options.activeConversation ?? null;
+}
+
 export function createDashboardActionsHarness(options?: {
   activeConversation?: ConversationThread | null;
   conversations?: ConversationSummary[];
   sites?: Site[];
   sendingReply?: boolean;
 }) {
-  const activeConversation = options?.activeConversation ?? createConversationThread();
+  const activeConversation = resolveActiveConversation(options);
   const conversations = options?.conversations ?? [createConversationSummary()];
   const sites = options?.sites ?? [createSite()];
   const sitesState = createStateRecorder(sites);
   const conversationsState = createStateRecorder(conversations);
-  const activeConversationState = createStateRecorder(activeConversation);
+  const activeConversationState = createStateRecorder<ConversationThread | null>(activeConversation);
   const savingSiteIdState = createStateRecorder<string | null>(null);
   const savingEmailState = createStateRecorder(false);
   const sendingReplyState = createStateRecorder(Boolean(options?.sendingReply));

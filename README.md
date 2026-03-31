@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Hardened dashboard refresh behavior against failed network fetches and aligned public feedback links with the 1-to-5 rating model.
 - Kept auth failures user-safe by moving login and signup errors to shared toasts, removing deployment-detail copy from auth screens, and splitting the login auth container into smaller modules.
 - Hardened node runtime startup and env loading so server-only services boot in development without leaking into browser bundles.
 - Removed the manual trial-extension flow and its related billing route, helpers, and email path.
@@ -79,6 +80,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Dashboard home now uses dedicated metrics, recent-conversations, and sidebar modules with cleaner empty states.
 - Dashboard home now surfaces activation, health, and expansion growth signals for the workspace.
 - Optimistic inbox interactions for replies and tags, plus modularized page components throughout.
+- Dashboard live refresh now tolerates failed fetches without surfacing unhandled browser promise rejections, and public feedback links now resolve numeric ratings cleanly.
 - Dashboard settings now resolve sections through dedicated hooks and keep notices inside the shared settings wrapper instead of a separate loading shell.
 - Visitor emails and teammate mention alerts now deeplink back into the exact conversation or note context instead of generic inbox entry points.
 - Dashboard email settings now preview transcript and visitor email layouts through the same canonical shell used for live sends.
