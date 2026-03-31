@@ -1,4 +1,6 @@
 # Concerns Log
+- The app build still warns that `metadataBase` is unset in metadata exports, so social Open Graph/Twitter asset URLs fall back to `http://localhost:3000` during production builds unless those routes set an explicit base URL.
+- At least one app route still uses the Edge runtime, which makes that page opt out of static generation during builds. That behavior may be intentional, but it remains a production-performance tradeoff to review.
 - Health scoring currently uses the owner workspace's `auth_sessions` history as the login-frequency signal. Accepted teammate memberships now exist, but the score is still owner-weighted rather than truly team-wide.
 - Signup, site creation, and referral attribution are still separate database writes rather than a single transaction. Invalid referral codes are validated before account creation now, but an infrastructure failure after the user row is created could still leave an account without its intended referral attribution.
 - Newsletter signups now persist locally and sync to Resend contacts, but dedicated newsletter list routing is only automatic when `RESEND_NEWSLETTER_SEGMENT_ID` or the legacy `RESEND_NEWSLETTER_AUDIENCE_ID` is configured. Without one of those env vars, subscribers sync to Resend without landing in a dedicated newsletter segment automatically.

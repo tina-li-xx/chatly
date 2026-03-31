@@ -79,7 +79,7 @@ ${renderConversationFeedbackText(feedbackLinks)}`,
       preheader: `Reply from ${appName}`,
       title: `Reply from ${appName}`,
       sections: [
-        { kind: "html", html: `<div>${escapedBody}</div>`, padding: "0 32px 24px" },
+        { kind: "html" as const, html: `<div>${escapedBody}</div>`, padding: "0 32px 24px" },
         attachments.length
           ? {
               kind: "html" as const,
@@ -90,7 +90,7 @@ ${renderConversationFeedbackText(feedbackLinks)}`,
             }
           : null,
         {
-          kind: "html",
+          kind: "html" as const,
           html: `<div style="font:600 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0F172A;">Rate this reply</div><div style="margin-top:16px;">${renderConversationFeedbackScale(
             feedbackLinks
           )}</div>`,

@@ -144,7 +144,7 @@ export function renderConversationTranscriptEmailTemplate(
             ).replace("Chatting", "<strong style=\"color:#475569;\">Chatting</strong>")}</div><div style="margin-top:16px;text-align:center;">${renderButtonRow({
               primary: { href: footer.viral.href, label: footer.viral.ctaLabel }
             })}</div>`,
-            align: "center",
+            align: "center" as const,
             padding: "28px 32px",
             background: "#F8FAFC",
             borderTopColor: "#E2E8F0"

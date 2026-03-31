@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Switched Next.js 16 development and production builds back to the default Turbopack path, cleared the stale webpack reload loop, and tightened shared email section typing so builds pass cleanly.
 - Added dynamic Edge ImageResponse generation for customized Open Graph social cards and a brand-aligned SVG favicon.
 - Refreshed the shipped `/widget.js` runtime so it carries the latest branding-aware site config, richer site-status payloads, and route-change refresh behavior.
 - Renamed the app-side widget injector from `chatly-script` to `chatting-script` and removed a stale email transport concern from the contributor log.
@@ -127,6 +128,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Contributor Docs
 
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
+- Next.js config now follows the default Turbopack dev/build path, and the concerns log tracks the remaining `metadataBase` and Edge-runtime build warnings.
 - Contributor guidance now avoids the legacy `chatly-script` app-shell filename and no longer tracks the removed `sendRichEmail` concern as a live issue.
 - Contributor docs now include a refreshed concerns log, growth strategy notes, TODO tracking, and Chatting-branded OG image guidance/templates.
 - Product docs, service labels, and pricing-driven blog copy now use the Chatting brand consistently.
