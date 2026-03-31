@@ -4,7 +4,6 @@ const stripeMocks = vi.hoisted(() => ({
   clearBillingPaymentMethodRow: vi.fn(),
   customersCreate: vi.fn(),
   customersRetrieve: vi.fn(),
-  findBillingAccountRow: vi.fn(),
   findBillingAccountRowByStripeCustomerId: vi.fn(),
   findBillingAccountRowByStripeSubscriptionId: vi.fn(),
   insertBillingInvoiceRow: vi.fn(),
@@ -22,11 +21,9 @@ const stripeMocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/billing-default-account", () => ({ ensureOwnerGrowthTrialBillingAccount: vi.fn() }));
 vi.mock("@/lib/billing-trial-state", () => ({ isLocalGrowthTrialActive: stripeMocks.isLocalGrowthTrialActive }));
-vi.mock("@/lib/env.server", () => ({ getOptionalServerEnv: vi.fn(() => null) }));
 vi.mock("@/lib/referrals", () => ({ syncReferralRewardsForUser: stripeMocks.syncReferralRewardsForUser }));
 vi.mock("@/lib/repositories/billing-repository", () => ({
   clearBillingPaymentMethodRow: stripeMocks.clearBillingPaymentMethodRow,
-  findBillingAccountRow: stripeMocks.findBillingAccountRow,
   findBillingAccountRowByStripeCustomerId: stripeMocks.findBillingAccountRowByStripeCustomerId,
   findBillingAccountRowByStripeSubscriptionId: stripeMocks.findBillingAccountRowByStripeSubscriptionId,
   insertBillingInvoiceRow: stripeMocks.insertBillingInvoiceRow,
@@ -48,7 +45,7 @@ vi.mock("@/lib/stripe", () => ({
 }));
 
 import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-account";
-import { createStripeBillingPortalSession, createStripeCheckoutSession, extendStripeTrial, syncStripeBillingState, syncStripeBillingStateFromEvent } from "@/lib/stripe-billing";
+import { createStripeBillingPortalSession, createStripeCheckoutSession, syncStripeBillingState, syncStripeBillingStateFromEvent } from "@/lib/stripe-billing";
 const ensureBillingAccount = vi.mocked(ensureOwnerGrowthTrialBillingAccount);
 
 function accountRow(overrides: Record<string, unknown> = {}) {
@@ -78,11 +75,10 @@ describe("stripe billing more", () => {
     ensureBillingAccount.mockResolvedValue(accountRow());
   });
 
-  it("rejects unavailable checkout, portal, and trial-extension paths", async () => {
+  it("rejects unavailable checkout and portal paths", async () => {
     stripeMocks.isStripeBillingReady.mockReturnValue(false);
     await expect(createStripeCheckoutSession("user_1", "owner@example.com", { planKey: "growth", billingInterval: "monthly", seatQuantity: 1 })).rejects.toThrow("STRIPE_NOT_CONFIGURED");
     await expect(createStripeBillingPortalSession("user_1", "owner@example.com")).rejects.toThrow("STRIPE_NOT_CONFIGURED");
-    await expect(extendStripeTrial("user_1", 7)).rejects.toThrow("STRIPE_NOT_CONFIGURED");
 
     stripeMocks.isStripeBillingReady.mockReturnValue(true);
     await expect(createStripeCheckoutSession("user_1", "owner@example.com", { planKey: "starter", billingInterval: "monthly", seatQuantity: 1 })).rejects.toThrow("STRIPE_CHECKOUT_UNAVAILABLE");
@@ -163,13 +159,7 @@ describe("stripe billing more", () => {
     expect(stripeMocks.insertBillingInvoiceRow).toHaveBeenCalledWith(expect.objectContaining({ status: "open", currency: "USD", seatQuantity: 4 }));
   });
 
-  it("rejects unavailable extension states and syncs webhook events through subscription lookups", async () => {
-    stripeMocks.findBillingAccountRow.mockResolvedValueOnce(accountRow({ stripe_subscription_id: null }));
-    await expect(extendStripeTrial("user_1", 7)).rejects.toThrow("TRIAL_EXTENSION_UNAVAILABLE");
-    stripeMocks.findBillingAccountRow.mockResolvedValueOnce(accountRow({ stripe_subscription_id: "sub_123" }));
-    stripeMocks.subscriptionsRetrieve.mockResolvedValueOnce({ id: "sub_123", status: "active", metadata: {}, items: { data: [{ id: "si_123", quantity: 2, price: { id: "price_growth_monthly" } }] }, current_period_end: 1713484800, trial_start: 1711670400, trial_end: null });
-    await expect(extendStripeTrial("user_1", 7)).rejects.toThrow("TRIAL_EXTENSION_UNAVAILABLE");
-
+  it("syncs webhook events through subscription lookups", async () => {
     stripeMocks.findBillingAccountRowByStripeSubscriptionId.mockResolvedValueOnce({ user_id: "user_1" });
     stripeMocks.customersRetrieve.mockResolvedValueOnce({ deleted: false, email: "owner@example.com", name: null, invoice_settings: { default_payment_method: null } });
     stripeMocks.subscriptionsList.mockResolvedValueOnce({ data: [] });

@@ -3,8 +3,6 @@ const mocks = vi.hoisted(() => ({
   customersCreate: vi.fn(),
   customersRetrieve: vi.fn(),
   ensureAccount: vi.fn(),
-  findBillingAccountRow: vi.fn(),
-  getOptionalServerEnv: vi.fn(),
   insertBillingInvoiceRow: vi.fn(),
   invoicesList: vi.fn(),
   isLocalGrowthTrialActive: vi.fn(),
@@ -19,11 +17,9 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("@/lib/billing-default-account", () => ({ ensureOwnerGrowthTrialBillingAccount: mocks.ensureAccount }));
 vi.mock("@/lib/billing-trial-state", () => ({ isLocalGrowthTrialActive: mocks.isLocalGrowthTrialActive }));
-vi.mock("@/lib/env.server", () => ({ getOptionalServerEnv: mocks.getOptionalServerEnv }));
 vi.mock("@/lib/referrals", () => ({ syncReferralRewardsForUser: mocks.syncReferralRewardsForUser }));
 vi.mock("@/lib/repositories/billing-repository", () => ({
   clearBillingPaymentMethodRow: mocks.clearBillingPaymentMethodRow,
-  findBillingAccountRow: mocks.findBillingAccountRow,
   findBillingAccountRowByStripeCustomerId: vi.fn(),
   findBillingAccountRowByStripeSubscriptionId: vi.fn(),
   insertBillingInvoiceRow: mocks.insertBillingInvoiceRow,
@@ -43,7 +39,7 @@ vi.mock("@/lib/stripe", () => ({
   isStripeBillingReady: mocks.isStripeBillingReady,
   isStripeConfigured: mocks.isStripeConfigured
 }));
-import { extendStripeTrial, syncStripeBillingState } from "@/lib/stripe-billing";
+import { syncStripeBillingState } from "@/lib/stripe-billing";
 
 function accountRow(overrides: Record<string, unknown> = {}) {
   return { plan_key: "growth", billing_interval: "monthly", seat_quantity: 2, next_billing_date: "2026-04-12T00:00:00.000Z", stripe_customer_id: "cus_123", stripe_subscription_id: null, stripe_price_id: null, stripe_status: null, stripe_current_period_end: null, trial_started_at: "2026-03-29T00:00:00.000Z", trial_ends_at: "2026-04-12T00:00:00.000Z", trial_extension_used_at: null, ...overrides };
@@ -56,12 +52,9 @@ describe("stripe billing hotspots", () => {
     mocks.isLocalGrowthTrialActive.mockReturnValue(false);
     mocks.isStripeBillingReady.mockReturnValue(true);
     mocks.isStripeConfigured.mockReturnValue(true);
-    mocks.getOptionalServerEnv.mockImplementation((key: string) =>
-      key === "STRIPE_PRICE_PRO_ANNUAL" ? "legacy_annual" : null
-    );
   });
 
-  it("creates a missing customer, clears unsupported payment methods, and maps legacy invoice price ids", async () => {
+  it("creates a missing customer, clears unsupported payment methods, and imports invoices", async () => {
     mocks.ensureAccount.mockResolvedValue(accountRow({
       plan_key: "starter",
       stripe_customer_id: null,
@@ -90,7 +83,7 @@ describe("stripe billing hotspots", () => {
         period_start: null,
         period_end: null,
         status_transitions: { paid_at: null },
-        lines: { data: [{ quantity: null, description: "", pricing: { price_details: { price: "legacy_annual" } } }] }
+        lines: { data: [{ quantity: null, description: "", pricing: { price_details: { price: "price_growth_annual" } } }] }
       }]
     });
     await expect(syncStripeBillingState("user_1", "owner@example.com")).resolves.toEqual({
@@ -139,49 +132,4 @@ describe("stripe billing hotspots", () => {
     expect(mocks.clearBillingPaymentMethodRow).toHaveBeenCalledWith("user_1");
   });
 
-  it("extends trialing subscriptions after syncing seats and persists customer objects without a period end", async () => {
-    mocks.findBillingAccountRow.mockResolvedValue(accountRow({ stripe_subscription_id: "sub_123", stripe_customer_id: null, seat_quantity: 4 }));
-    mocks.subscriptionsRetrieve.mockResolvedValue({
-      id: "sub_123",
-      status: "trialing",
-      customer: "cus_123",
-      metadata: {},
-      trial_start: 1711670400,
-      trial_end: 1712880000,
-      current_period_end: 1712880000,
-      items: { data: [{ id: "si_123", quantity: 2, price: { id: "price_growth_monthly" } }] }
-    });
-    mocks.subscriptionsUpdate
-      .mockResolvedValueOnce({
-        id: "sub_123",
-        status: "trialing",
-        customer: "cus_123",
-        metadata: {},
-        trial_start: 1711670400,
-        trial_end: 1712880000,
-        current_period_end: 1712880000,
-        items: { data: [{ id: "si_123", quantity: 6, price: { id: "price_growth_monthly" } }] }
-      })
-      .mockResolvedValueOnce({
-        id: "sub_123",
-        status: "trialing",
-        customer: { id: "cus_object" },
-        metadata: {},
-        trial_start: 1711670400,
-        trial_end: 1713484800,
-        current_period_end: null,
-        items: { data: [] }
-      });
-    await expect(extendStripeTrial("user_1", 7, 6)).resolves.toEqual({ trialEndsAt: "2024-04-19T00:00:00.000Z" });
-    expect(mocks.subscriptionsUpdate).toHaveBeenNthCalledWith(1, "sub_123", expect.objectContaining({
-      items: [{ id: "si_123", quantity: 6 }],
-      proration_behavior: "none"
-    }));
-    expect(mocks.upsertBillingAccountRow).toHaveBeenCalledWith(expect.objectContaining({
-      userId: "user_1",
-      stripeCustomerId: "cus_object",
-      seatQuantity: 6,
-      nextBillingDate: "2024-04-19T00:00:00.000Z"
-    }));
-  });
 });

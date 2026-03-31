@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Removed legacy Stripe Pro price-id fallbacks so billing now resolves only against the active Growth monthly and annual prices.
 - Added forgot-password and reset-password actions with token-backed reset links from the auth flow.
 - Added invite-aware teammate signup, login acceptance, and a dedicated invite landing page for workspace joins.
 - Added referral-aware owner signup with seeded workspace billing, welcome emails, and preserved referral codes through auth forms.
@@ -76,6 +77,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Billing & Operations
 
 - Stripe-backed billing flows for checkout, portal access, invoice sync, and webhook handling.
+- Billing price resolution now relies only on the current Growth Stripe price ids instead of retired Pro-era fallbacks.
 - Owner workspaces now default to a backend-seeded Growth trial, support local trial extensions, and automatically downgrade expired unpaid trials to Starter.
 - Scheduled lifecycle nudges now deliver activation, health, and upgrade reminders from the node runtime instead of widget pageviews.
 - Seat-based `Growth` and `Pro` billing with monthly/annual pricing, plan-aware widget gating, and trial-extension support for active workspaces.
@@ -119,7 +121,7 @@ npm install
 - `MAIL_FROM`
 - `REPLY_DOMAIN` and `SES_INBOUND_SNS_TOPIC_ARN` if you want inbound email replies to continue threads
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, and `R2_PUBLIC_BASE_URL` if you want real uploaded team photos in the widget
-- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_GROWTH_MONTHLY`, `STRIPE_PRICE_GROWTH_ANNUAL`, `STRIPE_PRICE_PRO_MONTHLY`, and `STRIPE_PRICE_PRO_ANNUAL` if you want real Stripe-backed billing
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_GROWTH_MONTHLY`, and `STRIPE_PRICE_GROWTH_ANNUAL` if you want real Stripe-backed billing
 
 Paid Stripe prices should be configured as graduated tiers so seats 1-5 bill at the plan rate and seats 6+ bill at the lower overflow rate.
 

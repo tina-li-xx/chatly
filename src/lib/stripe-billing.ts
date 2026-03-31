@@ -8,10 +8,8 @@ import {
 } from "@/lib/billing-plans";
 import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-account";
 import { isLocalGrowthTrialActive } from "@/lib/billing-trial-state";
-import { getOptionalServerEnv } from "@/lib/env.server";
 import {
   clearBillingPaymentMethodRow,
-  findBillingAccountRow,
   findBillingAccountRowByStripeCustomerId,
   findBillingAccountRowByStripeSubscriptionId,
   insertBillingInvoiceRow,
@@ -49,14 +47,6 @@ function resolvePlanFromPriceId(priceId: string | null | undefined) {
     if (priceId === getStripePriceId(plan.planKey, plan.billingInterval)) {
       return plan;
     }
-  }
-
-  if (priceId === getOptionalServerEnv("STRIPE_PRICE_PRO_MONTHLY")) {
-    return { planKey: "growth" as const, billingInterval: "monthly" as const };
-  }
-
-  if (priceId === getOptionalServerEnv("STRIPE_PRICE_PRO_ANNUAL")) {
-    return { planKey: "growth" as const, billingInterval: "annual" as const };
   }
 
   return {
@@ -398,73 +388,6 @@ export async function syncStripeBillingState(userId: string, email?: string, des
   return {
     customerId: stripeCustomerId,
     subscriptionId: subscription?.id ?? null
-  };
-}
-
-export async function extendStripeTrial(
-  userId: string,
-  extensionDays: number,
-  desiredSeatCount?: number
-) {
-  if (!isStripeBillingReady()) {
-    throw new Error("STRIPE_NOT_CONFIGURED");
-  }
-
-  const account = await findBillingAccountRow(userId);
-  const subscriptionId = account?.stripe_subscription_id;
-
-  if (!subscriptionId) {
-    throw new Error("TRIAL_EXTENSION_UNAVAILABLE");
-  }
-
-  const stripe = getStripe();
-  let subscription: Stripe.Subscription | null = await stripe.subscriptions.retrieve(subscriptionId);
-  subscription = await syncSubscriptionSeatQuantityIfNeeded(stripe, subscription, desiredSeatCount);
-
-  const trialEnd = subscriptionTimestamp(subscription, "trial_end");
-
-  if (!subscription || subscription.status !== "trialing" || !trialEnd) {
-    throw new Error("TRIAL_EXTENSION_UNAVAILABLE");
-  }
-
-  const extensionUsedAt = new Date().toISOString();
-  const updatedSubscription = await stripe.subscriptions.update(subscription.id, {
-    trial_end: trialEnd + extensionDays * 24 * 60 * 60,
-    metadata: {
-      ...subscription.metadata,
-      userId,
-      trialExtensionUsedAt: extensionUsedAt
-    },
-    proration_behavior: "none"
-  });
-
-  const subscriptionItem = updatedSubscription.items.data[0] ?? null;
-  const priceId = subscriptionItem?.price?.id ?? null;
-  const plan = resolvePlanFromPriceId(priceId);
-  const trialEndsAt = toIsoFromUnix(subscriptionTimestamp(updatedSubscription, "trial_end"));
-  const nextBillingDate = toIsoFromUnix(subscriptionTimestamp(updatedSubscription, "current_period_end")) ?? trialEndsAt;
-
-  await upsertBillingAccountRow({
-    userId,
-    planKey: plan.planKey,
-    billingInterval: plan.billingInterval,
-    seatQuantity: Math.max(1, subscriptionItem?.quantity ?? desiredSeatCount ?? account?.seat_quantity ?? 1),
-    nextBillingDate,
-    stripeCustomerId:
-      typeof updatedSubscription.customer === "string"
-        ? updatedSubscription.customer
-        : updatedSubscription.customer?.id ?? account?.stripe_customer_id ?? null,
-    stripeSubscriptionId: updatedSubscription.id,
-    stripePriceId: priceId,
-    stripeStatus: updatedSubscription.status,
-    stripeCurrentPeriodEnd: nextBillingDate,
-    trialStartedAt: toIsoFromUnix(subscriptionTimestamp(updatedSubscription, "trial_start")),
-    trialEndsAt,
-    trialExtensionUsedAt: extensionUsedAt
-  });
-
-  return {
-    trialEndsAt
   };
 }
 
