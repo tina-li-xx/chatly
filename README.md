@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Tightened the landing-page header so it stays in flow on desktop, removes the white seam below the nav, and collapses into a cleaner mobile nav/action layout.
 - Switched Next.js 16 development and production builds back to the default Turbopack path, cleared the stale webpack reload loop, and tightened shared email section typing so builds pass cleanly.
 - Added dynamic Edge ImageResponse generation for customized Open Graph social cards and a brand-aligned SVG favicon.
 - Refreshed the shipped `/widget.js` runtime so it carries the latest branding-aware site config, richer site-status payloads, and route-change refresh behavior.
@@ -72,6 +73,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Public Site & Auth
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
+- The landing header now stays sticky in flow on desktop and uses a dedicated small-screen nav row so the top bar stays compact without layout seams.
 - The public landing now keeps the header/CTA framing stable while using the new proof and conversion section split.
 - Landing pricing now mirrors the dashboard billing format with Starter and Growth plans driven by shared pricing helpers.
 - Public free-tool workflows now have focused action, form, and result coverage across export-gate and generator/calculator tools.

@@ -35,6 +35,19 @@ describe("landing page", () => {
     expect(html).toContain("Your next customer is on your site right now.");
   });
 
+  it("renders the sticky header with a mobile nav row", () => {
+    const html = renderToStaticMarkup(<HomePage />);
+
+    expect(html).toContain("sticky top-0 z-50");
+    expect(html).not.toContain("lg:fixed");
+    expect(html).toContain("order-3 w-full overflow-x-auto");
+    expect(html).toContain("Features");
+    expect(html).toContain("Pricing");
+    expect(html).toContain("How it works");
+    expect(html).toContain("Docs");
+    expect(html).toContain("Start free");
+  });
+
   it("renders the install snippet using the public app url", () => {
     const html = renderToStaticMarkup(<HomePage />);
 

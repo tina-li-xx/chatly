@@ -4,7 +4,7 @@ import { LandingTopSections } from "./landing-page-top";
 
 export default function HomePage() {
   return (
-    <main className="relative overflow-x-hidden bg-white text-slate-900 lg:pt-[5.5rem]">
+    <main className="relative overflow-x-hidden bg-white text-slate-900">
       <LandingHeader />
       <LandingTopSections />
       <LandingBottomSections />
