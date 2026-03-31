@@ -12,7 +12,25 @@ const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1"]);
 
 export const metadata: Metadata = {
   title: "Chatting",
-  description: "Talk to users before they leave and learn what's blocking revenue."
+  description: "Talk to users before they leave and learn what's blocking revenue.",
+  openGraph: {
+    type: "website",
+    siteName: "Chatting",
+    title: "Chatting",
+    description: "Talk to users before they leave and learn what's blocking revenue.",
+    images: [{
+      url: "/api/og?template=a",
+      width: 1200,
+      height: 630,
+      alt: "Chatting — Live chat for small teams who care."
+    }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Chatting",
+    description: "Talk to users before they leave and learn what's blocking revenue.",
+    images: ["/api/og?template=a"]
+  }
 };
 
 function getAnalyticsDomain() {
