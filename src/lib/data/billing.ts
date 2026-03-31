@@ -1,5 +1,4 @@
 import {
-  BILLING_TRIAL_EXTENSION_DAYS,
   type BillingInterval,
   type BillingPlanFeatures,
   type BillingPlanKey,
@@ -11,20 +10,18 @@ import {
   normalizeBillingPlanKey
 } from "@/lib/billing-plans";
 import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-account";
-import { extendBillingTrial } from "@/lib/billing-trial-extension";
 import { getEffectiveBillingSubscriptionStatus } from "@/lib/billing-trial-state";
 import { countBillableWorkspaceSeats, normalizeBillableSeatCount } from "@/lib/billing-seats";
-import { sendTrialExtensionOutreachEmail } from "@/lib/billing-outreach";
-import {
-  isActiveTrialWorkspace,
-  isBillingTrialExtensionEligible
-} from "@/lib/billing-trials";
+import type {
+  DashboardBillingInvoice,
+  DashboardBillingPaymentMethod,
+  DashboardBillingSummary
+} from "@/lib/data/billing-types";
 import { getStarterConversationUsage } from "@/lib/freemium";
 import { getDashboardReferralSummary, syncReferralRewardsForUser, type DashboardReferralSummary } from "@/lib/referrals";
 import {
   findBillingAccountRow,
   findBillingPaymentMethodRow,
-  findBillingUsageRow,
   listBillingInvoiceRows
 } from "@/lib/repositories/billing-repository";
 import { findBillingInsightsRow } from "@/lib/repositories/billing-insights-repository";
@@ -37,65 +34,11 @@ import { isStripeBillingReady, isStripeConfigured } from "@/lib/stripe";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
 
 export type { BillingInterval, BillingPlanFeatures, BillingPlanKey } from "@/lib/billing-plans";
-
-export type DashboardBillingPaymentMethod = {
-  brand: string;
-  last4: string;
-  expMonth: number;
-  expYear: number;
-  holderName: string;
-  updatedAt: string;
-};
-
-export type DashboardBillingInvoice = {
-  id: string;
-  planKey: BillingPlanKey;
-  billingInterval: BillingInterval | null;
-  seatQuantity: number | null;
-  description: string;
-  amountCents: number;
-  currency: string;
-  status: "paid" | "open";
-  hostedInvoiceUrl: string | null;
-  invoicePdfUrl: string | null;
-  issuedAt: string;
-  paidAt: string | null;
-  periodStart: string | null;
-  periodEnd: string | null;
-};
-
-export type DashboardBillingSummary = {
-  planKey: BillingPlanKey;
-  planName: string;
-  priceLabel: string;
-  billingInterval: BillingInterval | null;
-  usedSeats: number;
-  billedSeats: number | null;
-  seatLimit: number | null;
-  siteCount: number;
-  conversationCount: number;
-  messageCount?: number;
-  avgResponseSeconds?: number | null;
-  conversationLimit: number | null;
-  conversationUsagePercent: number | null;
-  upgradePromptThreshold: number | null;
-  remainingConversations: number | null;
-  showUpgradePrompt: boolean;
-  limitReached: boolean;
-  nextBillingDate: string | null;
-  trialEndsAt: string | null;
-  trialExtensionEligible: boolean;
-  trialExtensionUsedAt: string | null;
-  activityQualifiedForTrialExtension: boolean;
-  subscriptionStatus: string | null;
-  customerId: string | null;
-  portalAvailable: boolean;
-  checkoutAvailable: boolean;
-  features: BillingPlanFeatures;
-  paymentMethod: DashboardBillingPaymentMethod | null;
-  invoices: DashboardBillingInvoice[];
-  referrals: DashboardReferralSummary;
-};
+export type {
+  DashboardBillingInvoice,
+  DashboardBillingPaymentMethod,
+  DashboardBillingSummary
+} from "@/lib/data/billing-types";
 
 function formatBillingDate(value: string | Date | null) {
   if (!value) {
@@ -180,26 +123,11 @@ async function buildDashboardBillingSummary(userId: string, usedSeats?: number) 
     usage.avg_response_seconds == null ? null : Math.round(Number(usage.avg_response_seconds));
   const starterConversationUsage =
     planKey === "starter" ? getStarterConversationUsage(monthlyConversationCount) : null;
-  const activityQualifiedForTrialExtension = isActiveTrialWorkspace({
-    siteCount,
-    conversationCount: monthlyConversationCount,
-    usedSeats: resolvedUsedSeats
-  });
   const subscriptionStatus = getEffectiveBillingSubscriptionStatus({
     planKey,
     subscriptionStatus: account.stripe_status,
     stripeSubscriptionId: account.stripe_subscription_id,
     trialEndsAt: account.trial_ends_at
-  });
-  const trialExtensionEligible = isBillingTrialExtensionEligible({
-    planKey,
-    subscriptionStatus,
-    stripeSubscriptionId: account.stripe_subscription_id,
-    trialEndsAt: account.trial_ends_at,
-    trialExtensionUsedAt: account.trial_extension_used_at,
-    siteCount,
-    conversationCount: monthlyConversationCount,
-    usedSeats: resolvedUsedSeats
   });
 
   return {
@@ -222,9 +150,6 @@ async function buildDashboardBillingSummary(userId: string, usedSeats?: number) 
     limitReached: starterConversationUsage?.limitReached ?? false,
     nextBillingDate: formatBillingDate(account.next_billing_date),
     trialEndsAt: formatBillingDate(account.trial_ends_at),
-    trialExtensionEligible,
-    trialExtensionUsedAt: formatBillingDate(account.trial_extension_used_at),
-    activityQualifiedForTrialExtension,
     subscriptionStatus,
     customerId: account.stripe_customer_id,
     portalAvailable: Boolean(account.stripe_customer_id && billingReady),
@@ -277,56 +202,4 @@ export async function createDashboardBillingCheckoutSession(
 export async function createDashboardBillingPortalSession(userId: string, email: string) {
   const workspace = await getWorkspaceAccess(userId);
   return createStripeBillingPortalSession(workspace.ownerUserId, workspace.ownerEmail || email);
-}
-
-export async function requestDashboardTrialExtension(userId: string, email: string) {
-  const workspace = await getWorkspaceAccess(userId);
-  const resolvedUsedSeats = await resolveUsedSeats(workspace.ownerUserId);
-
-  if (isStripeConfigured()) {
-    await syncStripeBillingState(workspace.ownerUserId, workspace.ownerEmail || email, resolvedUsedSeats).catch(() => {});
-  }
-
-  const [account, usage] = await Promise.all([
-    ensureBillingAccount(workspace.ownerUserId),
-    findBillingUsageRow(workspace.ownerUserId)
-  ]);
-  const planKey = normalizeBillingPlanKey(account.plan_key);
-  const siteCount = Number(usage.site_count ?? 0);
-  const conversationCount = Number(usage.conversation_count ?? 0);
-
-  if (!isBillingTrialExtensionEligible({
-    planKey,
-    subscriptionStatus: account.stripe_status,
-    stripeSubscriptionId: account.stripe_subscription_id,
-    trialEndsAt: account.trial_ends_at,
-    trialExtensionUsedAt: account.trial_extension_used_at,
-    siteCount,
-    conversationCount,
-    usedSeats: resolvedUsedSeats
-  })) {
-    throw new Error("TRIAL_EXTENSION_UNAVAILABLE");
-  }
-
-  const extended = await extendBillingTrial(workspace.ownerUserId, BILLING_TRIAL_EXTENSION_DAYS, resolvedUsedSeats);
-  const billing = await buildDashboardBillingSummary(workspace.ownerUserId, resolvedUsedSeats);
-
-  let outreachQueued = true;
-
-  if (extended.trialEndsAt) {
-    try {
-      await sendTrialExtensionOutreachEmail({
-        to: workspace.ownerEmail || email,
-        planName: getBillingPlanDefinition(planKey).name,
-        trialEndsAt: extended.trialEndsAt
-      });
-    } catch (error) {
-      outreachQueued = false;
-    }
-  }
-
-  return {
-    billing,
-    outreachQueued
-  };
 }

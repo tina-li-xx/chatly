@@ -69,7 +69,6 @@ export {
   createDashboardBillingCheckoutSession,
   createDashboardBillingPortalSession,
   getDashboardBillingSummary,
-  requestDashboardTrialExtension,
   syncDashboardBillingSummary
 } from "./data/billing";
 export type {
@@ -79,16 +78,16 @@ export type {
   DashboardBillingInvoice,
   DashboardBillingPaymentMethod,
   DashboardBillingSummary
-} from "./data/billing";
+} from "./data/billing-types";
 export type {
   DashboardReferralAttribution,
   DashboardReferralProgram,
   DashboardReferralReward,
   DashboardReferralSummary
-} from "./referrals";
+} from "./referral-types";
 export type {
   DashboardSettingsData,
   DashboardSettingsEmail,
   DashboardSettingsNotifications,
   DashboardSettingsProfile
-} from "./data/settings";
+} from "./data/settings-types";

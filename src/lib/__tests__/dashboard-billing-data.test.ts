@@ -3,19 +3,15 @@ const mocks = vi.hoisted(() => ({
   createStripeBillingPortalSession: vi.fn(),
   createStripeCheckoutSession: vi.fn(),
   ensureOwnerGrowthTrialBillingAccount: vi.fn(),
-  extendBillingTrial: vi.fn(),
   findBillingInsightsRow: vi.fn(),
   findBillingPaymentMethodRow: vi.fn(),
   findBillingUsageRow: vi.fn(),
   getDashboardReferralSummary: vi.fn(),
   getEffectiveBillingSubscriptionStatus: vi.fn(),
   getWorkspaceAccess: vi.fn(),
-  isActiveTrialWorkspace: vi.fn(),
-  isBillingTrialExtensionEligible: vi.fn(),
   isStripeBillingReady: vi.fn(),
   isStripeConfigured: vi.fn(),
   listBillingInvoiceRows: vi.fn(),
-  sendTrialExtensionOutreachEmail: vi.fn(),
   syncReferralRewardsForUser: vi.fn(),
   syncStripeBillingState: vi.fn()
 }));
@@ -23,20 +19,12 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/billing-default-account", () => ({
   ensureOwnerGrowthTrialBillingAccount: mocks.ensureOwnerGrowthTrialBillingAccount
 }));
-vi.mock("@/lib/billing-outreach", () => ({
-  sendTrialExtensionOutreachEmail: mocks.sendTrialExtensionOutreachEmail
-}));
 vi.mock("@/lib/billing-seats", () => ({
   countBillableWorkspaceSeats: mocks.countBillableWorkspaceSeats,
   normalizeBillableSeatCount: (value: number) => value
 }));
-vi.mock("@/lib/billing-trial-extension", () => ({ extendBillingTrial: mocks.extendBillingTrial }));
 vi.mock("@/lib/billing-trial-state", () => ({
   getEffectiveBillingSubscriptionStatus: mocks.getEffectiveBillingSubscriptionStatus
-}));
-vi.mock("@/lib/billing-trials", () => ({
-  isActiveTrialWorkspace: mocks.isActiveTrialWorkspace,
-  isBillingTrialExtensionEligible: mocks.isBillingTrialExtensionEligible
 }));
 vi.mock("@/lib/referrals", () => ({
   getDashboardReferralSummary: mocks.getDashboardReferralSummary,
@@ -64,8 +52,7 @@ vi.mock("@/lib/workspace-access", () => ({ getWorkspaceAccess: mocks.getWorkspac
 import {
   createDashboardBillingCheckoutSession,
   createDashboardBillingPortalSession,
-  getDashboardBillingSummary,
-  requestDashboardTrialExtension
+  getDashboardBillingSummary
 } from "@/lib/data/billing";
 const referrals = { programs: [], attributedSignups: [], rewards: [], pendingRewardCount: 0, earnedRewardCount: 0, earnedFreeMonths: 0, earnedDiscountCents: 0, earnedCommissionCents: 0 };
 
@@ -111,14 +98,10 @@ describe("dashboard billing data", () => {
     mocks.listBillingInvoiceRows.mockResolvedValue([]);
     mocks.getDashboardReferralSummary.mockResolvedValue(referrals);
     mocks.getEffectiveBillingSubscriptionStatus.mockReturnValue("trialing");
-    mocks.isActiveTrialWorkspace.mockReturnValue(true);
-    mocks.isBillingTrialExtensionEligible.mockReturnValue(true);
     mocks.isStripeBillingReady.mockReturnValue(true);
     mocks.isStripeConfigured.mockReturnValue(true);
     mocks.syncStripeBillingState.mockResolvedValue(undefined);
     mocks.syncReferralRewardsForUser.mockResolvedValue(undefined);
-    mocks.extendBillingTrial.mockResolvedValue({ trialEndsAt: "2026-04-19T00:00:00.000Z" });
-    mocks.sendTrialExtensionOutreachEmail.mockResolvedValue(undefined);
   });
 
   it("builds the billing summary for the workspace owner and syncs stripe state", async () => {
@@ -165,20 +148,5 @@ describe("dashboard billing data", () => {
       seatQuantity: 4
     });
     expect(mocks.createStripeBillingPortalSession).toHaveBeenCalledWith("owner_1", "owner@example.com");
-  });
-
-  it("extends eligible trials and queues outreach email", async () => {
-    const result = await requestDashboardTrialExtension("member_1", "fallback@example.com");
-    expect(mocks.extendBillingTrial).toHaveBeenCalledWith("owner_1", 7, 3);
-    expect(mocks.sendTrialExtensionOutreachEmail).toHaveBeenCalledWith({ to: "owner@example.com", planName: "Growth", trialEndsAt: "2026-04-19T00:00:00.000Z" });
-    expect(result.outreachQueued).toBe(true);
-    expect(result.billing.planKey).toBe("growth");
-  });
-
-  it("rejects trial extension requests when the workspace is not eligible", async () => {
-    mocks.isBillingTrialExtensionEligible.mockReturnValueOnce(false);
-    await expect(requestDashboardTrialExtension("member_1", "fallback@example.com")).rejects.toThrow("TRIAL_EXTENSION_UNAVAILABLE");
-    expect(mocks.extendBillingTrial).not.toHaveBeenCalled();
-    expect(mocks.sendTrialExtensionOutreachEmail).not.toHaveBeenCalled();
   });
 });

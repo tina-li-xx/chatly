@@ -17,7 +17,6 @@ export type BillingPlanFeatures = {
   billedPerSeat: boolean;
   proactiveChat: boolean;
   removeBranding: boolean;
-  trialExtensions: boolean;
 };
 
 type BillingPlanDefinition = {
@@ -33,7 +32,6 @@ type BillingPlanDefinition = {
 };
 
 export const BILLING_TRIAL_DAYS = 14;
-export const BILLING_TRIAL_EXTENSION_DAYS = 7;
 export const BILLING_PLAN_ORDER: BillingPlanKey[] = [...CHATTING_VISIBLE_PRICING_PLAN_ORDER];
 export const BILLING_INTERVAL_ORDER: BillingInterval[] = ["monthly", "annual"];
 
@@ -46,7 +44,7 @@ const PLAN_DEFINITIONS: Record<BillingPlanKey, BillingPlanDefinition> = {
     seatLimit: 5,
     savingsLabel: null,
     trialDays: 0,
-    features: { billedPerSeat: false, proactiveChat: false, removeBranding: false, trialExtensions: false },
+    features: { billedPerSeat: false, proactiveChat: false, removeBranding: false },
     marketingFeatures: [
       "50 conversations each month",
       "Basic analytics",
@@ -63,7 +61,7 @@ const PLAN_DEFINITIONS: Record<BillingPlanKey, BillingPlanDefinition> = {
     seatLimit: null,
     savingsLabel: CHATTING_ANNUAL_SAVINGS_LABEL,
     trialDays: BILLING_TRIAL_DAYS,
-    features: { billedPerSeat: true, proactiveChat: true, removeBranding: true, trialExtensions: true },
+    features: { billedPerSeat: true, proactiveChat: true, removeBranding: true },
     marketingFeatures: [
       "Unlimited conversations",
       "Proactive chat",

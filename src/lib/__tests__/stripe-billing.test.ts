@@ -4,7 +4,6 @@ const stripeMocks = vi.hoisted(() => ({
   clearBillingPaymentMethodRow: vi.fn(),
   customersCreate: vi.fn(),
   customersRetrieve: vi.fn(),
-  findBillingAccountRow: vi.fn(),
   findBillingAccountRowByStripeCustomerId: vi.fn(),
   findBillingAccountRowByStripeSubscriptionId: vi.fn(),
   insertBillingInvoiceRow: vi.fn(),
@@ -34,7 +33,6 @@ vi.mock("@/lib/referrals", () => ({
 }));
 vi.mock("@/lib/repositories/billing-repository", () => ({
   clearBillingPaymentMethodRow: stripeMocks.clearBillingPaymentMethodRow,
-  findBillingAccountRow: stripeMocks.findBillingAccountRow,
   findBillingAccountRowByStripeCustomerId: stripeMocks.findBillingAccountRowByStripeCustomerId,
   findBillingAccountRowByStripeSubscriptionId: stripeMocks.findBillingAccountRowByStripeSubscriptionId,
   insertBillingInvoiceRow: stripeMocks.insertBillingInvoiceRow,
@@ -64,7 +62,6 @@ import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-acco
 import {
   createStripeBillingPortalSession,
   createStripeCheckoutSession,
-  extendStripeTrial,
   syncStripeBillingState,
   syncStripeBillingStateFromEvent
 } from "@/lib/stripe-billing";
@@ -141,40 +138,6 @@ describe("stripe billing", () => {
       })
     );
     expect(stripeMocks.clearBillingPaymentMethodRow).toHaveBeenCalledWith("user_1");
-  });
-
-  it("extends a stripe-backed trial and persists the new trial end", async () => {
-    stripeMocks.findBillingAccountRow.mockResolvedValueOnce(accountRow({ stripe_subscription_id: "sub_123" }));
-    stripeMocks.subscriptionsRetrieve.mockResolvedValueOnce({
-      id: "sub_123",
-      status: "trialing",
-      customer: "cus_123",
-      metadata: {},
-      trial_start: 1711670400,
-      trial_end: 1712880000,
-      current_period_end: 1712880000,
-      items: { data: [{ id: "si_123", quantity: 2, price: { id: "price_growth_annual" } }] }
-    });
-    stripeMocks.subscriptionsUpdate.mockResolvedValueOnce({
-      id: "sub_123",
-      status: "trialing",
-      customer: "cus_123",
-      metadata: {},
-      trial_start: 1711670400,
-      trial_end: 1713484800,
-      current_period_end: 1713484800,
-      items: { data: [{ quantity: 2, price: { id: "price_growth_annual" } }] }
-    });
-
-    await expect(extendStripeTrial("user_1", 7, 2)).resolves.toEqual({ trialEndsAt: "2024-04-19T00:00:00.000Z" });
-    expect(stripeMocks.upsertBillingAccountRow).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: "user_1",
-        stripeSubscriptionId: "sub_123",
-        stripeStatus: "trialing",
-        trialEndsAt: "2024-04-19T00:00:00.000Z"
-      })
-    );
   });
 
   it("syncs billing state from webhook identifiers and refreshes referral rewards", async () => {

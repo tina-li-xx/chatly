@@ -1,6 +1,6 @@
 "use client";
 
-import type { DashboardBillingSummary } from "@/lib/data";
+import type { DashboardBillingSummary } from "@/lib/data/billing-types";
 import { FormButton } from "../ui/form-controls";
 import { billingHasPaymentIssue } from "./dashboard-billing-utils";
 import { WarningIcon } from "./dashboard-ui";
@@ -16,15 +16,11 @@ function daysUntil(dateLabel: string) {
 
 export function DashboardSettingsBillingBanners({
   billing,
-  trialExtensionPending,
   onOpenUpdatePayment,
-  onExtendTrial,
   onOpenBillingPortal
 }: {
   billing: DashboardBillingSummary;
-  trialExtensionPending: boolean;
   onOpenUpdatePayment: () => void;
-  onExtendTrial: () => void;
   onOpenBillingPortal: () => void;
 }) {
   const trialDaysLeft = billing.trialEndsAt ? daysUntil(billing.trialEndsAt) : null;
@@ -64,24 +60,17 @@ export function DashboardSettingsBillingBanners({
                 {trialDaysLeft == null ? "Trial active" : `${trialDaysLeft} day${trialDaysLeft === 1 ? "" : "s"} left in your trial`}
               </p>
               <p className="mt-1 text-sm text-white/85">
-                {billing.trialExtensionEligible
-                  ? `Your workspace is active, so you can extend the trial by 7 days before it ends on ${billing.trialEndsAt}.`
-                  : `Add billing in Stripe by ${billing.trialEndsAt} to avoid interruption.`}
+                {`Add billing in Stripe by ${billing.trialEndsAt} to avoid interruption.`}
               </p>
             </div>
           </div>
           <FormButton
             type="button"
-            onClick={billing.trialExtensionEligible ? onExtendTrial : onOpenBillingPortal}
-            disabled={trialExtensionPending}
+            onClick={onOpenBillingPortal}
             variant="secondary"
-            className="border-white bg-white text-amber-600 hover:border-amber-100 hover:bg-amber-50 hover:text-amber-600 disabled:opacity-60"
+            className="border-white bg-white text-amber-600 hover:border-amber-100 hover:bg-amber-50 hover:text-amber-600"
           >
-            {billing.trialExtensionEligible
-              ? trialExtensionPending
-                ? "Extending..."
-                : "Extend trial"
-              : "Open billing"}
+            Open billing
           </FormButton>
         </div>
       ) : null}

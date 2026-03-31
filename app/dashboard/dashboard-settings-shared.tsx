@@ -5,7 +5,7 @@ import type {
   DashboardSettingsData,
   DashboardSettingsNotifications,
   DashboardSettingsProfile
-} from "@/lib/data";
+} from "@/lib/data/settings-types";
 import { displayNameFromEmail } from "@/lib/user-display";
 import { classNames } from "@/lib/utils";
 import {
@@ -184,14 +184,10 @@ export function billingErrorMessage(code: string) {
       return "We couldn't open Stripe Checkout right now.";
     case "proactive_chat_requires_growth":
       return "Proactive chat is available on Growth.";
-    case "trial_extension_unavailable":
-      return "This workspace is not eligible for another trial extension right now.";
     case "billing-portal-session-failed":
       return "We couldn't open the Stripe billing portal right now.";
     case "billing-sync-failed":
       return "We couldn't refresh billing from Stripe right now.";
-    case "billing-trial-extension-failed":
-      return "We couldn't extend the trial right now.";
     case "contact_sales_required":
       return "Teams with 50 or more members need a custom setup right now.";
     default:

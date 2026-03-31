@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { BillingInterval, BillingPlanKey, DashboardBillingSummary } from "@/lib/data";
+import type { BillingInterval, BillingPlanKey, DashboardBillingSummary } from "@/lib/data/billing-types";
 import { DashboardSettingsBillingBanners } from "./dashboard-settings-billing-banners";
 import { DashboardSettingsBillingHeroCard } from "./dashboard-settings-billing-hero-card";
 import { DashboardSettingsBillingHistoryCard } from "./dashboard-settings-billing-history-card";
@@ -22,10 +22,8 @@ export function SettingsBillingSection({
   selectedInterval,
   billingPortalPending,
   billingSyncPending: _billingSyncPending,
-  trialExtensionPending,
   onOpenBillingPortal,
   onChangePlan,
-  onRequestTrialExtension,
   onSetSelectedInterval,
   onSyncBilling: _onSyncBilling
 }: {
@@ -36,10 +34,8 @@ export function SettingsBillingSection({
   selectedInterval: BillingInterval;
   billingPortalPending: boolean;
   billingSyncPending: boolean;
-  trialExtensionPending: boolean;
   onOpenBillingPortal: () => void;
   onChangePlan: (planKey: BillingPlanKey, billingInterval: BillingInterval) => void;
-  onRequestTrialExtension: () => void;
   onSetSelectedInterval: (value: BillingInterval) => void;
   onSyncBilling: () => void;
 }) {
@@ -93,9 +89,7 @@ export function SettingsBillingSection({
 
       <DashboardSettingsBillingBanners
         billing={billing}
-        trialExtensionPending={trialExtensionPending}
         onOpenUpdatePayment={() => setUpdatePaymentOpen(true)}
-        onExtendTrial={onRequestTrialExtension}
         onOpenBillingPortal={onOpenBillingPortal}
       />
 

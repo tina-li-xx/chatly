@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Removed the manual trial-extension flow and its related billing route, helpers, and email path.
 - Split dashboard settings state into dedicated hooks and aligned notices and navigation with the shared settings scaffold.
 - Added signed conversation resume links for visitor emails plus inbox deeplinks for teammate mention notifications.
 - Unified transactional, notification, lifecycle, and visitor emails on a single Chatting email shell with matching dashboard previews.
@@ -85,7 +86,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Stripe-backed billing flows for checkout, portal access, invoice sync, and webhook handling.
 - Billing price resolution now relies only on the current Growth Stripe price ids instead of retired Pro-era fallbacks.
 - Scheduled daily digests and weekly performance reports now send from the node runtime with persisted delivery windows.
-- Owner workspaces now default to a backend-seeded Growth trial, support local trial extensions, and automatically downgrade expired unpaid trials to Starter.
+- Owner workspaces now default to a backend-seeded Growth trial and automatically downgrade expired unpaid trials to Starter.
 - Scheduled lifecycle nudges now deliver activation, health, and upgrade reminders from the node runtime instead of widget pageviews.
 - Seat-based `Growth` and `Pro` billing with monthly/annual pricing, plan-aware widget gating, and trial-extension support for active workspaces.
 - Billing settings now share the same Starter and Growth pricing presentation as the landing page, backed by shared pricing primitives and button styles.

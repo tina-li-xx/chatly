@@ -1,8 +1,7 @@
 import {
   renderProductUpdateEmail,
   renderTrialEndingReminderEmail,
-  renderTrialExpiredEmail,
-  renderTrialExtensionOutreachEmail
+  renderTrialExpiredEmail
 } from "@/lib/chatly-marketing-emails";
 import { sendRichEmail } from "@/lib/email";
 
@@ -47,20 +46,6 @@ export async function sendProductUpdateEmail(input: {
   additionalUpdates: string[];
 }) {
   const rendered = renderProductUpdateEmail(input);
-  return sendRichEmail({
-    to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
-  });
-}
-
-export async function sendStyledTrialExtensionOutreachEmail(input: {
-  to: string;
-  planName: string;
-  formattedEndDate: string;
-}) {
-  const rendered = renderTrialExtensionOutreachEmail(input);
   return sendRichEmail({
     to: input.to,
     subject: rendered.subject,
