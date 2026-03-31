@@ -1,6 +1,7 @@
 import {
   clampLandingTeamSize,
   getLandingGrowthDisplayPrice,
+  getLandingGrowthPriceNote,
   getLandingStarterDisplayPrice
 } from "@/lib/landing-pricing";
 
@@ -13,18 +14,37 @@ describe("landing pricing", () => {
     });
   });
 
-  it("uses the shared growth headline pricing", () => {
-    expect(getLandingGrowthDisplayPrice("monthly")).toEqual({
-      amount: "$29",
+  it("uses slider-aware growth preview pricing", () => {
+    expect(getLandingGrowthDisplayPrice("monthly", 1)).toEqual({
+      amount: "$20",
       cadence: "/month",
-      note: "1-3 members, then volume pricing from $8/member/month"
+      note: null
     });
 
-    expect(getLandingGrowthDisplayPrice("annual")).toEqual({
-      amount: "$290",
-      cadence: "/year",
-      note: "1-3 members, then volume pricing from $80/member/year"
+    expect(getLandingGrowthDisplayPrice("monthly", 31)).toEqual({
+      amount: "$124",
+      cadence: "/month",
+      note: null
     });
+
+    expect(getLandingGrowthDisplayPrice("annual", 1)).toEqual({
+      amount: "$200",
+      cadence: "/year",
+      note: null
+    });
+
+    expect(getLandingGrowthDisplayPrice("monthly", 50)).toEqual({
+      amount: "Custom",
+      cadence: "",
+      note: "50+ members"
+    });
+
+    expect(getLandingGrowthPriceNote("monthly")).toBe(
+      "1-3 members, then volume pricing from $6/member/month"
+    );
+    expect(getLandingGrowthPriceNote("annual")).toBe(
+      "1-3 members, then volume pricing from $60/member/year"
+    );
   });
 
   it("clamps landing team sizes into the supported range", () => {

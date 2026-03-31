@@ -21,6 +21,11 @@ export {
   getSesInboundTopicArnSet
 } from "@/lib/env-server/services";
 export {
+  buildStripeEnvSource,
+  getOptionalStripeServerEnv,
+  getRequiredStripeServerEnv
+} from "@/lib/env-server/stripe";
+export {
   assertR2EnvConfigured,
   assertStartupProductionCoreEnvConfigured,
   assertStripeBillingEnvConfigured,

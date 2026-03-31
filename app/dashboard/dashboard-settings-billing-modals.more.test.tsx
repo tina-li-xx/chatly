@@ -8,7 +8,7 @@ import {
 const billing = {
   planKey: "growth",
   planName: "Growth",
-  priceLabel: "$29/month",
+  priceLabel: "$20/month",
   billingInterval: "monthly",
   usedSeats: 4,
   billedSeats: 4,

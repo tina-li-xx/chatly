@@ -20,10 +20,12 @@ import { syncReferralRewardsForUser } from "@/lib/referrals";
 import {
   getStripe,
   getStripeAppUrl,
+  assertStripeGrowthPriceConfigured,
   getStripePriceId,
   isStripeBillingReady,
   isStripeConfigured
 } from "@/lib/stripe";
+import { isGrowthContactSalesTeamSize } from "@/lib/pricing";
 
 function toIsoFromUnix(value: number | null | undefined) {
   return typeof value === "number" ? new Date(value * 1000).toISOString() : null;
@@ -156,6 +158,21 @@ async function syncSubscriptionSeatQuantityIfNeeded(
     return subscription;
   }
 
+  if (isGrowthContactSalesTeamSize(desiredSeatCount)) {
+    return subscription;
+  }
+
+  const syncedPlan = resolvePlanFromPriceId(item.price?.id ?? null);
+  if (syncedPlan.planKey !== "growth") {
+    return subscription;
+  }
+
+  try {
+    await assertStripeGrowthPriceConfigured(syncedPlan.planKey, syncedPlan.billingInterval);
+  } catch {
+    return subscription;
+  }
+
   const currentQuantity = item.quantity ?? 1;
   const nextQuantity = Math.max(1, Math.floor(desiredSeatCount));
 
@@ -195,7 +212,7 @@ export async function createStripeCheckoutSession(
   const { customerId } = await ensureStripeCustomer(userId, email);
   const appUrl = getStripeAppUrl();
   const seatQuantity = Math.max(1, Math.floor(input.seatQuantity || 1));
-  const priceId = getStripePriceId(input.planKey, input.billingInterval);
+  const priceId = await assertStripeGrowthPriceConfigured(input.planKey, input.billingInterval);
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",

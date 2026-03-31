@@ -2,6 +2,7 @@
 
 import {
   getLandingGrowthDisplayPrice,
+  getLandingGrowthPriceNote,
   getLandingStarterDisplayPrice,
   type LandingBillingInterval
 } from "@/lib/landing-pricing";
@@ -24,15 +25,20 @@ export function LandingStarterPricingCard({ interval }: { interval: LandingBilli
 }
 
 export function LandingGrowthPricingCard({
-  interval
+  interval,
+  memberCount
 }: {
   interval: LandingBillingInterval;
+  memberCount: number;
 }) {
+  const displayPrice = getLandingGrowthDisplayPrice(interval, memberCount);
+
   return (
     <PricingPlanCard
       planKey="growth"
       interval={interval}
-      displayPriceOverride={getLandingGrowthDisplayPrice(interval)}
+      displayPriceOverride={displayPrice}
+      priceNote={displayPrice.note ?? getLandingGrowthPriceNote(interval)}
       action={
         <ButtonLink href="/signup" fullWidth>
           Start free trial

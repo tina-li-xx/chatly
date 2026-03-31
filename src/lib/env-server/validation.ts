@@ -3,10 +3,25 @@ import "server-only";
 import { getRuntimeEnvironment, type RuntimeEnvironment } from "@/lib/env";
 import { getMissingEnvVarsForGroup } from "@/lib/env-server/groups";
 import { type ServerEnvSource } from "@/lib/env-server/core";
+import { buildStripeEnvSource } from "@/lib/env-server/stripe";
 
 let validatedStartupCoreEnvironment = false;
 let validatedR2Environment: RuntimeEnvironment | null = null;
 let validatedStripeBillingEnvironment: RuntimeEnvironment | null = null;
+type StripeEnvValidationGroup = "stripe-checkout" | "stripe-billing";
+
+function getMissingStripeEnvVars(
+  group: StripeEnvValidationGroup,
+  params?: {
+    environment?: RuntimeEnvironment;
+    source?: ServerEnvSource;
+  }
+) {
+  const environment = params?.environment || getRuntimeEnvironment();
+  const source = buildStripeEnvSource(params?.source || process.env, environment);
+
+  return getMissingEnvVarsForGroup(group, source);
+}
 
 export function getMissingStartupProductionCoreEnvVars(params?: {
   environment?: RuntimeEnvironment;
@@ -22,15 +37,17 @@ export function getMissingStartupProductionCoreEnvVars(params?: {
 }
 
 export function getMissingStripeCheckoutEnvVars(params?: {
+  environment?: RuntimeEnvironment;
   source?: ServerEnvSource;
 }) {
-  return getMissingEnvVarsForGroup("stripe-checkout", params?.source || process.env);
+  return getMissingStripeEnvVars("stripe-checkout", params);
 }
 
 export function getMissingStripeBillingEnvVars(params?: {
+  environment?: RuntimeEnvironment;
   source?: ServerEnvSource;
 }) {
-  return getMissingEnvVarsForGroup("stripe-billing", params?.source || process.env);
+  return getMissingStripeEnvVars("stripe-billing", params);
 }
 
 export function getMissingR2EnvVars(params?: {
@@ -39,12 +56,18 @@ export function getMissingR2EnvVars(params?: {
   return getMissingEnvVarsForGroup("r2", params?.source || process.env);
 }
 
-export function isStripeConfigured(source: ServerEnvSource = process.env) {
-  return getMissingStripeCheckoutEnvVars({ source }).length === 0;
+export function isStripeConfigured(
+  source: ServerEnvSource = process.env,
+  environment: RuntimeEnvironment = getRuntimeEnvironment()
+) {
+  return getMissingStripeCheckoutEnvVars({ source, environment }).length === 0;
 }
 
-export function isStripeBillingReady(source: ServerEnvSource = process.env) {
-  return getMissingStripeBillingEnvVars({ source }).length === 0;
+export function isStripeBillingReady(
+  source: ServerEnvSource = process.env,
+  environment: RuntimeEnvironment = getRuntimeEnvironment()
+) {
+  return getMissingStripeBillingEnvVars({ source, environment }).length === 0;
 }
 
 export function assertStartupProductionCoreEnvConfigured(params?: {
@@ -92,6 +115,7 @@ export function assertStripeBillingEnvConfigured(params?: {
   }
 
   const missing = getMissingStripeBillingEnvVars({
+    environment,
     source: params?.source
   });
 

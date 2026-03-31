@@ -43,7 +43,7 @@ const invoice = {
   id: "invoice_1",
   issuedAt: "2026-03-01T00:00:00.000Z",
   description: "Growth monthly",
-  amountCents: 2900,
+  amountCents: 2000,
   currency: "usd",
   status: "paid",
   planKey: "growth",

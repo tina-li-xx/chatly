@@ -72,6 +72,12 @@ export async function runBillingSchemaInitialization(pool: Pool) {
   `);
 
   await pool.query(`
+    UPDATE billing_accounts
+    SET plan_key = 'growth'
+    WHERE plan_key = 'pro';
+  `);
+
+  await pool.query(`
     ALTER TABLE billing_accounts
     DROP CONSTRAINT IF EXISTS billing_accounts_plan_key_check;
   `);
@@ -79,7 +85,7 @@ export async function runBillingSchemaInitialization(pool: Pool) {
   await pool.query(`
     ALTER TABLE billing_accounts
     ADD CONSTRAINT billing_accounts_plan_key_check
-    CHECK (plan_key IN ('starter', 'growth', 'pro'));
+    CHECK (plan_key IN ('starter', 'growth'));
   `);
 
   await pool.query(`
@@ -171,6 +177,12 @@ export async function runBillingSchemaInitialization(pool: Pool) {
   `);
 
   await pool.query(`
+    UPDATE billing_invoices
+    SET plan_key = 'growth'
+    WHERE plan_key = 'pro';
+  `);
+
+  await pool.query(`
     ALTER TABLE billing_invoices
     DROP CONSTRAINT IF EXISTS billing_invoices_plan_key_check;
   `);
@@ -178,7 +190,7 @@ export async function runBillingSchemaInitialization(pool: Pool) {
   await pool.query(`
     ALTER TABLE billing_invoices
     ADD CONSTRAINT billing_invoices_plan_key_check
-    CHECK (plan_key IN ('starter', 'growth', 'pro'));
+    CHECK (plan_key IN ('starter', 'growth'));
   `);
 
   await pool.query(`

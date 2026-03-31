@@ -76,7 +76,7 @@ const PLAN_DEFINITIONS: Record<BillingPlanKey, BillingPlanDefinition> = {
 };
 
 export function normalizeBillingPlanKey(value: string | null | undefined): BillingPlanKey {
-  return value === "growth" || value === "pro" ? "growth" : "starter";
+  return value === "growth" ? "growth" : "starter";
 }
 
 export function normalizeBillingInterval(value: unknown): BillingInterval {

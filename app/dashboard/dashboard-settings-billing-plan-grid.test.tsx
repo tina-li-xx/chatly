@@ -58,7 +58,7 @@ describe("dashboard settings billing plan grid", () => {
     );
 
     expect(html).toContain("Growth");
-    expect(html).toContain("$29");
+    expect(html).toContain("$20");
     expect(html).toContain("/month");
     expect(html).not.toContain("Preview:");
   });

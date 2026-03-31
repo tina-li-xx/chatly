@@ -124,7 +124,7 @@ export function getChattingGrowthPricingSummary(interval: ChattingPricingInterva
 }
 
 export function getChattingPaidStartingPriceCopy() {
-  return "Free, then $29/month for 1-3 members";
+  return "Free, then $20/month for 1-3 members";
 }
 
 export function getChattingMonthlyDifferencePrice(memberCount: number, competitorMonthlyCents: number) {

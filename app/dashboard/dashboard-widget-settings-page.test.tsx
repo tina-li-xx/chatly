@@ -20,7 +20,7 @@ function textContent(node: ReactNode): string {
 const billing = {
   planKey: "growth",
   planName: "Growth",
-  priceLabel: "$29/month",
+  priceLabel: "$20/month",
   billingInterval: "monthly",
   usedSeats: 1,
   billedSeats: 1,

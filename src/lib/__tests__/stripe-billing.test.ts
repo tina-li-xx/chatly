@@ -1,4 +1,5 @@
 const stripeMocks = vi.hoisted(() => ({
+  assertStripeGrowthPriceConfigured: vi.fn(),
   billingPortalCreate: vi.fn(),
   checkoutCreate: vi.fn(),
   clearBillingPaymentMethodRow: vi.fn(),
@@ -11,6 +12,7 @@ const stripeMocks = vi.hoisted(() => ({
   isLocalGrowthTrialActive: vi.fn(),
   isStripeBillingReady: vi.fn(),
   isStripeConfigured: vi.fn(),
+  pricesRetrieve: vi.fn(),
   subscriptionsList: vi.fn(),
   subscriptionsRetrieve: vi.fn(),
   subscriptionsUpdate: vi.fn(),
@@ -40,11 +42,13 @@ vi.mock("@/lib/repositories/billing-repository", () => ({
   upsertBillingPaymentMethodRow: stripeMocks.upsertBillingPaymentMethodRow
 }));
 vi.mock("@/lib/stripe", () => ({
+  assertStripeGrowthPriceConfigured: stripeMocks.assertStripeGrowthPriceConfigured,
   getStripe: () => ({
     billingPortal: { sessions: { create: stripeMocks.billingPortalCreate } },
     checkout: { sessions: { create: stripeMocks.checkoutCreate } },
     customers: { create: stripeMocks.customersCreate, retrieve: stripeMocks.customersRetrieve },
     invoices: { list: stripeMocks.invoicesList },
+    prices: { retrieve: stripeMocks.pricesRetrieve },
     subscriptions: {
       list: stripeMocks.subscriptionsList,
       retrieve: stripeMocks.subscriptionsRetrieve,
@@ -67,6 +71,30 @@ import {
 } from "@/lib/stripe-billing";
 const ensureBillingAccount = vi.mocked(ensureOwnerGrowthTrialBillingAccount);
 
+function growthPrice(priceId: string) {
+  const annual = priceId === "price_growth_annual";
+  return {
+    id: priceId,
+    active: true,
+    billing_scheme: "tiered",
+    currency: "usd",
+    recurring: {
+      interval: annual ? "year" : "month",
+      interval_count: 1,
+      usage_type: "licensed"
+    },
+    tiers_mode: "volume",
+    type: "recurring",
+    tiers: [
+      { up_to: 3, flat_amount: annual ? 20_000 : 2_000, unit_amount: null },
+      { up_to: 9, flat_amount: null, unit_amount: annual ? 6_000 : 600 },
+      { up_to: 24, flat_amount: null, unit_amount: annual ? 5_000 : 500 },
+      { up_to: 49, flat_amount: null, unit_amount: annual ? 4_000 : 400 },
+      { up_to: "inf", flat_amount: null, unit_amount: annual ? 4_000 : 400 }
+    ]
+  };
+}
+
 function accountRow(overrides: Record<string, unknown> = {}) {
   return {
     plan_key: "growth",
@@ -88,9 +116,14 @@ function accountRow(overrides: Record<string, unknown> = {}) {
 describe("stripe billing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    stripeMocks.assertStripeGrowthPriceConfigured.mockImplementation(
+      (_planKey: string, interval: string) =>
+        Promise.resolve(interval === "annual" ? "price_growth_annual" : "price_growth_monthly")
+    );
     stripeMocks.isStripeBillingReady.mockReturnValue(true);
     stripeMocks.isStripeConfigured.mockReturnValue(true);
     stripeMocks.isLocalGrowthTrialActive.mockReturnValue(true);
+    stripeMocks.pricesRetrieve.mockImplementation((priceId: string) => Promise.resolve(growthPrice(priceId)));
     ensureBillingAccount.mockResolvedValue(accountRow());
   });
 

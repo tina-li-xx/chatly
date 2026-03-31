@@ -204,5 +204,19 @@ describe("billing plan route", () => {
       ok: false,
       error: "stripe_checkout_unavailable"
     });
+
+    mocks.createDashboardBillingCheckoutSession.mockRejectedValueOnce(
+      new Error("STRIPE_PRICE_CONFIG_INVALID")
+    );
+    response = await POST(
+      new Request("http://localhost/dashboard/settings/billing/plan", {
+        method: "POST",
+        body: JSON.stringify({ plan: "growth" })
+      })
+    );
+    expect(await response.json()).toEqual({
+      ok: false,
+      error: "stripe_price_config_invalid"
+    });
   });
 });

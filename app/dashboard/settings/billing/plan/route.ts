@@ -45,6 +45,10 @@ export async function POST(request: Request) {
       if (error.message === "STRIPE_CHECKOUT_UNAVAILABLE") {
         return jsonError("stripe_checkout_unavailable", 500);
       }
+
+      if (error.message === "STRIPE_PRICE_CONFIG_INVALID") {
+        return jsonError("stripe_price_config_invalid", 500);
+      }
     }
 
     return jsonError("billing-plan-update-failed", 500);

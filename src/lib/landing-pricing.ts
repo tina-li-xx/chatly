@@ -1,5 +1,6 @@
 import {
   getBillingDisplayPrice,
+  getBillingPreviewDisplayPrice,
   type BillingInterval
 } from "@/lib/billing-plans";
 import { CHATTING_GROWTH_CONTACT_TEAM_SIZE } from "@/lib/pricing";
@@ -16,6 +17,10 @@ export function getLandingStarterDisplayPrice(interval: LandingBillingInterval) 
   return getBillingDisplayPrice("starter", interval);
 }
 
-export function getLandingGrowthDisplayPrice(interval: LandingBillingInterval) {
-  return getBillingDisplayPrice("growth", interval);
+export function getLandingGrowthDisplayPrice(interval: LandingBillingInterval, memberCount: number) {
+  return getBillingPreviewDisplayPrice("growth", interval, memberCount);
+}
+
+export function getLandingGrowthPriceNote(interval: LandingBillingInterval) {
+  return getBillingDisplayPrice("growth", interval).note;
 }

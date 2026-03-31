@@ -2,7 +2,10 @@ import {
   assertR2EnvConfigured,
   assertStripeBillingEnvConfigured,
   assertStartupProductionCoreEnvConfigured,
+  buildStripeEnvSource,
   getAuthSecret,
+  getOptionalStripeServerEnv,
+  getRequiredStripeServerEnv,
   getDatabaseConfig,
   getMissingStripeCheckoutEnvVars,
   getMissingR2EnvVars,
@@ -136,6 +139,95 @@ describe("env.server", () => {
         NEXT_PUBLIC_APP_URL: "https://chatly.example"
       })
     ).toBe(false);
+  });
+
+  it("prefers STRIPE_DEV_* values outside production", () => {
+    expect(
+      getRequiredStripeServerEnv("STRIPE_SECRET_KEY", {
+        environment: "development",
+        source: {
+          STRIPE_DEV_SECRET_KEY: "sk_dev",
+          STRIPE_SECRET_KEY: ""
+        }
+      })
+    ).toBe("sk_dev");
+
+    expect(
+      getRequiredStripeServerEnv("STRIPE_PRICE_GROWTH_MONTHLY", {
+        environment: "development",
+        source: {
+          STRIPE_DEV_PRICE_GROWTH_MONTHLY: "price_dev_monthly",
+          STRIPE_PRICE_GROWTH_MONTHLY: "price_live_monthly"
+        }
+      })
+    ).toBe("price_dev_monthly");
+
+    expect(
+      getOptionalStripeServerEnv("STRIPE_WEBHOOK_SECRET", {
+        environment: "development",
+        source: {
+          STRIPE_DEV_WEBHOOK_SECRET: "whsec_dev"
+        }
+      })
+    ).toBe("whsec_dev");
+
+    expect(
+      isStripeConfigured(
+        {
+          STRIPE_DEV_SECRET_KEY: "sk_dev",
+          STRIPE_DEV_PRICE_GROWTH_MONTHLY: "price_dev_monthly",
+          STRIPE_DEV_PRICE_GROWTH_ANNUAL: "price_dev_annual",
+          STRIPE_PRICE_GROWTH_MONTHLY: "price_growth_monthly",
+          STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
+          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+        },
+        "development"
+      )
+    ).toBe(true);
+
+    expect(
+      isStripeBillingReady(
+        {
+          STRIPE_DEV_SECRET_KEY: "sk_dev",
+          STRIPE_DEV_WEBHOOK_SECRET: "whsec_dev",
+          STRIPE_DEV_PRICE_GROWTH_MONTHLY: "price_dev_monthly",
+          STRIPE_DEV_PRICE_GROWTH_ANNUAL: "price_dev_annual",
+          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+        },
+        "development"
+      )
+    ).toBe(true);
+
+    expect(
+      getRequiredStripeServerEnv("STRIPE_SECRET_KEY", {
+        environment: "production",
+        source: {
+          STRIPE_DEV_SECRET_KEY: "sk_dev",
+          STRIPE_SECRET_KEY: "sk_live"
+        }
+      })
+    ).toBe("sk_live");
+
+    expect(
+      buildStripeEnvSource(
+        {
+          STRIPE_DEV_SECRET_KEY: "sk_dev",
+          STRIPE_DEV_WEBHOOK_SECRET: "whsec_dev",
+          STRIPE_DEV_PRICE_GROWTH_MONTHLY: "price_dev_monthly",
+          STRIPE_DEV_PRICE_GROWTH_ANNUAL: "price_dev_annual",
+          STRIPE_SECRET_KEY: "sk_live",
+          STRIPE_WEBHOOK_SECRET: "whsec_live",
+          STRIPE_PRICE_GROWTH_MONTHLY: "price_live_monthly",
+          STRIPE_PRICE_GROWTH_ANNUAL: "price_live_annual"
+        },
+        "development"
+      )
+    ).toMatchObject({
+      STRIPE_SECRET_KEY: "sk_dev",
+      STRIPE_WEBHOOK_SECRET: "whsec_dev",
+      STRIPE_PRICE_GROWTH_MONTHLY: "price_dev_monthly",
+      STRIPE_PRICE_GROWTH_ANNUAL: "price_dev_annual"
+    });
   });
 
   it("detects missing r2 env vars", () => {

@@ -182,6 +182,8 @@ export function billingErrorMessage(code: string) {
       return "Stripe is not configured yet.";
     case "stripe_checkout_unavailable":
       return "We couldn't open Stripe Checkout right now.";
+    case "stripe_price_config_invalid":
+      return "Stripe Growth pricing is not configured with the expected seat tiers yet.";
     case "proactive_chat_requires_growth":
       return "Proactive chat is available on Growth.";
     case "billing-portal-session-failed":

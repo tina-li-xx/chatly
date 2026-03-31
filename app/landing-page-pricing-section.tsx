@@ -25,7 +25,6 @@ export function LandingPricingSection() {
           <h2 id={headingId} className="display-font mt-4 text-4xl leading-tight text-slate-900 sm:text-5xl">
             Simple, transparent pricing
           </h2>
-          <p className="mt-4 text-lg leading-8 text-slate-500">Preview pricing the same way it works in billing.</p>
         </div>
 
         <div role="group" aria-labelledby={headingId} className="mx-auto mt-12 max-w-[980px] space-y-6">
@@ -39,7 +38,7 @@ export function LandingPricingSection() {
 
           <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.15fr)]">
             <LandingStarterPricingCard interval={interval} />
-            <LandingGrowthPricingCard interval={interval} />
+            <LandingGrowthPricingCard interval={interval} memberCount={memberCount} />
           </div>
         </div>
 

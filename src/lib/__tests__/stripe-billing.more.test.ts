@@ -1,4 +1,5 @@
 const stripeMocks = vi.hoisted(() => ({
+  assertStripeGrowthPriceConfigured: vi.fn(),
   billingPortalCreate: vi.fn(),
   checkoutCreate: vi.fn(),
   clearBillingPaymentMethodRow: vi.fn(),
@@ -11,6 +12,7 @@ const stripeMocks = vi.hoisted(() => ({
   isLocalGrowthTrialActive: vi.fn(),
   isStripeBillingReady: vi.fn(),
   isStripeConfigured: vi.fn(),
+  pricesRetrieve: vi.fn(),
   subscriptionsList: vi.fn(),
   subscriptionsRetrieve: vi.fn(),
   subscriptionsUpdate: vi.fn(),
@@ -31,11 +33,13 @@ vi.mock("@/lib/repositories/billing-repository", () => ({
   upsertBillingPaymentMethodRow: stripeMocks.upsertBillingPaymentMethodRow
 }));
 vi.mock("@/lib/stripe", () => ({
+  assertStripeGrowthPriceConfigured: stripeMocks.assertStripeGrowthPriceConfigured,
   getStripe: () => ({
     billingPortal: { sessions: { create: stripeMocks.billingPortalCreate } },
     checkout: { sessions: { create: stripeMocks.checkoutCreate } },
     customers: { create: stripeMocks.customersCreate, retrieve: stripeMocks.customersRetrieve },
     invoices: { list: stripeMocks.invoicesList },
+    prices: { retrieve: stripeMocks.pricesRetrieve },
     subscriptions: { list: stripeMocks.subscriptionsList, retrieve: stripeMocks.subscriptionsRetrieve, update: stripeMocks.subscriptionsUpdate }
   }),
   getStripeAppUrl: () => "https://app.example",
@@ -47,6 +51,30 @@ vi.mock("@/lib/stripe", () => ({
 import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-account";
 import { createStripeBillingPortalSession, createStripeCheckoutSession, syncStripeBillingState, syncStripeBillingStateFromEvent } from "@/lib/stripe-billing";
 const ensureBillingAccount = vi.mocked(ensureOwnerGrowthTrialBillingAccount);
+
+function growthPrice(priceId: string) {
+  const annual = priceId === "price_growth_annual";
+  return {
+    id: priceId,
+    active: true,
+    billing_scheme: "tiered",
+    currency: "usd",
+    recurring: {
+      interval: annual ? "year" : "month",
+      interval_count: 1,
+      usage_type: "licensed"
+    },
+    tiers_mode: "volume",
+    type: "recurring",
+    tiers: [
+      { up_to: 3, flat_amount: annual ? 20_000 : 2_000, unit_amount: null },
+      { up_to: 9, flat_amount: null, unit_amount: annual ? 6_000 : 600 },
+      { up_to: 24, flat_amount: null, unit_amount: annual ? 5_000 : 500 },
+      { up_to: 49, flat_amount: null, unit_amount: annual ? 4_000 : 400 },
+      { up_to: "inf", flat_amount: null, unit_amount: annual ? 4_000 : 400 }
+    ]
+  };
+}
 
 function accountRow(overrides: Record<string, unknown> = {}) {
   return {
@@ -69,9 +97,14 @@ function accountRow(overrides: Record<string, unknown> = {}) {
 describe("stripe billing more", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    stripeMocks.assertStripeGrowthPriceConfigured.mockImplementation(
+      (_planKey: string, interval: string) =>
+        Promise.resolve(interval === "annual" ? "price_growth_annual" : "price_growth_monthly")
+    );
     stripeMocks.isStripeBillingReady.mockReturnValue(true);
     stripeMocks.isStripeConfigured.mockReturnValue(true);
     stripeMocks.isLocalGrowthTrialActive.mockReturnValue(true);
+    stripeMocks.pricesRetrieve.mockImplementation((priceId: string) => Promise.resolve(growthPrice(priceId)));
     ensureBillingAccount.mockResolvedValue(accountRow());
   });
 
@@ -86,6 +119,20 @@ describe("stripe billing more", () => {
     ensureBillingAccount.mockResolvedValueOnce(accountRow({ stripe_customer_id: null }));
     stripeMocks.customersCreate.mockResolvedValueOnce({ id: "cus_new" });
     await expect(createStripeCheckoutSession("user_1", "owner@example.com", { planKey: "growth", billingInterval: "monthly", seatQuantity: 0 })).rejects.toThrow("STRIPE_CHECKOUT_UNAVAILABLE");
+  });
+
+  it("rejects checkout when the growth price ids are not configured with the expected tiers", async () => {
+    stripeMocks.assertStripeGrowthPriceConfigured.mockRejectedValueOnce(
+      new Error("STRIPE_PRICE_CONFIG_INVALID")
+    );
+
+    await expect(
+      createStripeCheckoutSession("user_1", "owner@example.com", {
+        planKey: "growth",
+        billingInterval: "monthly",
+        seatQuantity: 3
+      })
+    ).rejects.toThrow("STRIPE_PRICE_CONFIG_INVALID");
   });
 
   it("returns null sync states when billing is unavailable or the customer record is unusable", async () => {
@@ -157,6 +204,36 @@ describe("stripe billing more", () => {
     expect(stripeMocks.subscriptionsUpdate).toHaveBeenCalledWith("sub_live", expect.objectContaining({ proration_behavior: "create_prorations" }));
     expect(stripeMocks.upsertBillingPaymentMethodRow).toHaveBeenCalledWith(expect.objectContaining({ holderName: "owner@example.com", last4: "4242" }));
     expect(stripeMocks.insertBillingInvoiceRow).toHaveBeenCalledWith(expect.objectContaining({ status: "open", currency: "USD", seatQuantity: 4 }));
+  });
+
+  it("stops automatic seat sync for teams that move into contact-sales sizing", async () => {
+    stripeMocks.customersRetrieve.mockResolvedValueOnce({
+      deleted: false,
+      name: null,
+      email: "owner@example.com",
+      invoice_settings: { default_payment_method: null }
+    });
+    stripeMocks.subscriptionsList.mockResolvedValueOnce({
+      data: [
+        {
+          id: "sub_live",
+          status: "active",
+          created: 2,
+          metadata: {},
+          items: { data: [{ id: "si_live", quantity: 48, price: { id: "price_growth_monthly" } }] },
+          current_period_end: 1713484800,
+          trial_start: 1711670400,
+          trial_end: null
+        }
+      ]
+    });
+    stripeMocks.invoicesList.mockResolvedValueOnce({ data: [] });
+
+    await syncStripeBillingState("user_1", "owner@example.com", 50);
+    expect(stripeMocks.subscriptionsUpdate).not.toHaveBeenCalled();
+    expect(stripeMocks.upsertBillingAccountRow).toHaveBeenLastCalledWith(
+      expect.objectContaining({ seatQuantity: 48, planKey: "growth" })
+    );
   });
 
   it("syncs webhook events through subscription lookups", async () => {

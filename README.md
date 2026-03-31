@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Unified Growth billing around the live `$20 / $6 / $5 / $4` seat pricing, slider-aware landing totals, legacy Pro cleanup, and Stripe tier validation with development-specific Stripe env support.
 - Aligned dashboard inbox install prompts with the live widget state and split the inbox surface into smaller shared helpers.
 - Tightened the landing-page header so it stays in flow on desktop, removes the white seam below the nav, and collapses into a cleaner mobile nav/action layout.
 - Switched Next.js 16 development and production builds back to the default Turbopack path, cleared the stale webpack reload loop, and tightened shared email section typing so builds pass cleanly.
@@ -42,7 +43,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Added signed conversation resume links for visitor emails plus inbox deeplinks for teammate mention notifications.
 - Unified transactional, notification, lifecycle, and visitor emails on a single Chatting email shell with matching dashboard previews.
 - Added scheduled daily digests and weekly performance emails with per-user delivery tracking from the node runtime.
-- Removed legacy Stripe Pro price-id fallbacks so billing now resolves only against the active Growth monthly and annual prices.
+- Streamlined Stripe price resolution so billing now resolves only against the active Growth monthly and annual prices.
 - Added forgot-password and reset-password actions with token-backed reset links from the auth flow.
 - Added invite-aware teammate signup, login acceptance, and a dedicated invite landing page for workspace joins.
 - Added referral-aware owner signup with seeded workspace billing, welcome emails, and preserved referral codes through auth forms.
@@ -53,11 +54,11 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Aligned billing settings and landing pricing around shared Starter and Growth pricing helpers plus the shared app button styling.
 - Added backend Growth trial lifecycle handling for owner billing defaults, local trial extensions, and automatic downgrades for expired unpaid trials.
 - Added a dedicated referrals page in billing settings with shareable signup links, copied codes, and tracked signup and reward states.
-- Added tiered landing-page pricing cards with Free, Starter, and Pro plans plus a Pro team-size slider.
+- Added tiered landing-page pricing cards with Starter and Growth plans plus a Growth team-size slider.
 - Added an internal Chatting distribution playbook markdown file under `app/` for growth-channel planning and launch copy.
 - Added dashboard growth insights for activation, workspace health, and expansion signals on the home view.
 - Added scheduled lifecycle growth nudges for activation, health, and upgrade reminders without running email checks on widget requests.
-- Added seat-based `Starter / Growth / Pro` packaging with annual pricing, proactive-chat gating, and 7-day trial extensions for active workspaces.
+- Added seat-based `Starter / Growth` packaging with annual pricing, proactive-chat gating, and 7-day trial extensions for active workspaces.
 - Tightened the social content generator rules around lowercase output, Chatting branding, and the canonical site URL.
 - Removed the visible onboarding step counts to keep setup screens cleaner.
 - Split the dashboard home into focused modules and cleaned up empty-state conversation actions.
@@ -76,7 +77,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
 - The landing header now stays sticky in flow on desktop and uses a dedicated small-screen nav row so the top bar stays compact without layout seams.
 - The public landing now keeps the header/CTA framing stable while using the new proof and conversion section split.
-- Landing pricing now mirrors the dashboard billing format with Starter and Growth plans driven by shared pricing helpers.
+- Landing pricing now mirrors the dashboard billing format with Starter and Growth plans driven by shared pricing helpers, and the Growth card total now follows the team-size slider directly.
 - Public free-tool workflows now have focused action, form, and result coverage across export-gate and generator/calculator tools.
 - Dedicated login and signup screens with shared form controls, referral-aware owner signup, invite-based teammate access, password reset flows, and direct onboarding handoff.
 - Auth failures now stay in shared toast notifications with generic user-safe copy instead of showing deployment or server setup details in the UI.
@@ -115,12 +116,13 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Billing & Operations
 
 - Stripe-backed billing flows for checkout, portal access, invoice sync, and webhook handling.
-- Billing price resolution now relies only on the current Growth Stripe price ids instead of retired Pro-era fallbacks.
+- Growth billing now runs from a shared seat-pricing config, validates Stripe's tiered Growth price shape before checkout, and prefers `STRIPE_DEV_*` billing credentials and price ids outside production.
+- Billing price resolution now relies only on the current Growth Stripe price ids.
 - Scheduled daily digests and weekly performance reports now send from the node runtime with persisted delivery windows.
 - Owner workspaces now default to a backend-seeded Growth trial and automatically downgrade expired unpaid trials to Starter.
 - Billing settings fixtures and cards now consistently use the post-trial-extension billing shape across dashboard tests and widget settings.
 - Scheduled lifecycle nudges now deliver activation, health, and upgrade reminders from the node runtime instead of widget pageviews.
-- Seat-based `Growth` and `Pro` billing with monthly/annual pricing, plan-aware widget gating, and trial-extension support for active workspaces.
+- Seat-based `Growth` billing with monthly/annual pricing, plan-aware widget gating, and trial-extension support for active workspaces.
 - Billing settings now share the same Starter and Growth pricing presentation as the landing page, backed by shared pricing primitives and button styles.
 - Public APIs, Stripe billing flows, repositories, and growth services now have broad backend coverage in the Vitest suite.
 - Referral programs with per-workspace codes and paid-conversion reward tracking in billing settings.

@@ -72,7 +72,7 @@ describe("auth and billing repositories", () => {
 
     await upsertBillingAccountRow({ userId: "user_1", planKey: "growth", billingInterval: "monthly", seatQuantity: 3, nextBillingDate: null, stripeCustomerId: "cus_123", stripeSubscriptionId: "sub_123", stripePriceId: "price_123", stripeStatus: "trialing", stripeCurrentPeriodEnd: "2026-04-01T00:00:00.000Z" });
     await upsertBillingPaymentMethodRow({ userId: "user_1", stripePaymentMethodId: "pm_123", brand: "visa", last4: "4242", expMonth: 4, expYear: 2028, holderName: "Tina Bauer" });
-    await insertBillingInvoiceRow({ id: "invoice_1", userId: "user_1", stripeInvoiceId: "in_123", planKey: "growth", billingInterval: "monthly", seatQuantity: 3, description: "Growth", amountCents: 2900, currency: "usd", status: "paid", hostedInvoiceUrl: null, invoicePdfUrl: null, issuedAt: "2026-03-29T10:00:00.000Z", paidAt: "2026-03-29T10:01:00.000Z", periodStart: null, periodEnd: null });
+    await insertBillingInvoiceRow({ id: "invoice_1", userId: "user_1", stripeInvoiceId: "in_123", planKey: "growth", billingInterval: "monthly", seatQuantity: 3, description: "Growth", amountCents: 2000, currency: "usd", status: "paid", hostedInvoiceUrl: null, invoicePdfUrl: null, issuedAt: "2026-03-29T10:00:00.000Z", paidAt: "2026-03-29T10:01:00.000Z", periodStart: null, periodEnd: null });
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("COUNT(DISTINCT s.id)");
     expect(mocks.query.mock.calls[6]?.[0]).toContain("INSERT INTO billing_accounts");

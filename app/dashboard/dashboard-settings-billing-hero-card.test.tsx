@@ -5,7 +5,7 @@ import { DashboardSettingsBillingHeroCard } from "./dashboard-settings-billing-h
 const baseBilling = {
   planKey: "growth",
   planName: "Growth",
-  priceLabel: "$29/month",
+  priceLabel: "$20/month",
   billingInterval: "monthly",
   usedSeats: 1,
   billedSeats: 1,

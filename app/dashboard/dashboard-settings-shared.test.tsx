@@ -27,6 +27,7 @@ describe("dashboard settings shared", () => {
     expect(passwordStrength("Hello123!")).toMatchObject({ label: "Strong", widthClass: "w-full" });
     expect(settingsErrorMessage("email_taken")).toContain("already in use");
     expect(billingErrorMessage("contact_sales_required")).toContain("50 or more members");
+    expect(billingErrorMessage("stripe_price_config_invalid")).toContain("expected seat tiers");
     expect(formatMoney(2900, "usd")).toContain("29.00");
   });
 

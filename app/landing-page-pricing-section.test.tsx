@@ -23,14 +23,13 @@ describe("landing page pricing section", () => {
     const html = renderToStaticMarkup(<LandingPricingSection />);
 
     expect(html).toContain("Simple, transparent pricing");
-    expect(html).toContain("Preview pricing the same way it works in billing.");
     expect(html).toContain("Starter");
     expect(html).toContain("Growth");
     expect(html).toContain("How many team members?");
     expect(html).not.toContain("Preview Growth pricing.");
     expect(html).toContain("1 team member");
     expect(html).toContain("$0");
-    expect(html).toContain("$29");
+    expect(html).toContain("$20");
     expect(html).toContain("/month");
     expect(html).toContain("Get started free");
     expect(html).toContain("Start free trial");

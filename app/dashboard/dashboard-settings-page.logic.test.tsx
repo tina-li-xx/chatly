@@ -87,7 +87,7 @@ describe("dashboard settings page logic", () => {
 
   it("syncs billing from search params and forwards billing actions", async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, billing: { ...createInitialData().billing, planKey: "growth", billingInterval: "annual", priceLabel: "$290/year" } }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, billing: { ...createInitialData().billing, planKey: "growth", billingInterval: "annual", priceLabel: "$200/year" } }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, redirectUrl: "https://stripe.example/portal" }) })
       .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, redirectUrl: "https://stripe.example/checkout" }) })
       .mockResolvedValue({ ok: true, json: async () => ({ ok: true, billing: { ...createInitialData().billing, planKey: "starter", billingInterval: "monthly" } }) });

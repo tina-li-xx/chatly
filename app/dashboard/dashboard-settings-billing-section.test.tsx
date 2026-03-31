@@ -94,7 +94,7 @@ describe("settings billing section", () => {
 
   it("routes paid-plan management through the billing portal and payment modal", async () => {
     const onOpenBillingPortal = vi.fn();
-    const growthBilling = { ...baseBilling, planKey: "growth", billingInterval: "monthly", priceLabel: "$29/month" } as DashboardBillingSummary;
+    const growthBilling = { ...baseBilling, planKey: "growth", billingInterval: "monthly", priceLabel: "$20/month" } as DashboardBillingSummary;
     const { SettingsBillingSection, captures, reactMocks } = await loadBillingSection();
 
     renderSection(SettingsBillingSection, reactMocks, growthBilling, { onOpenBillingPortal, onChangePlan: vi.fn(), onSetSelectedInterval: vi.fn(), onSyncBilling: vi.fn() });
