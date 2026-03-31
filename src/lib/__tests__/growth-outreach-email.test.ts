@@ -32,7 +32,9 @@ describe("growth outreach email", () => {
         subject: "Your widget is live. Let's land the first chat today."
       })
     );
-    expect(mocks.sendRichEmail.mock.calls[0][0].bodyText).toContain("Widget settings: https://chatly.example/dashboard/widget");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyText).toContain("Open widget settings: https://chatly.example/dashboard/widget");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("max-width:600px");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("Open widget settings");
   });
 
   it("sends the health reminder with the recommended action link", async () => {
@@ -53,6 +55,8 @@ describe("growth outreach email", () => {
 
     expect(mocks.sendRichEmail.mock.calls[0][0].subject).toBe("Your workspace health score dropped to 48");
     expect(mocks.sendRichEmail.mock.calls[0][0].bodyText).toContain("https://chatly.example/dashboard/analytics");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("max-width:600px");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("Workspace health");
   });
 
   it("sends the expansion reminder with billing links", async () => {
@@ -66,5 +70,8 @@ describe("growth outreach email", () => {
 
     expect(mocks.sendRichEmail.mock.calls[0][0].subject).toBe("You may be ready for deeper analytics and API access");
     expect(mocks.sendRichEmail.mock.calls[0][0].bodyText).toContain("https://chatly.example/dashboard/settings?section=billing");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("max-width:600px");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("Analytics growth");
+    expect(mocks.sendRichEmail.mock.calls[0][0].bodyHtml).toContain("hyphens:none");
   });
 });

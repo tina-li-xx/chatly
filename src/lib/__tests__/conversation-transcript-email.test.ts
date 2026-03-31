@@ -19,7 +19,7 @@ describe("conversation transcript email renderer", () => {
       previewContext,
       {
         appUrl: "https://chatly.example",
-        siteUrl: "https://acme.example",
+        conversationUrl: "https://chatly.example/conversation/token",
         replyToEmail: "reply@acme.example",
         messages: buildConversationTranscriptPreviewMessages(),
         teamAvatarUrl: null,
@@ -30,11 +30,13 @@ describe("conversation transcript email renderer", () => {
     expect(rendered.subject).toBe("Your conversation with Chatting Team");
     expect(rendered.bodyText).toContain("March 15, 2026 • 3 messages");
     expect(rendered.bodyText).toContain("Reply to This Email: mailto:reply@acme.example");
+    expect(rendered.bodyText).toContain("Continue on the web: https://chatly.example/conversation/token");
     expect(rendered.bodyText).toContain("Try Chatting Free →");
     expect(rendered.bodyHtml).toContain("background:#F1F5F9");
-    expect(rendered.bodyHtml).toContain("font-family:Georgia,serif");
+    expect(rendered.bodyHtml).toContain("Georgia,'Times New Roman',serif");
     expect(rendered.bodyHtml).toContain("border-radius:12px 12px 12px 4px");
     expect(rendered.bodyHtml).toContain("border-radius:12px 12px 4px 12px");
+    expect(rendered.bodyHtml).toContain(">Chatting</td>");
     expect(rendered.bodyHtml).toContain("Powered by <strong style=\"color:#475569;\">Chatting</strong>");
   });
 
@@ -47,7 +49,7 @@ describe("conversation transcript email renderer", () => {
       previewContext,
       {
         appUrl: "https://chatly.example",
-        siteUrl: "https://acme.example",
+        conversationUrl: "https://chatly.example/conversation/token",
         replyToEmail: "reply@acme.example",
         messages: buildConversationTranscriptPreviewMessages(),
         teamAvatarUrl: null,
@@ -59,5 +61,26 @@ describe("conversation transcript email renderer", () => {
     expect(rendered.bodyText).not.toContain("This email was sent by");
     expect(rendered.bodyHtml).not.toContain("Powered by <strong");
     expect(rendered.bodyHtml).not.toContain("Privacy Policy");
+  });
+
+  it("falls back to initials when the team avatar is a remote image URL", () => {
+    const rendered = renderConversationTranscriptEmailTemplate(
+      {
+        subject: "Your conversation with {{team_name}}",
+        body: "Thanks for chatting with us! Here's a copy of your conversation for your records.\n\n{{transcript}}"
+      },
+      previewContext,
+      {
+        appUrl: "https://chatly.example",
+        conversationUrl: "https://chatly.example/conversation/token",
+        replyToEmail: "reply@acme.example",
+        messages: buildConversationTranscriptPreviewMessages(),
+        teamAvatarUrl: "https://cdn.chatly.example/team-avatar.png",
+        showViralFooter: false
+      }
+    );
+
+    expect(rendered.bodyHtml).not.toContain("cdn.chatly.example/team-avatar.png");
+    expect(rendered.bodyHtml).toContain(">CT</div>");
   });
 });

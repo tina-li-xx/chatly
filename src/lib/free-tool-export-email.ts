@@ -1,5 +1,6 @@
 import { Buffer } from "node:buffer";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
+import { renderChattingEmailPage } from "@/lib/chatly-email-foundation";
 import { sendRichEmail } from "@/lib/email";
 import type { EmailAttachment } from "@/lib/email-mime";
 import { getFreeToolBySlug } from "@/lib/free-tools-data";
@@ -101,12 +102,32 @@ function buildReport(toolSlug: string, payload: unknown) {
   return {
     subject: `Your ${tool.title} report`,
     bodyText: `Here is your ${tool.title.toLowerCase()} report.\n\n${lines.join("\n")}\n\nDownload the attached report or reopen the tool:\n${toolUrl}`,
-    bodyHtml: `
-      <p style="font-size:18px;font-weight:600;color:#0f172a;">Your ${tool.title} report is ready.</p>
-      <ul style="padding-left:18px;">${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
-      <p style="margin-top:24px;"><a href="${toolUrl}" style="display:inline-block;border-radius:12px;background:#2563EB;padding:12px 18px;color:#ffffff;text-decoration:none;font-weight:600;">Open the tool again</a></p>
-      <p style="margin-top:16px;color:#64748b;">A text export is attached to this email.</p>
-    `,
+    bodyHtml: renderChattingEmailPage({
+      preheader: `Your ${tool.title} report is ready.`,
+      title: `Your ${tool.title} report is ready.`,
+      description: "A text export is attached to this email.",
+      sections: [
+        {
+          kind: "panel",
+          html: lines
+            .map(
+              (line) =>
+                `<div style="margin-top:10px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;word-break:normal;word-wrap:normal;overflow-wrap:normal;hyphens:none;">${escapeHtml(
+                  line
+                )}</div>`
+            )
+            .join(""),
+          padding: "0 32px 24px"
+        },
+        {
+          kind: "html",
+          html: `<div style="text-align:center;font:400 13px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">A text export is attached to this email.</div>`,
+          align: "center",
+          padding: "0 32px 32px"
+        }
+      ],
+      actions: { primary: { href: toolUrl, label: "Open the tool again" }, padding: "0 32px 24px", borderTopColor: undefined }
+    }),
     attachment
   };
 }

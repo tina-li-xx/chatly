@@ -28,7 +28,7 @@ describe("email templates", () => {
 
     expect(rendered.subject).toBe("Hello Alex");
     expect(rendered.bodyText).toContain("Thanks for reaching out to **Chatting Team**.");
-    expect(rendered.bodyHtml).toContain("max-width:640px");
+    expect(rendered.bodyHtml).toContain("max-width:600px");
     expect(rendered.bodyHtml).toContain("<strong>Chatting Team</strong>");
   });
 
@@ -66,7 +66,7 @@ describe("email templates", () => {
     expect(rendered.bodyText).toContain("Yes: https://chatly.example/yes");
     expect(rendered.bodyHtml).toContain("Best,<br />Chatting Team");
     expect(rendered.bodyHtml).toContain('href="https://chatly.example/yes"');
-    expect(rendered.bodyHtml).toContain(">Helpful?</p>");
+    expect(rendered.bodyHtml).toContain(">Helpful?</div>");
   });
 
   it("ships the updated default transcript copy", () => {
@@ -81,6 +81,13 @@ describe("email templates", () => {
       "Thanks for chatting with us! Here's a copy of your conversation for your records."
     );
     expect(transcriptTemplate?.body).not.toContain("If you need anything else");
+  });
+
+  it("ships the updated default satisfaction survey copy", () => {
+    const surveyTemplate = getDefaultDashboardEmailTemplates().find((template) => template.key === "satisfaction_survey");
+
+    expect(surveyTemplate?.body).not.toContain("A couple important details:");
+    expect(surveyTemplate?.body).not.toContain("There is no comment field here");
   });
 
   it("parses stored templates safely and serializes missing values back to defaults", () => {
@@ -134,6 +141,44 @@ describe("email templates", () => {
     expect(fragment.html).toContain("<mark");
   });
 
+  it("renders conversation placeholders as inline anchors for both default and legacy copy", () => {
+    const welcomeTemplate = getDefaultDashboardEmailTemplates().find((template) => template.key === "welcome_email");
+    const defaultFragment = renderDashboardEmailTemplateFragment(welcomeTemplate?.body ?? "", previewContext, {
+      highlightVariables: true
+    });
+    const legacyFragment = renderDashboardEmailTemplateFragment(
+      [
+        "If you ever want to continue the conversation, you can jump back in here:",
+        "{{conversation_link}}"
+      ].join("\n"),
+      previewContext,
+      { highlightVariables: true }
+    );
+
+    expect(welcomeTemplate?.body).toContain("[jump back in here]({{conversation_link}})");
+    expect(defaultFragment.html).toContain(">jump back in here</a>");
+    expect(defaultFragment.html).toContain(`href="${previewContext.conversationLink}"`);
+    expect(legacyFragment.html).toContain(">jump back in here</a>");
+    expect(legacyFragment.html).toContain(`href="${previewContext.conversationLink}"`);
+  });
+
+  it("renders standalone conversation-link lines as a button", () => {
+    const fragment = renderDashboardEmailTemplateFragment(
+      [
+        "Continue the conversation here:",
+        "{{conversation_link}}"
+      ].join("\n"),
+      previewContext,
+      { highlightVariables: true }
+    );
+
+    expect(fragment.text).toContain("Continue the conversation here:");
+    expect(fragment.text).toContain(previewContext.conversationLink);
+    expect(fragment.html).toContain(">Continue the conversation</a>");
+    expect(fragment.html).toContain(`href="${previewContext.conversationLink}"`);
+    expect(fragment.html).not.toContain(">Continue the conversation here:</a>");
+  });
+
   it("builds preview context and timestamps with the right brand fallbacks", () => {
     const branded = buildDashboardEmailTemplatePreviewContext({
       profileEmail: "support@acme.io",
@@ -149,11 +194,13 @@ describe("email templates", () => {
       teamName: "Acme Support",
       agentName: "Tina"
     });
+    expect(branded.conversationLink).toMatch(/^https:\/\/chatly\.example\/conversation\/.+\..+$/);
     expect(fallback).toMatchObject({
       companyName: "Chatting",
       teamName: "Chatting Team",
       agentName: "Sarah"
     });
+    expect(fallback.conversationLink).toMatch(/^https:\/\/chatly\.example\/conversation\/.+\..+$/);
     expect(formatEmailTemplateTimestamp(null)).toBe("Default template");
     expect(formatEmailTemplateTimestamp("2026-03-29T00:00:00.000Z")).toBe("29 Mar 2026");
   });

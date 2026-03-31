@@ -30,6 +30,9 @@ import {
   sendTeamNewMessageEmail
 } from "@/lib/email";
 
+const renderedShellHtml =
+  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#FFFFFF;"><tr><td>HTML body</td></tr></table>';
+
 describe("email helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -39,7 +42,7 @@ describe("email helpers", () => {
     mocks.renderNewMessageNotificationEmail.mockReturnValue({
       subject: "New visitor message",
       bodyText: "Preview text",
-      bodyHtml: "<table></table></td></tr></table>"
+      bodyHtml: renderedShellHtml
     });
     mocks.sendSesEmail.mockResolvedValue(undefined);
   });
@@ -81,34 +84,65 @@ describe("email helpers", () => {
       currentPage: "https://example.com/pricing",
       messagePreview: "Need help",
       replyNowUrl: "mailto:reply+conv_1@reply.chatting.test",
-      inboxUrl: "https://app.example/dashboard?id=conv_1"
+      inboxUrl: "https://app.example/dashboard?id=conv_1",
+      workspaceName: "Main site",
+      attachmentsCount: 2
     });
-    expect(mocks.sendSesEmail).toHaveBeenCalledWith(
+    const sentEmail = mocks.sendSesEmail.mock.calls[0]?.[0];
+    expect(sentEmail).toEqual(
       expect.objectContaining({
         to: "team@example.com",
         subject: "New visitor message",
-        bodyText: expect.stringContaining("Workspace: Main site\nAttachments: 2"),
-        bodyHtml: expect.stringContaining("Workspace: Main site")
+        replyTo: "reply+conv_1@reply.chatting.test",
+        bodyHtml: renderedShellHtml
       })
     );
+    expect(sentEmail?.bodyText).toContain("Preview text");
+    expect(sentEmail?.bodyText).toContain("Company No. 16998528");
   });
 
-  it("sends settings template test emails through the shared rich-email path", async () => {
+  it("passes rendered settings template emails through the shared rich-email path", async () => {
+    await sendSettingsTemplateTestEmail({
+      to: "team@example.com",
+      subject: "Chatting email probe",
+      bodyText: "Probe email from local workspace.",
+      bodyHtml: renderedShellHtml
+    });
+
+    const sentEmail = mocks.sendSesEmail.mock.calls[0]?.[0];
+    expect(sentEmail).toEqual(
+      expect.objectContaining({
+        from: "team@chatting.test",
+        to: "team@example.com",
+        subject: "Chatting email probe",
+        bodyHtml: renderedShellHtml
+      })
+    );
+    expect(sentEmail?.bodyText).toContain("Probe email from local workspace.");
+    expect(sentEmail?.bodyText).toContain("Company No. 16998528");
+  });
+
+  it("rejects raw html that skips the shared email shell", async () => {
+    await expect(
+      sendSettingsTemplateTestEmail({
+        to: "team@example.com",
+        subject: "Template preview",
+        bodyText: "Plain body",
+        bodyHtml: "<p>HTML body</p>"
+      })
+    ).rejects.toThrow("sendRichEmail requires fully rendered Chatting email HTML.");
+
+    expect(mocks.sendSesEmail).not.toHaveBeenCalled();
+  });
+
+  it("does not alter already-rendered email shells", async () => {
     await sendSettingsTemplateTestEmail({
       to: "team@example.com",
       subject: "Template preview",
       bodyText: "Plain body",
-      bodyHtml: "<p>HTML body</p>"
+      bodyHtml: renderedShellHtml
     });
 
-    expect(mocks.sendSesEmail).toHaveBeenCalledWith(
-      expect.objectContaining({
-        from: "team@chatting.test",
-        to: "team@example.com",
-        subject: "Template preview",
-        bodyText: "Plain body",
-        bodyHtml: expect.stringContaining("<p>HTML body</p>")
-      })
-    );
+    expect(mocks.sendSesEmail.mock.calls[0]?.[0].bodyHtml).toBe(renderedShellHtml);
   });
 });

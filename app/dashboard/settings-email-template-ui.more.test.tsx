@@ -70,14 +70,12 @@ describe("settings email template ui extra coverage", () => {
       onUpdateField: vi.fn(),
       onInsertIntoBody: vi.fn(),
       onInsertVariable: vi.fn(),
-      onSetPreviewDevice: vi.fn(),
       onSendTest: vi.fn(),
       onSave: vi.fn()
     };
     const stopPropagation = vi.fn();
     const tree = SettingsEmailTemplateEditor({
       editingTemplate: disabledTemplate,
-      previewDevice: "mobile",
       textareaRef: { current: null },
       renderedPreview: { subject: "Preview", bodyHtml: "<p>Preview body</p>" },
       replyToEmail: "",
@@ -97,7 +95,6 @@ describe("settings email template ui extra coverage", () => {
     ["I", "U", "Link", "List", "1.", "Image", "Code", "{{ }}"].forEach((label) => {
       collect(tree, (element) => element.type === "button" && textOf(element.props.children) === label)[0]?.props.onClick();
     });
-    collect(tree, (element) => element.props["aria-label"] === "Desktop preview")[0]?.props.onClick();
     collect(tree, (element) => element.props["aria-label"] === "Back")[0]?.props.onClick();
     collect(tree, (element) => element.props["aria-label"] === "Close")[0]?.props.onClick();
     collect(tree, (element) => textOf(element.props.children).includes("Cancel"))[0]?.props.onClick();
@@ -107,9 +104,12 @@ describe("settings email template ui extra coverage", () => {
     expect(handlers.onClose).toHaveBeenCalledTimes(4);
     expect(handlers.onInsertIntoBody).toHaveBeenCalledTimes(7);
     expect(handlers.onInsertVariable).toHaveBeenCalledWith("{{visitor_name}}");
-    expect(handlers.onSetPreviewDevice).toHaveBeenCalledWith("desktop");
-    expect(html).toContain("Sending test...");
+    expect(html).toContain("Send test email");
     expect(html).toContain("team@example.com");
-    expect(html).toContain("max-w-[320px]");
+    expect(html).toContain("lg:grid-cols-2");
+    expect(html).toContain("lg:border-l");
+    expect(html).toContain("aria-busy=\"true\"");
+    expect(html).not.toContain("Desktop preview");
+    expect(html).not.toContain("Mobile preview");
   });
 });

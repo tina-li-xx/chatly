@@ -1,12 +1,6 @@
 import {
   joinEmailText,
-  renderBrandLockup,
-  renderButtonRow,
-  renderChattingEmailShell,
-  renderDivider,
-  renderEmailSection,
-  renderHeadingBlock,
-  renderMetricGrid,
+  renderChattingEmailPage,
   renderPanel
 } from "@/lib/chatly-email-foundation";
 import { escapeHtml } from "@/lib/utils";
@@ -19,10 +13,18 @@ export function renderNewMessageNotificationEmail(input: {
   messagePreview: string;
   replyNowUrl: string;
   inboxUrl: string;
+  workspaceName?: string;
+  attachmentsCount?: number;
   upgradePromptHtml?: string;
   upgradePromptText?: string;
 }): RenderedEmail {
   const meta = [input.visitorEmail || "Unknown email", input.currentPage || "Unknown page"].join(" • ");
+  const workspaceMeta =
+    input.workspaceName || typeof input.attachmentsCount === "number"
+      ? [`Workspace: ${input.workspaceName ?? "Unknown workspace"}`, `Attachments: ${input.attachmentsCount ?? 0}`].join(
+          "\n"
+        )
+      : "";
   return {
     subject: `New message from ${input.visitorName}`,
     bodyText: joinEmailText([
@@ -32,31 +34,33 @@ export function renderNewMessageNotificationEmail(input: {
       `Reply Now: ${input.replyNowUrl}`,
       `View in Inbox: ${input.inboxUrl}`,
       "Tip: Reply directly to this email to respond.",
+      workspaceMeta,
       input.upgradePromptText
     ]),
-    bodyHtml: renderChattingEmailShell({
+    bodyHtml: renderChattingEmailPage({
       preheader: `"${input.messagePreview}" — Reply now or view in inbox.`,
-      rows: [
-        renderEmailSection(renderBrandLockup()),
-        renderDivider(),
-        renderEmailSection(renderHeadingBlock({ title: `New message from ${input.visitorName}`, meta })),
-        renderEmailSection(
-          renderPanel(
-            `<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0F172A;">&ldquo;${escapeHtml(
-              input.messagePreview
-            )}&rdquo;</div>`
-          ),
-          { padding: "0 32px 32px" }
-        ),
-        renderEmailSection(renderButtonRow({
-          primary: { href: input.replyNowUrl, label: "Reply Now" },
-          secondary: { href: input.inboxUrl, label: "View in Inbox" }
-        }), { align: "center", padding: "0 32px 24px" }),
-        renderEmailSection(
-          `<div style="text-align:center;font:400 13px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">&#128161; Tip: Reply directly to this email to respond.</div>${input.upgradePromptHtml ?? ""}`,
-          { padding: "0 32px 32px" }
-        )
-      ]
+      title: `New message from ${input.visitorName}`,
+      meta,
+      sections: [
+        {
+          kind: "panel",
+          html: `<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0F172A;">&ldquo;${escapeHtml(
+            input.messagePreview
+          )}&rdquo;</div>`,
+          padding: "0 32px 32px"
+        },
+        {
+          kind: "html",
+          html: `<div style="text-align:center;font:400 13px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">&#128161; Tip: Reply directly to this email to respond.</div>${workspaceMeta ? `<div style="margin-top:12px;text-align:center;font:400 13px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">${escapeHtml(workspaceMeta).replace(/\n/g, "<br />")}</div>` : ""}${input.upgradePromptHtml ?? ""}`,
+          padding: "0 32px 32px"
+        }
+      ],
+      actions: {
+        primary: { href: input.replyNowUrl, label: "Reply Now" },
+        secondary: { href: input.inboxUrl, label: "View in Inbox" },
+        padding: "0 32px 24px",
+        borderTopColor: undefined
+      }
     })
   };
 }
@@ -92,19 +96,19 @@ export function renderDailyDigestEmail(input: {
       openItems,
       `Go to Inbox → ${input.inboxUrl}`
     ]),
-    bodyHtml: renderChattingEmailShell({
+    bodyHtml: renderChattingEmailPage({
       preheader: `Your Chatting activity snapshot for ${input.date}.`,
-      rows: [
-        renderEmailSection(renderBrandLockup()),
-        renderDivider(),
-        renderEmailSection(renderHeadingBlock({ title: "Your daily digest", meta: input.date })),
-        renderEmailSection(renderMetricGrid(input.metrics), { padding: "0 26px 20px" }),
-        renderEmailSection(
-          `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Open conversations</div>${openHtml}`,
-          { padding: "0 32px 32px" }
-        ),
-        renderEmailSection(renderButtonRow({ primary: { href: input.inboxUrl, label: "Go to Inbox \u2192" } }), { align: "center", padding: "0 32px 32px" })
-      ]
+      title: "Your daily digest",
+      meta: input.date,
+      sections: [
+        { kind: "metrics", metrics: input.metrics, padding: "0 26px 20px" },
+        {
+          kind: "html",
+          html: `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Open conversations</div>${openHtml}`,
+          padding: "0 32px 32px"
+        }
+      ],
+      actions: { primary: { href: input.inboxUrl, label: "Go to Inbox \u2192" }, padding: "0 32px 32px", borderTopColor: undefined }
     })
   };
 }
@@ -124,24 +128,23 @@ export function renderMentionNotificationEmail(input: {
       `${input.note}\n${input.noteMeta}`,
       `View Conversation: ${input.conversationUrl}`
     ]),
-    bodyHtml: renderChattingEmailShell({
+    bodyHtml: renderChattingEmailPage({
       preheader: `${input.mentionerName} mentioned you in a conversation with ${input.visitorName}.`,
-      rows: [
-        renderEmailSection(renderHeadingBlock({ title: `${input.mentionerName} mentioned you` })),
-        renderEmailSection(
-          renderPanel(
-            `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">In conversation with ${escapeHtml(
-              input.visitorName
-            )}:</div><div style="margin-top:14px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0F172A;">${escapeHtml(
-              input.note
-            )}</div><div style="margin-top:10px;font:400 12px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">${escapeHtml(
-              input.noteMeta
-            )}</div>`
-          ),
-          { padding: "0 32px 32px" }
-        ),
-        renderEmailSection(renderButtonRow({ primary: { href: input.conversationUrl, label: "View Conversation" } }), { align: "center", padding: "0 32px 32px" })
-      ]
+      title: `${input.mentionerName} mentioned you`,
+      sections: [
+        {
+          kind: "panel",
+          html: `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">In conversation with ${escapeHtml(
+            input.visitorName
+          )}:</div><div style="margin-top:14px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0F172A;">${escapeHtml(
+            input.note
+          )}</div><div style="margin-top:10px;font:400 12px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">${escapeHtml(
+            input.noteMeta
+          )}</div>`,
+          padding: "0 32px 32px"
+        }
+      ],
+      actions: { primary: { href: input.conversationUrl, label: "View Conversation" }, padding: "0 32px 32px", borderTopColor: undefined }
     })
   };
 }
@@ -162,25 +165,27 @@ export function renderWeeklyPerformanceEmail(input: {
       "Top pages generating chats:\n" + input.topPages.join("\n"),
       `View Full Report → ${input.reportUrl}`
     ]),
-    bodyHtml: renderChattingEmailShell({
+    bodyHtml: renderChattingEmailPage({
       preheader: `Weekly conversation highlights for ${input.dateRange}.`,
-      rows: [
-        renderEmailSection(renderBrandLockup()),
-        renderDivider(),
-        renderEmailSection(renderHeadingBlock({ title: "Your week in chat", meta: input.dateRange })),
-        renderEmailSection(renderPanel(input.highlights.map((item) => `<div style="margin-top:10px;">${escapeHtml(item)}</div>`).join("")), { padding: "0 32px 20px" }),
-        renderEmailSection(
-          renderPanel(
-            `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Busiest hours</div><div style="margin-top:10px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${escapeHtml(
-              input.busiestHours
-            )}</div><div style="margin-top:18px;font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Top pages generating chats</div><div style="margin-top:10px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${input.topPages
-              .map((item) => `<div style="margin-top:8px;">${escapeHtml(item)}</div>`)
-              .join("")}</div>`
-          ),
-          { padding: "0 32px 32px" }
-        ),
-        renderEmailSection(renderButtonRow({ primary: { href: input.reportUrl, label: "View Full Report \u2192" } }), { align: "center", padding: "0 32px 32px" })
-      ]
+      title: "Your week in chat",
+      meta: input.dateRange,
+      sections: [
+        {
+          kind: "panel",
+          html: input.highlights.map((item) => `<div style="margin-top:10px;">${escapeHtml(item)}</div>`).join(""),
+          padding: "0 32px 20px"
+        },
+        {
+          kind: "panel",
+          html: `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Busiest hours</div><div style="margin-top:10px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${escapeHtml(
+            input.busiestHours
+          )}</div><div style="margin-top:18px;font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Top pages generating chats</div><div style="margin-top:10px;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${input.topPages
+            .map((item) => `<div style="margin-top:8px;">${escapeHtml(item)}</div>`)
+            .join("")}</div>`,
+          padding: "0 32px 32px"
+        }
+      ],
+      actions: { primary: { href: input.reportUrl, label: "View Full Report \u2192" }, padding: "0 32px 32px", borderTopColor: undefined }
     })
   };
 }

@@ -58,7 +58,7 @@ describe("settings email template ui", () => {
     buttons.find((element) => element.props["aria-label"] === "Open Offline reply actions")?.props.onClick({
       stopPropagation: vi.fn()
     });
-    buttons.find((element) => textContent(element.props.children).includes("Sending test"))?.props.onClick();
+    buttons.find((element) => textContent(element.props.children).includes("Send test"))?.props.onClick();
     buttons.find((element) => textContent(element.props.children).includes("Reset to default"))?.props.onClick();
 
     expect(handlers.onOpenTemplateEditor).toHaveBeenCalledWith(template);
@@ -74,13 +74,11 @@ describe("settings email template ui", () => {
       onUpdateField: vi.fn(),
       onInsertIntoBody: vi.fn(),
       onInsertVariable: vi.fn(),
-      onSetPreviewDevice: vi.fn(),
       onSendTest: vi.fn(),
       onSave: vi.fn()
     };
     const tree = SettingsEmailTemplateEditor({
       editingTemplate: template,
-      previewDevice: "desktop",
       textareaRef: { current: null },
       renderedPreview: { subject: "Preview subject", bodyHtml: "<p>Preview body</p>" },
       replyToEmail: "reply@example.com",
@@ -92,7 +90,10 @@ describe("settings email template ui", () => {
       ...handlers
     });
 
-    expect(renderToStaticMarkup(tree)).toContain("Preview subject");
+    const html = renderToStaticMarkup(tree);
+    expect(html).toContain("Preview subject");
+    expect(html).toContain("max-w-[1180px]");
+    expect(html).toContain("lg:grid-cols-2");
     expect((tree as ReactElement).props.onClick).toBe(handlers.onClose);
 
     const buttons = collectElements(tree, (element) => element.type === "button");
@@ -104,7 +105,6 @@ describe("settings email template ui", () => {
     collectElements(tree, (element) => element.type === "textarea")[0]?.props.onChange({ target: { value: "Updated body" } });
     toolbarButtons.find((element) => element.props.label === "B")?.props.onClick();
     buttons.find((element) => textContent(element.props.children) === "{{visitor_name}}")?.props.onClick();
-    buttons.find((element) => element.props["aria-label"] === "Mobile preview")?.props.onClick();
     buttons.find((element) => textContent(element.props.children).includes("Send test email"))?.props.onClick();
     buttons.find((element) => textContent(element.props.children).includes("Save template"))?.props.onClick();
 
@@ -112,8 +112,10 @@ describe("settings email template ui", () => {
     expect(handlers.onUpdateField).toHaveBeenCalledWith("body", "Updated body");
     expect(handlers.onInsertIntoBody).toHaveBeenCalled();
     expect(handlers.onInsertVariable).toHaveBeenCalledWith("{{visitor_name}}");
-    expect(handlers.onSetPreviewDevice).toHaveBeenCalledWith("mobile");
     expect(handlers.onSendTest).toHaveBeenCalledWith(template);
     expect(handlers.onSave).toHaveBeenCalled();
+    expect(html).toContain("Send test email");
+    expect(html).not.toContain("Desktop preview");
+    expect(html).not.toContain("Mobile preview");
   });
 });

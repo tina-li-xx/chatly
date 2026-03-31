@@ -153,8 +153,10 @@ describe("settings email templates container", () => {
 
     (captures.list as { onToggleEnabled: (template: (typeof templates)[0]) => void }).onToggleEnabled(templates[1]);
     (captures.list as { onSendTest: (template: { key: string; subject: string; body: string }) => void }).onSendTest(templates[1]);
+    expect(onNotice).toHaveBeenCalledWith({ tone: "success", message: "Sent a test email to team@example.com" });
     await flushAsyncWork();
     (captures.list as { onSendTest: (template: { key: string; subject: string; body: string }) => void }).onSendTest(templates[1]);
+    expect(onNotice).toHaveBeenCalledWith({ tone: "success", message: "Sent a test email to team@example.com" });
     await flushAsyncWork();
 
     expect(onChange.mock.calls[0]?.[0][1]?.enabled).toBe(false);
@@ -163,7 +165,7 @@ describe("settings email templates container", () => {
       notificationEmail: "team@example.com",
       replyToEmail: "reply@example.com"
     });
-    expect(onNotice).toHaveBeenCalledWith({ tone: "success", message: "Sent a test email to team@example.com" });
+    expect(onNotice.mock.calls.filter(([notice]) => notice.message === "Sent a test email to team@example.com")).toHaveLength(2);
     expect(onNotice).toHaveBeenCalledWith({ tone: "error", message: "We couldn't send the test email just now." });
   });
 });

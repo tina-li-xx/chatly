@@ -49,8 +49,11 @@ describe("free tool export email", () => {
     expect(mocks.sendRichEmail).toHaveBeenCalledTimes(4);
     expect(mocks.sendRichEmail.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ subject: "Your live chat roi calculator report" }));
     expect(mocks.sendRichEmail.mock.calls[1]?.[0].bodyText).toContain("Industry: SaaS");
-    expect(mocks.sendRichEmail.mock.calls[2]?.[0].bodyHtml).toContain("Default:");
+    expect(mocks.sendRichEmail.mock.calls[2]?.[0].bodyHtml).toContain("max-width:600px");
+    expect(mocks.sendRichEmail.mock.calls[2]?.[0].bodyHtml).toContain("Open the tool again");
     expect(mocks.sendRichEmail.mock.calls[3]?.[0].bodyText).toContain("Rewrite: Happy to help");
+    expect(mocks.sendRichEmail.mock.calls[3]?.[0].bodyHtml).toContain("A text export is attached to this email.");
+    expect(mocks.sendRichEmail.mock.calls[3]?.[0].bodyHtml).toContain("hyphens:none");
   });
 
   it("rejects unsupported export slugs", async () => {

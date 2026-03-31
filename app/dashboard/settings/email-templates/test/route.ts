@@ -46,7 +46,8 @@ export async function POST(request: Request) {
       displayNameFromEmail(settings.profile.email);
     const previewContext = buildDashboardEmailTemplatePreviewContext({
       profileEmail: settings.profile.email,
-      profileName
+      profileName,
+      appUrl: getPublicAppUrl()
     });
     const rendered =
       key === "conversation_transcript"
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
             previewContext,
             {
               appUrl: getPublicAppUrl(),
-              siteUrl: new URL(previewContext.conversationLink).origin,
+              conversationUrl: previewContext.conversationLink,
               replyToEmail: replyToEmail || settings.email.replyToEmail || settings.profile.email,
               messages: buildConversationTranscriptPreviewMessages(),
               teamAvatarUrl: settings.profile.avatarDataUrl,
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
             {
               templateKey: key,
               appUrl: getPublicAppUrl(),
-              siteUrl: new URL(previewContext.conversationLink).origin,
+              conversationUrl: previewContext.conversationLink,
               replyToEmail: replyToEmail || settings.email.replyToEmail || settings.profile.email,
               teamAvatarUrl: settings.profile.avatarDataUrl,
               showViralFooter: shouldShowTranscriptViralFooter(settings.billing.planKey),

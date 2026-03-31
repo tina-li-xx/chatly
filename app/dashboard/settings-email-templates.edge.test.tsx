@@ -129,6 +129,10 @@ describe("settings email templates edge cases", () => {
     };
     editor.onInsertIntoBody("**", "**", "Placeholder");
     editor.onSendTest(templates[0]);
+    expect(onNotice).toHaveBeenCalledWith({
+      tone: "success",
+      message: "Sent a test email to team@example.com"
+    });
     await flushAsyncWork();
 
     reactMocks.beginRender();

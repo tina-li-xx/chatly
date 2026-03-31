@@ -1,17 +1,11 @@
 import { buildConversationTranscriptFooterContent, type TranscriptViralVariant } from "@/lib/conversation-transcript-footer";
 import type { ConversationFeedbackLink } from "@/lib/conversation-feedback";
-import {
-  renderConversationFeedbackScale,
-  renderConversationFeedbackText
-} from "@/lib/conversation-feedback-email";
+import { renderTranscriptRecapPanel } from "@/lib/conversation-recap-email";
+import { renderConversationFeedbackScale, renderConversationFeedbackText } from "@/lib/conversation-feedback-email";
 import {
   joinEmailText,
   renderButtonRow,
-  renderChattingEmailShell,
-  renderEmailSection,
-  renderFooterBlock,
-  renderHeadingBlock,
-  renderPanel
+  renderChattingEmailPage,
 } from "@/lib/chatly-email-foundation";
 import {
   renderDashboardEmailTemplateFragment,
@@ -20,28 +14,13 @@ import {
   type DashboardEmailTemplateKey,
   type DashboardEmailTemplatePreviewContext
 } from "@/lib/email-templates";
-import { initialsFromLabel } from "@/lib/user-display";
 import { escapeHtml } from "@/lib/utils";
-
 type SupportedVisitorTemplateKey = Exclude<DashboardEmailTemplateKey, "conversation_transcript">;
-
-function renderAvatar(label: string, avatarUrl: string | null) {
-  if (avatarUrl) {
-    return `<img src="${avatarUrl}" alt="${escapeHtml(label)} avatar" width="48" height="48" style="display:block;width:48px;height:48px;border-radius:50%;object-fit:cover;border:0;" />`;
-  }
-
-  return `<div style="width:48px;height:48px;border-radius:50%;background:#DBEAFE;color:#1D4ED8;font:600 18px/48px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;text-align:center;">${escapeHtml(
-    initialsFromLabel(label)
-  )}</div>`;
-}
 
 function splitBody(body: string) {
   const marker = "{{transcript}}";
   const [intro = "", ...rest] = body.split(marker);
-  return {
-    intro: intro.trim(),
-    outro: rest.join(marker).trim()
-  };
+  return { intro: intro.trim(), outro: rest.join(marker).trim() };
 }
 
 function resolveTitle(key: SupportedVisitorTemplateKey, context: DashboardEmailTemplatePreviewContext) {
@@ -66,7 +45,7 @@ export function renderVisitorConversationEmailTemplate(
   options: {
     templateKey: SupportedVisitorTemplateKey;
     appUrl: string;
-    siteUrl: string;
+    conversationUrl: string;
     replyToEmail: string;
     teamAvatarUrl: string | null;
     showViralFooter: boolean;
@@ -97,7 +76,7 @@ export function renderVisitorConversationEmailTemplate(
   const footerLinks =
     options.templateKey === "welcome_email"
         ? {
-            primary: { href: options.siteUrl, label: "Visit Our Site" },
+            primary: { href: options.conversationUrl, label: "Continue on the web" },
             secondary: null
           }
       : options.templateKey === "satisfaction_survey"
@@ -107,16 +86,12 @@ export function renderVisitorConversationEmailTemplate(
             href: `mailto:${options.replyToEmail}`,
             label: "Reply to This Email"
           },
-          secondary: { href: options.siteUrl, label: "Visit Our Site" }
+          secondary: { href: options.conversationUrl, label: "Continue on the web" }
         };
   const transcriptPanel =
     options.templateKey === "offline_reply" || options.templateKey === "follow_up_email"
       ? context.transcript
-        ? renderPanel(
-            `<div style="font:600 13px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#64748B;">Conversation recap</div><div style="margin-top:12px;font:400 14px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;white-space:pre-line;">${escapeHtml(
-              context.transcript
-            )}</div>`
-          )
+        ? renderTranscriptRecapPanel(context.transcript)
         : ""
       : "";
   const textCta =
@@ -151,55 +126,60 @@ export function renderVisitorConversationEmailTemplate(
   return {
     subject,
     bodyText,
-    bodyHtml: renderChattingEmailShell({
+    bodyHtml: renderChattingEmailPage({
       preheader:
         options.templateKey === "satisfaction_survey"
           ? `We'd love your feedback on your recent chat with ${context.teamName}.`
           : `${context.teamName} sent you an update about your conversation.`,
-      rows: [
-        renderEmailSection(
-          `${renderAvatar(context.teamName, options.teamAvatarUrl)}<div style="margin-top:16px;">${renderHeadingBlock({
-            title: resolveTitle(options.templateKey, context)
-          })}</div>`,
-          { padding: "32px 32px 24px" }
-        ),
-        intro.html ? renderEmailSection(`<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${intro.html}</div>`, {
-          padding: "0 32px 24px"
-        }) : "",
-        transcriptPanel ? renderEmailSection(transcriptPanel, { padding: "0 32px 24px" }) : "",
-        outro.html ? renderEmailSection(`<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${outro.html}</div>`, {
-          padding: "0 32px 24px"
-        }) : "",
-        renderEmailSection(
-          `<div style="text-align:center;font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${
-            options.templateKey === "satisfaction_survey"
-              ? "Click a rating below — it only takes a second."
-              : "Need more help? Continue this conversation anytime."
-          }</div><div style="margin-top:20px;">${callToAction}</div>`,
-          { align: "center", padding: "32px", borderTopColor: "#F1F5F9" }
-        ),
+      title: resolveTitle(options.templateKey, context),
+      hero: { label: context.teamName, avatarUrl: options.teamAvatarUrl },
+      sections: [
+        intro.html
+          ? {
+              kind: "html" as const,
+              html: `<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${intro.html}</div>`,
+              padding: "0 32px 24px"
+            }
+          : null,
+        transcriptPanel ? ({ kind: "html" as const, html: transcriptPanel, padding: "0 32px 24px" }) : null,
+        outro.html
+          ? {
+              kind: "html" as const,
+              html: `<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${outro.html}</div>`,
+              padding: "0 32px 24px"
+            }
+          : null,
         viralFooter.viral
-          ? renderEmailSection(
-              `<div style="text-align:center;font:400 14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${escapeHtml(
+          ? {
+              kind: "html" as const,
+              html: `<div style="text-align:center;font:400 14px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">${escapeHtml(
                 viralFooter.viral.hookText
               )}</div><div style="margin-top:6px;text-align:center;font:400 13px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">${escapeHtml(
                 viralFooter.viral.brandText
               ).replace("Chatting", "<strong style=\"color:#475569;\">Chatting</strong>")}</div><div style="margin-top:16px;text-align:center;">${renderButtonRow({
                 primary: { href: viralFooter.viral.href, label: viralFooter.viral.ctaLabel }
               })}</div>`,
-              { align: "center", padding: "28px 32px", background: "#F8FAFC", borderTopColor: "#E2E8F0" }
-            )
-          : "",
-        viralFooter.legal
-          ? renderEmailSection(
-              renderFooterBlock({
-                text: viralFooter.legal.attributionText,
-                links: [{ label: viralFooter.legal.privacyLabel, href: viralFooter.legal.privacyHref }]
-              }),
-              { align: "center", padding: "24px 32px" }
-            )
-          : ""
-      ].filter(Boolean)
+              align: "center",
+              padding: "28px 32px",
+              background: "#F8FAFC",
+              borderTopColor: "#E2E8F0"
+            }
+          : null
+      ].filter((section): section is NonNullable<typeof section> => Boolean(section)),
+      actions: {
+        message:
+          options.templateKey === "satisfaction_survey"
+            ? "Click a rating below — it only takes a second."
+            : "Need more help? Continue this conversation anytime.",
+        customHtml: callToAction,
+        borderTopColor: "#F1F5F9"
+      },
+      footer: viralFooter.legal
+        ? {
+            text: viralFooter.legal.attributionText,
+            links: [{ label: viralFooter.legal.privacyLabel, href: viralFooter.legal.privacyHref }]
+          }
+        : null
     })
   };
 }

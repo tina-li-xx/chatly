@@ -32,6 +32,8 @@ describe("team notification email upgrade prompt", () => {
     expect(html).toContain("Starter usage alert");
     expect(html).toContain("You&#39;ve hit 50 of 50 conversations this month");
     expect(html).toContain("Upgrade to reopen chats");
+    expect(html).toContain("white-space:nowrap");
+    expect(html).toContain("word-break:keep-all");
   });
 
   it("renders the dedicated starter upgrade email with the shared Chatting shell", () => {
@@ -51,5 +53,6 @@ describe("team notification email upgrade prompt", () => {
     expect(rendered.bodyHtml).toContain("max-width:600px");
     expect(rendered.bodyHtml).toContain("Chatting");
     expect(rendered.bodyHtml).toContain("Growth removes the monthly cap");
+    expect(rendered.bodyHtml).toContain("white-space:nowrap");
   });
 });

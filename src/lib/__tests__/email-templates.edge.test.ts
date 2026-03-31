@@ -57,6 +57,12 @@ describe("email templates edge cases", () => {
       teamName: "Rocket Labs Support",
       agentName: "Taylor"
     });
+    expect(
+      buildDashboardEmailTemplatePreviewContext({
+        profileEmail: "team@rocket-labs.io",
+        profileName: "Taylor Reed"
+      }).conversationLink
+    ).toMatch(/^https:\/\/chatly\.example\/conversation\/.+\..+$/);
   });
 
   it("renders plain fragments without variable highlighting and resolves raw values", () => {

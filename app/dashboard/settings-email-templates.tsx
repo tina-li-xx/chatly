@@ -16,7 +16,6 @@ import {
 } from "@/lib/email-templates";
 import type { DashboardNoticeTone } from "./dashboard-controls";
 import {
-  PreviewDevice,
   replaceTemplate,
   SettingsEmailTemplateEditor,
   SettingsEmailTemplateList
@@ -45,14 +44,18 @@ export function SettingsEmailTemplates({
 }) {
   const [menuTemplateKey, setMenuTemplateKey] = useState<DashboardEmailTemplateKey | null>(null);
   const [editingTemplate, setEditingTemplate] = useState<DashboardEmailTemplate | null>(null);
-  const [previewDevice, setPreviewDevice] = useState<PreviewDevice>("desktop");
   const [sendingTestKey, setSendingTestKey] = useState<DashboardEmailTemplateKey | null>(null);
+  const [previewAppUrl, setPreviewAppUrl] = useState("https://chatly.example");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const previewContext = useMemo(
-    () => buildDashboardEmailTemplatePreviewContext({ profileEmail, profileName }),
-    [profileEmail, profileName]
+    () => buildDashboardEmailTemplatePreviewContext({ profileEmail, profileName, appUrl: previewAppUrl }),
+    [previewAppUrl, profileEmail, profileName]
   );
+
+  useEffect(() => {
+    setPreviewAppUrl(window.location.origin);
+  }, []);
 
   const renderedPreview = useMemo(() => {
     if (!editingTemplate) {
@@ -61,9 +64,8 @@ export function SettingsEmailTemplates({
 
     return editingTemplate.key === "conversation_transcript"
       ? renderConversationTranscriptEmailTemplate(editingTemplate, previewContext, {
-          appUrl:
-            typeof window === "undefined" ? new URL(previewContext.conversationLink).origin : window.location.origin,
-          siteUrl: new URL(previewContext.conversationLink).origin,
+          appUrl: previewAppUrl,
+          conversationUrl: previewContext.conversationLink,
           replyToEmail: replyToEmail || profileEmail,
           messages: buildConversationTranscriptPreviewMessages(),
           teamAvatarUrl: profileAvatarDataUrl,
@@ -72,19 +74,18 @@ export function SettingsEmailTemplates({
         })
       : renderVisitorConversationEmailTemplate(editingTemplate, previewContext, {
           templateKey: editingTemplate.key,
-          appUrl:
-            typeof window === "undefined" ? new URL(previewContext.conversationLink).origin : window.location.origin,
-          siteUrl: new URL(previewContext.conversationLink).origin,
+          appUrl: previewAppUrl,
+          conversationUrl: previewContext.conversationLink,
           replyToEmail: replyToEmail || profileEmail,
           teamAvatarUrl: profileAvatarDataUrl,
           showViralFooter: showTranscriptBrandingPreview,
           feedbackLinks: buildConversationFeedbackLinks(
-            new URL(previewContext.conversationLink).origin,
+            previewAppUrl,
             "preview"
           ),
           highlightVariables: true
         });
-  }, [editingTemplate, previewContext, profileAvatarDataUrl, profileEmail, replyToEmail, showTranscriptBrandingPreview]);
+  }, [editingTemplate, previewAppUrl, previewContext, profileAvatarDataUrl, profileEmail, replyToEmail, showTranscriptBrandingPreview]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -100,7 +101,6 @@ export function SettingsEmailTemplates({
 
   function openTemplateEditor(template: DashboardEmailTemplate) {
     setMenuTemplateKey(null);
-    setPreviewDevice("desktop");
     setEditingTemplate({ ...template });
   }
 
@@ -184,6 +184,10 @@ export function SettingsEmailTemplates({
     }
 
     setSendingTestKey(template.key);
+    onNotice({
+      tone: "success",
+      message: `Sent a test email to ${notificationEmail}`
+    });
 
     try {
       const response = await fetch("/dashboard/settings/email-templates/test", {
@@ -202,11 +206,6 @@ export function SettingsEmailTemplates({
       if (!response.ok || !payload.ok) {
         throw new Error(payload.ok ? "email-template-test-failed" : payload.error);
       }
-
-      onNotice({
-        tone: "success",
-        message: `Sent a test email to ${notificationEmail}`
-      });
     } catch (error) {
       onNotice({
         tone: "error",
@@ -236,7 +235,6 @@ export function SettingsEmailTemplates({
       {editingTemplate ? (
         <SettingsEmailTemplateEditor
           editingTemplate={editingTemplate}
-          previewDevice={previewDevice}
           textareaRef={textareaRef}
           renderedPreview={renderedPreview}
           replyToEmail={replyToEmail}
@@ -248,7 +246,6 @@ export function SettingsEmailTemplates({
           onUpdateField={updateEditingTemplate}
           onInsertIntoBody={insertIntoBody}
           onInsertVariable={insertVariable}
-          onSetPreviewDevice={setPreviewDevice}
           onSendTest={(template) => void handleSendTest(template)}
           onSave={handleSaveTemplate}
           variables={EMAIL_TEMPLATE_VARIABLES}

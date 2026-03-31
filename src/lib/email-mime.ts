@@ -26,12 +26,22 @@ function chunkBase64(value: string) {
   return (value.match(/.{1,76}/g) || []).join("\r\n");
 }
 
-function addAlternativePart(lines: string[], boundary: string, contentType: string, content: string) {
+function addAlternativePart(
+  lines: string[],
+  boundary: string,
+  contentType: string,
+  content: string,
+  transferEncoding: "8bit" | "base64" = "8bit"
+) {
   lines.push(`--${boundary}`);
   lines.push(`Content-Type: ${contentType}; charset=utf-8`);
-  lines.push("Content-Transfer-Encoding: 8bit");
+  lines.push(`Content-Transfer-Encoding: ${transferEncoding}`);
   lines.push("");
-  lines.push(content);
+  lines.push(
+    transferEncoding === "base64"
+      ? chunkBase64(Buffer.from(content, "utf8").toString("base64"))
+      : content
+  );
   lines.push("");
 }
 
@@ -67,7 +77,7 @@ export function buildMimeMessage({
   lines.push("");
 
   addAlternativePart(lines, alternativeBoundary, "text/plain", bodyText);
-  addAlternativePart(lines, alternativeBoundary, "text/html", bodyHtml);
+  addAlternativePart(lines, alternativeBoundary, "text/html", bodyHtml, "base64");
   lines.push(`--${alternativeBoundary}--`);
 
   if (!mixedBoundary) {
@@ -89,4 +99,3 @@ export function buildMimeMessage({
   lines.push(`--${mixedBoundary}--`);
   return lines.join("\r\n");
 }
-

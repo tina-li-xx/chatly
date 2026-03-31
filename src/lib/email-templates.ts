@@ -3,6 +3,9 @@ import {
   renderStyledEmailTextLayout,
   type StyledEmailSection
 } from "@/lib/email-layout";
+import { renderEmailButton } from "@/lib/chatly-email-foundation";
+import { normalizeDashboardEmailTemplateContent } from "@/lib/email-template-content";
+import { buildDashboardEmailTemplatePreviewLink } from "@/lib/email-template-preview";
 import { escapeHtml, optionalText } from "@/lib/utils";
 
 export type DashboardEmailTemplateKey =
@@ -99,8 +102,7 @@ Or just reply to this email and it goes straight to us.`
 
 Thanks for reaching out to {{company_name}}. We're glad you're here.
 
-If you ever want to continue the conversation, you can jump back in here:
-{{conversation_link}}
+If you ever want to continue the conversation, you can [jump back in here]({{conversation_link}}).
 
 Best,
 {{team_name}}`
@@ -116,8 +118,7 @@ Best,
 
 Just checking in after your chat with {{agent_name}}.
 
-If anything else comes up, you can continue the conversation here:
-{{conversation_link}}
+If anything else comes up, you can [continue the conversation here]({{conversation_link}}).
 
 Thanks,
 {{team_name}}`
@@ -133,8 +134,7 @@ Thanks,
 
 We'd love your feedback on your recent conversation with {{agent_name}}.
 
-If you'd like to continue the conversation:
-{{conversation_link}}`
+If you'd like to [continue the conversation]({{conversation_link}}).`
   }
 };
 
@@ -187,10 +187,10 @@ export const EMAIL_TEMPLATE_VARIABLES: DashboardEmailTemplateVariable[] = VARIAB
           ? "Acme Support"
           : item.placeholder === "{{agent_name}}"
             ? "Sarah"
-            : item.placeholder === "{{company_name}}"
-              ? "Acme Inc"
-              : item.placeholder === "{{conversation_link}}"
-                ? "https://chatly.example/conversation/123"
+        : item.placeholder === "{{company_name}}"
+          ? "Acme Inc"
+          : item.placeholder === "{{conversation_link}}"
+                ? buildDashboardEmailTemplatePreviewLink()
                 : item.placeholder === "{{transcript}}"
                   ? "Visitor: Hi there\nTeam: Happy to help."
                   : "https://chatly.example/unsubscribe"
@@ -247,8 +247,12 @@ function normalizeStoredTemplate(input: StoredDashboardEmailTemplate | null | un
 
   return {
     key: input.key,
-    subject: optionalText(input.subject) ?? buildDefaultTemplate(input.key).subject,
-    body: optionalText(input.body) ?? buildDefaultTemplate(input.key).body,
+    subject:
+      optionalText(input.subject ? normalizeDashboardEmailTemplateContent(input.subject) : null) ??
+      buildDefaultTemplate(input.key).subject,
+    body:
+      optionalText(input.body ? normalizeDashboardEmailTemplateContent(input.body) : null) ??
+      buildDefaultTemplate(input.key).body,
     enabled: input.enabled ?? true,
     updatedAt: optionalText(input.updatedAt) ?? null
   };
@@ -304,8 +308,12 @@ export function serializeDashboardEmailTemplates(templates: DashboardEmailTempla
 
     return {
       key,
-      subject: optionalText(current?.subject) ?? defaults.subject,
-      body: optionalText(current?.body) ?? defaults.body,
+      subject:
+        optionalText(current?.subject ? normalizeDashboardEmailTemplateContent(current.subject) : null) ??
+        defaults.subject,
+      body:
+        optionalText(current?.body ? normalizeDashboardEmailTemplateContent(current.body) : null) ??
+        defaults.body,
       enabled: current?.enabled ?? true,
       updatedAt: optionalText(current?.updatedAt) ?? null
     };
@@ -337,9 +345,11 @@ export function resolveDashboardEmailTemplateValue(
   value: string,
   context: DashboardEmailTemplatePreviewContext
 ) {
+  const normalizedValue = normalizeDashboardEmailTemplateContent(value);
+
   return VARIABLE_TOKEN_MAP.reduce((text, variable) => {
     return text.split(variable.placeholder).join(String(context[variable.token]));
-  }, value);
+  }, normalizedValue);
 }
 
 export function renderDashboardEmailTemplateFragment(
@@ -355,9 +365,50 @@ export function renderDashboardEmailTemplateFragment(
   };
 }
 
+function replaceConversationLinkButtons(
+  value: string,
+  context: DashboardEmailTemplatePreviewContext
+) {
+  const buttons: Array<{ token: string; html: string }> = [];
+
+  const nextValue = value.replace(
+    /Continue the conversation here:\s*\n\s*(\{\{conversation_link\}\}|https?:\/\/\S+)/g,
+    (_match, url) => {
+      const token = `__CHATTING_TEMPLATE_BUTTON_${buttons.length}__`;
+      buttons.push({
+        token,
+        html: `<div style="margin:16px 0;">${renderEmailButton({
+          href: replaceTemplateVariables(String(url), context, false),
+          label: "Continue the conversation"
+        })}</div>`
+      });
+      return token;
+    }
+  );
+
+  return { nextValue, buttons };
+}
+
 function renderBodyHtml(value: string, context: DashboardEmailTemplatePreviewContext, highlightVariables: boolean) {
+  const { nextValue, buttons } = replaceConversationLinkButtons(
+    normalizeDashboardEmailTemplateContent(value),
+    context
+  );
+  const normalizedValue = nextValue
+    .replace(
+      /If you ever want to continue the conversation, you can jump back in here:\s*\n\s*(\{\{conversation_link\}\}|https?:\/\/\S+)/g,
+      "If you ever want to continue the conversation, you can [jump back in here]($1)."
+    )
+    .replace(
+      /If anything else comes up, you can continue the conversation here:\s*\n\s*(\{\{conversation_link\}\}|https?:\/\/\S+)/g,
+      "If anything else comes up, you can [continue the conversation here]($1)."
+    )
+    .replace(
+      /If you'd like to continue the conversation:\s*\n\s*(\{\{conversation_link\}\}|https?:\/\/\S+)/g,
+      "If you'd like to [continue the conversation]($1)."
+    );
   const codeBlocks: string[] = [];
-  let html = escapeHtml(value);
+  let html = escapeHtml(normalizedValue);
 
   html = html.replace(/```([\s\S]*?)```/g, (_match, code) => {
     const token = `__CHATTING_CODE_BLOCK_${codeBlocks.length}__`;
@@ -378,9 +429,9 @@ function renderBodyHtml(value: string, context: DashboardEmailTemplatePreviewCon
   );
 
   html = html.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+    /\[([^\]]+)\]\(((?:https?:\/\/[^)\s]+)|(?:\{\{[a-z_]+\}\}))\)/g,
     (_match, label, url) =>
-      `<a href="${url}" style="color:#2563eb;text-decoration:none;">${label}</a>`
+      `<a href="${replaceTemplateVariables(String(url), context, false)}" style="color:#2563eb;text-decoration:none;">${label}</a>`
   );
   html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   html = html.replace(/__([^_]+)__/g, "<u>$1</u>");
@@ -390,6 +441,9 @@ function renderBodyHtml(value: string, context: DashboardEmailTemplatePreviewCon
 
   for (const [index, block] of codeBlocks.entries()) {
     html = html.replace(`__CHATTING_CODE_BLOCK_${index}__`, block);
+  }
+  for (const button of buttons) {
+    html = html.replace(button.token, button.html);
   }
 
   return html;
@@ -425,6 +479,7 @@ export function renderDashboardEmailTemplate(
 export function buildDashboardEmailTemplatePreviewContext(input: {
   profileEmail: string;
   profileName: string;
+  appUrl?: string;
 }) {
   const companyName = companyNameFromEmail(input.profileEmail) || "Chatting";
   const agentName = input.profileName.trim().split(/\s+/)[0] || "Sarah";
@@ -436,8 +491,13 @@ export function buildDashboardEmailTemplatePreviewContext(input: {
     teamName,
     agentName,
     companyName,
-    conversationLink: "https://chatly.example/conversation/123",
-    transcript: "Alex: Hi there\nSarah: Happy to help. What can I do for you?",
+    conversationLink: buildDashboardEmailTemplatePreviewLink({
+      appUrl: input.appUrl,
+      teamName,
+      agentName,
+      companyName
+    }),
+    transcript: `Alex: Hi there\n${agentName}: Happy to help. What can I do for you?`,
     unsubscribeLink: "https://chatly.example/unsubscribe"
   };
 }

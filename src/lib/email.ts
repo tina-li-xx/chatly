@@ -1,3 +1,7 @@
+import {
+  appendChattingCompanyLegalText,
+  renderChattingEmailPage
+} from "@/lib/chatly-email-foundation";
 import { renderNewMessageNotificationEmail } from "@/lib/chatly-notification-emails";
 import { buildConversationFeedbackLinks } from "@/lib/conversation-feedback";
 import {
@@ -33,6 +37,17 @@ function getReplyToAddress(conversationId: string) {
   return `reply+${conversationId}@${domain}`;
 }
 
+function hasRenderedEmailShell(bodyHtml: string) {
+  const normalized = bodyHtml.replace(/\s+/g, " ");
+  return normalized.includes('role="presentation" width="100%"') && normalized.includes("max-width:600px");
+}
+
+function assertRenderedEmailShell(bodyHtml: string) {
+  if (!hasRenderedEmailShell(bodyHtml)) {
+    throw new Error("sendRichEmail requires fully rendered Chatting email HTML.");
+  }
+}
+
 export async function sendFounderReplyEmail({
   conversationId,
   to,
@@ -60,21 +75,34 @@ Reply to this email to continue the conversation.
 
 Rate this reply:
 ${renderConversationFeedbackText(feedbackLinks)}`,
-    bodyHtml: `
-      <div style="font-family: Avenir Next, Segoe UI, sans-serif; line-height: 1.6; color: #0d1b1e;">
-        <p>${escapedBody}</p>
-        ${
-          attachments.length
-            ? `<p style="margin-top: 20px;">Attached: ${attachments
+    bodyHtml: renderChattingEmailPage({
+      preheader: `Reply from ${appName}`,
+      title: `Reply from ${appName}`,
+      sections: [
+        { kind: "html", html: `<div>${escapedBody}</div>`, padding: "0 32px 24px" },
+        attachments.length
+          ? {
+              kind: "html" as const,
+              html: `<div style="font:400 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#475569;">Attached: ${attachments
                 .map((attachment) => escapeHtml(attachment.fileName))
-                .join(", ")}</p>`
-            : ""
+                .join(", ")}</div>`,
+              padding: "0 32px 24px"
+            }
+          : null,
+        {
+          kind: "html",
+          html: `<div style="font:600 15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#0F172A;">Rate this reply</div><div style="margin-top:16px;">${renderConversationFeedbackScale(
+            feedbackLinks
+          )}</div>`,
+          padding: "0 32px 32px"
         }
-        <p style="margin-top: 24px;">Reply to this email to continue the conversation.</p>
-        <p style="margin-top: 24px; font-weight: 600;">Rate this reply</p>
-        <div style="margin-top: 16px;">${renderConversationFeedbackScale(feedbackLinks)}</div>
-      </div>
-    `,
+      ].filter((section): section is NonNullable<typeof section> => Boolean(section)),
+      actions: {
+        message: "Reply to this email to continue the conversation.",
+        primary: replyToAddress ? { href: `mailto:${replyToAddress}`, label: "Reply to This Email" } : null,
+        borderTopColor: undefined
+      }
+    }),
     attachments
   });
 }
@@ -105,20 +133,17 @@ export async function sendTeamNewMessageEmail({
     currentPage: pageUrl,
     messagePreview: content,
     replyNowUrl: replyToAddress ? `mailto:${replyToAddress}` : dashboardUrl,
-    inboxUrl: dashboardUrl
+    inboxUrl: dashboardUrl,
+    workspaceName: siteName,
+    attachmentsCount
   });
 
   await sendRichEmail({
     to,
     replyTo: replyToAddress,
     subject: rendered.subject,
-    bodyText: `${rendered.bodyText}\n\nWorkspace: ${siteName}\nAttachments: ${attachmentsCount}`,
-    bodyHtml: rendered.bodyHtml.replace(
-      "</table></td></tr></table>",
-      `<tr><td style="padding:0 32px 32px;font:400 13px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#64748B;">Workspace: ${escapeHtml(
-        siteName
-      )}<br />Attachments: ${attachmentsCount}</td></tr></table></td></tr></table>`
-    )
+    bodyText: rendered.bodyText,
+    bodyHtml: rendered.bodyHtml
   });
 }
 
@@ -130,18 +155,16 @@ export async function sendRichEmail({
   bodyHtml,
   attachments = []
 }: SendRichEmailInput) {
+  assertRenderedEmailShell(bodyHtml);
+
   await sendSesEmail({
     from: getMailFromAddress(),
     to,
     replyTo: replyTo || undefined,
     subject,
-    bodyText,
+    bodyText: appendChattingCompanyLegalText(bodyText),
     attachments,
-    bodyHtml: `
-      <div style="font-family:Avenir Next,Segoe UI,sans-serif;line-height:1.6;color:#334155;">
-        ${bodyHtml}
-      </div>
-    `
+    bodyHtml
   });
 }
 

@@ -109,6 +109,11 @@ describe("settings email template test route", () => {
     }));
 
     expect(response.status).toBe(200);
+    expect(mocks.buildDashboardEmailTemplatePreviewContext).toHaveBeenCalledWith({
+      profileEmail: "tina@example.com",
+      profileName: "Tina Bauer",
+      appUrl: "https://usechatting.com"
+    });
     expect(mocks.renderConversationTranscriptEmailTemplate).toHaveBeenCalled();
     expect(mocks.sendSettingsTemplateTestEmail).toHaveBeenCalledWith(
       expect.objectContaining({ to: "dest@example.com", subject: "Transcript preview" })
