@@ -1,9 +1,10 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// Deploying as a standard Node.js Serverless Function (50MB limit) 
+// instead of Edge (1MB limit) to easily accommodate the 1.2MB of custom .ttf fonts.
 
-// Edge runtime fetching fonts from local bundle
+// Node runtime fetching fonts from local bundle
 const fraunces600P = fetch(new URL('./fonts/Fraunces-SemiBold.ttf', import.meta.url)).then((res) => res.arrayBuffer());
 const dmSans400P = fetch(new URL('./fonts/DMSans-Regular.ttf', import.meta.url)).then((res) => res.arrayBuffer());
 const dmSans500P = fetch(new URL('./fonts/DMSans-Medium.ttf', import.meta.url)).then((res) => res.arrayBuffer());
