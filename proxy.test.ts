@@ -8,6 +8,15 @@ describe("proxy", () => {
     expect(response.status).toBe(404);
   });
 
+  it("redirects logged-out dashboard visits back through login with the original path", () => {
+    const response = proxy(new NextRequest("https://usechatting.com/dashboard/inbox?id=dcf2737d-27ce-4286-8553-e06ecfdcf95b"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://usechatting.com/login?redirectTo=%2Fdashboard%2Finbox%3Fid%3Ddcf2737d-27ce-4286-8553-e06ecfdcf95b"
+    );
+  });
+
   it("passes through valid app routes", () => {
     const response = proxy(new NextRequest("https://usechatting.com/login"));
 
