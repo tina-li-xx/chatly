@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Added a root Next.js proxy that short-circuits obvious WordPress bot-probe paths so junk traffic returns a cheap `404` before it reaches the app.
 - Defaulted the shared public app URL fallback to `https://usechatting.com` so generated widget snippets no longer fall back to localhost when `NEXT_PUBLIC_APP_URL` is unset.
 - Tightened dashboard reply rollback coverage so recency-based summary sorting no longer makes the regression test fail on array position alone.
 - Localized daily digests and weekly performance emails to teammate timezones, with dashboard-side browser timezone sync and shared local report window helpers.
@@ -144,6 +145,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Billing & Operations
 
 - Shared public app URL helpers now default generated widget snippets and app links to `https://usechatting.com` instead of localhost when `NEXT_PUBLIC_APP_URL` is unset.
+- The root Next.js proxy now returns `404` for common WordPress probe paths like `xmlrpc.php`, `wp-login.php`, and `*/wp-includes/wlwmanifest.xml` so bot noise is cheaper to absorb.
 - Cloud Run deployment now builds from standalone Next.js output, ships through repo Docker/Cloud Build config, and suppresses duplicate startup scheduler windows with shared DB claims plus advisory locks.
 - Postgres server packaging now uses a traceable `pg` import plus a postbuild trace verification step so Vercel deploys fail fast if Next.js stops tracing the database driver into server output.
 - Conversation-template emails now keep failed deliveries for automatic retry, surface queued retry state back to the dashboard, and run through scheduler-backed resend jobs with distributed locks.
