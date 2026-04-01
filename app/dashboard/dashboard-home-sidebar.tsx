@@ -1,5 +1,6 @@
 import type { DashboardHomeData } from "@/lib/data/dashboard-home";
 import { DashboardWidgetInstallCard } from "./dashboard-widget-install-card";
+import { DashboardHomeRangeSelect } from "./dashboard-home-range-select";
 
 export type DashboardHomeTeamRow = {
   name: string;
@@ -64,15 +65,7 @@ export function DashboardHomeSidebar({
           <label className="sr-only" htmlFor="dashboard-range">
             Time period
           </label>
-          <select
-            id="dashboard-range"
-            defaultValue="7"
-            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 outline-none transition focus:border-blue-500"
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-          </select>
+          <DashboardHomeRangeSelect value={data.chart.rangeDays} />
         </div>
 
         <div className="mt-5 flex h-32 items-end gap-3">
@@ -92,11 +85,11 @@ export function DashboardHomeSidebar({
         <div className="mt-4 flex items-end justify-between border-t border-slate-200 pt-4">
           <div>
             <p className="text-2xl font-bold tracking-tight text-slate-900">{data.chart.total}</p>
-            <p className="mt-1 text-xs font-normal text-slate-500">Total this week</p>
+            <p className="mt-1 text-xs font-normal text-slate-500">{data.chart.totalLabel}</p>
           </div>
           <div className="text-right">
             <p className={`text-xs font-medium ${chartBadge.tone}`}>{chartBadge.text}</p>
-            <p className="mt-1 text-xs font-normal text-slate-500">vs last week</p>
+            <p className="mt-1 text-xs font-normal text-slate-500">{data.chart.comparisonLabel}</p>
           </div>
         </div>
       </article>

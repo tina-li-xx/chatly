@@ -1,4 +1,5 @@
 import { getDashboardHomeData } from "@/lib/data/dashboard-home";
+import type { DashboardHomeRangeDays } from "@/lib/data/dashboard-home-chart";
 import { displayNameFromEmail, firstNameFromDisplayName, initialsFromLabel } from "@/lib/user-display";
 import { DashboardHomeMetrics } from "./dashboard-home-metrics";
 import { DashboardHomeRecentConversations } from "./dashboard-home-recent-conversations";
@@ -6,12 +7,14 @@ import { DashboardHomeSidebar } from "./dashboard-home-sidebar";
 
 export async function DashboardHome({
   userEmail,
-  userId
+  userId,
+  rangeDays
 }: {
   userEmail: string;
   userId: string;
+  rangeDays: DashboardHomeRangeDays;
 }) {
-  const data = await getDashboardHomeData(userId);
+  const data = await getDashboardHomeData(userId, rangeDays);
   const profileName = displayNameFromEmail(userEmail);
   const firstName = firstNameFromDisplayName(profileName);
   const teamRows = [

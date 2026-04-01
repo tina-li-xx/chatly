@@ -20,8 +20,11 @@ export function createHomeData(overrides: Record<string, unknown> = {}) {
       }
     ],
     chart: {
+      rangeDays: 7,
       changePercent: 8,
       total: 15,
+      totalLabel: "Total last 7 days",
+      comparisonLabel: "vs previous 7 days",
       points: [
         { label: "Mon", count: 3 },
         { label: "Tue", count: 7 },

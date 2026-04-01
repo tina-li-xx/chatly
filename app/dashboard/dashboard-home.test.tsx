@@ -31,6 +31,10 @@ vi.mock("./dashboard-widget-install-card", () => ({
   )
 }));
 
+vi.mock("./dashboard-home-range-select", () => ({
+  DashboardHomeRangeSelect: ({ value }: { value: number }) => <div>Range {value}</div>
+}));
+
 import { DashboardHome } from "./dashboard-home";
 
 describe("dashboard home", () => {
@@ -40,7 +44,8 @@ describe("dashboard home", () => {
     const html = renderToStaticMarkup(
       await DashboardHome({
         userEmail: "tina@chatly.example",
-        userId: "user_123"
+        userId: "user_123",
+        rangeDays: 7
       })
     );
 
@@ -72,8 +77,11 @@ describe("dashboard home", () => {
       satisfactionDeltaPercent: null,
       recentConversations: [],
       chart: {
+        rangeDays: 7,
         changePercent: null,
         total: 0,
+        totalLabel: "Total last 7 days",
+        comparisonLabel: "vs previous 7 days",
         points: [
           { label: "Mon", count: 0 },
           { label: "Tue", count: 0 }
@@ -131,7 +139,8 @@ describe("dashboard home", () => {
     const html = renderToStaticMarkup(
       await DashboardHome({
         userEmail: "tina@chatly.example",
-        userId: "user_123"
+        userId: "user_123",
+        rangeDays: 7
       })
     );
 
