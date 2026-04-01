@@ -31,6 +31,7 @@ describe("billing email helpers", () => {
     });
 
     expect(mocks.sendRichEmail).toHaveBeenCalledWith({
+      from: "Chatting <hello@usechatting.com>",
       to: "owner@example.com",
       subject: "Upgrade now",
       bodyText: "Text body",

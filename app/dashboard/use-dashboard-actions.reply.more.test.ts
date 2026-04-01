@@ -162,4 +162,29 @@ describe("dashboard reply action edge cases", () => {
       text: "Reply posted to the chat thread. Email delivery failed."
     });
   });
+
+  it("shows the retry banner when delivery is queued for another attempt", async () => {
+    mocks.postDashboardForm.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      message: {
+        id: "msg_2",
+        conversationId: "conv_1",
+        sender: "founder",
+        content: "Queued retry",
+        createdAt: "2026-03-29T11:20:00.000Z",
+        attachments: []
+      },
+      emailDelivery: "queued_retry"
+    });
+    const harness = createDashboardActionsHarness({
+      conversations: [createConversationSummary({ unreadCount: 1 })]
+    });
+
+    await harness.actions.handleReplySend(createReplyEvent("Queued retry"));
+
+    expect(harness.bannerState.current).toEqual({
+      tone: "success",
+      text: "Reply posted to the chat thread. Email delivery queued to retry."
+    });
+  });
 });

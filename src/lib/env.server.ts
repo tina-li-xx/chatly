@@ -14,7 +14,6 @@ export {
   getAppDisplayName,
   getAuthSecret,
   getDatabaseConfig,
-  getMailFromAddress,
   getMiniMaxConfig,
   getReplyDomain,
   getSesClientConfig,

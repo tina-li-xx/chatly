@@ -2,9 +2,9 @@ const mocks = vi.hoisted(() => ({
   getDashboardEmailTemplateSettings: vi.fn(),
   sendRichEmail: vi.fn(),
   claimTemplateDelivery: vi.fn(),
-  deletePendingTemplateDelivery: vi.fn(),
   findConversationTemplateContext: vi.fn(),
   listConversationTranscriptRows: vi.fn(),
+  markTemplateDeliveryFailed: vi.fn(),
   markTemplateDeliverySent: vi.fn()
 }));
 
@@ -18,9 +18,9 @@ vi.mock("@/lib/email", () => ({
 
 vi.mock("@/lib/repositories/conversation-template-email-repository", () => ({
   claimTemplateDelivery: mocks.claimTemplateDelivery,
-  deletePendingTemplateDelivery: mocks.deletePendingTemplateDelivery,
   findConversationTemplateContext: mocks.findConversationTemplateContext,
   listConversationTranscriptRows: mocks.listConversationTranscriptRows,
+  markTemplateDeliveryFailed: mocks.markTemplateDeliveryFailed,
   markTemplateDeliverySent: mocks.markTemplateDeliverySent
 }));
 
@@ -55,7 +55,7 @@ describe("conversation template emails", () => {
     mocks.claimTemplateDelivery.mockResolvedValue(true);
     mocks.sendRichEmail.mockResolvedValue(undefined);
     mocks.markTemplateDeliverySent.mockResolvedValue(undefined);
-    mocks.deletePendingTemplateDelivery.mockResolvedValue(undefined);
+    mocks.markTemplateDeliveryFailed.mockResolvedValue(undefined);
     mocks.listConversationTranscriptRows.mockResolvedValue([
       {
         id: "msg_1",
@@ -108,6 +108,7 @@ describe("conversation template emails", () => {
 
     expect(mocks.sendRichEmail).toHaveBeenCalledTimes(3);
     expect(transcriptEmail).toMatchObject({
+      from: "Acme Support via Chatting <noreply@mail.usechatting.com>",
       to: "alex@example.com",
       replyTo: "reply+conv_1@reply.chatly.example",
       subject: "Your conversation with Acme Support"

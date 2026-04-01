@@ -10,12 +10,17 @@ import {
 } from "@/lib/conversation-feedback-email";
 import { type EmailAttachment } from "@/lib/email-mime";
 import { getPublicAppUrl } from "@/lib/env";
-import { getAppDisplayName, getMailFromAddress, getReplyDomain } from "@/lib/env.server";
+import { getAppDisplayName, getReplyDomain } from "@/lib/env.server";
+import {
+  resolveImmediateTeamNotificationMailFrom,
+  resolvePrimaryBrandHelloMailFrom
+} from "@/lib/mail-from-addresses";
 import { sendSesEmail } from "@/lib/ses-email";
 import { escapeHtml } from "@/lib/utils";
 
 type SendRichEmailInput = {
   to: string;
+  from?: string;
   replyTo?: string | null;
   subject: string;
   bodyText: string;
@@ -139,6 +144,7 @@ export async function sendTeamNewMessageEmail({
   });
 
   await sendRichEmail({
+    from: resolveImmediateTeamNotificationMailFrom(),
     to,
     replyTo: replyToAddress,
     subject: rendered.subject,
@@ -149,6 +155,7 @@ export async function sendTeamNewMessageEmail({
 
 export async function sendRichEmail({
   to,
+  from,
   replyTo,
   subject,
   bodyText,
@@ -158,7 +165,7 @@ export async function sendRichEmail({
   assertRenderedEmailShell(bodyHtml);
 
   await sendSesEmail({
-    from: getMailFromAddress(),
+    from: from || resolvePrimaryBrandHelloMailFrom(),
     to,
     replyTo: replyTo || undefined,
     subject,
@@ -166,8 +173,4 @@ export async function sendRichEmail({
     attachments,
     bodyHtml
   });
-}
-
-export async function sendSettingsTemplateTestEmail(input: SendRichEmailInput) {
-  return sendRichEmail(input);
 }

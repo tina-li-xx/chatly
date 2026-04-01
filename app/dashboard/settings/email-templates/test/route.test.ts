@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   renderConversationTranscriptEmailTemplate: vi.fn(),
   renderVisitorConversationEmailTemplate: vi.fn(),
   requireJsonRouteUser: vi.fn(),
-  sendSettingsTemplateTestEmail: vi.fn(),
+  sendRenderedEmail: vi.fn(),
   shouldShowTranscriptViralFooter: vi.fn()
 }));
 
@@ -34,8 +34,8 @@ vi.mock("@/lib/data", () => ({
 vi.mock("@/lib/env", () => ({
   getPublicAppUrl: mocks.getPublicAppUrl
 }));
-vi.mock("@/lib/email", () => ({
-  sendSettingsTemplateTestEmail: mocks.sendSettingsTemplateTestEmail
+vi.mock("@/lib/rendered-email-delivery", () => ({
+  sendRenderedEmail: mocks.sendRenderedEmail
 }));
 vi.mock("@/lib/route-helpers", () => ({
   jsonError: (error: string, status: number) => Response.json({ ok: false, error }, { status }),
@@ -64,6 +64,7 @@ describe("settings email template test route", () => {
       billing: { planKey: "growth" }
     });
     mocks.buildDashboardEmailTemplatePreviewContext.mockReturnValue({
+      teamName: "Example Support",
       conversationLink: "https://workspace.example/conversations/preview"
     });
     mocks.buildConversationTranscriptPreviewMessages.mockReturnValue([{ id: "message_1" }]);
@@ -115,8 +116,12 @@ describe("settings email template test route", () => {
       appUrl: "https://usechatting.com"
     });
     expect(mocks.renderConversationTranscriptEmailTemplate).toHaveBeenCalled();
-    expect(mocks.sendSettingsTemplateTestEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "dest@example.com", subject: "Transcript preview" })
+    expect(mocks.sendRenderedEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "Example Support via Chatting <noreply@mail.usechatting.com>",
+        to: "dest@example.com",
+        rendered: expect.objectContaining({ subject: "Transcript preview" })
+      })
     );
   });
 

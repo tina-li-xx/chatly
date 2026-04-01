@@ -1,10 +1,11 @@
 import { Buffer } from "node:buffer";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
 import { renderChattingEmailPage } from "@/lib/chatly-email-foundation";
-import { sendRichEmail } from "@/lib/email";
 import type { EmailAttachment } from "@/lib/email-mime";
 import { getFreeToolBySlug } from "@/lib/free-tools-data";
 import { formatPercentage, formatWholeCurrency, formatWholeNumber } from "@/lib/live-chat-roi";
+import { resolvePrimaryBrandHelloMailFrom } from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 import { escapeHtml } from "@/lib/utils";
 
 const supportedFreeToolExportSlugs = [
@@ -139,11 +140,10 @@ export async function sendFreeToolExportEmail(input: {
 }) {
   const report = buildReport(input.toolSlug, input.resultPayload);
 
-  await sendRichEmail({
+  await sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.email,
-    subject: report.subject,
-    bodyText: report.bodyText,
-    bodyHtml: report.bodyHtml,
+    rendered: report,
     attachments: [report.attachment]
   });
 }

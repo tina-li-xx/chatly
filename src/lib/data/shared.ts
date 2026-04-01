@@ -18,8 +18,12 @@ import {
   updateConversationEmailValue
 } from "@/lib/repositories/shared-repository";
 import {
+  DEFAULT_AWAY_MESSAGE,
+  DEFAULT_AWAY_TITLE,
   DEFAULT_AVATAR_STYLE,
   DEFAULT_LAUNCHER_POSITION,
+  DEFAULT_OFFLINE_MESSAGE,
+  DEFAULT_OFFLINE_TITLE,
   DEFAULT_RESPONSE_TIME_MODE,
   createDefaultOperatingHours,
   normalizeAvatarStyle,
@@ -76,6 +80,10 @@ export function mapSite(row: SiteRow): Site {
     teamPhotoUrl: optionalText(row.team_photo_url),
     showOnlineStatus: row.show_online_status ?? true,
     requireEmailOffline: row.require_email_offline ?? false,
+    offlineTitle: optionalText(row.offline_title) || DEFAULT_OFFLINE_TITLE,
+    offlineMessage: optionalText(row.offline_message) || DEFAULT_OFFLINE_MESSAGE,
+    awayTitle: optionalText(row.away_title) || DEFAULT_AWAY_TITLE,
+    awayMessage: optionalText(row.away_message) || DEFAULT_AWAY_MESSAGE,
     soundNotifications: row.sound_notifications ?? false,
     autoOpenPaths: row.auto_open_paths ?? [],
     responseTimeMode: normalizeResponseTimeMode(row.response_time_mode ?? DEFAULT_RESPONSE_TIME_MODE),

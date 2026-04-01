@@ -1,32 +1,33 @@
-async function flushAsyncImports() {
-  await Promise.resolve();
-  await Promise.resolve();
-  await Promise.resolve();
-}
+import {
+  createCompletedWindowRunner,
+  flushSchedulerAsyncWork,
+  resetGlobalScheduler
+} from "@/lib/runtime/scheduler-test-helpers";
 
 describe("daily digest scheduler", () => {
   it("starts once and runs digests on an interval", async () => {
     vi.useFakeTimers();
-    vi.resetModules();
-    (globalThis as typeof globalThis & { __chatlyDailyDigestScheduler__?: unknown })
-      .__chatlyDailyDigestScheduler__ = undefined;
+    resetGlobalScheduler("__chatlyDailyDigestScheduler__");
 
     const runScheduledDailyDigests = vi.fn().mockResolvedValue(undefined);
     vi.doMock("@/lib/daily-digest", () => ({
       runScheduledDailyDigests
+    }));
+    vi.doMock("@/lib/runtime/scheduler-window-runner", () => ({
+      runWindowedSchedulerTask: createCompletedWindowRunner()
     }));
     const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
 
     const { dailyDigestScheduler } = await import("@/lib/runtime/daily-digest-scheduler");
 
     dailyDigestScheduler.start();
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
     const afterStart = runScheduledDailyDigests.mock.calls.length;
 
     dailyDigestScheduler.start();
     expect(setIntervalSpy).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
 
     expect(runScheduledDailyDigests.mock.calls.length).toBeGreaterThan(afterStart);
 
@@ -37,9 +38,7 @@ describe("daily digest scheduler", () => {
 
   it("skips overlapping digest runs", async () => {
     vi.useFakeTimers();
-    vi.resetModules();
-    (globalThis as typeof globalThis & { __chatlyDailyDigestScheduler__?: unknown })
-      .__chatlyDailyDigestScheduler__ = undefined;
+    resetGlobalScheduler("__chatlyDailyDigestScheduler__");
 
     let resolveRun: (() => void) | null = null;
     const runScheduledDailyDigests = vi.fn(
@@ -51,18 +50,21 @@ describe("daily digest scheduler", () => {
     vi.doMock("@/lib/daily-digest", () => ({
       runScheduledDailyDigests
     }));
+    vi.doMock("@/lib/runtime/scheduler-window-runner", () => ({
+      runWindowedSchedulerTask: createCompletedWindowRunner()
+    }));
 
     const { dailyDigestScheduler } = await import("@/lib/runtime/daily-digest-scheduler");
 
     dailyDigestScheduler.start();
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
 
     expect(runScheduledDailyDigests).toHaveBeenCalledTimes(1);
 
     resolveRun?.();
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
 
     dailyDigestScheduler.stop();
     vi.useRealTimers();

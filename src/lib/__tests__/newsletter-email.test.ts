@@ -21,6 +21,7 @@ describe("newsletter welcome email", () => {
 
     expect(mocks.sendRichEmail).toHaveBeenCalledWith(
       expect.objectContaining({
+        from: "Chatting <hello@usechatting.com>",
         to: "person@example.com",
         subject: "You're in for Chatting blog updates",
         bodyText: expect.stringContaining("https://usechatting.com/blog"),

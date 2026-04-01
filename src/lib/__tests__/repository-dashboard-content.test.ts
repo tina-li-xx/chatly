@@ -8,9 +8,11 @@ vi.mock("@/lib/db", () => ({
 
 import {
   claimTemplateDelivery,
-  deletePendingTemplateDelivery,
+  claimRetryableTemplateDeliveries,
   findConversationTemplateContext,
+  listStoredMessageAttachments,
   listConversationTranscriptRows,
+  markTemplateDeliveryFailed,
   markTemplateDeliverySent
 } from "@/lib/repositories/conversation-template-email-repository";
 import { getDashboardGrowthSnapshot } from "@/lib/repositories/dashboard-growth-repository";
@@ -99,23 +101,66 @@ describe("dashboard growth, stats, and conversation template repositories", () =
     expect(mocks.query.mock.calls[1]?.[0]).toContain("ORDER BY created_at ASC");
   });
 
-  it("claims, marks, and deletes template deliveries", async () => {
-    mocks.query.mockResolvedValueOnce({ rowCount: 1 }).mockResolvedValue({ rows: [] });
+  it("claims, marks, retries, and reads template delivery payloads", async () => {
+    mocks.query
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            conversation_id: "conv_1",
+            user_id: "user_1",
+            template_key: "follow_up_email",
+            delivery_key: "follow_up:conv_1",
+            attempt_count: 2
+          }
+        ]
+      })
+      .mockResolvedValueOnce({
+        rows: [{ file_name: "quote.pdf", content_type: "application/pdf", content: Buffer.from("hi") }]
+      });
 
     await expect(
       claimTemplateDelivery({
         deliveryId: "delivery_1",
         conversationId: "conv_1",
-        templateKey: "follow_up",
+        userId: "user_1",
+        templateKey: "follow_up_email",
         deliveryKey: "follow_up:conv_1",
-        recipientEmail: "hello@example.com"
+        recipientEmail: "hello@example.com",
+        nextAttemptAt: new Date("2026-03-31T10:05:00.000Z")
       })
     ).resolves.toBe(true);
     await markTemplateDeliverySent("follow_up:conv_1");
-    await deletePendingTemplateDelivery("follow_up:conv_1");
+    await markTemplateDeliveryFailed({
+      deliveryKey: "follow_up:conv_1",
+      errorMessage: "mail down",
+      nextAttemptAt: new Date("2026-03-31T10:10:00.000Z")
+    });
+    await expect(
+      claimRetryableTemplateDeliveries({
+        now: new Date("2026-03-31T10:15:00.000Z"),
+        leaseUntil: new Date("2026-03-31T10:20:00.000Z"),
+        limit: 5
+      })
+    ).resolves.toEqual([
+      {
+        conversationId: "conv_1",
+        userId: "user_1",
+        templateKey: "follow_up_email",
+        deliveryKey: "follow_up:conv_1",
+        attemptCount: 2
+      }
+    ]);
+    await expect(listStoredMessageAttachments("msg_1")).resolves.toEqual([
+      { file_name: "quote.pdf", content_type: "application/pdf", content: Buffer.from("hi") }
+    ]);
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("ON CONFLICT (delivery_key) DO NOTHING");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("SET status = 'sent'");
-    expect(mocks.query.mock.calls[2]?.[0]).toContain("AND status = 'pending'");
+    expect(mocks.query.mock.calls[2]?.[0]).toContain("SET status = 'failed'");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("FOR UPDATE SKIP LOCKED");
+    expect(mocks.query.mock.calls[4]?.[0]).toContain("FROM message_attachments");
   });
 });

@@ -20,6 +20,10 @@ describe("data shared mappers", () => {
       team_photo_url: "https://cdn.example/team.png",
       show_online_status: true,
       require_email_offline: false,
+      offline_title: "We're not online right now",
+      offline_message: "Leave a message and we'll get back to you via email.",
+      away_title: "We're away right now",
+      away_message: "Leave a message and we'll get back to you via email.",
       sound_notifications: true,
       auto_open_paths: ["/pricing"],
       response_time_mode: "hours",
@@ -41,6 +45,8 @@ describe("data shared mappers", () => {
       userId: "user_1",
       launcherPosition: "left",
       avatarStyle: "photos",
+      offlineTitle: "We're not online right now",
+      awayTitle: "We're away right now",
       responseTimeMode: "hours",
       conversationCount: 12
     });

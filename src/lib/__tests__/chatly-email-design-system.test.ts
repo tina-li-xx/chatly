@@ -35,6 +35,7 @@ describe("chatly email design system", () => {
     expect(welcome.subject).toBe("Welcome to Chatting — let's get you set up");
     expect(welcome.bodyHtml).toContain("max-width:600px");
     expect(verification.bodyText).toContain("This link expires in 24 hours.");
+    expect(verification.bodyHtml).not.toContain("✉");
     expect(invite.bodyHtml).toContain("Continue to Invitation");
     expect(invite.bodyText).toContain("Continue to Invitation:");
   });

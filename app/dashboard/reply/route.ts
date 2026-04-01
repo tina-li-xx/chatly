@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     await markConversationRead(conversationId, user.id);
 
-    let emailDelivery: "sent" | "skipped" | "failed" = "skipped";
+    let emailDelivery: "sent" | "skipped" | "queued_retry" | "failed" = "skipped";
 
     if (conversation.email) {
       try {
@@ -48,7 +48,12 @@ export async function POST(request: Request) {
             content: attachment.content
           }))
         });
-        emailDelivery = delivery === "sent" ? "sent" : "skipped";
+        emailDelivery =
+          delivery === "sent"
+            ? "sent"
+            : delivery === "queued_retry"
+              ? "queued_retry"
+              : "skipped";
       } catch (error) {
         console.error("reply email send failed", error);
         emailDelivery = "failed";

@@ -36,10 +36,6 @@ export const APP_ENV_DEFINITIONS = {
     exampleValue: "postgres://postgres:postgres@localhost:5432/chatly",
     requiredIn: ["startup-production-core"]
   },
-  MAIL_FROM: {
-    defaultValue: "Chatting <hello@example.com>",
-    exampleValue: "Chatting <hello@example.com>"
-  },
   MINIMAX_API_KEY: {
     exampleValue: "",
     requiredIn: ["minimax"]
@@ -111,7 +107,6 @@ export const APP_ENV_EXAMPLE_ORDER = [
   "AWS_REGION",
   "AWS_ACCESS_KEY_ID",
   "AWS_SECRET_ACCESS_KEY",
-  "MAIL_FROM",
   "REPLY_DOMAIN",
   "SES_INBOUND_SNS_TOPIC_ARN",
   "APP_NAME",

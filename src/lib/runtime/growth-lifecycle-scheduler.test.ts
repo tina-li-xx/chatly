@@ -1,32 +1,33 @@
-async function flushAsyncImports() {
-  await Promise.resolve();
-  await Promise.resolve();
-  await Promise.resolve();
-}
+import {
+  createCompletedWindowRunner,
+  flushSchedulerAsyncWork,
+  resetGlobalScheduler
+} from "@/lib/runtime/scheduler-test-helpers";
 
 describe("growth lifecycle scheduler", () => {
   it("starts once and runs lifecycle emails on an interval", async () => {
     vi.useFakeTimers();
-    vi.resetModules();
-    (globalThis as typeof globalThis & { __chatlyGrowthLifecycleScheduler__?: unknown })
-      .__chatlyGrowthLifecycleScheduler__ = undefined;
+    resetGlobalScheduler("__chatlyGrowthLifecycleScheduler__");
 
     const runScheduledGrowthLifecycleEmails = vi.fn().mockResolvedValue(undefined);
     vi.doMock("@/lib/growth-outreach-runner", () => ({
       runScheduledGrowthLifecycleEmails
+    }));
+    vi.doMock("@/lib/runtime/scheduler-window-runner", () => ({
+      runWindowedSchedulerTask: createCompletedWindowRunner()
     }));
     const setIntervalSpy = vi.spyOn(globalThis, "setInterval");
 
     const { growthLifecycleScheduler } = await import("@/lib/runtime/growth-lifecycle-scheduler");
 
     growthLifecycleScheduler.start();
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
     const afterStart = runScheduledGrowthLifecycleEmails.mock.calls.length;
 
     growthLifecycleScheduler.start();
     expect(setIntervalSpy).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
 
     expect(runScheduledGrowthLifecycleEmails.mock.calls.length).toBeGreaterThan(afterStart);
 
@@ -37,9 +38,7 @@ describe("growth lifecycle scheduler", () => {
 
   it("skips overlapping lifecycle runs", async () => {
     vi.useFakeTimers();
-    vi.resetModules();
-    (globalThis as typeof globalThis & { __chatlyGrowthLifecycleScheduler__?: unknown })
-      .__chatlyGrowthLifecycleScheduler__ = undefined;
+    resetGlobalScheduler("__chatlyGrowthLifecycleScheduler__");
 
     let resolveRun: (() => void) | null = null;
     const runScheduledGrowthLifecycleEmails = vi.fn(
@@ -51,18 +50,21 @@ describe("growth lifecycle scheduler", () => {
     vi.doMock("@/lib/growth-outreach-runner", () => ({
       runScheduledGrowthLifecycleEmails
     }));
+    vi.doMock("@/lib/runtime/scheduler-window-runner", () => ({
+      runWindowedSchedulerTask: createCompletedWindowRunner()
+    }));
 
     const { growthLifecycleScheduler } = await import("@/lib/runtime/growth-lifecycle-scheduler");
 
     growthLifecycleScheduler.start();
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
 
     expect(runScheduledGrowthLifecycleEmails).toHaveBeenCalledTimes(1);
 
     resolveRun?.();
-    await flushAsyncImports();
+    await flushSchedulerAsyncWork();
 
     growthLifecycleScheduler.stop();
     vi.useRealTimers();

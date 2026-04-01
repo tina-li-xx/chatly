@@ -136,6 +136,32 @@ describe("dashboard reply route", () => {
     });
   });
 
+  it("marks email delivery as queued_retry when the email is stored for retry", async () => {
+    const formData = new FormData();
+    formData.set("conversationId", "conv_1");
+    formData.set("content", "Hello there");
+    mocks.getConversationEmail.mockResolvedValueOnce({ email: "visitor@example.com" });
+    mocks.addFounderReply.mockResolvedValueOnce({
+      id: "msg_1",
+      createdAt: "2026-03-27T12:00:00.000Z"
+    });
+    mocks.sendOfflineReplyTemplateEmail.mockResolvedValueOnce("queued_retry");
+
+    const response = await POST(
+      new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
+    );
+
+    expect(await response.json()).toEqual({
+      ok: true,
+      conversationId: "conv_1",
+      message: {
+        id: "msg_1",
+        createdAt: "2026-03-27T12:00:00.000Z"
+      },
+      emailDelivery: "queued_retry"
+    });
+  });
+
   it("maps known attachment errors", async () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");

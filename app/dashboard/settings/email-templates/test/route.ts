@@ -11,7 +11,8 @@ import { shouldShowTranscriptViralFooter } from "@/lib/conversation-transcript-f
 import { renderVisitorConversationEmailTemplate } from "@/lib/conversation-visitor-email";
 import { getDashboardSettingsData } from "@/lib/data";
 import { getPublicAppUrl } from "@/lib/env";
-import { sendSettingsTemplateTestEmail } from "@/lib/email";
+import { resolveConversationTemplateMailFrom } from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { displayNameFromEmail } from "@/lib/user-display";
 
@@ -41,13 +42,15 @@ export async function POST(request: Request) {
     }
 
     const settings = await getDashboardSettingsData(auth.user.id);
+    const appUrl = getPublicAppUrl();
     const profileName =
       [settings.profile.firstName, settings.profile.lastName].filter(Boolean).join(" ").trim() ||
       displayNameFromEmail(settings.profile.email);
+    const resolvedReplyToEmail = replyToEmail || settings.email.replyToEmail || settings.profile.email;
     const previewContext = buildDashboardEmailTemplatePreviewContext({
       profileEmail: settings.profile.email,
       profileName,
-      appUrl: getPublicAppUrl()
+      appUrl
     });
     const rendered =
       key === "conversation_transcript"
@@ -55,9 +58,9 @@ export async function POST(request: Request) {
             { subject, body },
             previewContext,
             {
-              appUrl: getPublicAppUrl(),
+              appUrl,
               conversationUrl: previewContext.conversationLink,
-              replyToEmail: replyToEmail || settings.email.replyToEmail || settings.profile.email,
+              replyToEmail: resolvedReplyToEmail,
               messages: buildConversationTranscriptPreviewMessages(),
               teamAvatarUrl: settings.profile.avatarDataUrl,
               showViralFooter: shouldShowTranscriptViralFooter(settings.billing.planKey)
@@ -68,21 +71,20 @@ export async function POST(request: Request) {
             previewContext,
             {
               templateKey: key,
-              appUrl: getPublicAppUrl(),
+              appUrl,
               conversationUrl: previewContext.conversationLink,
-              replyToEmail: replyToEmail || settings.email.replyToEmail || settings.profile.email,
+              replyToEmail: resolvedReplyToEmail,
               teamAvatarUrl: settings.profile.avatarDataUrl,
               showViralFooter: shouldShowTranscriptViralFooter(settings.billing.planKey),
-              feedbackLinks: buildConversationFeedbackLinks(getPublicAppUrl(), "preview")
+              feedbackLinks: buildConversationFeedbackLinks(appUrl, "preview")
             }
           );
 
-    await sendSettingsTemplateTestEmail({
+    await sendRenderedEmail({
+      from: resolveConversationTemplateMailFrom(key, previewContext.teamName),
       to: notificationEmail,
       replyTo: replyToEmail || undefined,
-      subject: rendered.subject,
-      bodyText: rendered.bodyText,
-      bodyHtml: rendered.bodyHtml
+      rendered
     });
 
     return jsonOk({ sent: true });

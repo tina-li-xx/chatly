@@ -1,4 +1,5 @@
-import { sendRichEmail } from "@/lib/email";
+import { resolvePrimaryBrandHelloMailFrom } from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 import {
   renderStarterUpgradePromptEmail,
   type TeamNotificationUpgradePrompt
@@ -8,12 +9,9 @@ export async function sendStarterUpgradePromptEmail(input: {
   to: string;
   prompt: TeamNotificationUpgradePrompt;
 }) {
-  const rendered = renderStarterUpgradePromptEmail(input.prompt);
-
-  await sendRichEmail({
+  await sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderStarterUpgradePromptEmail(input.prompt)
   });
 }

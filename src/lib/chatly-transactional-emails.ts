@@ -75,7 +75,6 @@ export function renderEmailVerificationEmail(input: {
       title: "Verify your email",
       description: "Click the button below to verify your email address and activate your Chatting account.",
       align: "center",
-      hero: { label: "Verify your email", badgeLabel: "✉", size: 64, shape: "tile" },
       actions: { primary: { href: input.verifyUrl, label: "Verify Email Address" }, padding: "0 32px 32px", borderTopColor: undefined },
       footer: { text: `Or copy this link: ${input.verifyUrl}\n\nThis link expires in 24 hours.`, links: [{ label: fallback, href: input.verifyUrl }], padding: "0 32px 32px" }
     })

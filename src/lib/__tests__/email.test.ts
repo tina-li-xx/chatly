@@ -19,16 +19,16 @@ vi.mock("@/lib/conversation-feedback-email", () => ({
 vi.mock("@/lib/env", () => ({ getPublicAppUrl: () => "https://app.example" }));
 vi.mock("@/lib/env.server", () => ({
   getAppDisplayName: () => "Chatting",
-  getMailFromAddress: () => "team@chatting.test",
   getReplyDomain: () => "reply.chatting.test"
 }));
 vi.mock("@/lib/ses-email", () => ({ sendSesEmail: mocks.sendSesEmail }));
 
 import {
   sendFounderReplyEmail,
-  sendSettingsTemplateTestEmail,
+  sendRichEmail,
   sendTeamNewMessageEmail
 } from "@/lib/email";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 
 const renderedShellHtml =
   '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#FFFFFF;"><tr><td>HTML body</td></tr></table>';
@@ -57,7 +57,7 @@ describe("email helpers", () => {
 
     expect(mocks.sendSesEmail).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: "team@chatting.test",
+        from: "Chatting <hello@usechatting.com>",
         to: "alex@example.com",
         replyTo: "reply+conv_1@reply.chatting.test",
         subject: "Reply from Chatting",
@@ -91,6 +91,7 @@ describe("email helpers", () => {
     const sentEmail = mocks.sendSesEmail.mock.calls[0]?.[0];
     expect(sentEmail).toEqual(
       expect.objectContaining({
+        from: "Chatting <noreply@notifications.usechatting.com>",
         to: "team@example.com",
         subject: "New visitor message",
         replyTo: "reply+conv_1@reply.chatting.test",
@@ -102,17 +103,19 @@ describe("email helpers", () => {
   });
 
   it("passes rendered settings template emails through the shared rich-email path", async () => {
-    await sendSettingsTemplateTestEmail({
+    await sendRenderedEmail({
       to: "team@example.com",
-      subject: "Chatting email probe",
-      bodyText: "Probe email from local workspace.",
-      bodyHtml: renderedShellHtml
+      rendered: {
+        subject: "Chatting email probe",
+        bodyText: "Probe email from local workspace.",
+        bodyHtml: renderedShellHtml
+      }
     });
 
     const sentEmail = mocks.sendSesEmail.mock.calls[0]?.[0];
     expect(sentEmail).toEqual(
       expect.objectContaining({
-        from: "team@chatting.test",
+        from: "Chatting <hello@usechatting.com>",
         to: "team@example.com",
         subject: "Chatting email probe",
         bodyHtml: renderedShellHtml
@@ -124,11 +127,13 @@ describe("email helpers", () => {
 
   it("rejects raw html that skips the shared email shell", async () => {
     await expect(
-      sendSettingsTemplateTestEmail({
+      sendRenderedEmail({
         to: "team@example.com",
-        subject: "Template preview",
-        bodyText: "Plain body",
-        bodyHtml: "<p>HTML body</p>"
+        rendered: {
+          subject: "Template preview",
+          bodyText: "Plain body",
+          bodyHtml: "<p>HTML body</p>"
+        }
       })
     ).rejects.toThrow("sendRichEmail requires fully rendered Chatting email HTML.");
 
@@ -136,7 +141,7 @@ describe("email helpers", () => {
   });
 
   it("does not alter already-rendered email shells", async () => {
-    await sendSettingsTemplateTestEmail({
+    await sendRichEmail({
       to: "team@example.com",
       subject: "Template preview",
       bodyText: "Plain body",

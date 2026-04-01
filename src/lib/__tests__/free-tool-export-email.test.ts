@@ -47,7 +47,12 @@ describe("free tool export email", () => {
     });
 
     expect(mocks.sendRichEmail).toHaveBeenCalledTimes(4);
-    expect(mocks.sendRichEmail.mock.calls[0]?.[0]).toEqual(expect.objectContaining({ subject: "Your live chat roi calculator report" }));
+    expect(mocks.sendRichEmail.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({
+        from: "Chatting <hello@usechatting.com>",
+        subject: "Your live chat roi calculator report"
+      })
+    );
     expect(mocks.sendRichEmail.mock.calls[1]?.[0].bodyText).toContain("Industry: SaaS");
     expect(mocks.sendRichEmail.mock.calls[2]?.[0].bodyHtml).toContain("max-width:600px");
     expect(mocks.sendRichEmail.mock.calls[2]?.[0].bodyHtml).toContain("Open the tool again");

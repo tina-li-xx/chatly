@@ -4,8 +4,9 @@ import {
   joinEmailText,
   renderChattingEmailPage
 } from "@/lib/chatly-email-foundation";
-import { sendRichEmail } from "@/lib/email";
 import { getPublicAppUrl } from "@/lib/env";
+import { resolvePrimaryBrandHelloMailFrom } from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 import { escapeHtml } from "@/lib/utils";
 
 function appUrl(path: string) {
@@ -96,11 +97,10 @@ export async function sendActivationReminderEmail(input: {
     }
   });
 
-  await sendRichEmail({
+  await sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: { subject, ...rendered }
   });
 }
 
@@ -124,11 +124,10 @@ export async function sendHealthReminderEmail(input: {
     }
   });
 
-  await sendRichEmail({
+  await sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: { subject, ...rendered }
   });
 }
 
@@ -161,10 +160,9 @@ export async function sendExpansionReminderEmail(input: {
     }
   });
 
-  await sendRichEmail({
+  await sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: { subject, ...rendered }
   });
 }

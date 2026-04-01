@@ -42,6 +42,11 @@ export async function runIndexSchemaInitialization(pool: Pool) {
   `);
 
   await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_email_template_deliveries_retry_queue
+      ON email_template_deliveries(status, next_attempt_at ASC);
+  `);
+
+  await pool.query(`
     CREATE INDEX IF NOT EXISTS idx_tags_conversation_id
       ON tags(conversation_id);
   `);

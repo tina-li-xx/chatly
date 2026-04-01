@@ -23,6 +23,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Streamlined dashboard live updates so each tab shares one `/dashboard/live` connection, unread badges use lightweight count fetches, and the visitors page patches presence/message changes incrementally instead of reloading the full snapshot on every live event.
 - Added configurable offline and away widget copy with matching dashboard preview states, persisted site settings, and live widget rendering from public config.
 - Kept inbox conversations strictly sorted by actual recency so opening, refreshing, and optimistic reply updates no longer jump older threads above newer ones.
+- Retained failed conversation-template emails as retryable deliveries with queued retry status, stored delivery metadata, and scheduler-backed resend processing.
 - Removed the dashboard’s custom pending overlays so navigation now relies on the shared route skeleton, while tightening inbox thread loading state to avoid stale loading flashes.
 - Preserved the original page URL where a visitor started a conversation in the dashboard thread detail, removed page/location badges from preview lists, and consolidated shared conversation display formatting across inbox and home cards.
 - Synced dashboard unread badges across the inbox, shell header, and sidebar so opening or receiving conversations updates counts immediately without a manual refresh.
@@ -133,6 +134,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Billing & Operations
 
 - Postgres server packaging now uses a traceable `pg` import plus a postbuild trace verification step so Vercel deploys fail fast if Next.js stops tracing the database driver into server output.
+- Conversation-template emails now keep failed deliveries for automatic retry, surface queued retry state back to the dashboard, and run through scheduler-backed resend jobs with distributed locks.
 - Stripe-backed billing flows for checkout, portal access, invoice sync, and webhook handling.
 - Growth billing now runs from a shared seat-pricing config, validates Stripe's tiered Growth price shape before checkout, and prefers `STRIPE_DEV_*` billing credentials and price ids outside production.
 - Billing price resolution now relies only on the current Growth Stripe price ids.
@@ -152,6 +154,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Contributor Docs
 
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
+- Email sender and subdomain reference docs live in [CHATTING_EMAIL_ADDRESSES.md](./CHATTING_EMAIL_ADDRESSES.md).
 - Next.js config now follows the default Turbopack dev/build path, and the concerns log tracks the remaining `metadataBase` and Edge-runtime build warnings.
 - Contributor guidance now avoids the legacy `chatly-script` app-shell filename and no longer tracks the removed `sendRichEmail` concern as a live issue.
 - Contributor docs now include a refreshed concerns log, growth strategy notes, TODO tracking, and Chatting-branded OG image guidance/templates.
@@ -183,7 +186,6 @@ npm install
 - `NEXT_PUBLIC_APP_URL`
 - `AWS_REGION`
 - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` if you are not using an attached IAM role
-- `MAIL_FROM`
 - `REPLY_DOMAIN` and `SES_INBOUND_SNS_TOPIC_ARN` if you want inbound email replies to continue threads
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, and `R2_PUBLIC_BASE_URL` if you want real uploaded team photos in the widget
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_GROWTH_MONTHLY`, and `STRIPE_PRICE_GROWTH_ANNUAL` if you want real Stripe-backed billing
@@ -266,7 +268,7 @@ The outbound email sets `reply-to` as `reply+<conversationId>@<REPLY_DOMAIN>`. T
 
 Recommended setup:
 
-1. Verify `MAIL_FROM` in Amazon SES and move the SES account out of sandbox if you need to send to unverified recipients.
+1. Verify the built-in sender addresses under `usechatting.com`, `mail.usechatting.com`, and `notifications.usechatting.com` in Amazon SES, and move the SES account out of sandbox if you need to send to unverified recipients.
 2. Create an SES receipt rule for the domain or subdomain used in `REPLY_DOMAIN`.
 3. Add an SNS action to that receipt rule and configure it to include UTF-8 email content.
 4. Subscribe `POST /api/email/inbound` to that SNS topic.

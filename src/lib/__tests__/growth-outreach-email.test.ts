@@ -28,6 +28,7 @@ describe("growth outreach email", () => {
 
     expect(mocks.sendRichEmail).toHaveBeenCalledWith(
       expect.objectContaining({
+        from: "Chatting <hello@usechatting.com>",
         to: "owner@chatly.example",
         subject: "Your widget is live. Let's land the first chat today."
       })

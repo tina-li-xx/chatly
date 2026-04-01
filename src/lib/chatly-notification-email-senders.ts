@@ -3,7 +3,12 @@ import {
   renderMentionNotificationEmail,
   renderWeeklyPerformanceEmail
 } from "@/lib/chatly-notification-emails";
-import { sendRichEmail } from "@/lib/email";
+import {
+  resolveDailyDigestMailFrom,
+  resolveImmediateTeamNotificationMailFrom,
+  resolveWeeklyPerformanceReportMailFrom
+} from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 
 export async function sendDailyDigestEmail(input: {
   to: string;
@@ -12,12 +17,10 @@ export async function sendDailyDigestEmail(input: {
   openConversations: Array<{ title: string; preview: string; meta: string }>;
   inboxUrl: string;
 }) {
-  const rendered = renderDailyDigestEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolveDailyDigestMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderDailyDigestEmail(input)
   });
 }
 
@@ -29,12 +32,10 @@ export async function sendMentionNotificationEmail(input: {
   noteMeta: string;
   conversationUrl: string;
 }) {
-  const rendered = renderMentionNotificationEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolveImmediateTeamNotificationMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderMentionNotificationEmail(input)
   });
 }
 
@@ -46,11 +47,9 @@ export async function sendWeeklyPerformanceEmail(input: {
   topPages: string[];
   reportUrl: string;
 }) {
-  const rendered = renderWeeklyPerformanceEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolveWeeklyPerformanceReportMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderWeeklyPerformanceEmail(input)
   });
 }

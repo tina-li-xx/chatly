@@ -1,9 +1,9 @@
 const mocks = vi.hoisted(() => ({
   claimTemplateDelivery: vi.fn(),
-  deletePendingTemplateDelivery: vi.fn(),
   findConversationTemplateContext: vi.fn(),
   getDashboardEmailTemplateSettings: vi.fn(),
   listConversationTranscriptRows: vi.fn(),
+  markTemplateDeliveryFailed: vi.fn(),
   markTemplateDeliverySent: vi.fn(),
   sendRichEmail: vi.fn()
 }));
@@ -12,9 +12,9 @@ vi.mock("@/lib/data/settings", () => ({ getDashboardEmailTemplateSettings: mocks
 vi.mock("@/lib/email", () => ({ sendRichEmail: mocks.sendRichEmail }));
 vi.mock("@/lib/repositories/conversation-template-email-repository", () => ({
   claimTemplateDelivery: mocks.claimTemplateDelivery,
-  deletePendingTemplateDelivery: mocks.deletePendingTemplateDelivery,
   findConversationTemplateContext: mocks.findConversationTemplateContext,
   listConversationTranscriptRows: mocks.listConversationTranscriptRows,
+  markTemplateDeliveryFailed: mocks.markTemplateDeliveryFailed,
   markTemplateDeliverySent: mocks.markTemplateDeliverySent
 }));
 
@@ -50,6 +50,7 @@ describe("conversation template emails more", () => {
     mocks.claimTemplateDelivery.mockResolvedValue(true);
     mocks.sendRichEmail.mockResolvedValue(undefined);
     mocks.listConversationTranscriptRows.mockResolvedValue([]);
+    mocks.markTemplateDeliveryFailed.mockResolvedValue(undefined);
   });
 
   it("skips sends when the conversation is missing, the visitor email is missing, or the template is disabled", async () => {
@@ -81,6 +82,7 @@ describe("conversation template emails more", () => {
 
     expect(mocks.sendRichEmail).toHaveBeenCalledWith(
       expect.objectContaining({
+        from: "Acme Support via Chatting <noreply@mail.usechatting.com>",
         replyTo: "support@acme.example",
         to: "alex@example.com"
       })
@@ -88,12 +90,28 @@ describe("conversation template emails more", () => {
     expect(mocks.markTemplateDeliverySent).toHaveBeenCalledWith("offline_reply:msg_1");
   });
 
-  it("abandons deliveries when the outbound email send fails", async () => {
+  it("sends welcome emails from the primary brand hello address", async () => {
+    await expect(sendWelcomeTemplateEmail({ conversationId: "conv_1", userId: "user_1" })).resolves.toBe("sent");
+
+    expect(mocks.sendRichEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "Chatting <hello@usechatting.com>",
+        to: "alex@example.com"
+      })
+    );
+  });
+
+  it("queues retries when the outbound email send fails", async () => {
     mocks.sendRichEmail.mockRejectedValueOnce(new Error("mail down"));
 
     await expect(
       sendOfflineReplyTemplateEmail({ conversationId: "conv_1", userId: "user_1", messageId: "msg_1" })
-    ).rejects.toThrow("mail down");
-    expect(mocks.deletePendingTemplateDelivery).toHaveBeenCalledWith("offline_reply:msg_1");
+    ).resolves.toBe("queued_retry");
+    expect(mocks.markTemplateDeliveryFailed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        deliveryKey: "offline_reply:msg_1",
+        errorMessage: "mail down"
+      })
+    );
   });
 });

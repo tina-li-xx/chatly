@@ -1,8 +1,16 @@
 import "server-only";
 
+import {
+  type PostgresAdvisoryLockKey,
+  withPostgresAdvisoryLock
+} from "@/lib/postgres-advisory-lock";
+import { runWindowedSchedulerTask } from "@/lib/runtime/scheduler-window-runner";
+
 type IntervalSchedulerOptions = {
+  distributedLockKey?: PostgresAdvisoryLockKey;
   intervalMs: number;
   failureMessage: string;
+  jobKey?: string;
   task: () => Promise<void>;
 };
 
@@ -40,7 +48,21 @@ export class IntervalScheduler {
     this.running = true;
 
     try {
-      await this.options.task();
+      if (this.options.jobKey) {
+        await runWindowedSchedulerTask({
+          intervalMs: this.options.intervalMs,
+          jobKey: this.options.jobKey,
+          lockKey: this.options.distributedLockKey,
+          task: this.options.task
+        });
+      } else if (this.options.distributedLockKey) {
+        await withPostgresAdvisoryLock(
+          this.options.distributedLockKey,
+          this.options.task
+        );
+      } else {
+        await this.options.task();
+      }
     } catch (error) {
       console.error(this.options.failureMessage, error);
     } finally {

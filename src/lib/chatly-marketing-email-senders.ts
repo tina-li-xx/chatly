@@ -3,7 +3,11 @@ import {
   renderTrialEndingReminderEmail,
   renderTrialExpiredEmail
 } from "@/lib/chatly-marketing-emails";
-import { sendRichEmail } from "@/lib/email";
+import {
+  resolvePrimaryBrandHelloMailFrom,
+  resolveProductUpdatesMailFrom
+} from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 
 export async function sendTrialEndingReminderEmail(input: {
   to: string;
@@ -13,12 +17,10 @@ export async function sendTrialEndingReminderEmail(input: {
   upgradeUrl: string;
   plansUrl?: string;
 }) {
-  const rendered = renderTrialEndingReminderEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderTrialEndingReminderEmail(input)
   });
 }
 
@@ -27,12 +29,10 @@ export async function sendTrialExpiredEmail(input: {
   firstName: string;
   reactivateUrl: string;
 }) {
-  const rendered = renderTrialExpiredEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderTrialExpiredEmail(input)
   });
 }
 
@@ -45,11 +45,9 @@ export async function sendProductUpdateEmail(input: {
   changelogUrl: string;
   additionalUpdates: string[];
 }) {
-  const rendered = renderProductUpdateEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolveProductUpdatesMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderProductUpdateEmail(input)
   });
 }

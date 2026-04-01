@@ -2,7 +2,6 @@ import {
   getAppDisplayName,
   getAuthSecret,
   getDatabaseConfig,
-  getMailFromAddress,
   getReplyDomain,
   getSesClientConfig,
   getSesInboundTopicArnSet
@@ -21,9 +20,7 @@ describe("env-server services edge cases", () => {
     });
   });
 
-  it("uses defaults for app mail settings and leaves reply domains optional", () => {
-    expect(getMailFromAddress({})).toBe("Chatting <hello@example.com>");
-    expect(getMailFromAddress({ MAIL_FROM: "Chatting <team@example.com>" })).toBe("Chatting <team@example.com>");
+  it("uses defaults for app naming settings and leaves reply domains optional", () => {
     expect(getAppDisplayName({})).toBe("Chatting");
     expect(getAppDisplayName({ APP_NAME: "Support Hub" })).toBe("Support Hub");
     expect(getReplyDomain({})).toBeNull();

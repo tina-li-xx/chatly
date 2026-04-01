@@ -14,7 +14,6 @@
 - `src/lib/email-templates.ts` is now well over the repo's 200-line code-file limit. The recent template copy and rendering fixes stayed surgical, but that template registry/renderer still needs to be split before any commit.
 - `app/dashboard/dashboard-settings-profile-section.tsx` is still over the repo's 200-line code-file limit. The settings page split removed the main page bottleneck, but the profile section still needs to be broken up before any commit.
 - `app/dashboard/settings-email-template-ui.tsx` is still well over the repo's 200-line code-file limit. The modal layout fix stayed surgical, but that editor/preview UI still needs to be split before any commit.
-- `src/lib/conversation-template-emails.ts` is still well over the repo's 200-line code-file limit. The resume-link change stayed surgical, but that conversation email sender still needs to be split before any commit.
 - The new hosted `/conversation/<token>` resume page currently supports text replies only. Existing threads still display attachment links, but uploading new attachments from the hosted page is not wired yet.
 - Settings preview/test emails now use the hosted conversation-link shape, but they still rely on preview placeholder URLs rather than real signed conversation identities because the template editor has no live visitor thread context.
 - Password reset now uses real one-time email tokens, but email verification is still not a required account state in the product. The verification template exists, but signup/login do not enforce verified addresses yet.

@@ -1,4 +1,5 @@
 import type { Pool } from "pg";
+import { runConversationTemplateDeliverySchemaInitialization } from "./db-schema-conversation-template-deliveries";
 
 export async function runConversationSchemaInitialization(pool: Pool) {
   await pool.query(`
@@ -108,29 +109,7 @@ export async function runConversationSchemaInitialization(pool: Pool) {
     CHECK (rating BETWEEN 1 AND 5);
   `);
 
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS email_template_deliveries (
-      id TEXT PRIMARY KEY,
-      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
-      template_key TEXT NOT NULL,
-      delivery_key TEXT NOT NULL UNIQUE,
-      recipient_email TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'pending',
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      sent_at TIMESTAMPTZ
-    );
-  `);
-
-  await pool.query(`
-    ALTER TABLE email_template_deliveries
-    DROP CONSTRAINT IF EXISTS email_template_deliveries_status_check;
-  `);
-
-  await pool.query(`
-    ALTER TABLE email_template_deliveries
-    ADD CONSTRAINT email_template_deliveries_status_check
-    CHECK (status IN ('pending', 'sent'));
-  `);
+  await runConversationTemplateDeliverySchemaInitialization(pool);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS conversation_typing (

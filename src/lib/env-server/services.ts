@@ -55,10 +55,6 @@ export function getDatabaseConfig(params?: {
   };
 }
 
-export function getMailFromAddress(source: ServerEnvSource = process.env) {
-  return getOptionalServerEnv("MAIL_FROM", source)!;
-}
-
 export function getAppDisplayName(source: ServerEnvSource = process.env) {
   return getOptionalServerEnv("APP_NAME", source)!;
 }

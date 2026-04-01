@@ -4,19 +4,22 @@ import {
   renderPasswordResetEmail,
   renderTeamInvitationEmail
 } from "@/lib/chatly-transactional-emails";
-import { sendRichEmail } from "@/lib/email";
+import {
+  resolvePrimaryBrandHelloMailFrom,
+  resolvePrimaryBrandNoReplyMailFrom,
+  resolveTeamInvitationMailFrom
+} from "@/lib/mail-from-addresses";
+import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 
 export async function sendAccountWelcomeEmail(input: {
   to: string;
   firstName: string;
   dashboardUrl: string;
 }) {
-  const rendered = renderAccountWelcomeEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderAccountWelcomeEmail(input)
   });
 }
 
@@ -24,12 +27,10 @@ export async function sendEmailVerificationEmail(input: {
   to: string;
   verifyUrl: string;
 }) {
-  const rendered = renderEmailVerificationEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolvePrimaryBrandNoReplyMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderEmailVerificationEmail(input)
   });
 }
 
@@ -37,12 +38,10 @@ export async function sendPasswordResetEmail(input: {
   to: string;
   resetUrl: string;
 }) {
-  const rendered = renderPasswordResetEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolvePrimaryBrandNoReplyMailFrom(),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderPasswordResetEmail(input)
   });
 }
 
@@ -54,11 +53,9 @@ export async function sendTeamInvitationEmail(input: {
   memberCount: number;
   inviteUrl: string;
 }) {
-  const rendered = renderTeamInvitationEmail(input);
-  return sendRichEmail({
+  return sendRenderedEmail({
+    from: resolveTeamInvitationMailFrom(input.inviterName),
     to: input.to,
-    subject: rendered.subject,
-    bodyText: rendered.bodyText,
-    bodyHtml: rendered.bodyHtml
+    rendered: renderTeamInvitationEmail(input)
   });
 }
