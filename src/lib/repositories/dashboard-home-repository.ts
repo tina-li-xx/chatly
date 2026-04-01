@@ -1,4 +1,8 @@
 import { query } from "@/lib/db";
+import type {
+  DashboardHomeChartRow,
+  DashboardHomeRangeDays
+} from "@/lib/data/dashboard-home-chart";
 
 export type DashboardHomeOverviewRow = {
   open_conversations: string;
@@ -17,10 +21,11 @@ export type DashboardHomeSatisfactionRow = {
   previous_rate: string | null;
 };
 
-export type DashboardHomeChartRow = {
-  day_index: string;
+type DashboardHomeConversationRangeRow = {
+  day_key: string;
   day_label: string;
   count: string;
+  previous_total: string;
 };
 
 export async function getDashboardHomeOverview(userId: string) {
@@ -127,50 +132,62 @@ export async function getDashboardHomeSatisfactionMetrics(userId: string) {
   return result.rows[0] ?? null;
 }
 
-export async function listDashboardHomeChartPoints(userId: string) {
-  const result = await query<DashboardHomeChartRow>(
+export async function getDashboardHomeConversationRange(
+  userId: string,
+  timeZone: string,
+  rangeDays: DashboardHomeRangeDays
+) {
+  const result = await query<DashboardHomeConversationRangeRow>(
     `
-      WITH week_days AS (
+      WITH date_bounds AS (
+        SELECT
+          timezone($2, NOW())::date AS local_today,
+          (timezone($2, NOW())::date - ($3::int - 1))::date AS current_start,
+          (timezone($2, NOW())::date - (($3::int * 2) - 1))::date AS previous_start
+      ),
+      range_days AS (
         SELECT
           generate_series(
-            date_trunc('week', CURRENT_DATE),
-            date_trunc('week', CURRENT_DATE) + INTERVAL '6 days',
+            (SELECT current_start FROM date_bounds),
+            (SELECT local_today FROM date_bounds),
             INTERVAL '1 day'
-          ) AS day
+          )::date AS local_day
+      ),
+      filtered_conversations AS (
+        SELECT
+          (c.created_at AT TIME ZONE $2)::date AS local_day
+        FROM conversations c
+        INNER JOIN sites s
+          ON s.id = c.site_id
+        WHERE s.user_id = $1
+      ),
+      previous_total AS (
+        SELECT COUNT(*)::text AS value
+        FROM filtered_conversations fc
+        WHERE fc.local_day >= (SELECT previous_start FROM date_bounds)
+          AND fc.local_day < (SELECT current_start FROM date_bounds)
       )
       SELECT
-        EXTRACT(ISODOW FROM wd.day)::text AS day_index,
-        TO_CHAR(wd.day, 'Dy') AS day_label,
-        COUNT(c.id) FILTER (WHERE s.id IS NOT NULL)::text AS count
-      FROM week_days wd
-      LEFT JOIN conversations c
-        ON c.created_at >= wd.day
-       AND c.created_at < wd.day + INTERVAL '1 day'
-      LEFT JOIN sites s
-        ON s.id = c.site_id
-       AND s.user_id = $1
-      GROUP BY wd.day
-      ORDER BY wd.day ASC
+        TO_CHAR(rd.local_day, 'YYYY-MM-DD') AS day_key,
+        TO_CHAR(rd.local_day, 'Dy') AS day_label,
+        COUNT(fc.local_day)::text AS count,
+        previous_total.value AS previous_total
+      FROM range_days rd
+      LEFT JOIN filtered_conversations fc
+        ON fc.local_day = rd.local_day
+      CROSS JOIN previous_total
+      GROUP BY rd.local_day, previous_total.value
+      ORDER BY rd.local_day ASC
     `,
-    [userId]
+    [userId, timeZone, rangeDays]
   );
 
-  return result.rows;
-}
-
-export async function getPreviousWeekConversationCount(userId: string) {
-  const result = await query<{ count: string }>(
-    `
-      SELECT COUNT(*)::text AS count
-      FROM conversations c
-      INNER JOIN sites s
-        ON s.id = c.site_id
-      WHERE s.user_id = $1
-        AND c.created_at >= date_trunc('week', CURRENT_DATE) - INTERVAL '7 days'
-        AND c.created_at < date_trunc('week', CURRENT_DATE)
-    `,
-    [userId]
-  );
-
-  return result.rows[0]?.count ?? "0";
+  return {
+    previousTotal: Number(result.rows[0]?.previous_total ?? 0),
+    rows: result.rows.map<DashboardHomeChartRow>((row) => ({
+      dayKey: row.day_key,
+      dayLabel: row.day_label,
+      count: row.count
+    }))
+  };
 }

@@ -6,8 +6,7 @@ import {
   getDashboardHomeOverview,
   getDashboardHomeResponseMetrics,
   getDashboardHomeSatisfactionMetrics,
-  getPreviousWeekConversationCount,
-  listDashboardHomeChartPoints
+  getDashboardHomeConversationRange
 } from "@/lib/repositories/dashboard-home-repository";
 import {
   findReferralAttributionByReferredUserId,
@@ -30,17 +29,21 @@ describe("dashboard home and referral repositories", () => {
       .mockResolvedValueOnce({ rows: [{ open_conversations: "2", opened_today: "3", resolved_today: "1", resolved_yesterday: "4" }] })
       .mockResolvedValueOnce({ rows: [{ current_avg_seconds: "45", previous_avg_seconds: "60" }] })
       .mockResolvedValueOnce({ rows: [{ current_rate: "96", previous_rate: "90" }] })
-      .mockResolvedValueOnce({ rows: [{ day_index: "1", day_label: "Mon", count: "4" }] })
-      .mockResolvedValueOnce({ rows: [{ count: "8" }] });
+      .mockResolvedValueOnce({
+        rows: [{ day_key: "2026-03-31", day_label: "Mon", count: "4", previous_total: "8" }]
+      });
 
     await expect(getDashboardHomeOverview("user_1")).resolves.toEqual({ open_conversations: "2", opened_today: "3", resolved_today: "1", resolved_yesterday: "4" });
     await expect(getDashboardHomeResponseMetrics("user_1")).resolves.toEqual({ current_avg_seconds: "45", previous_avg_seconds: "60" });
     await expect(getDashboardHomeSatisfactionMetrics("user_1")).resolves.toEqual({ current_rate: "96", previous_rate: "90" });
-    await expect(listDashboardHomeChartPoints("user_1")).resolves.toEqual([{ day_index: "1", day_label: "Mon", count: "4" }]);
-    await expect(getPreviousWeekConversationCount("user_1")).resolves.toBe("8");
+    await expect(getDashboardHomeConversationRange("user_1", "Europe/London", 30)).resolves.toEqual({
+      previousTotal: 8,
+      rows: [{ dayKey: "2026-03-31", dayLabel: "Mon", count: "4" }]
+    });
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("resolved_yesterday");
-    expect(mocks.query.mock.calls[3]?.[0]).toContain("generate_series");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("AT TIME ZONE $2");
+    expect(mocks.query.mock.calls[3]?.[1]).toEqual(["user_1", "Europe/London", 30]);
   });
 
   it("reads, writes, and updates referral programs, attributions, and rewards", async () => {

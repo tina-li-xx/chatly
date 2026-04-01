@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Based the dashboard home conversations card on rolling local 7-day windows using the saved teammate timezone for local date boundaries and previous-period comparison.
 - Added signup-triggered email verification delivery, resend-verification recovery from login, and a public `/verify` page for consuming email tokens.
 - Preserved safe post-login return paths back to the original internal URL after auth, resumed owner onboarding on sign-in, and split the auth/login flow into smaller modules with focused regression coverage.
 - Logged-out dashboard deep links now route through login with their original internal URL preserved instead of dropping users onto the default post-auth screen.
@@ -137,6 +138,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Dashboard unread badges now clear immediately on thread open and stay live across the shell header and sidebar when visitor messages or read events stream in.
 - Dashboard inbox install prompts now disappear once the widget is live and share the same install-state wiring across the sidebar card and empty conversation list.
 - Dashboard home now uses dedicated metrics, recent-conversations, and sidebar modules with cleaner empty states.
+- Dashboard home conversations now use saved-teammate-timezone rolling local 7-day windows instead of a fixed DB-timezone calendar week.
 - Dashboard home now surfaces activation, health, and expansion growth signals for the workspace.
 - Optimistic inbox interactions for replies and tags, plus modularized page components throughout.
 - Dashboard live refresh now tolerates failed fetches without surfacing unhandled browser promise rejections, and public feedback links now resolve numeric ratings cleanly.

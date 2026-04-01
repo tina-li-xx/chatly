@@ -2,13 +2,19 @@ import {
   getDashboardHomeOverview,
   getDashboardHomeResponseMetrics,
   getDashboardHomeSatisfactionMetrics,
-  getPreviousWeekConversationCount,
-  listDashboardHomeChartPoints
+  getDashboardHomeConversationRange
 } from "@/lib/repositories/dashboard-home-repository";
 import { findAuthUserById } from "@/lib/repositories/auth-repository";
 import { isSiteWidgetInstalled } from "@/lib/site-installation";
 import type { ConversationSummary } from "@/lib/types";
+import { resolvePreferredTimeZoneForUser } from "../user-timezone-preference";
 import { listConversationSummaries } from "./conversations";
+import {
+  buildDashboardHomeChart,
+  calculatePercentChange,
+  type DashboardHomeChart,
+  type DashboardHomeRangeDays
+} from "./dashboard-home-chart";
 import { getDashboardGrowthData, type DashboardHomeGrowthData } from "./dashboard-growth";
 import { listSitesForUser } from "./sites";
 
@@ -25,14 +31,7 @@ export type DashboardHomeData = {
   satisfactionPercent: number | null;
   satisfactionDeltaPercent: number | null;
   recentConversations: ConversationSummary[];
-  chart: {
-    total: number;
-    changePercent: number | null;
-    points: Array<{
-      label: string;
-      count: number;
-    }>;
-  };
+  chart: DashboardHomeChart;
   growth: DashboardHomeGrowthData;
 };
 
@@ -44,16 +43,11 @@ function roundToWhole(value: number | null) {
   return value == null || Number.isNaN(value) ? null : Math.round(value);
 }
 
-function percentChange(current: number | null, previous: number | null) {
-  if (current == null || previous == null || previous === 0) {
-    return null;
-  }
-
-  return Math.round(((current - previous) / Math.abs(previous)) * 100);
-}
-
-export async function getDashboardHomeData(userId: string): Promise<DashboardHomeData> {
-  const [user, summaries, sites, overview, response, satisfaction, chartRows, previousWeekCount] =
+export async function getDashboardHomeData(
+  userId: string,
+  rangeDays: DashboardHomeRangeDays = 7
+): Promise<DashboardHomeData> {
+  const [user, summaries, sites, overview, response, satisfaction, timeZone] =
     await Promise.all([
       findAuthUserById(userId),
       listConversationSummaries(userId),
@@ -61,20 +55,15 @@ export async function getDashboardHomeData(userId: string): Promise<DashboardHom
       getDashboardHomeOverview(userId),
       getDashboardHomeResponseMetrics(userId),
       getDashboardHomeSatisfactionMetrics(userId),
-      listDashboardHomeChartPoints(userId),
-      getPreviousWeekConversationCount(userId)
+      resolvePreferredTimeZoneForUser(userId)
     ]);
 
   if (!user) {
     throw new Error("USER_NOT_FOUND");
   }
 
-  const currentWeekPoints = chartRows.map((row) => ({
-    label: row.day_label.trim(),
-    count: Number(row.count)
-  }));
-  const currentWeekTotal = currentWeekPoints.reduce((total, point) => total + point.count, 0);
-  const previousWeekTotal = Number(previousWeekCount ?? 0);
+  const chartRange = await getDashboardHomeConversationRange(userId, timeZone, rangeDays);
+  const chart = buildDashboardHomeChart(chartRange.rows, chartRange.previousTotal, rangeDays);
 
   const currentAvgResponse = roundToWhole(toNumber(response?.current_avg_seconds));
   const previousAvgResponse = roundToWhole(toNumber(response?.previous_avg_seconds));
@@ -105,13 +94,9 @@ export async function getDashboardHomeData(userId: string): Promise<DashboardHom
     avgResponseSeconds: currentAvgResponse,
     avgResponseDeltaPercent,
     satisfactionPercent: currentSatisfaction,
-    satisfactionDeltaPercent: percentChange(currentSatisfaction, previousSatisfaction),
+    satisfactionDeltaPercent: calculatePercentChange(currentSatisfaction, previousSatisfaction),
     recentConversations: summaries.slice(0, 4),
-    chart: {
-      total: currentWeekTotal,
-      changePercent: percentChange(currentWeekTotal, previousWeekTotal),
-      points: currentWeekPoints
-    },
+    chart,
     growth
   };
 }
