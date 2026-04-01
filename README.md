@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Added root TypeScript support for Vitest globals so colocated test files keep passing Next build type-checks.
 - Shared button links now support internal Next routes plus external `mailto:`, `tel:`, and absolute URL hrefs without typed-route build failures.
 - Kept auth server actions build-safe by importing password recovery actions from their dedicated module and tightening shared auth route typing.
 - Fixed the dashboard inbox retry CTA wiring so failed optimistic replies can actually resend through the thread detail panel again.
@@ -186,6 +187,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Contributor Docs
 
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
+- The root TypeScript config now includes Vitest globals so colocated route and component tests type-check cleanly during `next build`.
 - Email sender and subdomain reference docs live in [CHATTING_EMAIL_ADDRESSES.md](./CHATTING_EMAIL_ADDRESSES.md).
 - Production builds now stay type-safe across widget offline copy settings, conversation-template retry helpers, mail-from sender helpers, and shared scheduler test utilities.
 - Next.js config now follows the default Turbopack dev/build path, and the concerns log tracks the remaining `metadataBase` and Edge-runtime build warnings.
