@@ -7,7 +7,7 @@ import {
 import { findAuthUserById } from "@/lib/repositories/auth-repository";
 import { isSiteWidgetInstalled } from "@/lib/site-installation";
 import type { ConversationSummary } from "@/lib/types";
-import { resolvePreferredTimeZoneForUser } from "../user-timezone-preference";
+import { resolvePreferredTimeZoneForUserWithSource } from "../user-timezone-preference";
 import { listConversationSummaries } from "./conversations";
 import {
   buildDashboardHomeChart,
@@ -18,7 +18,12 @@ import {
 import { getDashboardGrowthData, type DashboardHomeGrowthData } from "./dashboard-growth";
 import { listSitesForUser } from "./sites";
 
-export type DashboardHomeData = {
+export type DashboardHomeChartData = {
+  chartPending: boolean;
+  chart: DashboardHomeChart;
+};
+
+export type DashboardHomeData = DashboardHomeChartData & {
   hasWidgetInstalled: boolean;
   widgetSiteIds: string[];
   unreadCount: number;
@@ -31,7 +36,6 @@ export type DashboardHomeData = {
   satisfactionPercent: number | null;
   satisfactionDeltaPercent: number | null;
   recentConversations: ConversationSummary[];
-  chart: DashboardHomeChart;
   growth: DashboardHomeGrowthData;
 };
 
@@ -43,11 +47,24 @@ function roundToWhole(value: number | null) {
   return value == null || Number.isNaN(value) ? null : Math.round(value);
 }
 
+export async function getDashboardHomeChartData(
+  userId: string,
+  rangeDays: DashboardHomeRangeDays = 7
+): Promise<DashboardHomeChartData> {
+  const timeZone = await resolvePreferredTimeZoneForUserWithSource(userId);
+  const chartRange = await getDashboardHomeConversationRange(userId, timeZone.timeZone, rangeDays);
+
+  return {
+    chartPending: timeZone.source === "site" || timeZone.source === "utc",
+    chart: buildDashboardHomeChart(chartRange.rows, chartRange.previousTotal, rangeDays)
+  };
+}
+
 export async function getDashboardHomeData(
   userId: string,
   rangeDays: DashboardHomeRangeDays = 7
 ): Promise<DashboardHomeData> {
-  const [user, summaries, sites, overview, response, satisfaction, timeZone] =
+  const [user, summaries, sites, overview, response, satisfaction, chartData] =
     await Promise.all([
       findAuthUserById(userId),
       listConversationSummaries(userId),
@@ -55,15 +72,12 @@ export async function getDashboardHomeData(
       getDashboardHomeOverview(userId),
       getDashboardHomeResponseMetrics(userId),
       getDashboardHomeSatisfactionMetrics(userId),
-      resolvePreferredTimeZoneForUser(userId)
+      getDashboardHomeChartData(userId, rangeDays)
     ]);
 
   if (!user) {
     throw new Error("USER_NOT_FOUND");
   }
-
-  const chartRange = await getDashboardHomeConversationRange(userId, timeZone, rangeDays);
-  const chart = buildDashboardHomeChart(chartRange.rows, chartRange.previousTotal, rangeDays);
 
   const currentAvgResponse = roundToWhole(toNumber(response?.current_avg_seconds));
   const previousAvgResponse = roundToWhole(toNumber(response?.previous_avg_seconds));
@@ -96,7 +110,7 @@ export async function getDashboardHomeData(
     satisfactionPercent: currentSatisfaction,
     satisfactionDeltaPercent: calculatePercentChange(currentSatisfaction, previousSatisfaction),
     recentConversations: summaries.slice(0, 4),
-    chart,
+    ...chartData,
     growth
   };
 }

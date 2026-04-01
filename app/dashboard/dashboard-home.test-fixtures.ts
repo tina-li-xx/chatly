@@ -19,6 +19,7 @@ export function createHomeData(overrides: Record<string, unknown> = {}) {
         pageUrl: "/pricing"
       }
     ],
+    chartPending: false,
     chart: {
       rangeDays: 7,
       changePercent: 8,

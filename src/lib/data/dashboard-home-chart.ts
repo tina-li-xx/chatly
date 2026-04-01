@@ -74,7 +74,9 @@ function buildPoints(rows: DashboardHomeChartRow[], rangeDays: DashboardHomeRang
   return points;
 }
 
-export function resolveDashboardHomeRange(value: string | string[] | undefined): DashboardHomeRangeDays {
+export function resolveDashboardHomeRange(
+  value: string | string[] | null | undefined
+): DashboardHomeRangeDays {
   const candidate = Array.isArray(value) ? value[0] : value;
   if (candidate === "30") {
     return 30;

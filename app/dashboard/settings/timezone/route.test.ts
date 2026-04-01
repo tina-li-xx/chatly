@@ -1,4 +1,8 @@
 const mocks = vi.hoisted(() => ({
+  attachPreferredTimeZoneCookieToResponse: vi.fn((response: Response) => response),
+  normalizePreferredTimeZoneInput: vi.fn((value: unknown) =>
+    value === "Europe/London" ? "Europe/London" : null
+  ),
   requireJsonRouteUser: vi.fn(),
   upsertUserTimeZone: vi.fn()
 }));
@@ -13,6 +17,10 @@ vi.mock("@/lib/route-helpers", () => ({
   jsonOk: (body: Record<string, unknown>, status = 200) =>
     Response.json({ ok: true, ...body }, { status }),
   requireJsonRouteUser: mocks.requireJsonRouteUser
+}));
+vi.mock("@/lib/user-timezone-preference", () => ({
+  attachPreferredTimeZoneCookieToResponse: mocks.attachPreferredTimeZoneCookieToResponse,
+  normalizePreferredTimeZoneInput: mocks.normalizePreferredTimeZoneInput
 }));
 
 import { POST } from "./route";
@@ -34,6 +42,7 @@ describe("dashboard timezone sync route", () => {
     );
 
     expect(mocks.upsertUserTimeZone).toHaveBeenCalledWith("user_123", "Europe/London");
+    expect(mocks.attachPreferredTimeZoneCookieToResponse).toHaveBeenCalled();
     expect(await response.json()).toEqual({ ok: true, timezone: "Europe/London" });
   });
 

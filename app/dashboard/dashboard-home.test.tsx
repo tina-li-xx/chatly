@@ -31,6 +31,10 @@ vi.mock("./dashboard-widget-install-card", () => ({
   )
 }));
 
+vi.mock("./dashboard-home-timezone-bootstrap", () => ({
+  DashboardHomeTimeZoneBootstrap: () => <div />
+}));
+
 vi.mock("./dashboard-home-range-select", () => ({
   DashboardHomeRangeSelect: ({ value }: { value: number }) => <div>Range {value}</div>
 }));
@@ -44,11 +48,11 @@ describe("dashboard home", () => {
     const html = renderToStaticMarkup(
       await DashboardHome({
         userEmail: "tina@chatly.example",
-        userId: "user_123",
-        rangeDays: 7
+        userId: "user_123"
       })
     );
 
+    expect(mocks.getDashboardHomeData).toHaveBeenCalledWith("user_123");
     expect(html).toContain("Open conversations");
     expect(html).toContain("Resolved today");
     expect(html).toContain("Avg response time");
@@ -139,8 +143,7 @@ describe("dashboard home", () => {
     const html = renderToStaticMarkup(
       await DashboardHome({
         userEmail: "tina@chatly.example",
-        userId: "user_123",
-        rangeDays: 7
+        userId: "user_123"
       })
     );
 
@@ -150,5 +153,23 @@ describe("dashboard home", () => {
     expect(html).not.toContain("Customer health score");
     expect(html).not.toContain("View all");
     expect(html).toContain("Widget install needed");
+  });
+
+  it("renders a chart skeleton while timezone bootstrap is still catching up", async () => {
+    mocks.getDashboardHomeData.mockResolvedValueOnce(
+      createHomeData({
+        chartPending: true
+      })
+    );
+
+    const html = renderToStaticMarkup(
+      await DashboardHome({
+        userEmail: "tina@chatly.example",
+        userId: "user_123"
+      })
+    );
+
+    expect(html).toContain("animate-pulse");
+    expect(html).not.toContain(">15<");
   });
 });

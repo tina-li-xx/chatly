@@ -21,6 +21,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 - Based the dashboard home conversations card on rolling local 7-day windows using the saved teammate timezone for local date boundaries and previous-period comparison.
 - Wired the dashboard home conversations selector to real rolling `7 / 30 / 90` day ranges with matching comparison labels.
+- Kept the dashboard home conversations range off the browser URL by fetching card updates locally and refreshing the server chart after timezone sync lands.
 - Added signup-triggered email verification delivery, resend-verification recovery from login, and a public `/verify` page for consuming email tokens.
 - Preserved safe post-login return paths back to the original internal URL after auth, resumed owner onboarding on sign-in, and split the auth/login flow into smaller modules with focused regression coverage.
 - Logged-out dashboard deep links now route through login with their original internal URL preserved instead of dropping users onto the default post-auth screen.
@@ -141,6 +142,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Dashboard home now uses dedicated metrics, recent-conversations, and sidebar modules with cleaner empty states.
 - Dashboard home conversations now use saved-teammate-timezone rolling local 7-day windows instead of a fixed DB-timezone calendar week.
 - Dashboard home conversations now let the selector switch between real rolling `7 / 30 / 90` day ranges with matching labels.
+- Dashboard home conversation range changes now stay local to the card instead of mutating the page URL, and pending timezone sync can refresh the chart once the saved preference is available.
 - Dashboard home now surfaces activation, health, and expansion growth signals for the workspace.
 - Optimistic inbox interactions for replies and tags, plus modularized page components throughout.
 - Dashboard live refresh now tolerates failed fetches without surfacing unhandled browser promise rejections, and public feedback links now resolve numeric ratings cleanly.

@@ -1,6 +1,9 @@
 import { upsertUserTimeZone } from "@/lib/repositories/user-timezone-repository";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
-import { isValidTimeZone } from "@/lib/timezones";
+import {
+  attachPreferredTimeZoneCookieToResponse,
+  normalizePreferredTimeZoneInput
+} from "@/lib/user-timezone-preference";
 
 export async function POST(request: Request) {
   const auth = await requireJsonRouteUser();
@@ -10,14 +13,14 @@ export async function POST(request: Request) {
 
   try {
     const payload = (await request.json()) as { timezone?: unknown };
-    const timeZone = String(payload.timezone ?? "").trim();
+    const timeZone = normalizePreferredTimeZoneInput(payload.timezone);
 
-    if (!isValidTimeZone(timeZone)) {
+    if (!timeZone) {
       return jsonError("invalid-timezone", 400);
     }
 
     await upsertUserTimeZone(auth.user.id, timeZone);
-    return jsonOk({ timezone: timeZone });
+    return attachPreferredTimeZoneCookieToResponse(jsonOk({ timezone: timeZone }), timeZone);
   } catch {
     return jsonError("timezone-save-failed", 500);
   }
