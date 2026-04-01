@@ -17,7 +17,7 @@ function normalizeEmail(email: string) {
 export function defaultSiteNameForEmail(email: string) {
   const domain = normalizeEmail(email).split("@")[1];
   const label = domain?.split(".")[0];
-  return label ? `${label.charAt(0).toUpperCase()}${label.slice(1)} site` : "My site";
+  return label ? `${label.charAt(0).toUpperCase()}${label.slice(1)}` : "My site";
 }
 
 async function ensureOwnerPrimarySite(userId: string, email: string, siteDomain: string) {

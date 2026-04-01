@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Removed the forced `site` suffix from default owner workspace names so new email-domain-based sites no longer ship customer-facing labels like `Heypond site`.
 - Added root TypeScript support for Vitest globals so colocated test files keep passing Next build type-checks.
 - Shared button links now support internal Next routes plus external `mailto:`, `tel:`, and absolute URL hrefs without typed-route build failures.
 - Kept auth server actions build-safe by importing password recovery actions from their dedicated module and tightening shared auth route typing.
@@ -124,6 +125,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Onboarding
 
 - Post-signup setup flow for widget customization, install verification, and completion.
+- Owner onboarding now seeds the first site name from the signup email domain label without automatically appending a trailing `site`.
 - Setup screens now rely on the dot progress indicator without repeating step-count copy.
 - Live verification state that surfaces the actual site URL the widget was detected on.
 - Onboarding now has dedicated regression coverage across flow sections, shared helpers, UI states, and the team route.

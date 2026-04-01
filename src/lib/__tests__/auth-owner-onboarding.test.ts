@@ -52,7 +52,7 @@ describe("auth owner onboarding", () => {
 
     await expect(resumeOwnerOnboardingForUser("user_1")).resolves.toBe("complete");
     expect(mocks.createSiteForUser).toHaveBeenCalledWith("user_1", {
-      name: "Acme site",
+      name: "Acme",
       domain: "https://acme.com"
     });
     expect(mocks.ensureOwnerGrowthTrialBillingAccount).toHaveBeenCalledWith("user_1");
