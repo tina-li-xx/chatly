@@ -20,7 +20,8 @@ import {
 } from "./auth-forms-config";
 import { submitPasswordFlow } from "./auth-form-submit";
 import type { PasswordActionState } from "./action-types";
-import { forgotPasswordAction, loginAction, resendVerificationAction, resetPasswordAction } from "./actions";
+import { loginAction } from "./actions";
+import { forgotPasswordAction, resendVerificationAction, resetPasswordAction } from "./password-actions";
 import { ResendVerificationView } from "./auth-verification-view";
 
 export function AuthForms({

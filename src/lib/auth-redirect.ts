@@ -1,3 +1,5 @@
+import type { Route } from "next";
+
 export const AUTH_REQUEST_PATH_HEADER = "x-chatly-request-path";
 export const AUTH_RETURN_TO_QUERY_PARAM = "redirectTo";
 export const AUTH_SESSION_COOKIE_NAME = "chatly_session";
@@ -41,12 +43,12 @@ export function buildLoginPath(returnTo?: string | null) {
   const safeReturnPath = sanitizeReturnPath(returnTo);
 
   if (!safeReturnPath) {
-    return LOGIN_PATH;
+    return LOGIN_PATH as Route;
   }
 
   const searchParams = new URLSearchParams({
     [AUTH_RETURN_TO_QUERY_PARAM]: safeReturnPath
   });
 
-  return `${LOGIN_PATH}?${searchParams.toString()}`;
+  return `${LOGIN_PATH}?${searchParams.toString()}` as Route;
 }

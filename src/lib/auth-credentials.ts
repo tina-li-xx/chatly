@@ -5,6 +5,7 @@ import { getAuthSecret } from "@/lib/env.server";
 import { normalizeReferralCode, validateReferralCodeForSignup } from "@/lib/referrals";
 import { updateUserOwnerOnboardingIntent } from "@/lib/repositories/auth-owner-onboarding-repository";
 import {
+  type AuthUserRecord,
   type AuthSessionUserRecord,
   findAuthUserByEmail,
   findAuthUserById,
@@ -41,7 +42,7 @@ export function hashSessionToken(token: string) {
     .digest("hex");
 }
 
-export function mapUser(row: AuthIdentity | AuthSessionUserRecord): AuthIdentity {
+export function mapUser(row: AuthIdentity | AuthSessionUserRecord | AuthUserRecord): AuthIdentity {
   return {
     id: row.id,
     email: row.email,

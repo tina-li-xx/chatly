@@ -15,7 +15,6 @@ import { getPublicAppUrl } from "@/lib/env";
 import { acceptTeamInvite } from "@/lib/workspace-access";
 import { formatAuthError, isExpectedAuthError } from "./action-errors";
 import type { AuthActionState } from "./action-types";
-export { forgotPasswordAction, resendVerificationAction, resetPasswordAction } from "./password-actions";
 
 export type { AuthActionState, PasswordActionState } from "./action-types";
 

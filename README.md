@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Kept auth server actions build-safe by importing password recovery actions from their dedicated module and tightening shared auth route typing.
 - Fixed the dashboard inbox retry CTA wiring so failed optimistic replies can actually resend through the thread detail panel again.
 - Dashboard inbox replies now keep failed team messages inline with retry, preserve optimistic thread state, and leave the composer editable while earlier sends finish.
 - Based the dashboard home conversations card on rolling local 7-day windows using the saved teammate timezone for local date boundaries and previous-period comparison.
@@ -102,6 +103,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Public Site & Auth
 
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
+- Auth forms now pull forgot/reset/resend server actions from the dedicated password-actions module, and shared auth redirect helpers stay typed for Next route redirects during builds.
 - The root app shell now loads the hosted Grometrics analytics runtime with the production `usechatting.com` domain and website id.
 - The root app shell now skips Grometrics on localhost-style hosts during local development while still loading it on deployed hosts.
 - The landing header now stays sticky in flow on desktop and uses a dedicated small-screen nav row so the top bar stays compact without layout seams.

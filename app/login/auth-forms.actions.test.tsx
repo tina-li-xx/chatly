@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createMockReactHooks, runMockEffects } from "../dashboard/test-react-hooks";
-
 function collectElements(node: ReactNode, predicate: (element: ReactElement) => boolean): ReactElement[] {
   if (!node || typeof node === "string" || typeof node === "number" || typeof node === "boolean") return [];
   if (Array.isArray(node)) return node.flatMap((child) => collectElements(child, predicate));
@@ -17,27 +16,27 @@ function textContent(node: ReactNode): string {
   if (Array.isArray(node)) return node.map(textContent).join("");
   return textContent((node as ReactElement).props?.children);
 }
-
 class MockFormData {
   private values: Map<string, string>;
-
   constructor(target?: { __data?: Record<string, string> }) {
     this.values = new Map(Object.entries(target?.__data ?? {}));
   }
-
   get(key: string) {
     return this.values.get(key) ?? null;
   }
-
   set(key: string, value: string) {
     this.values.set(key, value);
   }
 }
-
 async function flushAsyncWork() {
   for (let index = 0; index < 6; index += 1) await Promise.resolve();
 }
-
+function submitForm(tree: ReactNode, data: Record<string, string>) {
+  collectElements(tree, (element) => element.type === "form")[0]?.props.onSubmit({
+    preventDefault: vi.fn(),
+    currentTarget: { __data: data }
+  });
+}
 async function loadAuthForms(options: { loginState?: Record<string, unknown> } = {}) {
   vi.resetModules();
   const reactMocks = createMockReactHooks();
@@ -46,7 +45,6 @@ async function loadAuthForms(options: { loginState?: Record<string, unknown> } =
   const resendVerificationAction = vi.fn();
   const resetPasswordAction = vi.fn();
   const showToast = vi.fn();
-
   vi.doMock("next/navigation", () => ({ useRouter: () => router }));
   vi.doMock("react-dom", async () => {
     const actual = await vi.importActual<typeof import("react-dom")>("react-dom");
@@ -69,13 +67,14 @@ async function loadAuthForms(options: { loginState?: Record<string, unknown> } =
     };
   });
   vi.doMock("./actions", () => ({
-    forgotPasswordAction,
     loginAction: vi.fn(),
+  }));
+  vi.doMock("./password-actions", () => ({
+    forgotPasswordAction,
     resendVerificationAction,
     resetPasswordAction
   }));
   vi.doMock("../ui/toast-provider", () => ({ useToast: () => ({ showToast }) }));
-
   const module = await import("./auth-forms");
   return {
     AuthForms: module.AuthForms,
@@ -87,11 +86,9 @@ async function loadAuthForms(options: { loginState?: Record<string, unknown> } =
     showToast
   };
 }
-
 describe("auth forms actions", () => {
   beforeEach(() => vi.stubGlobal("FormData", MockFormData as unknown as typeof FormData));
   afterEach(() => vi.unstubAllGlobals());
-
   it("redirects successful logins, toasts login errors, and handles forgot-password retries", async () => {
     const { AuthForms, reactMocks, router, showToast } = await loadAuthForms({
       loginState: { ok: true, nextPath: "/dashboard" }
@@ -107,7 +104,6 @@ describe("auth forms actions", () => {
       loginState: { error: "Work email is required." }
     });
     const { AuthForms: LoginErrorForms, reactMocks: loginErrorReactMocks, showToast: loginErrorToast } = loginErrorFlow;
-
     loginErrorReactMocks.beginRender();
     LoginErrorForms({});
     await runMockEffects(loginErrorReactMocks.effects);
@@ -123,26 +119,17 @@ describe("auth forms actions", () => {
     forgotPasswordAction
       .mockResolvedValueOnce({ ok: false, error: "Email missing." })
       .mockResolvedValueOnce({ ok: true, error: null, message: "Reset sent." });
-
     forgotReactMocks.beginRender();
     let tree = ForgotAuthForms({ initialMode: "forgot" });
-    collectElements(tree, (element) => element.type === "form")[0]?.props.onSubmit({
-      preventDefault: vi.fn(),
-      currentTarget: { __data: { email: "hello@example.com" } }
-    });
+    submitForm(tree, { email: "hello@example.com" });
     await flushAsyncWork();
 
     forgotReactMocks.beginRender();
     tree = ForgotAuthForms({ initialMode: "forgot" });
     expect(renderToStaticMarkup(tree)).not.toContain("Email missing.");
     expect(forgotToast).toHaveBeenCalledWith("error", "Email missing.");
-
-    collectElements(tree, (element) => element.type === "form")[0]?.props.onSubmit({
-      preventDefault: vi.fn(),
-      currentTarget: { __data: { email: "hello@example.com" } }
-    });
+    submitForm(tree, { email: "hello@example.com" });
     await flushAsyncWork();
-
     forgotReactMocks.beginRender();
     tree = ForgotAuthForms({ initialMode: "forgot" });
     const html = renderToStaticMarkup(tree);
@@ -153,18 +140,12 @@ describe("auth forms actions", () => {
   it("submits password resets with the token and returns to auth actions", async () => {
     const { AuthForms, reactMocks, router, resetPasswordAction } = await loadAuthForms();
     resetPasswordAction.mockResolvedValue({ ok: true, error: null, message: "Password reset complete." });
-
     reactMocks.beginRender();
     let tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
-    collectElements(tree, (element) => element.type === "form")[0]?.props.onSubmit({
-      preventDefault: vi.fn(),
-      currentTarget: { __data: { password: "Password123!", confirmPassword: "Password123!" } }
-    });
+    submitForm(tree, { password: "Password123!", confirmPassword: "Password123!" });
     await flushAsyncWork();
-
     const submittedFormData = resetPasswordAction.mock.calls[0]?.[0] as MockFormData;
     expect(submittedFormData.get("token")).toBe("token_123");
-
     reactMocks.beginRender();
     tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
     expect(renderToStaticMarkup(tree)).toContain("Password updated");
@@ -178,7 +159,6 @@ describe("auth forms actions", () => {
     );
     buttons.find((element) => textContent(element.props.children).includes("Create account"))?.props.onClick();
     buttons.find((element) => textContent(element.props.children).includes("Back to sign in"))?.props.onClick();
-
     reactMocks.beginRender();
     tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
     expect(router.push).toHaveBeenCalledWith("/signup");
@@ -190,25 +170,15 @@ describe("auth forms actions", () => {
     resendVerificationAction
       .mockResolvedValueOnce({ ok: false, error: "Email missing." })
       .mockResolvedValueOnce({ ok: true, error: null, message: "Verification sent." });
-
     reactMocks.beginRender();
     let tree = AuthForms({ initialMode: "verify" });
-    collectElements(tree, (element) => element.type === "form")[0]?.props.onSubmit({
-      preventDefault: vi.fn(),
-      currentTarget: { __data: { email: "hello@example.com" } }
-    });
+    submitForm(tree, { email: "hello@example.com" });
     await flushAsyncWork();
-
     reactMocks.beginRender();
     tree = AuthForms({ initialMode: "verify" });
     expect(showToast).toHaveBeenCalledWith("error", "Email missing.");
-
-    collectElements(tree, (element) => element.type === "form")[0]?.props.onSubmit({
-      preventDefault: vi.fn(),
-      currentTarget: { __data: { email: "hello@example.com" } }
-    });
+    submitForm(tree, { email: "hello@example.com" });
     await flushAsyncWork();
-
     reactMocks.beginRender();
     tree = AuthForms({ initialMode: "verify" });
     const html = renderToStaticMarkup(tree);
