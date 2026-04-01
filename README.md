@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Localized daily digests and weekly performance emails to teammate timezones, with dashboard-side browser timezone sync and shared local report window helpers.
 - Added Cloud Run deployment packaging with standalone Next.js output, a repo `cloudbuild.yaml`, and DB-claimed scheduler windows plus advisory locks so startup email jobs do not double-run across instances.
 - Hardened Cloud Run startup by serializing schema bootstrap with a shared Postgres advisory lock and setting metadataBase for deployed OG and Twitter URLs.
 - Fixed the production build by tightening widget offline-copy field typing, conversation-template retry status returns, mail-from sender resolution, and shared scheduler test-helper imports.
@@ -120,6 +121,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Dashboard
 
 - Shared dashboard shell with focused pages for inbox, visitors, analytics, team, settings, and widget setup.
+- Dashboard shell now syncs each teammate's browser timezone so timezone-aware scheduled emails can use local delivery windows.
 - Dashboard live updates now share one `/dashboard/live` connection per tab, route unread and conversation refreshes through targeted endpoints, and keep visitors current with incremental session/message patches plus manual full-refresh fallback.
 - - Dashboard widget settings now preview online, away, and offline states directly in settings, and inbox thread ordering stays pinned to real recency instead of moving touched threads to the top.
 - Dashboard navigation now relies on the route-level skeleton only, and inbox thread selection clears stale loading state without the extra shell overlay layer.
@@ -146,6 +148,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Growth billing now runs from a shared seat-pricing config, validates Stripe's tiered Growth price shape before checkout, and prefers `STRIPE_DEV_*` billing credentials and price ids outside production.
 - Billing price resolution now relies only on the current Growth Stripe price ids.
 - Scheduled daily digests and weekly performance reports now send from the node runtime with persisted delivery windows.
+- Those reports now resolve teammate-local delivery windows from saved browser timezones, falling back through site timezone to UTC.
 - Owner workspaces now default to a backend-seeded Growth trial and automatically downgrade expired unpaid trials to Starter.
 - Billing settings fixtures and cards now consistently use the post-trial-extension billing shape across dashboard tests and widget settings.
 - Scheduled lifecycle nudges now deliver activation, health, and upgrade reminders from the node runtime instead of widget pageviews.

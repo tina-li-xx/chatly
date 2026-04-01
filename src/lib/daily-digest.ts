@@ -1,6 +1,13 @@
 import { sendDailyDigestEmail } from "@/lib/chatly-notification-email-senders";
 import { getAnalyticsDataset } from "@/lib/data/analytics";
 import { listConversationSummaries } from "@/lib/data/conversations";
+import {
+  dailyDeliveryDateKey,
+  formatDateKeyLabel,
+  isConversationOnDateKey,
+  resolveReportTimeZone,
+  shouldRunDailyReport
+} from "@/lib/report-time";
 import { getPublicAppUrl } from "@/lib/env";
 import {
   hasDailyDigestDelivery,
@@ -10,22 +17,7 @@ import {
 import { displayNameFromEmail } from "@/lib/user-display";
 import { formatRelativeTime, optionalText, truncate } from "@/lib/utils";
 
-const DAILY_DIGEST_SEND_HOUR_UTC = 9;
 const FIFTEEN_MINUTES_IN_SECONDS = 15 * 60;
-
-function digestDateKey(value: Date) {
-  return value.toISOString().slice(0, 10);
-}
-
-function startOfUtcDay(value: Date) {
-  return new Date(`${digestDateKey(value)}T00:00:00.000Z`);
-}
-
-function endOfUtcDay(value: Date) {
-  const end = startOfUtcDay(value);
-  end.setUTCDate(end.getUTCDate() + 1);
-  return end;
-}
 
 function average(values: number[]) {
   if (!values.length) {
@@ -63,15 +55,6 @@ function formatPercent(value: number | null) {
   return value == null ? "—" : `${Math.round(value)}%`;
 }
 
-function formatDigestDate(value: Date) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC"
-  }).format(value);
-}
-
 function pageSourceLabel(value: string | null) {
   if (!value) {
     return "homepage";
@@ -98,19 +81,26 @@ function buildOpenConversationTitle(email: string | null, pageUrl: string | null
   return `${visitorName} from ${pageSourceLabel(pageUrl)}`;
 }
 
-export function shouldRunDailyDigests(now = new Date()) {
-  return now.getUTCHours() >= DAILY_DIGEST_SEND_HOUR_UTC;
+export function shouldRunDailyDigests(now = new Date(), timeZone?: string | null) {
+  return shouldRunDailyReport(now, timeZone);
 }
 
 export async function sendUserDailyDigest(input: {
   userId: string;
   notificationEmail: string;
+  timeZone?: string | null;
   now?: Date;
 }) {
   const now = input.now ?? new Date();
-  const digestDate = digestDateKey(now);
+  const timeZone = resolveReportTimeZone(input.timeZone);
 
-  if (await hasDailyDigestDelivery(input.userId, digestDate)) {
+  if (!shouldRunDailyReport(now, timeZone)) {
+    return "too-early" as const;
+  }
+
+  const deliveryDateKey = dailyDeliveryDateKey(now, timeZone);
+
+  if (await hasDailyDigestDelivery(input.userId, deliveryDateKey)) {
     return "already-sent" as const;
   }
 
@@ -118,12 +108,9 @@ export async function sendUserDailyDigest(input: {
     getAnalyticsDataset(input.userId),
     listConversationSummaries(input.userId)
   ]);
-  const start = startOfUtcDay(now);
-  const end = endOfUtcDay(now);
-  const todaysConversations = dataset.conversations.filter((conversation) => {
-    const createdAt = new Date(conversation.createdAt).getTime();
-    return createdAt >= start.getTime() && createdAt < end.getTime();
-  });
+  const todaysConversations = dataset.conversations.filter((conversation) =>
+    isConversationOnDateKey(conversation.createdAt, deliveryDateKey, timeZone)
+  );
   const responseTimes = todaysConversations
     .map((conversation) => conversation.firstResponseSeconds)
     .filter((value): value is number => value != null);
@@ -148,7 +135,7 @@ export async function sendUserDailyDigest(input: {
 
   await sendDailyDigestEmail({
     to: input.notificationEmail,
-    date: formatDigestDate(now),
+    date: formatDateKeyLabel(deliveryDateKey),
     metrics: [
       { value: formatCount(todaysConversations.length), label: "new conversations" },
       { value: formatDuration(average(responseTimes)), label: "avg first response" },
@@ -157,16 +144,12 @@ export async function sendUserDailyDigest(input: {
     openConversations,
     inboxUrl: `${getPublicAppUrl()}/dashboard/inbox`
   });
-  await insertDailyDigestDelivery(input.userId, digestDate);
+  await insertDailyDigestDelivery(input.userId, deliveryDateKey);
 
   return "sent" as const;
 }
 
 export async function runScheduledDailyDigests(now = new Date()) {
-  if (!shouldRunDailyDigests(now)) {
-    return { processedRecipients: 0, sent: 0, skipped: 0 };
-  }
-
   const recipients = await listDailyDigestRecipientRows();
   let sent = 0;
   let skipped = 0;
@@ -176,6 +159,7 @@ export async function runScheduledDailyDigests(now = new Date()) {
       const status = await sendUserDailyDigest({
         userId: recipient.user_id,
         notificationEmail: optionalText(recipient.notification_email) || recipient.email,
+        timeZone: recipient.timezone,
         now
       });
       sent += status === "sent" ? 1 : 0;

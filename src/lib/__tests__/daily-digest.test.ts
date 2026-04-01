@@ -36,7 +36,7 @@ describe("daily digest", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-03-30T10:15:00.000Z"));
+    vi.setSystemTime(new Date("2026-03-30T13:15:00.000Z"));
     mocks.getPublicAppUrl.mockReturnValue("https://usechatting.com");
     mocks.hasDailyDigestDelivery.mockResolvedValue(false);
   });
@@ -50,8 +50,8 @@ describe("daily digest", () => {
       conversations: [
         {
           id: "conv_1",
-          createdAt: "2026-03-30T08:00:00.000Z",
-          updatedAt: "2026-03-30T08:10:00.000Z",
+          createdAt: "2026-03-29T12:00:00.000Z",
+          updatedAt: "2026-03-29T12:10:00.000Z",
           status: "open",
           pageUrl: "https://usechatting.com/pricing",
           referrer: null,
@@ -62,8 +62,8 @@ describe("daily digest", () => {
         },
         {
           id: "conv_2",
-          createdAt: "2026-03-30T09:00:00.000Z",
-          updatedAt: "2026-03-30T09:30:00.000Z",
+          createdAt: "2026-03-30T02:00:00.000Z",
+          updatedAt: "2026-03-30T02:30:00.000Z",
           status: "resolved",
           pageUrl: "https://usechatting.com/docs",
           referrer: null,
@@ -93,7 +93,7 @@ describe("daily digest", () => {
         city: null,
         timezone: null,
         locale: null,
-        lastMessageAt: "2026-03-30T10:00:00.000Z",
+        lastMessageAt: "2026-03-30T13:00:00.000Z",
         lastMessagePreview: "Can I remove Chatting branding on Growth?",
         unreadCount: 1,
         rating: null,
@@ -105,13 +105,14 @@ describe("daily digest", () => {
       sendUserDailyDigest({
         userId: "user_1",
         notificationEmail: "team@example.com",
-        now: new Date("2026-03-30T10:15:00.000Z")
+        timeZone: "America/New_York",
+        now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("sent");
 
     expect(mocks.sendDailyDigestEmail).toHaveBeenCalledWith({
       to: "team@example.com",
-      date: "March 30, 2026",
+      date: "March 29, 2026",
       metrics: [
         { value: "2", label: "new conversations" },
         { value: "16m", label: "avg first response" },
@@ -126,7 +127,7 @@ describe("daily digest", () => {
       ],
       inboxUrl: "https://usechatting.com/dashboard/inbox"
     });
-    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledWith("user_1", "2026-03-30");
+    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledWith("user_1", "2026-03-29");
   });
 
   it("skips already-sent and no-activity digests", async () => {
@@ -135,7 +136,7 @@ describe("daily digest", () => {
       sendUserDailyDigest({
         userId: "user_1",
         notificationEmail: "team@example.com",
-        now: new Date("2026-03-30T10:15:00.000Z")
+        now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("already-sent");
 
@@ -145,7 +146,7 @@ describe("daily digest", () => {
       sendUserDailyDigest({
         userId: "user_2",
         notificationEmail: "team@example.com",
-        now: new Date("2026-03-30T10:15:00.000Z")
+        now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("skipped");
 
@@ -153,10 +154,10 @@ describe("daily digest", () => {
     expect(mocks.insertDailyDigestDelivery).not.toHaveBeenCalled();
   });
 
-  it("runs on schedule after the send window and skips before it", async () => {
+  it("uses each recipient's local send window instead of a global UTC gate", async () => {
     mocks.listDailyDigestRecipientRows.mockResolvedValue([
-      { user_id: "user_1", email: "owner@example.com", notification_email: null },
-      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com" }
+      { user_id: "user_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
+      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com", timezone: "America/New_York" }
     ]);
     mocks.getAnalyticsDataset.mockResolvedValue({ conversations: [], replyEvents: [] });
     mocks.listConversationSummaries.mockResolvedValue([
@@ -186,14 +187,15 @@ describe("daily digest", () => {
     ]);
 
     expect(shouldRunDailyDigests(new Date("2026-03-30T08:59:00.000Z"))).toBe(false);
+    expect(shouldRunDailyDigests(new Date("2026-03-30T12:59:00.000Z"), "America/New_York")).toBe(false);
     await expect(runScheduledDailyDigests(new Date("2026-03-30T08:59:00.000Z"))).resolves.toEqual({
-      processedRecipients: 0,
+      processedRecipients: 2,
       sent: 0,
-      skipped: 0
+      skipped: 2
     });
 
-    expect(shouldRunDailyDigests(new Date("2026-03-30T09:00:00.000Z"))).toBe(true);
-    await expect(runScheduledDailyDigests(new Date("2026-03-30T10:15:00.000Z"))).resolves.toEqual({
+    expect(shouldRunDailyDigests(new Date("2026-03-30T13:00:00.000Z"), "America/New_York")).toBe(true);
+    await expect(runScheduledDailyDigests(new Date("2026-03-30T13:15:00.000Z"))).resolves.toEqual({
       processedRecipients: 2,
       sent: 2,
       skipped: 0

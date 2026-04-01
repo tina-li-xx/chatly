@@ -48,9 +48,10 @@ describe("weekly performance email", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-03-30T10:15:00.000Z"));
+    vi.setSystemTime(new Date("2026-03-30T13:15:00.000Z"));
     mocks.getPublicAppUrl.mockReturnValue("https://usechatting.com");
     mocks.hasWeeklyPerformanceDelivery.mockResolvedValue(false);
+    mocks.listWeeklyPerformanceRecipientRows.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -75,7 +76,8 @@ describe("weekly performance email", () => {
       sendUserWeeklyPerformanceEmail({
         userId: "user_1",
         notificationEmail: "team@example.com",
-        now: new Date("2026-03-30T10:15:00.000Z")
+        timeZone: "UTC",
+        now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("sent");
 
@@ -96,6 +98,7 @@ describe("weekly performance email", () => {
 
   it("skips before the weekly send window and for already-sent reports", async () => {
     expect(shouldRunWeeklyPerformanceEmails(new Date("2026-03-30T08:59:00.000Z"))).toBe(false);
+    expect(shouldRunWeeklyPerformanceEmails(new Date("2026-03-30T12:59:00.000Z"), "America/New_York")).toBe(false);
     await expect(
       runScheduledWeeklyPerformanceEmails(new Date("2026-03-30T08:59:00.000Z"))
     ).resolves.toEqual({ processedRecipients: 0, sent: 0, skipped: 0 });
@@ -105,17 +108,54 @@ describe("weekly performance email", () => {
       sendUserWeeklyPerformanceEmail({
         userId: "user_1",
         notificationEmail: "team@example.com",
-        now: new Date("2026-03-30T10:15:00.000Z")
+        timeZone: "UTC",
+        now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("already-sent");
+  });
+
+  it("uses the teammate timezone for the local week window", async () => {
+    mocks.getAnalyticsDataset.mockResolvedValue({
+      conversations: [
+        conversation({ id: "conv_before", createdAt: "2026-03-23T03:30:00.000Z", firstResponseSeconds: 60 }),
+        conversation({ id: "conv_1", createdAt: "2026-03-23T05:30:00.000Z", firstResponseSeconds: 180 }),
+        conversation({ id: "conv_2", createdAt: "2026-03-24T14:00:00.000Z", pageUrl: "https://usechatting.com/contact", status: "resolved", firstResponseSeconds: 240 }),
+        conversation({ id: "conv_3", createdAt: "2026-03-29T23:00:00.000Z", status: "resolved", firstResponseSeconds: 600 }),
+        conversation({ id: "conv_prev", createdAt: "2026-03-17T15:00:00.000Z", firstResponseSeconds: 900 })
+      ],
+      replyEvents: []
+    });
+
+    await expect(
+      sendUserWeeklyPerformanceEmail({
+        userId: "user_1",
+        notificationEmail: "team@example.com",
+        timeZone: "America/New_York",
+        now: new Date("2026-03-30T13:15:00.000Z")
+      })
+    ).resolves.toBe("sent");
+
+    expect(mocks.sendWeeklyPerformanceEmail).toHaveBeenCalledWith({
+      to: "team@example.com",
+      dateRange: "Mar 23 - Mar 29",
+      highlights: [
+        "Conversation volume was up 50% from last week",
+        "Replies were under 5 minutes for 67% of responded conversations",
+        "Resolved 67% of this week's conversations"
+      ],
+      busiestHours: "1am-3am and 10am-12pm",
+      topPages: ["/pricing — 2 conversations", "/contact — 1 conversation"],
+      reportUrl: "https://usechatting.com/dashboard/analytics"
+    });
+    expect(mocks.insertWeeklyPerformanceDelivery).toHaveBeenCalledWith("user_1", "2026-03-23");
   });
 
   it("keeps going when one teammate's weekly email fails", async () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     mocks.listWeeklyPerformanceRecipientRows.mockResolvedValue([
-      { user_id: "user_1", email: "owner@example.com", notification_email: null },
-      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com" }
+      { user_id: "user_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
+      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com", timezone: "America/New_York" }
     ]);
     mocks.getAnalyticsDataset.mockResolvedValue({
       conversations: [conversation({ id: "conv_1", createdAt: "2026-03-24T10:00:00.000Z", firstResponseSeconds: 180 })],
@@ -124,7 +164,7 @@ describe("weekly performance email", () => {
     mocks.sendWeeklyPerformanceEmail.mockRejectedValueOnce(new Error("SEND_FAILED")).mockResolvedValueOnce(undefined);
 
     await expect(
-      runScheduledWeeklyPerformanceEmails(new Date("2026-03-30T10:15:00.000Z"))
+      runScheduledWeeklyPerformanceEmails(new Date("2026-03-30T13:15:00.000Z"))
     ).resolves.toEqual({ processedRecipients: 2, sent: 1, skipped: 1 });
 
     expect(mocks.sendWeeklyPerformanceEmail).toHaveBeenCalledTimes(2);

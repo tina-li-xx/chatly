@@ -32,7 +32,7 @@ describe("daily digest runner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-03-30T10:15:00.000Z"));
+    vi.setSystemTime(new Date("2026-03-30T13:15:00.000Z"));
     mocks.getPublicAppUrl.mockReturnValue("https://usechatting.com");
     mocks.hasDailyDigestDelivery.mockResolvedValue(false);
     mocks.getAnalyticsDataset.mockResolvedValue({ conversations: [], replyEvents: [] });
@@ -72,12 +72,12 @@ describe("daily digest runner", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     mocks.listDailyDigestRecipientRows.mockResolvedValue([
-      { user_id: "user_1", email: "owner@example.com", notification_email: null },
-      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com" }
+      { user_id: "user_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
+      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com", timezone: "UTC" }
     ]);
     mocks.sendDailyDigestEmail.mockRejectedValueOnce(new Error("SEND_FAILED")).mockResolvedValueOnce(undefined);
 
-    await expect(runScheduledDailyDigests(new Date("2026-03-30T10:15:00.000Z"))).resolves.toEqual({
+    await expect(runScheduledDailyDigests(new Date("2026-03-30T13:15:00.000Z"))).resolves.toEqual({
       processedRecipients: 2,
       sent: 1,
       skipped: 1
@@ -85,7 +85,7 @@ describe("daily digest runner", () => {
 
     expect(mocks.sendDailyDigestEmail).toHaveBeenCalledTimes(2);
     expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledTimes(1);
-    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledWith("user_2", "2026-03-30");
+    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledWith("user_2", "2026-03-29");
     expect(errorSpy).toHaveBeenCalledWith("daily digest send failed", "user_1", expect.any(Error));
   });
 });

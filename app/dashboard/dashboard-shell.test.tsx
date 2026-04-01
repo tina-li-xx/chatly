@@ -8,6 +8,7 @@ async function loadDashboardShell(options?: {
   vi.resetModules();
   const captures: Record<string, unknown> = {};
   const heartbeat = vi.fn();
+  const timezoneSync = vi.fn();
   const router = { prefetch: vi.fn(), push: vi.fn() };
   const reactMocks = createMockReactHooks();
 
@@ -24,6 +25,9 @@ async function loadDashboardShell(options?: {
   }));
   vi.doMock("./use-dashboard-presence-heartbeat", () => ({
     useDashboardPresenceHeartbeat: heartbeat
+  }));
+  vi.doMock("./use-dashboard-timezone-sync", () => ({
+    useDashboardTimezoneSync: timezoneSync
   }));
   vi.doMock("./use-dashboard-live-unread-count", () => ({
     useDashboardLiveUnreadCount: (initialUnreadCount: number) => ({
@@ -73,7 +77,7 @@ async function loadDashboardShell(options?: {
   }));
 
   const module = await import("./dashboard-shell");
-  return { DashboardShell: module.DashboardShell, captures, heartbeat, reactMocks, router };
+  return { DashboardShell: module.DashboardShell, captures, heartbeat, reactMocks, router, timezoneSync };
 }
 
 describe("dashboard shell", () => {
@@ -90,7 +94,7 @@ describe("dashboard shell", () => {
         removeEventListener: vi.fn()
       })
     });
-    const { DashboardShell, captures, heartbeat, reactMocks, router } = await loadDashboardShell();
+    const { DashboardShell, captures, heartbeat, reactMocks, router, timezoneSync } = await loadDashboardShell();
 
     reactMocks.beginRender();
     renderToStaticMarkup(
@@ -106,6 +110,7 @@ describe("dashboard shell", () => {
 
     expect(captures.notification).toEqual({ initialSettings: { browserNotifications: true } });
     expect(heartbeat).toHaveBeenCalled();
+    expect(timezoneSync).toHaveBeenCalled();
     expect(captures.mobile).toEqual({ pathname: "/dashboard/inbox", unreadCount: 3 });
     expect(captures.header).toEqual(
       expect.objectContaining({ showUnreadBadge: true, unreadCount: 3, firstName: "Tina" })

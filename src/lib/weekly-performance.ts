@@ -8,14 +8,16 @@ import {
 } from "@/lib/repositories/weekly-performance-repository";
 import { optionalText } from "@/lib/utils";
 import {
-  addUtcDays,
-  buildDateRangeLabel,
-  dateKey,
-  startOfUtcWeek
-} from "@/lib/weekly-performance-window";
+  formatDateKeyLabel,
+  isConversationInLocalWeek,
+  localHour,
+  previousLocalWeekStartDateKey,
+  resolveReportTimeZone,
+  shiftDateKey,
+  shouldRunWeeklyReport
+} from "@/lib/report-time";
 
 const FAST_REPLY_SECONDS = 5 * 60;
-const WEEKLY_REPORT_SEND_HOUR_UTC = 9;
 
 function formatPercent(value: number | null) {
   return value == null ? "—" : `${Math.round(value)}%`;
@@ -32,15 +34,8 @@ function pageLabelFromUrl(value: string | null) {
   }
 }
 
-function filterConversations(
-  conversations: AnalyticsConversationRecord[],
-  start: Date,
-  end: Date
-) {
-  return conversations.filter((conversation) => {
-    const createdAt = new Date(conversation.createdAt).getTime();
-    return createdAt >= start.getTime() && createdAt < end.getTime();
-  });
+function filterConversations(conversations: AnalyticsConversationRecord[], weekStart: string, timeZone?: string | null) {
+  return conversations.filter((conversation) => isConversationInLocalWeek(conversation.createdAt, weekStart, timeZone));
 }
 
 function buildVolumeHighlight(currentCount: number, previousCount: number) {
@@ -84,10 +79,11 @@ function formatHourBlock(startHour: number) {
   return `${formatHour(startHour)}-${formatHour(startHour + 2)}`;
 }
 
-function buildBusiestHours(conversations: AnalyticsConversationRecord[]) {
+function buildBusiestHours(conversations: AnalyticsConversationRecord[], timeZone?: string | null) {
+  const resolvedTimeZone = resolveReportTimeZone(timeZone);
   const hourlyCounts = Array.from({ length: 24 }, () => 0);
   conversations.forEach((conversation) => {
-    hourlyCounts[new Date(conversation.createdAt).getUTCHours()] += 1;
+    hourlyCounts[localHour(new Date(conversation.createdAt), resolvedTimeZone)] += 1;
   });
 
   const windows = hourlyCounts
@@ -125,45 +121,48 @@ function buildTopPages(conversations: AnalyticsConversationRecord[]) {
     .map(([page, count]) => `${page} — ${count} conversation${count === 1 ? "" : "s"}`);
 }
 
-export function shouldRunWeeklyPerformanceEmails(now = new Date()) {
-  const sendWindow = startOfUtcWeek(now);
-  sendWindow.setUTCHours(WEEKLY_REPORT_SEND_HOUR_UTC, 0, 0, 0);
-  return now.getTime() >= sendWindow.getTime();
+export function shouldRunWeeklyPerformanceEmails(now = new Date(), timeZone?: string | null) {
+  return shouldRunWeeklyReport(now, timeZone);
 }
 
 export async function sendUserWeeklyPerformanceEmail(input: {
   userId: string;
   notificationEmail: string;
+  timeZone?: string | null;
   now?: Date;
 }) {
   const now = input.now ?? new Date();
-  const weekEnd = startOfUtcWeek(now);
-  const weekStart = addUtcDays(weekEnd, -7);
-  const previousWeekStart = addUtcDays(weekStart, -7);
-  const deliveryKey = dateKey(weekStart);
+  const timeZone = resolveReportTimeZone(input.timeZone);
+
+  if (!shouldRunWeeklyReport(now, timeZone)) {
+    return "too-early" as const;
+  }
+
+  const deliveryKey = previousLocalWeekStartDateKey(now, timeZone);
+  const previousWeekStart = shiftDateKey(deliveryKey, -7);
 
   if (await hasWeeklyPerformanceDelivery(input.userId, deliveryKey)) {
     return "already-sent" as const;
   }
 
   const dataset = await getAnalyticsDataset(input.userId);
-  const currentWeek = filterConversations(dataset.conversations, weekStart, weekEnd);
+  const currentWeek = filterConversations(dataset.conversations, deliveryKey, timeZone);
 
   if (!currentWeek.length) {
     return "skipped" as const;
   }
 
-  const previousWeek = filterConversations(dataset.conversations, previousWeekStart, weekStart);
+  const previousWeek = filterConversations(dataset.conversations, previousWeekStart, timeZone);
 
   await sendWeeklyPerformanceEmail({
     to: input.notificationEmail,
-    dateRange: buildDateRangeLabel(weekStart, weekEnd),
+    dateRange: `${formatDateKeyLabel(deliveryKey, "short")} - ${formatDateKeyLabel(shiftDateKey(deliveryKey, 6), "short")}`,
     highlights: [
       buildVolumeHighlight(currentWeek.length, previousWeek.length),
       buildFastReplyHighlight(currentWeek),
       buildResolutionHighlight(currentWeek)
     ],
-    busiestHours: buildBusiestHours(currentWeek),
+    busiestHours: buildBusiestHours(currentWeek, timeZone),
     topPages: buildTopPages(currentWeek),
     reportUrl: `${getPublicAppUrl()}/dashboard/analytics`
   });
@@ -173,10 +172,6 @@ export async function sendUserWeeklyPerformanceEmail(input: {
 }
 
 export async function runScheduledWeeklyPerformanceEmails(now = new Date()) {
-  if (!shouldRunWeeklyPerformanceEmails(now)) {
-    return { processedRecipients: 0, sent: 0, skipped: 0 };
-  }
-
   const recipients = await listWeeklyPerformanceRecipientRows();
   let sent = 0;
   let skipped = 0;
@@ -186,6 +181,7 @@ export async function runScheduledWeeklyPerformanceEmails(now = new Date()) {
       const status = await sendUserWeeklyPerformanceEmail({
         userId: recipient.user_id,
         notificationEmail: optionalText(recipient.notification_email) || recipient.email,
+        timeZone: recipient.timezone,
         now
       });
       sent += status === "sent" ? 1 : 0;

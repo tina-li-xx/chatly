@@ -1,35 +1,8 @@
 import { query } from "@/lib/db";
-
-export type DailyDigestRecipientRow = {
-  user_id: string;
-  email: string;
-  notification_email: string | null;
-};
+import { listEmailReportRecipientRows } from "@/lib/email-report-timezone";
 
 export async function listDailyDigestRecipientRows() {
-  const result = await query<DailyDigestRecipientRow>(
-    `
-      SELECT
-        u.id AS user_id,
-        u.email,
-        us.notification_email
-      FROM users u
-      LEFT JOIN team_memberships tm
-        ON tm.member_user_id = u.id
-       AND tm.status = 'active'
-      LEFT JOIN user_settings us
-        ON us.user_id = u.id
-      WHERE COALESCE(us.email_notifications, TRUE)
-        AND EXISTS (
-          SELECT 1
-          FROM sites s
-          WHERE s.user_id = COALESCE(tm.owner_user_id, u.id)
-        )
-      ORDER BY u.created_at ASC
-    `
-  );
-
-  return result.rows;
+  return listEmailReportRecipientRows();
 }
 
 export async function hasDailyDigestDelivery(userId: string, digestDate: string) {

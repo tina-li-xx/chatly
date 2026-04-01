@@ -94,6 +94,7 @@ export async function runUserSchemaInitialization(pool: Pool) {
       quiet_hours_enabled BOOLEAN NOT NULL DEFAULT FALSE,
       quiet_hours_start TEXT NOT NULL DEFAULT '22:00',
       quiet_hours_end TEXT NOT NULL DEFAULT '08:00',
+      timezone TEXT,
       email_signature TEXT NOT NULL DEFAULT '',
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -107,6 +108,17 @@ export async function runUserSchemaInitialization(pool: Pool) {
   await pool.query(`
     ALTER TABLE user_settings
     ALTER COLUMN email_templates_json SET DEFAULT '';
+  `);
+
+  await pool.query(`
+    ALTER TABLE user_settings
+    ADD COLUMN IF NOT EXISTS timezone TEXT;
+  `);
+
+  await pool.query(`
+    UPDATE user_settings
+    SET timezone = NULL
+    WHERE timezone = '';
   `);
 
   await pool.query(`

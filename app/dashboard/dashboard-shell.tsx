@@ -14,6 +14,7 @@ import { DashboardNotificationCenter } from "./dashboard-notification-center";
 import { DashboardUnreadCountProvider } from "./dashboard-unread-count";
 import { useDashboardLiveUnreadCount } from "./use-dashboard-live-unread-count";
 import { useDashboardPresenceHeartbeat } from "./use-dashboard-presence-heartbeat";
+import { useDashboardTimezoneSync } from "./use-dashboard-timezone-sync";
 import {
   DashboardHeader,
   dashboardGreeting,
@@ -47,6 +48,7 @@ export function DashboardShell({ children, userEmail, unreadCount, notificationS
   const { unreadCount: liveUnreadCount, setUnreadCount } = useDashboardLiveUnreadCount(unreadCount, !isInboxRoute);
 
   useDashboardPresenceHeartbeat();
+  useDashboardTimezoneSync();
 
   useEffect(() => {
     setHour(new Date().getHours());
