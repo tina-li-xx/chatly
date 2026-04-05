@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Blog post registration now auto-generates during `dev` and `build`, so new `src/lib/blog-post-*.ts` files automatically feed the published blog routes and sitemap.
 - Updated public changelog notes so follow-up routing and email changes read like product updates instead of engineering filler.
 - Kept weekly performance heatmap snapshots build-safe by typing their computed intensity rows explicitly.
 - Split the People contact data layer into focused services so profile, note, and sync changes are easier to maintain.
@@ -237,6 +238,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Contributor Docs
 
+- Blog contributor tooling now generates the published blog-post registry from `src/lib/blog-post-*.ts` files during `dev` and `build`, keeping route and sitemap registration in sync without hand-editing imports.
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
 - Changelog guidance now explicitly requires customer-facing product language instead of internal engineering notes or filler.
 - The public changelog now folds small follow-up routing and email fixes into the main feature entries instead of publishing weak standalone notes.

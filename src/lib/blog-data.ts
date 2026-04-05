@@ -1,15 +1,4 @@
-import { addLiveChatToShopifyPost } from "@/lib/blog-post-add-live-chat-to-shopify";
-import { afterHoursLiveChatEcommerceLeadsPost } from "@/lib/blog-post-after-hours-live-chat-ecommerce-leads";
-import { bestLiveChatToolsSmallBusinessPost } from "@/lib/blog-post-best-live-chat-tools-small-business";
-import { bestLiveChatForStartupsPost } from "@/lib/blog-post-best-live-chat-for-startups";
-import { bestIntercomAlternativesSmallTeamsPost } from "@/lib/blog-post-best-intercom-alternatives-small-teams";
-import { chatlyVsIntercomPost } from "@/lib/blog-post-chatly-vs-intercom";
-import { chatlyVsZendeskPost } from "@/lib/blog-post-chatly-vs-zendesk";
-import { ecommerceLiveChatSupportPost } from "@/lib/blog-post-ecommerce-live-chat-support";
-import { liveChatSoftwareSmallTeamsPost } from "@/lib/blog-post-live-chat-software-small-teams";
-import { liveChatVsContactFormsPost } from "@/lib/blog-post-live-chat-vs-contact-forms";
-import { reduceResponseTimeUnderTwoMinutesPost } from "@/lib/blog-post-reduce-response-time-under-2-minutes";
-import { wordpressLiveChatSetupPost } from "@/lib/blog-post-wordpress-live-chat-setup";
+import { generatedBlogPosts } from "@/lib/generated-blog-posts";
 import type { BlogAuthor, BlogCategory, BlogCategorySlug, BlogPost, BlogPostWithDetails } from "@/lib/blog-types";
 
 const authors: BlogAuthor[] = [
@@ -84,20 +73,7 @@ export const blogCategories: BlogCategory[] = [
   }
 ];
 
-const posts: BlogPost[] = [
-  afterHoursLiveChatEcommerceLeadsPost,
-  bestLiveChatToolsSmallBusinessPost,
-  ecommerceLiveChatSupportPost,
-  bestLiveChatForStartupsPost,
-  liveChatSoftwareSmallTeamsPost,
-  chatlyVsIntercomPost,
-  liveChatVsContactFormsPost,
-  addLiveChatToShopifyPost,
-  chatlyVsZendeskPost,
-  reduceResponseTimeUnderTwoMinutesPost,
-  wordpressLiveChatSetupPost,
-  bestIntercomAlternativesSmallTeamsPost
-];
+const posts: BlogPost[] = generatedBlogPosts;
 
 const publishedAuthorSlugs = new Set(posts.map((post) => post.authorSlug));
 const publishedAuthors = authors.filter((author) => publishedAuthorSlugs.has(author.slug));

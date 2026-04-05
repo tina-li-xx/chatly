@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node ./scripts/generate-blog-registry.mjs",
     "dev": "next dev",
+    "predev:webpack": "node ./scripts/generate-blog-registry.mjs",
     "dev:webpack": "next dev --webpack",
+    "prebuild": "node ./scripts/generate-blog-registry.mjs",
     "build": "next build",
     "db:baseline": "node ./scripts/refresh-drizzle-baseline.cjs",
     "db:migrate": "node ./scripts/run-drizzle-migrate.mjs",
@@ -38,7 +41,6 @@
     "drizzle-kit": "^0.31.10",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "tsx": "^4.21.0",
     "typescript": "latest",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
