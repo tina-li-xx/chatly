@@ -70,7 +70,7 @@ async function applyTagRules(input: {
       input.tagRules
         .filter((rule) => matchesRoutingCondition(rule.condition, rule.value, input.context))
         .map((rule) => optionalText(rule.tag)?.toLowerCase())
-        .filter(Boolean)
+        .filter((tag): tag is string => Boolean(tag))
     )
   );
 

@@ -53,7 +53,7 @@ export function normalizeVisitorCustomFields(value: unknown) {
         optionalText(String(key))?.toLowerCase(),
         optionalText(String(fieldValue))
       ])
-      .filter(([key, fieldValue]): key is string => Boolean(key && fieldValue))
+      .filter((entry): entry is [string, string] => Boolean(entry[0] && entry[1]))
       .slice(0, 25)
   );
 }

@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Visitor routing now handles empty tags and incomplete custom-field values more gracefully.
 - Visitor follow-up templates now avoid repeating extra conversation-link instructions when they already include them.
 - Aligned Drizzle config and cached DB typing so schema-backed Postgres builds stay clean.
 - Tightened public landing route typing so shared nav and footer links stay build-safe.
@@ -167,6 +168,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Embeddable widget with optimistic sending, typing, conversation polling, and install detection.
 - The shipped widget runtime now reads branding-aware site config, sends fuller visitor context to public config/status routes, and refreshes site state on route changes.
 - The live widget now runs Automation FAQ suggestions, proactive prompts, and profile-aware routing inputs from the public automation payload.
+- Visitor routing helpers now drop empty tags and incomplete custom-field values more safely before those inputs reach automation rules.
 - Widget settings now persist customizable offline and away titles/messages, and the live widget renders those saved empty-state messages from site config.
 - Public API endpoints for conversation messages, status, typing, site config, and attachments.
 

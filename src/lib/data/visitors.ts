@@ -27,7 +27,9 @@ export type RecordVisitorPresenceInput = {
   customFields?: Record<string, string>;
 };
 
-function mapVisitorPresenceSession(row: Awaited<ReturnType<typeof upsertVisitorPresenceSessionRow>>) {
+function mapVisitorPresenceSession(
+  row: Awaited<ReturnType<typeof upsertVisitorPresenceSessionRow>>
+): VisitorPresenceSession | null {
   if (!row) return null;
   return {
     siteId: row.site_id,
@@ -183,7 +185,14 @@ export async function getVisitorPresenceSession(input: {
 export async function listVisitorPresenceSessions(userId: string): Promise<VisitorPresenceSession[]> {
   const workspace = await getWorkspaceAccess(userId);
   const rows = await listVisitorPresenceRowsForUser(workspace.ownerUserId, userId);
-  return rows
-    .map((row) => mapVisitorPresenceSession(row))
-    .filter((row): row is VisitorPresenceSession => Boolean(row));
+  const sessions: VisitorPresenceSession[] = [];
+
+  for (const row of rows) {
+    const session = mapVisitorPresenceSession(row);
+    if (session) {
+      sessions.push(session);
+    }
+  }
+
+  return sessions;
 }
