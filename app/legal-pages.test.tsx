@@ -23,7 +23,7 @@ describe("legal pages", () => {
     const html = renderToStaticMarkup(<PrivacyPage />);
 
     expect(html).toContain("Privacy Policy");
-    expect(html).toContain("Your next customer is on your site right now.");
+    expect(html).toContain("Live chat for small teams.");
     expect(html).toContain("/#features");
   });
 
@@ -31,7 +31,7 @@ describe("legal pages", () => {
     const html = renderToStaticMarkup(<TermsPage />);
 
     expect(html).toContain("Terms of Service");
-    expect(html).toContain("Your next customer is on your site right now.");
+    expect(html).toContain("Live chat for small teams.");
     expect(html).toContain("/blog");
   });
 });

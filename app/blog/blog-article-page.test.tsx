@@ -38,7 +38,7 @@ describe("blog article page", () => {
     expect(html).toContain("The uncomfortable truth about contact forms");
     expect(html).toContain("Related guides inside this topic");
     expect(html).toContain("You might also like");
-    expect(html).toContain("Create your widget");
+    expect(html).toContain("Live chat for small teams.");
     expect(html).toContain("application/ld+json");
     expect(html).toContain("/blog/authors/tina");
   });

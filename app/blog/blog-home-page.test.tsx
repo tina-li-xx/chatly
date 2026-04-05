@@ -32,7 +32,7 @@ describe("blog home page", () => {
     expect(html).toContain("Advice for warmer conversations and faster support.");
     expect(html).toContain("How-To Guides");
     expect(html).toContain("Get chat tips that actually work");
-    expect(html).toContain("Your next customer is on your site right now.");
+    expect(html).toContain("Live chat for small teams.");
     expect(html).toContain("/blog/chatting-vs-zendesk");
   });
 });
