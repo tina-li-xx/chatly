@@ -22,6 +22,16 @@ describe("public site-config route", () => {
     mocks.getSiteWidgetConfig.mockResolvedValueOnce({
       id: "site_123",
       widgetTitle: "Talk to the team",
+      autoOpenPaths: [],
+      proactivePrompts: [
+        {
+          id: "prompt_1",
+          pagePath: "/pricing",
+          message: "Need help choosing a plan?",
+          delaySeconds: 30,
+          autoOpenWidget: true
+        }
+      ],
       showBranding: true,
       brandingLabel: "Powered by Chatting",
       brandingUrl: "https://chatly.example"
@@ -57,6 +67,16 @@ describe("public site-config route", () => {
       site: {
         id: "site_123",
         widgetTitle: "Talk to the team",
+        autoOpenPaths: [],
+        proactivePrompts: [
+          {
+            id: "prompt_1",
+            pagePath: "/pricing",
+            message: "Need help choosing a plan?",
+            delaySeconds: 30,
+            autoOpenWidget: true
+          }
+        ],
         showBranding: true,
         brandingLabel: "Powered by Chatting",
         brandingUrl: "https://chatly.example"

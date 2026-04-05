@@ -1,4 +1,4 @@
-import { getPublicConversationMessages } from "@/lib/data";
+import { getPublicConversationState } from "@/lib/data";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 
 export function OPTIONS() {
@@ -19,26 +19,27 @@ export async function GET(request: Request) {
       );
     }
 
-    const messages = await getPublicConversationMessages({
+    const state = await getPublicConversationState({
       siteId,
       sessionId,
       conversationId
     });
 
-    if (!messages) {
+    if (!state) {
       return publicJsonResponse({ error: "Conversation not found." }, { status: 404 });
     }
 
     return publicJsonResponse({
       ok: true,
       conversationId,
-      messages: messages.map((message) => ({
+      messages: state.messages.map((message) => ({
         id: message.id,
         content: message.content,
         createdAt: message.createdAt,
-        sender: message.sender === "founder" ? "team" : "user",
+        sender: message.sender === "user" ? "user" : "team",
         attachments: message.attachments
-      }))
+      })),
+      faqSuggestions: state.faqSuggestions ?? null
     });
   } catch (error) {
     console.error("public conversation thread error", error);

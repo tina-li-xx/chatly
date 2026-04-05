@@ -57,15 +57,36 @@ describe("public messages route", () => {
     mocks.createUserMessage.mockResolvedValueOnce({
       conversationId: "conv_1",
       siteUserId: "user_1",
-      siteName: "Main site",
-      visitorLabel: "Alex",
-      pageUrl: "https://example.com/pricing",
-      location: "London, UK",
-      preview: "Hello there",
       isNewConversation: true,
       isNewVisitor: true,
       highIntent: true,
       welcomeEmailEligible: true,
+      deferTeamNotification: true,
+      notification: {
+        userId: "user_1",
+        conversationId: "conv_1",
+        createdAt: "2026-03-29T10:00:00.000Z",
+        preview: "Hello there",
+        siteName: "Main site",
+        visitorLabel: "Alex",
+        pageUrl: "https://example.com/pricing",
+        location: "London, UK",
+        attachmentsCount: 0,
+        isNewConversation: true,
+        isNewVisitor: true,
+        highIntent: true
+      },
+      faqSuggestions: {
+        fallbackMessage: "None of these help? A team member will be with you shortly.",
+        items: [
+          {
+            id: "faq_1",
+            question: "What are your pricing plans?",
+            answer: "We offer Free, Growth, and Business plans.",
+            link: "https://example.com/pricing"
+          }
+        ]
+      },
       message: {
         id: "msg_1",
         conversationId: "conv_1",
@@ -80,10 +101,25 @@ describe("public messages route", () => {
       new Request("http://localhost/api/public/messages", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ siteId: "site_1", sessionId: "session_1", content: "Hello there", pageUrl: "https://example.com/pricing" })
+        body: JSON.stringify({
+          siteId: "site_1",
+          sessionId: "session_1",
+          content: "Hello there",
+          pageUrl: "https://example.com/pricing",
+          visitorTags: ["enterprise", "vip"],
+          customFields: { plan: "Growth" }
+        })
       })
     );
 
+    expect(mocks.extractVisitorMetadata).toHaveBeenCalledWith(
+      expect.any(Request),
+      expect.objectContaining({
+        pageUrl: "https://example.com/pricing",
+        visitorTags: ["enterprise", "vip"],
+        customFields: { plan: "Growth" }
+      })
+    );
     expect(mocks.createUserMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         siteId: "site_1",
@@ -94,9 +130,7 @@ describe("public messages route", () => {
       })
     );
     expect(mocks.publishConversationLive).toHaveBeenCalledTimes(2);
-    expect(mocks.notifyIncomingVisitorMessage).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: "user_1", conversationId: "conv_1", attachmentsCount: 0, highIntent: true })
-    );
+    expect(mocks.notifyIncomingVisitorMessage).not.toHaveBeenCalled();
     expect(mocks.sendWelcomeTemplateEmail).toHaveBeenCalledWith({ conversationId: "conv_1", userId: "user_1" });
     expect(await response.json()).toEqual({
       ok: true,
@@ -108,8 +142,134 @@ describe("public messages route", () => {
         content: "Hello there",
         createdAt: "2026-03-29T10:00:00.000Z",
         attachments: []
+      },
+      faqSuggestions: {
+        fallbackMessage: "None of these help? A team member will be with you shortly.",
+        items: [
+          {
+            id: "faq_1",
+            question: "What are your pricing plans?",
+            answer: "We offer Free, Growth, and Business plans.",
+            link: "https://example.com/pricing"
+          }
+        ]
       }
     });
+  });
+
+  it("publishes a team live event when an automated away reply is created", async () => {
+    mocks.createUserMessage.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      siteUserId: "user_1",
+      isNewConversation: true,
+      isNewVisitor: true,
+      highIntent: true,
+      welcomeEmailEligible: false,
+      deferTeamNotification: false,
+      notification: {
+        userId: "user_1",
+        conversationId: "conv_1",
+        createdAt: "2026-03-29T10:00:00.000Z",
+        preview: "Hello there",
+        siteName: "Main site",
+        visitorLabel: "Alex",
+        pageUrl: "https://example.com/pricing",
+        location: "London, UK",
+        attachmentsCount: 0,
+        isNewConversation: true,
+        isNewVisitor: true,
+        highIntent: true
+      },
+      message: {
+        id: "msg_1",
+        conversationId: "conv_1",
+        sender: "user",
+        content: "Hello there",
+        createdAt: "2026-03-29T10:00:00.000Z",
+        attachments: []
+      },
+      automationReply: {
+        id: "msg_2",
+        conversationId: "conv_1",
+        sender: "team",
+        content: "We will reply shortly.",
+        createdAt: "2026-03-29T10:00:01.000Z",
+        attachments: []
+      }
+    });
+
+    await POST(
+      new Request("http://localhost/api/public/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ siteId: "site_1", sessionId: "session_1", content: "Hello there" })
+      })
+    );
+
+    expect(mocks.publishConversationLive).toHaveBeenCalledTimes(4);
+    expect(mocks.notifyIncomingVisitorMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: "user_1", conversationId: "conv_1", highIntent: true })
+    );
+    expect(mocks.publishConversationLive).toHaveBeenNthCalledWith(
+      3,
+      "conv_1",
+      expect.objectContaining({ type: "message.created", sender: "team" })
+    );
+  });
+
+  it("passes visitor profile fields from multipart widget posts into metadata extraction", async () => {
+    mocks.createUserMessage.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      siteUserId: "user_1",
+      isNewConversation: true,
+      isNewVisitor: true,
+      highIntent: false,
+      welcomeEmailEligible: false,
+      deferTeamNotification: false,
+      notification: {
+        userId: "user_1",
+        conversationId: "conv_1",
+        createdAt: "2026-03-29T10:00:00.000Z",
+        preview: "Hello there",
+        siteName: "Main site",
+        visitorLabel: "Alex",
+        pageUrl: "https://example.com/pricing",
+        location: "London, UK",
+        attachmentsCount: 0,
+        isNewConversation: true,
+        isNewVisitor: true,
+        highIntent: false
+      },
+      message: {
+        id: "msg_1",
+        conversationId: "conv_1",
+        sender: "user",
+        content: "Hello there",
+        createdAt: "2026-03-29T10:00:00.000Z",
+        attachments: []
+      }
+    });
+    const formData = new FormData();
+    formData.set("siteId", "site_1");
+    formData.set("sessionId", "session_1");
+    formData.set("content", "Hello there");
+    formData.set("visitorTags", '["enterprise"]');
+    formData.set("customFields", '{"plan":"Growth"}');
+
+    await POST(
+      new Request("http://localhost/api/public/messages", {
+        method: "POST",
+        body: formData
+      })
+    );
+
+    expect(mocks.extractVisitorMetadata).toHaveBeenCalledWith(
+      expect.any(Request),
+      expect.objectContaining({
+        visitorTags: '["enterprise"]',
+        customFields: '{"plan":"Growth"}'
+      })
+    );
   });
 
   it("maps known site and attachment errors", async () => {

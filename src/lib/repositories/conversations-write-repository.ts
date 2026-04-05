@@ -17,6 +17,54 @@ export async function insertConversationRecord(input: {
   );
 }
 
+export async function setConversationFaqHandoffState(input: {
+  conversationId: string;
+  preview: string;
+  attachmentsCount: number;
+  isNewVisitor: boolean;
+  highIntent: boolean;
+  suggestionsJson: string | null;
+}) {
+  await query(
+    `
+      UPDATE conversations
+      SET faq_handoff_pending = TRUE,
+          faq_handoff_preview = $2,
+          faq_handoff_attachments_count = $3,
+          faq_handoff_is_new_visitor = $4,
+          faq_handoff_high_intent = $5,
+          faq_handoff_suggestions_json = $6,
+          updated_at = NOW()
+      WHERE id = $1
+    `,
+    [
+      input.conversationId,
+      input.preview,
+      input.attachmentsCount,
+      input.isNewVisitor,
+      input.highIntent,
+      input.suggestionsJson
+    ]
+  );
+}
+
+export async function clearConversationFaqHandoffState(conversationId: string) {
+  await query(
+    `
+      UPDATE conversations
+      SET faq_handoff_pending = FALSE,
+          faq_handoff_preview = NULL,
+          faq_handoff_attachments_count = 0,
+          faq_handoff_is_new_visitor = FALSE,
+          faq_handoff_high_intent = FALSE,
+          faq_handoff_suggestions_json = NULL,
+          updated_at = NOW()
+      WHERE id = $1
+    `,
+    [conversationId]
+  );
+}
+
 export async function upsertConversationMetadataRecord(input: {
   conversationId: string;
   pageUrl: string | null;
@@ -70,16 +118,17 @@ export async function upsertConversationMetadataRecord(input: {
 export async function insertMessageRecord(input: {
   messageId: string;
   conversationId: string;
-  sender: "user" | "founder";
+  sender: "user" | "team";
+  authorUserId?: string | null;
   content: string;
 }) {
   const result = await query<MessageRow>(
     `
-      INSERT INTO messages (id, conversation_id, sender, content)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, conversation_id, sender, content, created_at
+      INSERT INTO messages (id, conversation_id, sender, author_user_id, content)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, conversation_id, sender, author_user_id, content, created_at
     `,
-    [input.messageId, input.conversationId, input.sender, input.content]
+    [input.messageId, input.conversationId, input.sender, input.authorUserId ?? null, input.content]
   );
 
   return result.rows[0];

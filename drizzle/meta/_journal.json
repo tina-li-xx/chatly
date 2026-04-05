@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1775260800000,
+      "tag": "0000_initial_schema",
+      "breakpoints": false
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775309400000,
+      "tag": "0001_legacy_runtime_schema_catchup",
+      "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775314200000,
+      "tag": "0002_conversation_faq_handoff_state",
+      "breakpoints": false
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775316600000,
+      "tag": "0003_conversation_faq_handoff_snapshot",
+      "breakpoints": false
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775320200000,
+      "tag": "0004_visitor_profile_routing_fields",
+      "breakpoints": false
+    }
+  ]
+}

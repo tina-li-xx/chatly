@@ -1,6 +1,9 @@
 const mocks = vi.hoisted(() => ({
+  clearConversationFaqHandoffState: vi.fn(),
   ensureConversation: vi.fn(),
   findConversationById: vi.fn(),
+  findConversationFaqHandoffState: vi.fn(),
+  findConversationNotificationContextRow: vi.fn(),
   findVisitorConversationEmailState: vi.fn(),
   getSiteByPublicId: vi.fn(),
   hasPreviousVisitorConversation: vi.fn(),
@@ -10,6 +13,8 @@ const mocks = vi.hoisted(() => ({
   previewIncomingMessage: vi.fn(),
   queryConversationSummaries: vi.fn(),
   recordVisitorPresence: vi.fn(),
+  setConversationFaqHandoffState: vi.fn(),
+  syncVisitorContact: vi.fn(),
   getWorkspaceAccess: vi.fn(),
   updateConversationEmailValue: vi.fn(),
   updateVisitorConversationEmailRecord: vi.fn(),
@@ -17,7 +22,11 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/repositories/conversations-repository", () => ({
+  clearConversationFaqHandoffState: mocks.clearConversationFaqHandoffState,
   findConversationById: mocks.findConversationById,
+  findConversationFaqHandoffState: mocks.findConversationFaqHandoffState,
+  findConversationNotificationContextRow: mocks.findConversationNotificationContextRow,
+  setConversationFaqHandoffState: mocks.setConversationFaqHandoffState,
   findVisitorConversationEmailState: mocks.findVisitorConversationEmailState,
   updateVisitorConversationEmailRecord: mocks.updateVisitorConversationEmailRecord
 }));
@@ -28,7 +37,10 @@ vi.mock("@/lib/notification-utils", () => ({
 vi.mock("@/lib/workspace-access", () => ({ getWorkspaceAccess: mocks.getWorkspaceAccess }));
 vi.mock("@/lib/data/sites", () => ({ getSiteByPublicId: mocks.getSiteByPublicId }));
 vi.mock("@/lib/data/visitor-notes", () => ({ migrateVisitorNoteIdentity: mocks.migrateVisitorNoteIdentity }));
-vi.mock("@/lib/data/visitors", () => ({ recordVisitorPresence: mocks.recordVisitorPresence }));
+vi.mock("@/lib/data/visitors", () => ({
+  recordVisitorPresence: mocks.recordVisitorPresence,
+  syncVisitorContact: mocks.syncVisitorContact
+}));
 vi.mock("@/lib/data/conversations-internals", () => ({
   ensureConversation: mocks.ensureConversation,
   getPublicConversationAccess: vi.fn(),
@@ -57,6 +69,8 @@ describe("conversation data edge cases", () => {
     vi.clearAllMocks();
     mocks.previewIncomingMessage.mockReturnValue("Preview");
     mocks.ensureConversation.mockResolvedValue({ conversationId: "conv_1", createdConversation: false, emailCaptured: false });
+    mocks.findConversationFaqHandoffState.mockResolvedValue(null);
+    mocks.findConversationNotificationContextRow.mockResolvedValue(null);
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1" });
     mocks.insertMessage.mockResolvedValue({ id: "msg_1" });
     mocks.queryConversationSummaries.mockResolvedValue({ rowCount: 0, rows: [] });
@@ -135,8 +149,31 @@ describe("conversation data edge cases", () => {
   it("still writes inbound replies when no existing conversation row is found", async () => {
     mocks.findConversationById.mockResolvedValueOnce(null);
 
-    await expect(addInboundReply("conv_1", null, "Reply")).resolves.toEqual({ id: "msg_1" });
+    await expect(
+      addInboundReply("conv_1", null, "Reply", [
+        {
+          fileName: "brief.pdf",
+          contentType: "application/pdf",
+          sizeBytes: 5,
+          content: Buffer.from("brief")
+        }
+      ])
+    ).resolves.toEqual({ id: "msg_1" });
     expect(mocks.migrateVisitorNoteIdentity).not.toHaveBeenCalled();
     expect(mocks.updateConversationEmailValue).toHaveBeenCalledWith("conv_1", null, "merge");
+    expect(mocks.insertMessage).toHaveBeenCalledWith(
+      "conv_1",
+      "user",
+      "Reply",
+      [
+        {
+          fileName: "brief.pdf",
+          contentType: "application/pdf",
+          sizeBytes: 5,
+          content: Buffer.from("brief")
+        }
+      ],
+      { reopenConversation: true }
+    );
   });
 });

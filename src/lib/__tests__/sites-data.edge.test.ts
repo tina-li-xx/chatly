@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   findBillingAccountRow: vi.fn(),
   findCreatedSiteRow: vi.fn(),
   findSiteTeamPhotoRecord: vi.fn(),
+  findWorkspaceAutomationSettingsValue: vi.fn(),
   getBillingPlanFeatures: vi.fn(),
   getWidgetBrandingAttributionUrl: vi.fn(),
   getWorkspaceAccess: vi.fn(),
@@ -23,6 +24,9 @@ vi.mock("@/lib/billing-plans", () => ({
   shouldShowWidgetBranding: mocks.shouldShowWidgetBranding
 }));
 vi.mock("@/lib/repositories/billing-repository", () => ({ findBillingAccountRow: mocks.findBillingAccountRow }));
+vi.mock("@/lib/repositories/settings-repository", () => ({
+  findWorkspaceAutomationSettingsValue: mocks.findWorkspaceAutomationSettingsValue
+}));
 vi.mock("@/lib/repositories/sites-repository", () => ({
   clearSiteTeamPhotoRecord: mocks.clearSiteTeamPhotoRecord,
   findCreatedSiteRow: mocks.findCreatedSiteRow,
@@ -65,6 +69,7 @@ describe("site data edge cases", () => {
     mocks.deleteR2Object.mockResolvedValue(undefined);
     mocks.normalizeBillingPlanKey.mockReturnValue("growth");
     mocks.getBillingPlanFeatures.mockReturnValue({ proactiveChat: true });
+    mocks.findWorkspaceAutomationSettingsValue.mockResolvedValue("");
   });
 
   it("surfaces missing site rows during create and widget settings writes", async () => {
@@ -134,6 +139,7 @@ describe("site data edge cases", () => {
 
     await expect(getSiteWidgetConfig("site_1")).resolves.toMatchObject({
       autoOpenPaths: ["/pricing"],
+      proactivePrompts: [],
       showBranding: false,
       brandingUrl: "https://app.example/signup"
     });

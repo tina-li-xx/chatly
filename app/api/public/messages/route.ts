@@ -35,7 +35,9 @@ export async function POST(request: Request) {
       pageUrl: formData ? String(formData.get("pageUrl") ?? "") : body?.pageUrl ? String(body.pageUrl) : null,
       referrer: formData ? String(formData.get("referrer") ?? "") : body?.referrer ? String(body.referrer) : null,
       timezone: formData ? String(formData.get("timezone") ?? "") : body?.timezone ? String(body.timezone) : null,
-      locale: formData ? String(formData.get("locale") ?? "") : body?.locale ? String(body.locale) : null
+      locale: formData ? String(formData.get("locale") ?? "") : body?.locale ? String(body.locale) : null,
+      visitorTags: formData?.get("visitorTags") ?? body?.visitorTags,
+      customFields: formData?.get("customFields") ?? body?.customFields
     });
 
     const result = await createUserMessage({
@@ -60,21 +62,24 @@ export async function POST(request: Request) {
       status: "open",
       updatedAt: result.message.createdAt
     });
+    if (result.automationReply) {
+      publishConversationLive(result.conversationId, {
+        type: "message.created",
+        conversationId: result.conversationId,
+        sender: "team",
+        createdAt: result.automationReply.createdAt
+      });
+      publishConversationLive(result.conversationId, {
+        type: "conversation.updated",
+        conversationId: result.conversationId,
+        status: "open",
+        updatedAt: result.automationReply.createdAt
+      });
+    }
 
-    await notifyIncomingVisitorMessage({
-      userId: result.siteUserId,
-      conversationId: result.conversationId,
-      createdAt: result.message.createdAt,
-      preview: result.preview,
-      siteName: result.siteName,
-      visitorLabel: result.visitorLabel,
-      pageUrl: result.pageUrl,
-      location: result.location,
-      attachmentsCount: attachments.length,
-      isNewConversation: result.isNewConversation,
-      isNewVisitor: result.isNewVisitor,
-      highIntent: result.highIntent
-    });
+    if (!result.deferTeamNotification) {
+      await notifyIncomingVisitorMessage(result.notification);
+    }
 
     if (result.welcomeEmailEligible) {
       try {
@@ -90,7 +95,8 @@ export async function POST(request: Request) {
     return publicJsonResponse({
       ok: true,
       conversationId: result.conversationId,
-      message: result.message
+      message: result.message,
+      faqSuggestions: result.faqSuggestions ?? null
     });
   } catch (error) {
     console.error("public message error", error);

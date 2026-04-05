@@ -2,6 +2,7 @@ const mocks = vi.hoisted(() => ({
   deleteR2Object: vi.fn(),
   findBillingAccountRow: vi.fn(),
   findSiteTeamPhotoRecord: vi.fn(),
+  findWorkspaceAutomationSettingsValue: vi.fn(),
   getBillingPlanFeatures: vi.fn(),
   getWidgetBrandingAttributionUrl: vi.fn(),
   getWorkspaceAccess: vi.fn(),
@@ -23,6 +24,9 @@ vi.mock("@/lib/billing-plans", () => ({
   shouldShowWidgetBranding: mocks.shouldShowWidgetBranding
 }));
 vi.mock("@/lib/repositories/billing-repository", () => ({ findBillingAccountRow: mocks.findBillingAccountRow }));
+vi.mock("@/lib/repositories/settings-repository", () => ({
+  findWorkspaceAutomationSettingsValue: mocks.findWorkspaceAutomationSettingsValue
+}));
 vi.mock("@/lib/repositories/sites-repository", () => ({
   clearSiteTeamPhotoRecord: vi.fn(),
   findCreatedSiteRow: vi.fn(),
@@ -66,6 +70,7 @@ describe("site data", () => {
     mocks.mapSite.mockImplementation((row: Record<string, unknown>) => row);
     mocks.querySites.mockResolvedValue({ rows: [{ id: "site_1", userId: "owner_1", autoOpenPaths: ["/pricing"], brandColor: "#2563EB", widgetTitle: "Talk to us" }] });
     mocks.getBillingPlanFeatures.mockReturnValue({ proactiveChat: false });
+    mocks.findWorkspaceAutomationSettingsValue.mockResolvedValue("");
     mocks.normalizeBillingPlanKey.mockReturnValue("starter");
     mocks.shouldShowWidgetBranding.mockReturnValue(true);
     mocks.getWidgetBrandingAttributionUrl.mockResolvedValue("https://chatting.example/ref/site_1");
@@ -100,7 +105,7 @@ describe("site data", () => {
     expect(result).toEqual({ id: "site_1", userId: "owner_1", autoOpenPaths: ["/pricing"], brandColor: "#2563EB", widgetTitle: "Talk to us" });
   });
 
-  it("builds the public widget config with plan-aware branding and auto-open paths", async () => {
+  it("builds the public widget config with automation-backed proactive prompts", async () => {
     mocks.querySites.mockResolvedValueOnce({
       rows: [{
         id: "site_1",
@@ -130,12 +135,34 @@ describe("site data", () => {
       }]
     });
     mocks.findBillingAccountRow.mockResolvedValueOnce({ plan_key: "starter" });
+    mocks.findWorkspaceAutomationSettingsValue.mockResolvedValueOnce(
+      JSON.stringify({
+        proactive: {
+          pagePrompts: [
+            {
+              id: "prompt_1",
+              pagePath: "/pricing",
+              message: "Need help choosing a plan?",
+              delaySeconds: 30,
+              autoOpenWidget: true
+            }
+          ]
+        }
+      })
+    );
 
     const config = await getSiteWidgetConfig("site_1");
 
     expect(config).toMatchObject({
       id: "site_1",
       autoOpenPaths: [],
+      proactivePrompts: [
+        expect.objectContaining({
+          id: "prompt_1",
+          pagePath: "/pricing",
+          message: "Need help choosing a plan?"
+        })
+      ],
       showBranding: true,
       brandingLabel: "Powered by Chatting",
       brandingUrl: "https://chatting.example/ref/site_1"

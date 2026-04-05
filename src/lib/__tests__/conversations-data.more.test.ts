@@ -1,4 +1,5 @@
 const mocks = vi.hoisted(() => ({
+  findNextRoundRobinAssigneeUserId: vi.fn(),
   deleteConversationTag: vi.fn(),
   deleteConversationTypingRecord: vi.fn(),
   deleteVisitorTypingRecord: vi.fn(),
@@ -7,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   findConversationById: vi.fn(),
   findConversationEmailById: vi.fn(),
   findConversationEmailStateForUser: vi.fn(),
+  findConversationFaqHandoffState: vi.fn(),
   findConversationIdentityForActivity: vi.fn(),
   findConversationNotificationContextRow: vi.fn(),
   findConversationTag: vi.fn(),
@@ -21,6 +23,9 @@ const mocks = vi.hoisted(() => ({
   loadConversationMessages: vi.fn(),
   migrateVisitorNoteIdentity: vi.fn(),
   queryConversationSummaries: vi.fn(),
+  recordVisitorPresence: vi.fn(),
+  syncVisitorContact: vi.fn(),
+  updateConversationAssignmentRecord: vi.fn(),
   updateConversationEmailValue: vi.fn(),
   updateConversationStatusRecord: vi.fn(),
   upsertConversationFeedback: vi.fn(),
@@ -31,17 +36,20 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/repositories/conversations-repository", () => ({
+  findNextRoundRobinAssigneeUserId: mocks.findNextRoundRobinAssigneeUserId,
   deleteConversationTag: mocks.deleteConversationTag,
   deleteConversationTypingRecord: mocks.deleteConversationTypingRecord,
   findActiveConversationTyping: mocks.findActiveConversationTyping,
   findConversationById: mocks.findConversationById,
   findConversationEmailById: mocks.findConversationEmailById,
   findConversationEmailStateForUser: mocks.findConversationEmailStateForUser,
+  findConversationFaqHandoffState: mocks.findConversationFaqHandoffState,
   findConversationIdentityForActivity: mocks.findConversationIdentityForActivity,
   findConversationNotificationContextRow: mocks.findConversationNotificationContextRow,
   findConversationTag: mocks.findConversationTag,
   findPublicAttachmentRecord: mocks.findPublicAttachmentRecord,
   insertConversationTag: mocks.insertConversationTag,
+  updateConversationAssignmentRecord: mocks.updateConversationAssignmentRecord,
   updateConversationStatusRecord: mocks.updateConversationStatusRecord,
   upsertConversationFeedback: mocks.upsertConversationFeedback,
   upsertConversationRead: mocks.upsertConversationRead,
@@ -49,9 +57,16 @@ vi.mock("@/lib/repositories/conversations-repository", () => ({
   upsertVisitorTypingRecord: mocks.upsertVisitorTypingRecord,
   deleteVisitorTypingRecord: mocks.deleteVisitorTypingRecord
 }));
+vi.mock("@/lib/repositories/workspace-repository", () => ({
+  listActiveTeamMemberRows: vi.fn().mockResolvedValue([])
+}));
 vi.mock("@/lib/workspace-access", () => ({ getWorkspaceAccess: mocks.getWorkspaceAccess }));
 vi.mock("@/lib/data/sites", () => ({ getSiteByPublicId: mocks.getSiteByPublicId }));
 vi.mock("@/lib/data/visitor-notes", () => ({ migrateVisitorNoteIdentity: mocks.migrateVisitorNoteIdentity }));
+vi.mock("@/lib/data/visitors", () => ({
+  recordVisitorPresence: mocks.recordVisitorPresence,
+  syncVisitorContact: mocks.syncVisitorContact
+}));
 vi.mock("@/lib/data/conversations-internals", () => ({
   ensureConversation: mocks.ensureConversation,
   getConversationVisitorActivity: mocks.getConversationVisitorActivity,
@@ -71,7 +86,7 @@ vi.mock("@/lib/data/shared", () => ({
 }));
 
 import {
-  addFounderReply,
+  addTeamReply,
   addInboundReply,
   getAttachmentForPublic,
   getAttachmentForUser,
@@ -79,6 +94,7 @@ import {
   getConversationNotificationContext,
   getConversationSummaryById,
   getPublicConversationMessages,
+  getPublicConversationState,
   getPublicConversationTypingStatus,
   listConversationSummaries,
   markConversationRead,
@@ -96,6 +112,7 @@ describe("conversation data more", () => {
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1" });
     mocks.hasConversationAccess.mockResolvedValue(true);
     mocks.getPublicConversationAccess.mockResolvedValue(true);
+    mocks.findConversationFaqHandoffState.mockResolvedValue(null);
     mocks.queryConversationSummaries.mockResolvedValue({ rowCount: 1, rows: [{ id: "conv_1", page_url: "https://example.com" }] });
     mocks.getConversationVisitorActivity.mockResolvedValue({ matchType: "email" });
   });
@@ -113,23 +130,62 @@ describe("conversation data more", () => {
     mocks.loadConversationMessages.mockImplementation(async (_id: string, toUrl: (attachmentId: string) => string) => [{ href: toUrl("file_1") }]);
     mocks.findActiveConversationTyping.mockResolvedValue("user_1");
     mocks.findPublicAttachmentRecord.mockResolvedValue({ id: "file_1" });
+    mocks.findConversationFaqHandoffState.mockResolvedValue({
+      pending: true,
+      preview: "Need pricing help",
+      attachmentsCount: 0,
+      isNewVisitor: true,
+      highIntent: true,
+      suggestions: {
+        fallbackMessage: "None of these help? A team member will be with you shortly.",
+        items: [
+          {
+            id: "faq_1",
+            question: "What are your pricing plans?",
+            answer: "We offer Free, Growth, and Business plans.",
+            link: "https://example.com/pricing"
+          }
+        ]
+      }
+    });
 
     await expect(getPublicConversationMessages({ siteId: "site_1", sessionId: "session_1", conversationId: "conv_1" })).resolves.toEqual([
       { href: "/api/files/file_1?conversationId=conv_1&siteId=site_1&sessionId=session_1" }
     ]);
+    await expect(getPublicConversationState({ siteId: "site_1", sessionId: "session_1", conversationId: "conv_1" })).resolves.toEqual({
+      messages: [{ href: "/api/files/file_1?conversationId=conv_1&siteId=site_1&sessionId=session_1" }],
+      faqSuggestions: {
+        fallbackMessage: "None of these help? A team member will be with you shortly.",
+        items: [
+          {
+            id: "faq_1",
+            question: "What are your pricing plans?",
+            answer: "We offer Free, Growth, and Business plans.",
+            link: "https://example.com/pricing"
+          }
+        ]
+      }
+    });
     await expect(getPublicConversationTypingStatus({ siteId: "site_1", sessionId: "session_1", conversationId: "conv_1" })).resolves.toEqual({ teamTyping: "user_1" });
     await expect(getAttachmentForPublic({ attachmentId: "file_1", conversationId: "conv_1", siteId: "site_1", sessionId: "session_1" })).resolves.toEqual({ id: "file_1" });
   });
 
-  it("handles founder replies, inbound replies, and notification context branches", async () => {
+  it("handles team replies, inbound replies, and notification context branches", async () => {
     mocks.hasConversationAccess.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     mocks.insertMessage.mockResolvedValue({ id: "msg_1" });
     mocks.findConversationById.mockResolvedValueOnce({ site_id: "site_1", session_id: "session_1", email: "before@example.com" }).mockResolvedValueOnce(null);
     mocks.findConversationNotificationContextRow.mockResolvedValueOnce(null).mockResolvedValueOnce({ user_id: "owner_1", site_name: "Main site" });
 
-    await expect(addFounderReply("conv_1", "Hello", "user_1")).resolves.toBe(false);
-    await expect(addFounderReply("conv_1", "Hello", "user_1", [{ id: "file_1" }] as never)).resolves.toEqual({ id: "msg_1" });
-    await addInboundReply("conv_1", "alex@example.com", "Reply");
+    await expect(addTeamReply("conv_1", "Hello", "user_1")).resolves.toBe(false);
+    await expect(addTeamReply("conv_1", "Hello", "user_1", [{ id: "file_1" }] as never)).resolves.toEqual({ id: "msg_1" });
+    await addInboundReply("conv_1", "alex@example.com", "Reply", [
+      {
+        fileName: "brief.pdf",
+        contentType: "application/pdf",
+        sizeBytes: 5,
+        content: Buffer.from("brief")
+      }
+    ]);
     await addInboundReply("conv_1", null, "Reply");
     await expect(getConversationNotificationContext("conv_1")).resolves.toBeNull();
     await expect(getConversationNotificationContext("conv_1")).resolves.toEqual({
@@ -138,7 +194,27 @@ describe("conversation data more", () => {
       summary: { id: "conv_1", email: null, pageUrl: "https://example.com" }
     });
     expect(mocks.migrateVisitorNoteIdentity).toHaveBeenCalledWith(expect.objectContaining({ previousEmail: "before@example.com", nextEmail: "alex@example.com" }));
+    expect(mocks.syncVisitorContact).toHaveBeenCalledWith({
+      siteId: "site_1",
+      sessionId: "session_1",
+      conversationId: "conv_1",
+      email: "alex@example.com"
+    });
     expect(mocks.updateConversationEmailValue).toHaveBeenCalledWith("conv_1", "alex@example.com", "merge");
+    expect(mocks.insertMessage).toHaveBeenCalledWith(
+      "conv_1",
+      "user",
+      "Reply",
+      [
+        {
+          fileName: "brief.pdf",
+          contentType: "application/pdf",
+          sizeBytes: 5,
+          content: Buffer.from("brief")
+        }
+      ],
+      { reopenConversation: true }
+    );
   });
 
   it("covers summary, tagging, email, read, status, attachment, and typing mutations", async () => {
@@ -184,6 +260,12 @@ describe("conversation data more", () => {
     expect(mocks.insertConversationTag).toHaveBeenCalledWith("conv_1", "new");
     expect(mocks.upsertConversationFeedback).toHaveBeenCalledWith("conv_1", "good");
     expect(mocks.migrateVisitorNoteIdentity).toHaveBeenCalledWith(expect.objectContaining({ updatedByUserId: "user_1" }));
+    expect(mocks.syncVisitorContact).toHaveBeenCalledWith({
+      siteId: "site_1",
+      sessionId: "session_1",
+      conversationId: "conv_1",
+      email: "alex@example.com"
+    });
     expect(mocks.upsertConversationRead).toHaveBeenCalledWith("user_1", "conv_1");
     expect(mocks.deleteConversationTypingRecord).toHaveBeenCalledWith("user_1", "conv_1");
     expect(mocks.upsertConversationTypingRecord).toHaveBeenCalledWith("user_1", "conv_1");

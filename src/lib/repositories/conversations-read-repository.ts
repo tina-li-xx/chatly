@@ -1,6 +1,38 @@
 import { query } from "@/lib/db";
+import type { WidgetFaqSuggestions } from "@/lib/public-widget-automation";
 import type { ConversationStatus } from "@/lib/types";
 import type { MessageRow } from "@/lib/repositories/shared-repository";
+
+function parseFaqSuggestionsSnapshot(value: string | null): WidgetFaqSuggestions | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value) as WidgetFaqSuggestions | null;
+    if (!parsed || !Array.isArray(parsed.items) || typeof parsed.fallbackMessage !== "string") {
+      return null;
+    }
+
+    const items = parsed.items
+      .filter((item) => item && typeof item.question === "string" && typeof item.answer === "string")
+      .map((item) => ({
+        id: typeof item.id === "string" ? item.id : "",
+        question: item.question,
+        answer: item.answer,
+        link: typeof item.link === "string" ? item.link : ""
+      }));
+
+    return items.length
+      ? {
+          items,
+          fallbackMessage: parsed.fallbackMessage
+        }
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export async function findConversationById(conversationId: string) {
   const result = await query<{ id: string; site_id: string; email: string | null; session_id: string }>(
@@ -14,6 +46,45 @@ export async function findConversationById(conversationId: string) {
   );
 
   return result.rows[0] ?? null;
+}
+
+export async function findConversationFaqHandoffState(conversationId: string) {
+  const result = await query<{
+    faq_handoff_pending: boolean;
+    faq_handoff_preview: string | null;
+    faq_handoff_attachments_count: number;
+    faq_handoff_is_new_visitor: boolean;
+    faq_handoff_high_intent: boolean;
+    faq_handoff_suggestions_json: string | null;
+  }>(
+    `
+      SELECT
+        faq_handoff_pending,
+        faq_handoff_preview,
+        faq_handoff_attachments_count,
+        faq_handoff_is_new_visitor,
+        faq_handoff_high_intent,
+        faq_handoff_suggestions_json
+      FROM conversations
+      WHERE id = $1
+      LIMIT 1
+    `,
+    [conversationId]
+  );
+
+  const row = result.rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return {
+    pending: Boolean(row.faq_handoff_pending),
+    preview: row.faq_handoff_preview,
+    attachmentsCount: Number(row.faq_handoff_attachments_count ?? 0),
+    isNewVisitor: Boolean(row.faq_handoff_is_new_visitor),
+    highIntent: Boolean(row.faq_handoff_high_intent),
+    suggestions: parseFaqSuggestionsSnapshot(row.faq_handoff_suggestions_json)
+  };
 }
 
 export async function findPreviousConversationByIdentity(input: {
@@ -127,7 +198,7 @@ export async function getConversationVisitorActivityAggregate(input: {
 export async function listConversationMessageRows(conversationId: string) {
   const result = await query<MessageRow>(
     `
-      SELECT id, conversation_id, sender, content, created_at
+      SELECT id, conversation_id, sender, author_user_id, content, created_at
       FROM messages
       WHERE conversation_id = $1
       ORDER BY created_at ASC
@@ -179,10 +250,14 @@ export async function findVisitorConversationEmailState(input: {
 export async function findConversationNotificationContextRow(conversationId: string) {
   const result = await query<{
     user_id: string;
+    owner_user_id: string;
     site_name: string;
   }>(
     `
-      SELECT s.user_id, s.name AS site_name
+      SELECT
+        COALESCE(c.assigned_user_id, s.user_id) AS user_id,
+        s.user_id AS owner_user_id,
+        s.name AS site_name
       FROM conversations c
       INNER JOIN sites s
         ON s.id = c.site_id

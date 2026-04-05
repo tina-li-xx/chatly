@@ -19,13 +19,18 @@ import {
   upsertConversationTypingRecord,
   upsertVisitorTypingRecord
 } from "@/lib/repositories/conversations-repository";
+import { findWorkspaceAutomationSettingsValue } from "@/lib/repositories/settings-repository";
+import { findSitePresenceRow } from "@/lib/repositories/sites-repository";
 import type { ConversationRating, ConversationStatus, ConversationThread, VisitorActivity } from "@/lib/types";
 import { optionalText } from "@/lib/utils";
 import { isHighIntentPage, previewIncomingMessage } from "@/lib/notification-utils";
+import { getWidgetFaqSuggestions, shouldSendWidgetAutoReply } from "@/lib/public-widget-automation";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
+import { findConversationReplyDeliveryStateForUser } from "@/lib/repositories/conversation-reply-delivery-repository";
+import { parseDashboardAutomationSettings } from "./settings-automation";
 import { getSiteByPublicId } from "./sites";
 import { migrateVisitorNoteIdentity } from "./visitor-notes";
-import { recordVisitorPresence } from "./visitors";
+import { recordVisitorPresence, syncVisitorContact } from "./visitors";
 import {
   ensureConversation,
   getConversationVisitorActivity,
@@ -45,6 +50,62 @@ import {
   type CreateUserMessageInput,
   type UploadedAttachmentInput
 } from "./shared";
+import {
+  clearConversationFaqHandoff,
+  loadConversationFaqHandoffState,
+  queueConversationFaqHandoff,
+  requestConversationFaqHandoff
+} from "./conversation-faq-handoff";
+import { loadConversationNotificationSnapshot } from "./conversation-notification-snapshot";
+import { applyConversationAutomationRouting } from "./conversation-routing";
+
+async function getWidgetAutomationSnapshot(site: NonNullable<Awaited<ReturnType<typeof getSiteByPublicId>>>) {
+  const [automationSettingsJson, presence] = await Promise.all([
+    findWorkspaceAutomationSettingsValue(site.userId),
+    findSitePresenceRow(site.id)
+  ]);
+
+  return {
+    automation: parseDashboardAutomationSettings(automationSettingsJson, {
+      requireEmailWhenOffline: site.requireEmailOffline,
+      expectedReplyTimeOnline: site.responseTimeMode
+    }),
+    lastSeenAt: presence?.last_seen_at ?? null
+  };
+}
+
+async function maybeCreateWidgetAutoReply(input: {
+  site: NonNullable<Awaited<ReturnType<typeof getSiteByPublicId>>>;
+  conversationId: string;
+  createdConversation: boolean;
+  automationSnapshot: Awaited<ReturnType<typeof getWidgetAutomationSnapshot>> | null;
+}) {
+  if (!input.createdConversation || !input.automationSnapshot) {
+    return null;
+  }
+
+  if (!shouldSendWidgetAutoReply({
+    site: input.site,
+    automation: input.automationSnapshot.automation,
+    isNewConversation: input.createdConversation,
+    lastSeenAt: input.automationSnapshot.lastSeenAt
+  })) {
+    return null;
+  }
+
+  return insertMessage(
+    input.conversationId,
+    "team",
+    input.automationSnapshot.automation.offline.autoReplyMessage,
+    [],
+    { reopenConversation: false }
+  );
+}
+
+async function hasScopedConversationAccess(conversationId: string, userId: string) {
+  const workspace = await getWorkspaceAccess(userId);
+  return hasConversationAccess(conversationId, workspace.ownerUserId, userId);
+}
 
 export async function createUserMessage(input: CreateUserMessageInput) {
   const site = await getSiteByPublicId(input.siteId);
@@ -58,6 +119,7 @@ export async function createUserMessage(input: CreateUserMessageInput) {
     : null;
 
   const { conversationId, createdConversation, emailCaptured } = await ensureConversation(input);
+  const pendingFaqHandoff = createdConversation ? null : await loadConversationFaqHandoffState(conversationId);
   const isNewVisitor = createdConversation
     ? !(await hasPreviousVisitorConversation({
         siteId: input.siteId,
@@ -88,7 +150,9 @@ export async function createUserMessage(input: CreateUserMessageInput) {
     region: input.metadata.region,
     city: input.metadata.city,
     timezone: input.metadata.timezone,
-    locale: input.metadata.locale
+    locale: input.metadata.locale,
+    visitorTags: input.metadata.visitorTags,
+    customFields: input.metadata.customFields
   });
   const message = await insertMessage(
     conversationId,
@@ -97,22 +161,84 @@ export async function createUserMessage(input: CreateUserMessageInput) {
     input.attachments,
     { reopenConversation: true }
   );
-  const summary = await getConversationSummaryById(conversationId, site.userId);
+  const automationSnapshot = createdConversation ? await getWidgetAutomationSnapshot(site) : null;
+  if (createdConversation && automationSnapshot) {
+    await applyConversationAutomationRouting({
+      conversationId,
+      ownerUserId: site.userId,
+      automation: automationSnapshot.automation,
+      siteId: input.siteId,
+      sessionId: input.sessionId,
+      email: input.email,
+      content: input.content,
+      metadata: input.metadata
+    });
+  }
+  const automationReply = await maybeCreateWidgetAutoReply({
+    site,
+    conversationId,
+    createdConversation,
+    automationSnapshot
+  });
+  const faqSuggestions = automationSnapshot
+    ? getWidgetFaqSuggestions({
+        automation: automationSnapshot.automation,
+        content: input.content,
+        isNewConversation: createdConversation
+      })
+    : null;
+  const notificationSnapshot = await loadConversationNotificationSnapshot(conversationId);
   const preview = previewIncomingMessage(input.content, input.attachments?.length ?? 0);
+  const fallbackLocation =
+    [input.metadata.city, input.metadata.region, input.metadata.country].filter(Boolean).join(", ") || null;
+  const highIntent = createdConversation
+    && isHighIntentPage(notificationSnapshot?.pageUrl ?? input.metadata.pageUrl ?? null);
+
+  if (faqSuggestions) {
+    await queueConversationFaqHandoff({
+      conversationId,
+      preview,
+      attachmentsCount: input.attachments?.length ?? 0,
+      isNewVisitor,
+      highIntent,
+      suggestions: faqSuggestions
+    });
+  } else if (pendingFaqHandoff?.pending) {
+    await clearConversationFaqHandoff(conversationId);
+  }
+
+  const notification = {
+    userId: notificationSnapshot?.userId ?? site.userId,
+    conversationId,
+    createdAt: message.createdAt,
+    preview,
+    siteName: notificationSnapshot?.siteName ?? site.name,
+    visitorLabel: notificationSnapshot?.visitorLabel ?? optionalText(input.email),
+    pageUrl: notificationSnapshot?.pageUrl ?? input.metadata.pageUrl ?? null,
+    location: notificationSnapshot?.location ?? fallbackLocation,
+    attachmentsCount: input.attachments?.length ?? 0,
+    isNewConversation: createdConversation || Boolean(pendingFaqHandoff?.pending),
+    isNewVisitor: pendingFaqHandoff?.pending ? pendingFaqHandoff.isNewVisitor : isNewVisitor,
+    highIntent: pendingFaqHandoff?.pending ? pendingFaqHandoff.highIntent : highIntent
+  };
 
   return {
     conversationId,
     message,
+    automationReply,
     siteUserId: site.userId,
     siteName: site.name,
     preview,
-    pageUrl: summary?.pageUrl ?? input.metadata.pageUrl ?? null,
-    location: [summary?.city, summary?.region, summary?.country].filter(Boolean).join(", ") || null,
-    visitorLabel: summary?.email ?? optionalText(input.email),
+    pageUrl: notification.pageUrl,
+    location: notification.location,
+    visitorLabel: notification.visitorLabel,
     isNewConversation: createdConversation,
     isNewVisitor,
-    highIntent: createdConversation && isHighIntentPage(summary?.pageUrl ?? input.metadata.pageUrl ?? null),
-    welcomeEmailEligible: emailCaptured
+    highIntent,
+    welcomeEmailEligible: emailCaptured,
+    faqSuggestions,
+    deferTeamNotification: Boolean(faqSuggestions),
+    notification
   };
 }
 
@@ -130,6 +256,32 @@ export async function getPublicConversationMessages(input: {
     (attachmentId) =>
       `/api/files/${attachmentId}?conversationId=${encodeURIComponent(input.conversationId)}&siteId=${encodeURIComponent(input.siteId)}&sessionId=${encodeURIComponent(input.sessionId)}`
   );
+}
+
+export async function getPublicConversationState(input: {
+  siteId: string;
+  sessionId: string;
+  conversationId: string;
+}) {
+  const messages = await getPublicConversationMessages(input);
+  if (!messages) {
+    return null;
+  }
+
+  const faqHandoff = await loadConversationFaqHandoffState(input.conversationId);
+
+  return {
+    messages,
+    faqSuggestions: faqHandoff?.pending ? faqHandoff.suggestions ?? null : null
+  };
+}
+
+export async function handoffPublicConversationToTeam(input: {
+  siteId: string;
+  sessionId: string;
+  conversationId: string;
+}) {
+  return requestConversationFaqHandoff(input);
 }
 
 export async function getPublicConversationTypingStatus(input: {
@@ -201,20 +353,25 @@ export async function saveVisitorConversationEmail(input: {
   };
 }
 
-export async function addFounderReply(
+export async function addTeamReply(
   conversationId: string,
   content: string,
   userId: string,
   attachments: UploadedAttachmentInput[] = []
 ) {
-  if (!(await hasConversationAccess(conversationId, userId))) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
     return false;
   }
 
-  return insertMessage(conversationId, "founder", content, attachments);
+  return insertMessage(conversationId, "team", content, attachments, { authorUserId: userId });
 }
 
-export async function addInboundReply(conversationId: string, email: string | null, content: string) {
+export async function addInboundReply(
+  conversationId: string,
+  email: string | null,
+  content: string,
+  attachments: UploadedAttachmentInput[] = []
+) {
   const conversation = await findConversationById(conversationId);
   if (conversation) {
     await migrateVisitorNoteIdentity({
@@ -223,10 +380,19 @@ export async function addInboundReply(conversationId: string, email: string | nu
       previousEmail: conversation.email,
       nextEmail: email
     });
+
+    if (email) {
+      await syncVisitorContact({
+        siteId: conversation.site_id,
+        sessionId: conversation.session_id,
+        conversationId,
+        email
+      });
+    }
   }
 
   await updateConversationEmailValue(conversationId, email, "merge");
-  return insertMessage(conversationId, "user", content, [], { reopenConversation: true });
+  return insertMessage(conversationId, "user", content, attachments, { reopenConversation: true });
 }
 
 export async function getConversationNotificationContext(conversationId: string) {
@@ -235,7 +401,10 @@ export async function getConversationNotificationContext(conversationId: string)
     return null;
   }
 
-  const summary = await getConversationSummaryById(conversationId, context.user_id);
+  const summary = await getConversationSummaryById(
+    conversationId,
+    context.owner_user_id ?? context.user_id
+  );
 
   return {
     userId: context.user_id,
@@ -292,7 +461,7 @@ export async function getConversationById(id: string, userId: string) {
 }
 
 export async function toggleTag(conversationId: string, tag: string, userId: string) {
-  if (!(await hasConversationAccess(conversationId, userId))) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
     return false;
   }
 
@@ -314,7 +483,7 @@ export async function recordFeedback(conversationId: string, rating: Conversatio
 export async function updateConversationEmail(conversationId: string, email: string, userId: string) {
   const workspace = await getWorkspaceAccess(userId);
 
-  if (!(await hasConversationAccess(conversationId, userId))) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
     return {
       updated: false,
       welcomeEmailEligible: false
@@ -333,6 +502,12 @@ export async function updateConversationEmail(conversationId: string, email: str
       nextEmail: email,
       updatedByUserId: userId
     });
+    await syncVisitorContact({
+      siteId: identityBefore.site_id,
+      sessionId: identityBefore.session_id,
+      conversationId,
+      email
+    });
   }
   return {
     updated: true,
@@ -345,8 +520,13 @@ export async function getConversationEmail(conversationId: string, userId: strin
   return findConversationEmailStateForUser(conversationId, workspace.ownerUserId);
 }
 
+export async function getConversationReplyDeliveryState(conversationId: string, userId: string) {
+  const workspace = await getWorkspaceAccess(userId);
+  return findConversationReplyDeliveryStateForUser(conversationId, workspace.ownerUserId);
+}
+
 export async function markConversationRead(conversationId: string, userId: string) {
-  if (!(await hasConversationAccess(conversationId, userId))) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
     return false;
   }
 
@@ -382,7 +562,7 @@ export async function getAttachmentForUser(input: {
   conversationId: string;
   userId: string;
 }) {
-  if (!(await hasConversationAccess(input.conversationId, input.userId))) {
+  if (!(await hasScopedConversationAccess(input.conversationId, input.userId))) {
     return null;
   }
 
@@ -394,7 +574,7 @@ export async function updateConversationTyping(input: {
   userId: string;
   typing: boolean;
 }) {
-  if (!(await hasConversationAccess(input.conversationId, input.userId))) {
+  if (!(await hasScopedConversationAccess(input.conversationId, input.userId))) {
     return false;
   }
 

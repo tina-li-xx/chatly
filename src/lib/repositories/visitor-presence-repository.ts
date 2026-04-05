@@ -14,6 +14,8 @@ export type VisitorPresenceRow = {
   city: string | null;
   timezone: string | null;
   locale: string | null;
+  tags_json: string[] | null;
+  custom_fields_json: Record<string, string> | null;
   started_at: string;
   last_seen_at: string;
 };
@@ -48,6 +50,8 @@ export async function findVisitorPresenceSessionRow(siteId: string, sessionId: s
         city,
         timezone,
         locale,
+        tags_json,
+        custom_fields_json,
         started_at,
         last_seen_at
       FROM visitor_presence_sessions
@@ -74,6 +78,8 @@ export async function upsertVisitorPresenceSessionRow(input: {
   city: string | null;
   timezone: string | null;
   locale: string | null;
+  visitorTags?: string[];
+  customFields?: Record<string, string>;
 }) {
   const result = await query<VisitorPresenceRow>(
     `
@@ -90,10 +96,12 @@ export async function upsertVisitorPresenceSessionRow(input: {
         city,
         timezone,
         locale,
+        tags_json,
+        custom_fields_json,
         started_at,
         last_seen_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14::jsonb, NOW(), NOW())
       ON CONFLICT (site_id, session_id)
       DO UPDATE SET
         conversation_id = COALESCE(EXCLUDED.conversation_id, visitor_presence_sessions.conversation_id),
@@ -106,6 +114,16 @@ export async function upsertVisitorPresenceSessionRow(input: {
         city = COALESCE(EXCLUDED.city, visitor_presence_sessions.city),
         timezone = COALESCE(EXCLUDED.timezone, visitor_presence_sessions.timezone),
         locale = COALESCE(EXCLUDED.locale, visitor_presence_sessions.locale),
+        tags_json = CASE
+          WHEN EXCLUDED.tags_json <> '[]'::jsonb
+            THEN EXCLUDED.tags_json
+          ELSE visitor_presence_sessions.tags_json
+        END,
+        custom_fields_json = CASE
+          WHEN EXCLUDED.custom_fields_json <> '{}'::jsonb
+            THEN visitor_presence_sessions.custom_fields_json || EXCLUDED.custom_fields_json
+          ELSE visitor_presence_sessions.custom_fields_json
+        END,
         last_seen_at = NOW()
       RETURNING
         site_id,
@@ -120,6 +138,8 @@ export async function upsertVisitorPresenceSessionRow(input: {
         city,
         timezone,
         locale,
+        tags_json,
+        custom_fields_json,
         started_at,
         last_seen_at
     `,
@@ -135,14 +155,16 @@ export async function upsertVisitorPresenceSessionRow(input: {
       input.region,
       input.city,
       input.timezone,
-      input.locale
+      input.locale,
+      JSON.stringify(input.visitorTags ?? []),
+      JSON.stringify(input.customFields ?? {})
     ]
   );
 
   return result.rows[0] ?? null;
 }
 
-export async function listVisitorPresenceRowsForUser(viewerUserId: string) {
+export async function listVisitorPresenceRowsForUser(ownerUserId: string, viewerUserId: string) {
   const result = await query<VisitorPresenceRow>(
     `
       SELECT
@@ -158,15 +180,17 @@ export async function listVisitorPresenceRowsForUser(viewerUserId: string) {
         vps.city,
         vps.timezone,
         vps.locale,
+        vps.tags_json,
+        vps.custom_fields_json,
         vps.started_at,
         vps.last_seen_at
       FROM visitor_presence_sessions vps
       INNER JOIN sites s
         ON s.id = vps.site_id
-      WHERE ${workspaceAccessClause("s.user_id", "$1")}
+      WHERE ${workspaceAccessClause("s.user_id", "$1", "$2")}
       ORDER BY vps.last_seen_at DESC
     `,
-    [viewerUserId]
+    [ownerUserId, viewerUserId]
   );
 
   return result.rows;

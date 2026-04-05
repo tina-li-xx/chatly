@@ -6,6 +6,7 @@ import {
   listVisitorPresenceRowsForUser,
   upsertVisitorPresenceSessionRow
 } from "@/lib/repositories/visitor-presence-repository";
+import { upsertVisitorContactRow } from "@/lib/repositories/visitor-contacts-repository";
 import { optionalText } from "@/lib/utils";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
 
@@ -22,6 +23,8 @@ export type RecordVisitorPresenceInput = {
   city?: string | null;
   timezone?: string | null;
   locale?: string | null;
+  visitorTags?: string[];
+  customFields?: Record<string, string>;
 };
 
 function mapVisitorPresenceSession(row: Awaited<ReturnType<typeof upsertVisitorPresenceSessionRow>>) {
@@ -42,9 +45,43 @@ function mapVisitorPresenceSession(row: Awaited<ReturnType<typeof upsertVisitorP
     city: row.city,
     timezone: row.timezone,
     locale: row.locale,
+    tags: row.tags_json ?? [],
+    customFields: row.custom_fields_json ?? {},
     startedAt: row.started_at,
     lastSeenAt: row.last_seen_at
   } satisfies VisitorPresenceSession;
+}
+
+export async function syncVisitorContact(input: {
+  siteId: string;
+  email?: string | null;
+  conversationId?: string | null;
+  sessionId?: string | null;
+  seenAt?: string | null;
+  visitorTags?: string[];
+  customFields?: Record<string, string>;
+}) {
+  const siteId = input.siteId.trim();
+  const email = optionalText(input.email)?.toLowerCase();
+
+  if (!siteId || !email) {
+    return null;
+  }
+
+  try {
+    return await upsertVisitorContactRow({
+      siteId,
+      email,
+      conversationId: optionalText(input.conversationId),
+      sessionId: optionalText(input.sessionId),
+      seenAt: optionalText(input.seenAt) ?? new Date().toISOString(),
+      visitorTags: input.visitorTags,
+      customFields: input.customFields
+    });
+  } catch (error) {
+    console.error("visitor contact sync failed", error);
+    return null;
+  }
 }
 
 export async function recordVisitorPresence(input: RecordVisitorPresenceInput) {
@@ -71,9 +108,23 @@ export async function recordVisitorPresence(input: RecordVisitorPresenceInput) {
       region: optionalText(input.region),
       city: optionalText(input.city),
       timezone: optionalText(input.timezone),
-      locale: optionalText(input.locale)
+      locale: optionalText(input.locale),
+      visitorTags: input.visitorTags,
+      customFields: input.customFields
     })
   );
+
+  if (next?.email) {
+    await syncVisitorContact({
+      siteId: next.siteId,
+      email: next.email,
+      conversationId: next.conversationId,
+      sessionId: next.sessionId,
+      seenAt: next.lastSeenAt,
+      visitorTags: next.tags,
+      customFields: next.customFields
+    });
+  }
 
   if (!owner?.user_id || !next) {
     return next;
@@ -125,7 +176,8 @@ export async function getVisitorPresenceSession(input: {
 }
 
 export async function listVisitorPresenceSessions(userId: string) {
-  const rows = await listVisitorPresenceRowsForUser(userId);
+  const workspace = await getWorkspaceAccess(userId);
+  const rows = await listVisitorPresenceRowsForUser(workspace.ownerUserId, userId);
   return rows
     .map((row) => mapVisitorPresenceSession(row))
     .filter((row): row is VisitorPresenceSession => Boolean(row));

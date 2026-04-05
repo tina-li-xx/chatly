@@ -51,7 +51,31 @@ describe("conversation io helpers", () => {
       region: "England",
       city: "London",
       timezone: "Europe/London",
-      locale: "en-GB"
+      locale: "en-GB",
+      visitorTags: [],
+      customFields: {}
+    });
+  });
+
+  it("normalizes visitor tags and custom fields from explicit overrides", () => {
+    const request = new Request("https://chatting.test");
+
+    expect(
+      extractVisitorMetadata(request, {
+        visitorTags: '["Enterprise", "vip", "enterprise"]',
+        customFields: '{"Plan":"Growth"," seats ":" 3 "}'
+      })
+    ).toEqual({
+      pageUrl: undefined,
+      referrer: undefined,
+      userAgent: null,
+      country: null,
+      region: null,
+      city: null,
+      timezone: null,
+      locale: null,
+      visitorTags: ["enterprise", "vip"],
+      customFields: { plan: "Growth", seats: "3" }
     });
   });
 });
