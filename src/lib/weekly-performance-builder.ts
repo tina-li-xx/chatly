@@ -20,6 +20,7 @@ import { getWeeklyPerformanceTip } from "@/lib/weekly-performance-copy";
 import { generateWeeklyPerformanceInsight } from "@/lib/weekly-performance-insight-service";
 import { buildWeeklyPerformanceTeamSections } from "@/lib/weekly-performance-team-sections";
 import type {
+  WeeklyPerformanceHeatmapRow,
   WeeklyPerformanceMetric,
   WeeklyPerformanceSnapshot,
   WeeklyPerformanceTopPage
@@ -88,7 +89,13 @@ export async function buildWeeklyPerformanceSnapshot(input: {
   const previousResolution = previous.length ? (previous.filter((conversation) => conversation.status === "resolved").length / previous.length) * 100 : null;
   const currentSatisfaction = average(current.map((conversation) => conversation.rating));
   const previousSatisfaction = average(previous.map((conversation) => conversation.rating));
-  const heatmap = Array.from({ length: WEEKLY_HEATMAP_DAY_LABELS.length }, (_, rowIndex) => ({ label: WEEKLY_HEATMAP_DAY_LABELS[rowIndex], cells: WEEKLY_HEATMAP_HOURS.map(() => ({ count: 0, intensity: "empty" as const })) }));
+  const heatmap: WeeklyPerformanceHeatmapRow[] = Array.from(
+    { length: WEEKLY_HEATMAP_DAY_LABELS.length },
+    (_, rowIndex) => ({
+      label: WEEKLY_HEATMAP_DAY_LABELS[rowIndex],
+      cells: WEEKLY_HEATMAP_HOURS.map(() => ({ count: 0, intensity: "empty" }))
+    })
+  );
 
   current.forEach((conversation) => {
     const dayIndex = weeklyLocalDayIndex(conversation.createdAt, input.teamTimeZone);

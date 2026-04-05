@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Kept weekly performance heatmap snapshots build-safe by typing their computed intensity rows explicitly.
 - Split the People contact data layer into focused services so profile, note, and sync changes are easier to maintain.
 - Visitor routing now handles empty tags and incomplete custom-field values more gracefully.
 - Visitor follow-up templates now avoid repeating extra conversation-link instructions when they already include them.
@@ -207,6 +208,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Weekly performance heatmap snapshot generation now stays build-safe while preserving the same report output.
 - Visitor follow-up email templates now avoid repeating extra conversation-link guidance when that instruction is already present.
 - Drizzle config and cached database typing now stay aligned with the schema-backed Postgres setup during production builds.
 - Email rendering coverage now matches the current shared HTML shell and rendered delivery path.
