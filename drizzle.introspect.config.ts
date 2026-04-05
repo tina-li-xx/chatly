@@ -12,6 +12,12 @@ if (!databaseUrl) {
 
 const parsedUrl = new URL(databaseUrl);
 const sslMode = parsedUrl.searchParams.get("sslmode") ?? "require";
+const ssl =
+  sslMode === "disable"
+    ? false
+    : sslMode === "allow" || sslMode === "prefer" || sslMode === "require" || sslMode === "verify-full"
+      ? sslMode
+      : true;
 
 export default defineConfig({
   dialect: "postgresql",
@@ -22,7 +28,7 @@ export default defineConfig({
     user: decodeURIComponent(parsedUrl.username),
     password: decodeURIComponent(parsedUrl.password),
     database: parsedUrl.pathname.replace(/^\//, ""),
-    ssl: sslMode === "disable" ? false : sslMode
+    ssl
   },
   strict: true,
   verbose: true

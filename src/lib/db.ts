@@ -1,10 +1,16 @@
 import "server-only";
 
-import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
 import type { Pool, QueryResultRow } from "pg";
 import { runDrizzleMigrations } from "@/lib/drizzle/migrate";
 import * as schema from "@/lib/drizzle/schema";
 import { getDatabaseConfig } from "@/lib/env.server";
+
+function createDb(pool: Pool) {
+  return drizzle(pool, { schema });
+}
+
+type ChatlyDb = ReturnType<typeof createDb>;
 
 declare global {
   // eslint-disable-next-line no-var
@@ -16,7 +22,7 @@ declare global {
   // eslint-disable-next-line no-var
   var __chatlySchemaVersion: string | undefined;
   // eslint-disable-next-line no-var
-  var __chatlyDb: NodePgDatabase | undefined;
+  var __chatlyDb: ChatlyDb | undefined;
 }
 
 const SCHEMA_VERSION = "2026-04-05-contact-list-indexes";
@@ -85,7 +91,7 @@ export async function getDb() {
     return global.__chatlyDb;
   }
 
-  const db = drizzle(await getPool(), { schema });
+  const db = createDb(await getPool());
   global.__chatlyDb = db;
   return db;
 }
