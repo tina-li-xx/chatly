@@ -2,6 +2,8 @@
 
 Reusable prompts for writing Chatting blog content that sounds like Chatting instead of generic SEO sludge.
 
+Non-negotiable: these prompts exist to write for Chatting from the first draft, not to write a neutral article first and "make it Chatting" later.
+
 If pricing, plans, positioning, or feature claims change, update `/Users/tina/Code/chatly/digital_marketing/chatting-product-context.md` first.
 
 Read `/Users/tina/Code/chatly/digital_marketing/chatting-product-context.md` for product truth, voice, fit, and messaging rules. If anything conflicts, the product-context file wins.
@@ -16,12 +18,21 @@ Last updated: 2026-04-05
 2. Pick the prompt shape that matches the article type.
 3. Replace the placeholders.
 4. Keep the output within those shared rules.
+5. The first draft must already be written for Chatting. Do not produce a neutral draft and then suggest a sharper Chatting rewrite afterward.
 
 These prompts are for:
 - general Chatting SEO blog posts
 - comparison posts
 - how-to posts
 - Reddit-thread-to-article conversions
+
+## Non-Negotiable Rule
+
+- Every article here is for Chatting.
+- The first draft must already sound like Chatting and support Chatting's positioning.
+- Do not write a neutral article first and then offer to turn it into a Chatting article later.
+- If the source is Reddit, a competitor topic, or a generic SEO angle, convert it into a Chatting article from the start.
+- If Chatting is not meaningfully relevant to the topic, choose a better angle instead of publishing generic filler.
 
 ---
 
@@ -36,7 +47,8 @@ Your job is not to write generic SEO content. Your job is to write a post that:
 1. ranks for the target keyword,
 2. sounds like Chatting,
 3. helps a small-business reader make a decision,
-4. and naturally positions Chatting as the best-fit option when that is honestly true.
+4. naturally positions Chatting as the best-fit option when that is honestly true,
+5. and is written for Chatting from the first draft instead of being retrofitted later.
 
 Before writing, read:
 /Users/tina/Code/chatly/digital_marketing/chatting-product-context.md
@@ -126,6 +138,7 @@ Use this structure unless the topic strongly requires variation:
 - Do not write as if Chatting is a generic neutral publisher.
 - Do not flatten all tools into "good options depending on your needs" unless that is genuinely true.
 - Do not hide the recommendation.
+- Do not write a neutral first-pass draft and then suggest making it "more Chatting-first" later.
 - Do not make up data.
 - If pricing or features are included and freshness matters, use current official information.
 - If exact current data is unavailable, avoid fake precision and phrase carefully.
@@ -164,7 +177,8 @@ Write a comparison article that:
 - ranks for the target keyword,
 - helps the reader choose quickly,
 - makes Chatting the clearest best-fit recommendation when that is true,
-- and does not read like a neutral affiliate roundup.
+- does not read like a neutral affiliate roundup,
+- and is unmistakably a Chatting article from the first draft.
 
 ## Voice
 
@@ -222,6 +236,7 @@ Use this structure:
 ## Constraints
 
 - No fake neutrality
+- No neutral first draft that needs a later Chatting rewrite
 - No invented claims
 - No bloated feature-dump sections
 - No filler intros
@@ -259,7 +274,8 @@ Write a practical, conversion-aware how-to article that:
 - ranks for the target keyword,
 - gives real implementation guidance,
 - sounds like Chatting,
-- and naturally makes Chatting feel like the obvious tool to use when relevant.
+- naturally makes Chatting feel like the obvious tool to use when relevant,
+- and still reads like a Chatting article instead of a detached tutorial from a neutral publisher.
 
 ## Voice
 
@@ -305,6 +321,7 @@ Use this structure unless the topic clearly needs variation:
 ## Constraints
 
 - No vague tutorial filler
+- No neutral how-to draft that could have been published by anyone
 - No overcomplicated process for a simple job
 - No giant feature list unless it directly helps the reader act
 - No fake promises or invented numbers
@@ -347,7 +364,8 @@ Write a real Chatting SEO article that:
 - answers the underlying question better than the thread did,
 - sounds like Chatting,
 - ranks for the target keyword,
-- and naturally positions Chatting when it genuinely fits.
+- naturally positions Chatting when it genuinely fits,
+- and is clearly a Chatting article from the start rather than a neutral summary with Chatting added later.
 
 ## Important Rules
 
@@ -356,6 +374,7 @@ Write a real Chatting SEO article that:
 - Do not write a forum-summary article.
 - Extract the actual pain point from the post and build the article around that.
 - Keep what was useful about the thread, but rewrite it as a clean, original Chatting article.
+- Never output a neutral draft first and then offer to "make it more Chatting-first."
 
 ## Voice
 
@@ -396,6 +415,7 @@ Use:
 - No Reddit-summary tone
 - No generic SEO fluff
 - No fake neutrality
+- No neutral first-pass article that treats Chatting as an afterthought
 - No made-up facts
 
 ## Output
@@ -411,6 +431,8 @@ Use this when you just need the quick instruction block instead of the full prom
 
 ```text
 Write this as a Chatting SEO blog post, not a neutral roundup.
+
+The first draft must already be for Chatting. Do not produce a neutral version first.
 
 Sound like the existing Chatting blog:
 direct, practical, sharp, anti-bloat, small-team focused.
@@ -444,6 +466,7 @@ Emphasize:
 Do not:
 - sound like affiliate content
 - be overly neutral
+- write a neutral draft and then offer a Chatting rewrite
 - write generic SaaS filler
 - hide the recommendation
 - invent facts
