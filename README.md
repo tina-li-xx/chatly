@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Visitor follow-up templates now avoid repeating extra conversation-link instructions when they already include them.
 - Aligned Drizzle config and cached DB typing so schema-backed Postgres builds stay clean.
 - Tightened public landing route typing so shared nav and footer links stay build-safe.
 - Tightened repo changelog rules so public entries stay customer-facing and skip internal-only filler.
@@ -202,6 +203,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Visitor follow-up email templates now avoid repeating extra conversation-link guidance when that instruction is already present.
 - Drizzle config and cached database typing now stay aligned with the schema-backed Postgres setup during production builds.
 - Email rendering coverage now matches the current shared HTML shell and rendered delivery path.
 - Conversation, settings, visitors, digest, and workspace-access regression fixtures now reflect current backend behavior.

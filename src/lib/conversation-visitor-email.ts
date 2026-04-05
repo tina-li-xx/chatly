@@ -117,7 +117,7 @@ export function renderVisitorConversationEmailTemplate(
     options.templateKey === "satisfaction_survey"
       ? "Click a rating above — it only takes a second."
       : /{{conversation_link}}|reply to this email/i.test(template.body)
-        ? null
+        ? undefined
         : "Need more help? Continue this conversation anytime.";
   const viralFooterRowHtml = viralFooter.viral
     ? renderEmailSection(
