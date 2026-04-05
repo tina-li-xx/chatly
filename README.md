@@ -20,6 +20,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## Recent Updates
 
 - Published a Chatting-first comparison post covering the best live chat tools for small businesses and where Chatting, Crisp, Tidio, HubSpot, and tawk.to fit.
+- Added a reusable digital-marketing prompt library for Chatting SEO posts, including master, comparison, how-to, and Reddit-to-article prompts.
 - Built a dedicated Automation settings editor for offline behavior, routing, FAQ suggestions, and proactive messages.
 - Wired automation into the live widget so FAQ suggestions, routing, and proactive prompts now run against real visitor sessions.
 - Settings sections now navigate by URL so each settings area can load as its own server-driven view.
@@ -206,6 +207,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Contributor Docs
 
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
+- Digital marketing docs now include a reusable SEO blog prompt library covering master, comparison, how-to, and Reddit-thread conversion prompts.
 - The root TypeScript config now includes Vitest globals so colocated route and component tests type-check cleanly during `next build`.
 - Email sender and subdomain reference docs live in [CHATTING_EMAIL_ADDRESSES.md](./CHATTING_EMAIL_ADDRESSES.md).
 - Production builds now stay type-safe across widget offline copy settings, conversation-template retry helpers, mail-from sender helpers, and shared scheduler test utilities.
