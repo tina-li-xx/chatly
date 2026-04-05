@@ -12,6 +12,7 @@ import {
   findPreviousConversationByIdentity,
   getConversationVisitorActivityAggregate,
   insertMessageRecord,
+  listInboundReplyAuthorizedEmails,
   touchConversationAfterMessage,
   updateConversationStatusRecord,
   updateVisitorConversationEmailRecord,
@@ -59,7 +60,7 @@ describe("conversations repository", () => {
     const message = {
       id: "msg_1",
       conversation_id: "conv_1",
-      sender: "founder",
+      sender: "team",
       content: "Happy to help",
       created_at: "2026-03-29T10:05:00.000Z"
     };
@@ -78,13 +79,15 @@ describe("conversations repository", () => {
       insertMessageRecord({
         messageId: "msg_1",
         conversationId: "conv_1",
-        sender: "founder",
+        sender: "team",
         content: "Happy to help"
       })
     ).resolves.toEqual(message);
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("other_questions_last_month");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("RETURNING id, conversation_id, sender, content, created_at");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain(
+      "RETURNING id, conversation_id, sender, author_user_id, content, created_at"
+    );
   });
 
   it("updates status, touches threads, and persists visitor email ownership checks", async () => {
@@ -119,5 +122,20 @@ describe("conversations repository", () => {
     expect(mocks.query.mock.calls[1]?.[0]).toContain("INSERT INTO conversation_typing");
     expect(mocks.query.mock.calls[2]?.[0]).toContain("DELETE FROM visitor_typing");
     expect(mocks.query.mock.calls[3]?.[0]).toContain("INSERT INTO visitor_typing");
+  });
+
+  it("collects authorized inbound reply emails from the conversation and sent visitor emails", async () => {
+    mocks.query.mockResolvedValueOnce({
+      rows: [{ email: "alex@example.com" }, { email: "billing@example.com" }]
+    });
+
+    await expect(listInboundReplyAuthorizedEmails("conv_1")).resolves.toEqual([
+      "alex@example.com",
+      "billing@example.com"
+    ]);
+
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("FROM email_template_deliveries");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("etd.status = 'sent'");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("SELECT DISTINCT LOWER(source.email) AS email");
   });
 });

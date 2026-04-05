@@ -1,10 +1,11 @@
 const mocks = vi.hoisted(() => ({
-  getAnalyticsDataset: vi.fn(),
+  claimDailyDigestDelivery: vi.fn(),
+  getAnalyticsDatasetForOwnerUserId: vi.fn(),
   getPublicAppUrl: vi.fn(),
-  hasDailyDigestDelivery: vi.fn(),
-  insertDailyDigestDelivery: vi.fn(),
-  listConversationSummaries: vi.fn(),
   listDailyDigestRecipientRows: vi.fn(),
+  mapSummary: vi.fn((row) => row),
+  queryConversationSummaries: vi.fn(),
+  releaseDailyDigestDelivery: vi.fn(),
   sendDailyDigestEmail: vi.fn()
 }));
 
@@ -12,18 +13,19 @@ vi.mock("@/lib/chatly-notification-email-senders", () => ({
   sendDailyDigestEmail: mocks.sendDailyDigestEmail
 }));
 vi.mock("@/lib/data/analytics", () => ({
-  getAnalyticsDataset: mocks.getAnalyticsDataset
+  getAnalyticsDatasetForOwnerUserId: mocks.getAnalyticsDatasetForOwnerUserId
 }));
-vi.mock("@/lib/data/conversations", () => ({
-  listConversationSummaries: mocks.listConversationSummaries
+vi.mock("@/lib/data/shared", () => ({
+  mapSummary: mocks.mapSummary,
+  queryConversationSummaries: mocks.queryConversationSummaries
 }));
 vi.mock("@/lib/env", () => ({
   getPublicAppUrl: mocks.getPublicAppUrl
 }));
 vi.mock("@/lib/repositories/daily-digest-repository", () => ({
-  hasDailyDigestDelivery: mocks.hasDailyDigestDelivery,
-  insertDailyDigestDelivery: mocks.insertDailyDigestDelivery,
-  listDailyDigestRecipientRows: mocks.listDailyDigestRecipientRows
+  claimDailyDigestDelivery: mocks.claimDailyDigestDelivery,
+  listDailyDigestRecipientRows: mocks.listDailyDigestRecipientRows,
+  releaseDailyDigestDelivery: mocks.releaseDailyDigestDelivery
 }));
 
 import {
@@ -31,6 +33,7 @@ import {
   sendUserDailyDigest,
   shouldRunDailyDigests
 } from "@/lib/daily-digest";
+import { openConversation } from "@/lib/__tests__/daily-digest-test-fixtures";
 
 describe("daily digest", () => {
   beforeEach(() => {
@@ -38,7 +41,10 @@ describe("daily digest", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-30T13:15:00.000Z"));
     mocks.getPublicAppUrl.mockReturnValue("https://usechatting.com");
-    mocks.hasDailyDigestDelivery.mockResolvedValue(false);
+    mocks.claimDailyDigestDelivery.mockResolvedValue(true);
+    mocks.getAnalyticsDatasetForOwnerUserId.mockResolvedValue({ conversations: [], replyEvents: [] });
+    mocks.mapSummary.mockImplementation((row) => row);
+    mocks.queryConversationSummaries.mockResolvedValue({ rows: [openConversation] });
   });
 
   afterEach(() => {
@@ -46,7 +52,7 @@ describe("daily digest", () => {
   });
 
   it("sends a daily digest with today's metrics and open conversations", async () => {
-    mocks.getAnalyticsDataset.mockResolvedValue({
+    mocks.getAnalyticsDatasetForOwnerUserId.mockResolvedValue({
       conversations: [
         {
           id: "conv_1",
@@ -75,35 +81,12 @@ describe("daily digest", () => {
       ],
       replyEvents: []
     });
-    mocks.listConversationSummaries.mockResolvedValue([
-      {
-        id: "conv_1",
-        siteId: "site_1",
-        siteName: "Chatting",
-        email: "alex@example.com",
-        sessionId: "session_1",
-        status: "open",
-        createdAt: "2026-03-30T08:00:00.000Z",
-        updatedAt: "2026-03-30T10:00:00.000Z",
-        pageUrl: "https://usechatting.com/pricing",
-        referrer: null,
-        userAgent: null,
-        country: null,
-        region: null,
-        city: null,
-        timezone: null,
-        locale: null,
-        lastMessageAt: "2026-03-30T13:00:00.000Z",
-        lastMessagePreview: "Can I remove Chatting branding on Growth?",
-        unreadCount: 1,
-        rating: null,
-        tags: []
-      }
-    ]);
+    mocks.queryConversationSummaries.mockResolvedValue({ rows: [openConversation] });
 
     await expect(
       sendUserDailyDigest({
         userId: "user_1",
+        ownerUserId: "owner_1",
         notificationEmail: "team@example.com",
         timeZone: "America/New_York",
         now: new Date("2026-03-30T13:15:00.000Z")
@@ -127,64 +110,42 @@ describe("daily digest", () => {
       ],
       inboxUrl: "https://usechatting.com/dashboard/inbox"
     });
-    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledWith("user_1", "2026-03-29");
+    expect(mocks.claimDailyDigestDelivery).toHaveBeenCalledWith("user_1", "owner_1", "2026-03-29");
   });
 
   it("skips already-sent and no-activity digests", async () => {
-    mocks.hasDailyDigestDelivery.mockResolvedValueOnce(true);
+    mocks.claimDailyDigestDelivery.mockResolvedValueOnce(false);
     await expect(
       sendUserDailyDigest({
         userId: "user_1",
+        ownerUserId: "owner_1",
         notificationEmail: "team@example.com",
         now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("already-sent");
 
-    mocks.getAnalyticsDataset.mockResolvedValueOnce({ conversations: [], replyEvents: [] });
-    mocks.listConversationSummaries.mockResolvedValueOnce([]);
+    mocks.getAnalyticsDatasetForOwnerUserId.mockResolvedValueOnce({ conversations: [], replyEvents: [] });
+    mocks.queryConversationSummaries.mockResolvedValueOnce({ rows: [] });
     await expect(
       sendUserDailyDigest({
         userId: "user_2",
+        ownerUserId: "owner_2",
         notificationEmail: "team@example.com",
         now: new Date("2026-03-30T13:15:00.000Z")
       })
     ).resolves.toBe("skipped");
 
     expect(mocks.sendDailyDigestEmail).not.toHaveBeenCalled();
-    expect(mocks.insertDailyDigestDelivery).not.toHaveBeenCalled();
+    expect(mocks.releaseDailyDigestDelivery).not.toHaveBeenCalled();
   });
 
   it("uses each recipient's local send window instead of a global UTC gate", async () => {
     mocks.listDailyDigestRecipientRows.mockResolvedValue([
-      { user_id: "user_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
-      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com", timezone: "America/New_York" }
+      { user_id: "user_1", owner_user_id: "owner_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
+      { user_id: "user_2", owner_user_id: "owner_2", email: "member@example.com", notification_email: "team@example.com", timezone: "America/New_York" }
     ]);
-    mocks.getAnalyticsDataset.mockResolvedValue({ conversations: [], replyEvents: [] });
-    mocks.listConversationSummaries.mockResolvedValue([
-      {
-        id: "conv_1",
-        siteId: "site_1",
-        siteName: "Chatting",
-        email: null,
-        sessionId: "session_1",
-        status: "open",
-        createdAt: "2026-03-29T08:00:00.000Z",
-        updatedAt: "2026-03-30T09:45:00.000Z",
-        pageUrl: null,
-        referrer: null,
-        userAgent: null,
-        country: null,
-        region: null,
-        city: null,
-        timezone: null,
-        locale: null,
-        lastMessageAt: "2026-03-30T09:45:00.000Z",
-        lastMessagePreview: "Need help",
-        unreadCount: 1,
-        rating: null,
-        tags: []
-      }
-    ]);
+    mocks.getAnalyticsDatasetForOwnerUserId.mockResolvedValue({ conversations: [], replyEvents: [] });
+    mocks.queryConversationSummaries.mockResolvedValue({ rows: [openConversation] });
 
     expect(shouldRunDailyDigests(new Date("2026-03-30T08:59:00.000Z"))).toBe(false);
     expect(shouldRunDailyDigests(new Date("2026-03-30T12:59:00.000Z"), "America/New_York")).toBe(false);
@@ -200,5 +161,23 @@ describe("daily digest", () => {
       sent: 2,
       skipped: 0
     });
+  });
+
+  it("tracks deliveries per workspace for multi-team users", async () => {
+    mocks.listDailyDigestRecipientRows.mockResolvedValue([
+      { user_id: "user_1", owner_user_id: "owner_1", email: "alex@example.com", notification_email: null, timezone: "UTC" },
+      { user_id: "user_1", owner_user_id: "owner_2", email: "alex@example.com", notification_email: null, timezone: "UTC" }
+    ]);
+    mocks.getAnalyticsDatasetForOwnerUserId.mockResolvedValue({ conversations: [], replyEvents: [] });
+    mocks.queryConversationSummaries.mockResolvedValue({ rows: [openConversation] });
+
+    await expect(runScheduledDailyDigests(new Date("2026-03-30T13:15:00.000Z"))).resolves.toEqual({
+      processedRecipients: 2,
+      sent: 2,
+      skipped: 0
+    });
+
+    expect(mocks.claimDailyDigestDelivery).toHaveBeenNthCalledWith(1, "user_1", "owner_1", "2026-03-29");
+    expect(mocks.claimDailyDigestDelivery).toHaveBeenNthCalledWith(2, "user_1", "owner_2", "2026-03-29");
   });
 });

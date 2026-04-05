@@ -45,6 +45,7 @@ describe("public messages route more", () => {
       isNewVisitor: false,
       highIntent: false,
       welcomeEmailEligible: false,
+      notification: { attachmentsCount: 1 },
       message: { id: "msg_1", conversationId: "conv_1", sender: "user", content: "", createdAt: "2026-03-29T10:00:00.000Z", attachments: [] }
     });
 

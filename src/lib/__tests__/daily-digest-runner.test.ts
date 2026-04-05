@@ -1,10 +1,11 @@
 const mocks = vi.hoisted(() => ({
-  getAnalyticsDataset: vi.fn(),
+  claimDailyDigestDelivery: vi.fn(),
+  getAnalyticsDatasetForOwnerUserId: vi.fn(),
   getPublicAppUrl: vi.fn(),
-  hasDailyDigestDelivery: vi.fn(),
-  insertDailyDigestDelivery: vi.fn(),
-  listConversationSummaries: vi.fn(),
   listDailyDigestRecipientRows: vi.fn(),
+  mapSummary: vi.fn((row) => row),
+  queryConversationSummaries: vi.fn(),
+  releaseDailyDigestDelivery: vi.fn(),
   sendDailyDigestEmail: vi.fn()
 }));
 
@@ -12,21 +13,23 @@ vi.mock("@/lib/chatly-notification-email-senders", () => ({
   sendDailyDigestEmail: mocks.sendDailyDigestEmail
 }));
 vi.mock("@/lib/data/analytics", () => ({
-  getAnalyticsDataset: mocks.getAnalyticsDataset
+  getAnalyticsDatasetForOwnerUserId: mocks.getAnalyticsDatasetForOwnerUserId
 }));
-vi.mock("@/lib/data/conversations", () => ({
-  listConversationSummaries: mocks.listConversationSummaries
+vi.mock("@/lib/data/shared", () => ({
+  mapSummary: mocks.mapSummary,
+  queryConversationSummaries: mocks.queryConversationSummaries
 }));
 vi.mock("@/lib/env", () => ({
   getPublicAppUrl: mocks.getPublicAppUrl
 }));
 vi.mock("@/lib/repositories/daily-digest-repository", () => ({
-  hasDailyDigestDelivery: mocks.hasDailyDigestDelivery,
-  insertDailyDigestDelivery: mocks.insertDailyDigestDelivery,
-  listDailyDigestRecipientRows: mocks.listDailyDigestRecipientRows
+  claimDailyDigestDelivery: mocks.claimDailyDigestDelivery,
+  listDailyDigestRecipientRows: mocks.listDailyDigestRecipientRows,
+  releaseDailyDigestDelivery: mocks.releaseDailyDigestDelivery
 }));
 
 import { runScheduledDailyDigests } from "@/lib/daily-digest";
+import { openConversation } from "@/lib/__tests__/daily-digest-test-fixtures";
 
 describe("daily digest runner", () => {
   beforeEach(() => {
@@ -34,33 +37,11 @@ describe("daily digest runner", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-30T13:15:00.000Z"));
     mocks.getPublicAppUrl.mockReturnValue("https://usechatting.com");
-    mocks.hasDailyDigestDelivery.mockResolvedValue(false);
-    mocks.getAnalyticsDataset.mockResolvedValue({ conversations: [], replyEvents: [] });
-    mocks.listConversationSummaries.mockResolvedValue([
-      {
-        id: "conv_1",
-        siteId: "site_1",
-        siteName: "Chatting",
-        email: "alex@example.com",
-        sessionId: "session_1",
-        status: "open",
-        createdAt: "2026-03-29T08:00:00.000Z",
-        updatedAt: "2026-03-30T10:00:00.000Z",
-        pageUrl: "https://usechatting.com/pricing",
-        referrer: null,
-        userAgent: null,
-        country: null,
-        region: null,
-        city: null,
-        timezone: null,
-        locale: null,
-        lastMessageAt: "2026-03-30T10:00:00.000Z",
-        lastMessagePreview: "Can I remove Chatting branding on Growth?",
-        unreadCount: 1,
-        rating: null,
-        tags: []
-      }
-    ]);
+    mocks.claimDailyDigestDelivery.mockResolvedValue(true);
+    mocks.getAnalyticsDatasetForOwnerUserId.mockResolvedValue({ conversations: [], replyEvents: [] });
+    mocks.queryConversationSummaries.mockResolvedValue({
+      rows: [openConversation]
+    });
   });
 
   afterEach(() => {
@@ -72,8 +53,8 @@ describe("daily digest runner", () => {
     const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     mocks.listDailyDigestRecipientRows.mockResolvedValue([
-      { user_id: "user_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
-      { user_id: "user_2", email: "member@example.com", notification_email: "team@example.com", timezone: "UTC" }
+      { user_id: "user_1", owner_user_id: "owner_1", email: "owner@example.com", notification_email: null, timezone: "UTC" },
+      { user_id: "user_2", owner_user_id: "owner_2", email: "member@example.com", notification_email: "team@example.com", timezone: "UTC" }
     ]);
     mocks.sendDailyDigestEmail.mockRejectedValueOnce(new Error("SEND_FAILED")).mockResolvedValueOnce(undefined);
 
@@ -84,8 +65,9 @@ describe("daily digest runner", () => {
     });
 
     expect(mocks.sendDailyDigestEmail).toHaveBeenCalledTimes(2);
-    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledTimes(1);
-    expect(mocks.insertDailyDigestDelivery).toHaveBeenCalledWith("user_2", "2026-03-29");
-    expect(errorSpy).toHaveBeenCalledWith("daily digest send failed", "user_1", expect.any(Error));
+    expect(mocks.claimDailyDigestDelivery).toHaveBeenCalledTimes(2);
+    expect(mocks.releaseDailyDigestDelivery).toHaveBeenCalledTimes(1);
+    expect(mocks.releaseDailyDigestDelivery).toHaveBeenCalledWith("user_1", "owner_1", "2026-03-29");
+    expect(errorSpy).toHaveBeenCalledWith("daily digest send failed", "user_1", "owner_1", expect.any(Error));
   });
 });

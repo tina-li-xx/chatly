@@ -1,12 +1,16 @@
 const mocks = vi.hoisted(() => ({
   changeUserPassword: vi.fn(),
   countActiveTeamMembershipRows: vi.fn(),
+  countHelpCenterArticleRows: vi.fn(),
   findDashboardSettingsRow: vi.fn(),
   findDashboardReportSettingsRow: vi.fn(),
   findEmailTemplateSettingsRow: vi.fn(),
+  findBillingSummaryRow: vi.fn(),
   findNotificationSettingsRow: vi.fn(),
   findUserIdByEmailExcludingUser: vi.fn(),
+  getDashboardContactSettings: vi.fn(),
   getDashboardBillingSummary: vi.fn(),
+  getDashboardSettingsBillingSnapshot: vi.fn(),
   getWorkspaceAccess: vi.fn(),
   insertTeamInviteRecord: vi.fn(),
   listSavedReplyRows: vi.fn(),
@@ -38,6 +42,13 @@ vi.mock("@/lib/auth", () => ({ changeUserPassword: mocks.changeUserPassword }));
 vi.mock("@/lib/billing-seats", () => ({ seatCountFromActiveMemberships: mocks.seatCountFromActiveMemberships }));
 vi.mock("@/lib/chatly-transactional-email-senders", () => ({ sendTeamInvitationEmail: mocks.sendTeamInvitationEmail }));
 vi.mock("@/lib/data/billing", () => ({ getDashboardBillingSummary: mocks.getDashboardBillingSummary }));
+vi.mock("@/lib/data/contacts", () => ({
+  getDashboardContactSettings: mocks.getDashboardContactSettings,
+  updateDashboardContactSettings: vi.fn()
+}));
+vi.mock("@/lib/data/settings-billing-snapshot", () => ({
+  getDashboardSettingsBillingSnapshot: mocks.getDashboardSettingsBillingSnapshot
+}));
 vi.mock("@/lib/email-templates", () => ({
   parseDashboardEmailTemplates: mocks.parseDashboardEmailTemplates,
   serializeDashboardEmailTemplates: mocks.serializeDashboardEmailTemplates
@@ -49,7 +60,11 @@ vi.mock("@/lib/repositories/report-settings-repository", () => ({
   upsertDashboardReportUserSettings: mocks.upsertDashboardReportUserSettings,
   upsertWorkspaceReportSettings: mocks.upsertWorkspaceReportSettings
 }));
+vi.mock("@/lib/repositories/help-center-repository", () => ({
+  countHelpCenterArticleRows: mocks.countHelpCenterArticleRows
+}));
 vi.mock("@/lib/repositories/settings-repository", () => ({
+  findBillingSummaryRow: mocks.findBillingSummaryRow,
   findDashboardSettingsRow: mocks.findDashboardSettingsRow,
   findEmailTemplateSettingsRow: mocks.findEmailTemplateSettingsRow,
   findNotificationSettingsRow: mocks.findNotificationSettingsRow,
@@ -114,9 +129,22 @@ describe("settings data more", () => {
     mocks.findNotificationSettingsRow.mockResolvedValue(settingsRow());
     mocks.findEmailTemplateSettingsRow.mockResolvedValue(settingsRow());
     mocks.findDashboardSettingsRow.mockResolvedValue(settingsRow());
+    mocks.findBillingSummaryRow.mockResolvedValue({ site_count: 0 });
     mocks.findDashboardReportSettingsRow.mockResolvedValue(null);
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "user_1", role: "owner" });
+    mocks.getDashboardContactSettings.mockResolvedValue({
+      planKey: "starter",
+      settings: { statuses: [], customFields: [], dataRetention: "forever" },
+      limits: {
+        fullProfiles: true,
+        exportEnabled: false,
+        apiEnabled: false,
+        customStatusesLimit: 1,
+        customFieldsLimit: 1
+      }
+    });
     mocks.listSavedReplyRows.mockResolvedValue([]);
+    mocks.countHelpCenterArticleRows.mockResolvedValue(0);
     mocks.listPendingTeamInviteRows.mockResolvedValue([
       { id: "invite_1", email: "pending@example.com", role: "member", status: "pending", message: "", created_at: "2026-03-29T10:00:00.000Z", updated_at: "2026-03-29T10:01:00.000Z" },
       { id: "invite_2", email: "accepted@example.com", role: "member", status: "accepted", message: "", created_at: "2026-03-29T10:00:00.000Z", updated_at: "2026-03-29T10:01:00.000Z" }
@@ -129,6 +157,7 @@ describe("settings data more", () => {
     ]);
     mocks.seatCountFromActiveMemberships.mockReturnValue(5);
     mocks.getDashboardBillingSummary.mockResolvedValue({ planKey: "starter" });
+    mocks.getDashboardSettingsBillingSnapshot.mockResolvedValue({ planKey: "starter" });
     mocks.parseDashboardEmailTemplates.mockReturnValue([]);
     mocks.serializeDashboardEmailTemplates.mockReturnValue("[]");
     mocks.findUserIdByEmailExcludingUser.mockResolvedValue(null);
@@ -162,7 +191,7 @@ describe("settings data more", () => {
       highIntentAlerts: true
     });
     expect(data.reports).toEqual(expect.objectContaining({ weeklyReportSendTime: "09:00", canManageWorkspaceReports: true }));
-    expect(data.teamInvites).toHaveLength(1);
+    expect(data.teamInvites).toEqual([]);
     expect(data.teamMembers.map((member) => member.lastActiveLabel)).toEqual([
       "Just now",
       "Never",

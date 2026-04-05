@@ -7,6 +7,8 @@ const mocks = vi.hoisted(() => ({
   findNotificationSettingsRow: vi.fn(),
   findUserIdByEmailExcludingUser: vi.fn(),
   countHelpCenterArticleRows: vi.fn(),
+  getDashboardContactSettings: vi.fn(),
+  updateDashboardContactSettings: vi.fn(),
   listHelpCenterArticleRows: vi.fn(),
   getDashboardBillingSummary: vi.fn(),
   getDashboardSettingsBillingSnapshot: vi.fn(),
@@ -31,6 +33,10 @@ vi.mock("@/lib/auth", () => ({ changeUserPassword: mocks.changeUserPassword }));
 vi.mock("@/lib/billing-seats", () => ({ seatCountFromActiveMemberships: mocks.seatCountFromActiveMemberships }));
 vi.mock("@/lib/chatly-transactional-email-senders", () => ({ sendTeamInvitationEmail: vi.fn() }));
 vi.mock("@/lib/data/billing", () => ({ getDashboardBillingSummary: mocks.getDashboardBillingSummary }));
+vi.mock("@/lib/data/contacts", () => ({
+  getDashboardContactSettings: mocks.getDashboardContactSettings,
+  updateDashboardContactSettings: mocks.updateDashboardContactSettings
+}));
 vi.mock("@/lib/data/settings-billing-snapshot", () => ({
   getDashboardSettingsBillingSnapshot: mocks.getDashboardSettingsBillingSnapshot
 }));
@@ -147,6 +153,22 @@ describe("settings data", () => {
     mocks.findBillingSummaryRow.mockResolvedValue({ site_count: 1 });
     mocks.findDashboardReportSettingsRow.mockResolvedValue(null);
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1", role: "owner" });
+    mocks.getDashboardContactSettings.mockResolvedValue({
+      planKey: "starter",
+      settings: { statuses: [], customFields: [], dataRetention: "forever" },
+      limits: {
+        fullProfiles: true,
+        exportEnabled: false,
+        apiEnabled: false,
+        customStatusesLimit: 1,
+        customFieldsLimit: 1
+      }
+    });
+    mocks.updateDashboardContactSettings.mockResolvedValue({
+      statuses: [],
+      customFields: [],
+      dataRetention: "forever"
+    });
     mocks.listSavedReplyRows.mockResolvedValue([{ tags: ["pricing", "sales"] }]);
     mocks.countHelpCenterArticleRows.mockResolvedValue(3);
     mocks.listHelpCenterArticleRows.mockResolvedValue([{ id: "article_1", title: "Reset password", slug: "reset-password", body: "Click forgot password", updated_at: "2026-03-29T10:00:00.000Z" }]);

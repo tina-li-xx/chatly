@@ -1,15 +1,19 @@
 const mocks = vi.hoisted(() => ({
   changeUserPassword: vi.fn(),
+  countHelpCenterArticleRows: vi.fn(),
   findDashboardSettingsRow: vi.fn(),
   findDashboardReportSettingsRow: vi.fn(),
   findEmailTemplateSettingsRow: vi.fn(),
+  findBillingSummaryRow: vi.fn(),
   findNotificationSettingsRow: vi.fn(),
   findUserIdByEmailExcludingUser: vi.fn(),
+  getDashboardContactSettings: vi.fn(),
   getDashboardBillingSummary: vi.fn(),
   getDashboardSettingsBillingSnapshot: vi.fn(),
   getWorkspaceAccess: vi.fn(),
   listActiveTeamMemberRows: vi.fn(),
   listPendingTeamInviteRows: vi.fn(),
+  listSavedReplyRows: vi.fn(),
   listSitesForUser: vi.fn(),
   parseDashboardEmailTemplates: vi.fn(),
   seatCountFromActiveMemberships: vi.fn(),
@@ -25,6 +29,10 @@ vi.mock("@/lib/auth", () => ({ changeUserPassword: mocks.changeUserPassword }));
 vi.mock("@/lib/billing-seats", () => ({ seatCountFromActiveMemberships: mocks.seatCountFromActiveMemberships }));
 vi.mock("@/lib/chatly-transactional-email-senders", () => ({ sendTeamInvitationEmail: vi.fn() }));
 vi.mock("@/lib/data/billing", () => ({ getDashboardBillingSummary: mocks.getDashboardBillingSummary }));
+vi.mock("@/lib/data/contacts", () => ({
+  getDashboardContactSettings: mocks.getDashboardContactSettings,
+  updateDashboardContactSettings: vi.fn()
+}));
 vi.mock("@/lib/data/settings-billing-snapshot", () => ({ getDashboardSettingsBillingSnapshot: mocks.getDashboardSettingsBillingSnapshot }));
 vi.mock("@/lib/data/sites", () => ({
   listSitesForUser: mocks.listSitesForUser,
@@ -35,12 +43,16 @@ vi.mock("@/lib/email-templates", () => ({
   serializeDashboardEmailTemplates: mocks.serializeDashboardEmailTemplates
 }));
 vi.mock("@/lib/growth-outreach", () => ({ maybeSendTeamExpansionEmail: vi.fn() }));
+vi.mock("@/lib/repositories/help-center-repository", () => ({
+  countHelpCenterArticleRows: mocks.countHelpCenterArticleRows
+}));
 vi.mock("@/lib/repositories/report-settings-repository", () => ({
   findDashboardReportSettingsRow: mocks.findDashboardReportSettingsRow,
   upsertDashboardReportUserSettings: mocks.upsertDashboardReportUserSettings,
   upsertWorkspaceReportSettings: mocks.upsertWorkspaceReportSettings
 }));
 vi.mock("@/lib/repositories/settings-repository", () => ({
+  findBillingSummaryRow: mocks.findBillingSummaryRow,
   findDashboardSettingsRow: mocks.findDashboardSettingsRow,
   findEmailTemplateSettingsRow: mocks.findEmailTemplateSettingsRow,
   findNotificationSettingsRow: mocks.findNotificationSettingsRow,
@@ -52,6 +64,9 @@ vi.mock("@/lib/repositories/settings-repository", () => ({
   updatePendingTeamInviteRole: vi.fn(),
   updateSettingsUserEmail: mocks.updateSettingsUserEmail,
   upsertUserSettingsRecord: mocks.upsertUserSettingsRecord
+}));
+vi.mock("@/lib/repositories/saved-replies-repository", () => ({
+  listSavedReplyRows: mocks.listSavedReplyRows
 }));
 vi.mock("@/lib/repositories/workspace-repository", () => ({
   countActiveTeamMembershipRows: vi.fn(),
@@ -95,8 +110,20 @@ describe("settings data hotspots", () => {
     mocks.findNotificationSettingsRow.mockResolvedValue(row());
     mocks.findEmailTemplateSettingsRow.mockResolvedValue(row());
     mocks.findDashboardSettingsRow.mockResolvedValue(row());
+    mocks.findBillingSummaryRow.mockResolvedValue({ site_count: 1 });
     mocks.findDashboardReportSettingsRow.mockResolvedValue(null);
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1", role: "owner" });
+    mocks.getDashboardContactSettings.mockResolvedValue({
+      planKey: "growth",
+      settings: { statuses: [], customFields: [], dataRetention: "forever" },
+      limits: {
+        fullProfiles: true,
+        exportEnabled: true,
+        apiEnabled: true,
+        customStatusesLimit: null,
+        customFieldsLimit: null
+      }
+    });
     mocks.listPendingTeamInviteRows.mockResolvedValue([{ id: "invite_1", email: "pending@example.com", role: "member", status: "pending", message: "", created_at: "a", updated_at: "b" }, { id: "invite_2", email: "accepted@example.com", role: "admin", status: "accepted", message: "", created_at: "c", updated_at: "d" }]);
     mocks.listActiveTeamMemberRows.mockResolvedValue([
       { user_id: "never", email: "never@example.com", first_name: "", last_name: "", role: "member", last_seen_at: null, avatar_data_url: null },
@@ -105,6 +132,8 @@ describe("settings data hotspots", () => {
       { user_id: "hours", email: "hours@example.com", first_name: "Hours", last_name: "", role: "member", last_seen_at: "2026-03-29T10:00:00.000Z", avatar_data_url: null },
       { user_id: "old", email: "old@example.com", first_name: "Old", last_name: "", role: "member", last_seen_at: "2026-03-27T10:00:00.000Z", avatar_data_url: null }
     ]);
+    mocks.listSavedReplyRows.mockResolvedValue([]);
+    mocks.countHelpCenterArticleRows.mockResolvedValue(0);
     mocks.listSitesForUser.mockResolvedValue([{ id: "site_1", name: "Owner Team" }]);
     mocks.seatCountFromActiveMemberships.mockReturnValue(6);
     mocks.getDashboardBillingSummary.mockResolvedValue({ planKey: "growth" } as never);
@@ -130,7 +159,7 @@ describe("settings data hotspots", () => {
     expect(mocks.getDashboardBillingSummary).toHaveBeenCalledWith("owner_1", 6);
     expect(data.teamName).toBe("Owner Team");
     expect(data.reports).toEqual(expect.objectContaining({ weeklyReportEnabled: true, canManageWorkspaceReports: true }));
-    expect(data.teamInvites).toHaveLength(1);
+    expect(data.teamInvites).toEqual([]);
     expect(data.teamMembers.map((member) => member.lastActiveLabel)).toEqual([
       "Just now",
       "Never",

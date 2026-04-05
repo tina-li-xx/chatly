@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   findConversationTag: vi.fn(),
   findVisitorContactRow: vi.fn(),
   findVisitorPresenceSessionRow: vi.fn(),
+  updateVisitorPresenceSessionEmail: vi.fn(),
   findPublicAttachmentRecord: vi.fn(),
   findVisitorConversationEmailState: vi.fn(),
   getConversationVisitorActivity: vi.fn(),
@@ -80,7 +81,8 @@ vi.mock("@/lib/repositories/visitor-contacts-repository", () => ({
   findVisitorContactRow: mocks.findVisitorContactRow
 }));
 vi.mock("@/lib/repositories/visitor-presence-repository", () => ({
-  findVisitorPresenceSessionRow: mocks.findVisitorPresenceSessionRow
+  findVisitorPresenceSessionRow: mocks.findVisitorPresenceSessionRow,
+  updateVisitorPresenceSessionEmail: mocks.updateVisitorPresenceSessionEmail
 }));
 vi.mock("@/lib/notification-utils", () => ({
   isHighIntentPage: mocks.isHighIntentPage,
@@ -286,7 +288,7 @@ describe("conversation data", () => {
       attachmentsCount: 0,
       isNewVisitor: true,
       highIntent: true,
-      suggestionsJson: JSON.stringify({
+      suggestions: {
         fallbackMessage: "None of these help? A team member will be with you shortly.",
         items: [
           {
@@ -296,6 +298,17 @@ describe("conversation data", () => {
             link: "https://example.com/pricing"
           }
         ]
+      },
+      suggestionsJson: JSON.stringify({
+        items: [
+          {
+            id: "faq_1",
+            question: "What are your pricing plans?",
+            answer: "We offer Free, Growth, and Business plans.",
+            link: "https://example.com/pricing"
+          }
+        ],
+        fallbackMessage: "None of these help? A team member will be with you shortly."
       })
     });
   });
@@ -506,6 +519,11 @@ describe("conversation data", () => {
     expect(result).toEqual({ updated: true, welcomeEmailEligible: true, ownerUserId: "owner_1" });
     expect(mocks.migrateVisitorNoteIdentity).toHaveBeenCalledWith(expect.objectContaining({ nextEmail: "alex@example.com" }));
     expect(mocks.recordVisitorPresence).toHaveBeenCalledWith(expect.objectContaining({ email: "alex@example.com" }));
+    expect(mocks.updateVisitorPresenceSessionEmail).toHaveBeenCalledWith({
+      siteId: "site_1",
+      sessionId: "session_1",
+      email: "alex@example.com"
+    });
   });
 
   it("loads a full conversation thread when both summary and activity exist", async () => {

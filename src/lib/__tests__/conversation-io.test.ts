@@ -66,8 +66,8 @@ describe("conversation io helpers", () => {
         customFields: '{"Plan":"Growth"," seats ":" 3 "}'
       })
     ).toEqual({
-      pageUrl: undefined,
-      referrer: undefined,
+      pageUrl: null,
+      referrer: null,
       userAgent: null,
       country: null,
       region: null,

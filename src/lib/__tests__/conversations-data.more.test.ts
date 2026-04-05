@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   findConversationTag: vi.fn(),
   findPublicAttachmentRecord: vi.fn(),
   findVisitorConversationEmailState: vi.fn(),
+  updateVisitorPresenceSessionEmail: vi.fn(),
   getConversationVisitorActivity: vi.fn(),
   getPublicConversationAccess: vi.fn(),
   getSiteByPublicId: vi.fn(),
@@ -59,6 +60,9 @@ vi.mock("@/lib/repositories/conversations-repository", () => ({
 }));
 vi.mock("@/lib/repositories/workspace-repository", () => ({
   listActiveTeamMemberRows: vi.fn().mockResolvedValue([])
+}));
+vi.mock("@/lib/repositories/visitor-presence-repository", () => ({
+  updateVisitorPresenceSessionEmail: mocks.updateVisitorPresenceSessionEmail
 }));
 vi.mock("@/lib/workspace-access", () => ({ getWorkspaceAccess: mocks.getWorkspaceAccess }));
 vi.mock("@/lib/data/sites", () => ({ getSiteByPublicId: mocks.getSiteByPublicId }));
@@ -200,6 +204,11 @@ describe("conversation data more", () => {
       conversationId: "conv_1",
       email: "alex@example.com"
     });
+    expect(mocks.updateVisitorPresenceSessionEmail).toHaveBeenCalledWith({
+      siteId: "site_1",
+      sessionId: "session_1",
+      email: "alex@example.com"
+    });
     expect(mocks.updateConversationEmailValue).toHaveBeenCalledWith("conv_1", "alex@example.com", "merge");
     expect(mocks.insertMessage).toHaveBeenCalledWith(
       "conv_1",
@@ -264,6 +273,11 @@ describe("conversation data more", () => {
       siteId: "site_1",
       sessionId: "session_1",
       conversationId: "conv_1",
+      email: "alex@example.com"
+    });
+    expect(mocks.updateVisitorPresenceSessionEmail).toHaveBeenCalledWith({
+      siteId: "site_1",
+      sessionId: "session_1",
       email: "alex@example.com"
     });
     expect(mocks.upsertConversationRead).toHaveBeenCalledWith("user_1", "conv_1");
