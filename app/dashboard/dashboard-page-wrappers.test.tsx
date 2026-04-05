@@ -5,9 +5,12 @@ const mocks = vi.hoisted(() => ({
   getDashboardBillingSummary: vi.fn(),
   getDashboardNotificationSettings: vi.fn(),
   getDashboardSettingsData: vi.fn(),
+  getDashboardTeamPageData: vi.fn(),
+  getDashboardWidgetPageData: vi.fn(),
   getDashboardStats: vi.fn(),
   getConversationById: vi.fn(),
   getUserOnboardingStep: vi.fn(),
+  listDashboardTeamMembers: vi.fn(),
   listConversationSummaries: vi.fn(),
   listSitesForUser: vi.fn(),
   listVisitorPresenceSessions: vi.fn(),
@@ -20,13 +23,18 @@ vi.mock("@/lib/auth", () => ({ requireUser: mocks.requireUser }));
 vi.mock("@/lib/data/analytics", () => ({
   getAnalyticsDataset: mocks.getAnalyticsDataset
 }));
+vi.mock("@/lib/data/widget-page", () => ({
+  getDashboardWidgetPageData: mocks.getDashboardWidgetPageData
+}));
 vi.mock("@/lib/data", () => ({
   getConversationById: mocks.getConversationById,
   getDashboardBillingSummary: mocks.getDashboardBillingSummary,
   getDashboardNotificationSettings: mocks.getDashboardNotificationSettings,
   getDashboardSettingsData: mocks.getDashboardSettingsData,
+  getDashboardTeamPageData: mocks.getDashboardTeamPageData,
   getDashboardStats: mocks.getDashboardStats,
   getUserOnboardingStep: mocks.getUserOnboardingStep,
+  listDashboardTeamMembers: mocks.listDashboardTeamMembers,
   listConversationSummaries: mocks.listConversationSummaries,
   listSitesForUser: mocks.listSitesForUser,
   listVisitorPresenceSessions: mocks.listVisitorPresenceSessions
@@ -40,18 +48,25 @@ describe("dashboard page wrappers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
-    mocks.requireUser.mockResolvedValue({ id: "user_1", email: "owner@example.com", workspaceRole: "admin" });
+    mocks.requireUser.mockResolvedValue({
+      id: "user_1",
+      email: "owner@example.com",
+      workspaceRole: "admin",
+      workspaceOwnerId: "owner_1"
+    });
     mocks.getUserOnboardingStep.mockResolvedValue("done");
     mocks.usePathname.mockReturnValue("/dashboard");
   });
 
   it("loads widget, visitors, and team pages with the expected child props", async () => {
     const captures: Record<string, unknown> = {};
-    mocks.listSitesForUser.mockResolvedValue([{ id: "site_1" }]);
-    mocks.getDashboardBillingSummary.mockResolvedValue({ planKey: "growth" });
+    mocks.getDashboardWidgetPageData.mockResolvedValue({
+      sites: [{ id: "site_1" }],
+      proactiveChatUnlocked: true
+    });
     mocks.listConversationSummaries.mockResolvedValue([{ id: "conv_1" }]);
     mocks.listVisitorPresenceSessions.mockResolvedValue([{ sessionId: "session_1" }]);
-    mocks.getDashboardSettingsData.mockResolvedValue({ teamMembers: [{ id: "member_1" }], teamInvites: [{ id: "invite_1" }] });
+    mocks.getDashboardTeamPageData.mockResolvedValue({ teamMembers: [{ id: "member_1" }], teamInvites: [{ id: "invite_1" }] });
 
     vi.doMock("./widget/widget-page-client", () => ({ DashboardWidgetPageClient: (props: unknown) => ((captures.widget = props), <div>widget</div>) }));
     vi.doMock("./dashboard-visitors-page", () => ({ DashboardVisitorsPage: (props: unknown) => ((captures.visitors = props), <div>visitors</div>) }));
@@ -65,7 +80,10 @@ describe("dashboard page wrappers", () => {
     expect(renderToStaticMarkup(await visitorsPage())).toContain("visitors");
     expect(renderToStaticMarkup(await teamPage())).toContain("team");
 
-    expect(captures.widget).toEqual({ initialSites: [{ id: "site_1" }], initialBilling: { planKey: "growth" } });
+    expect(captures.widget).toEqual({
+      initialSites: [{ id: "site_1" }],
+      proactiveChatUnlocked: true
+    });
     expect(captures.visitors).toEqual({ initialConversations: [{ id: "conv_1" }], initialLiveSessions: [{ sessionId: "session_1" }] });
     expect(captures.team).toEqual({ canManageTeam: true, initialMembers: [{ id: "member_1" }], initialInvites: [{ id: "invite_1" }] });
   });
@@ -73,7 +91,7 @@ describe("dashboard page wrappers", () => {
   it("passes member permissions through the team wrapper", async () => {
     const captures: Record<string, unknown> = {};
     mocks.requireUser.mockResolvedValueOnce({ id: "user_2", email: "member@example.com", workspaceRole: "member" });
-    mocks.getDashboardSettingsData.mockResolvedValueOnce({ teamMembers: [], teamInvites: [] });
+    mocks.getDashboardTeamPageData.mockResolvedValueOnce({ teamMembers: [], teamInvites: [] });
     vi.doMock("./dashboard-team-page", () => ({ DashboardTeamPage: (props: unknown) => ((captures.team = props), <div>team</div>) }));
 
     const teamPage = (await import("./team/page")).default;
@@ -92,7 +110,17 @@ describe("dashboard page wrappers", () => {
     mocks.getDashboardSettingsData.mockResolvedValueOnce({ profile: { email: "owner@example.com" } });
     vi.doMock("./dashboard-shell", () => ({ DashboardShell: (props: unknown) => ((captures.shell = props), <div>shell</div>) }));
     vi.doMock("./dashboard-home", () => ({ DashboardHome: (props: unknown) => ((captures.home = props), <div>home</div>) }));
-    vi.doMock("./dashboard-settings-page", () => ({ DashboardSettingsPage: (props: unknown) => ((captures.settings = props), <div>settings</div>) }));
+    vi.doMock("./dashboard-settings-page", () => ({
+      DashboardSettingsPage: ({
+        initialData,
+        canManageSavedReplies,
+        activeSection
+      }: {
+        initialData: unknown;
+        canManageSavedReplies: boolean;
+        activeSection: string;
+      }) => ((captures.settings = { initialData, canManageSavedReplies, activeSection }), <div>settings</div>)
+    }));
 
     const dashboardLayout = (await import("./layout")).default;
     const dashboardPage = (await import("./page")).default;
@@ -114,7 +142,11 @@ describe("dashboard page wrappers", () => {
       notificationSettings: { email: true }
     });
     expect(captures.home).toEqual({ userEmail: "owner@example.com", userId: "user_1" });
-    expect(captures.settings).toEqual({ initialData: { profile: { email: "owner@example.com" } } });
+    expect(captures.settings).toEqual({
+      initialData: { profile: { email: "owner@example.com" } },
+      canManageSavedReplies: true,
+      activeSection: "profile"
+    });
     expect(inboxLoading).toContain("h-24 rounded-xl bg-slate-50");
     expect(pageLoading).toContain("xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]");
   });
@@ -139,6 +171,7 @@ describe("dashboard page wrappers", () => {
     mocks.listConversationSummaries.mockResolvedValueOnce([{ id: "conv_1" }]);
     mocks.getDashboardStats.mockResolvedValueOnce({ conversationsCount: 12 });
     mocks.listSitesForUser.mockResolvedValueOnce([{ id: "site_1" }]);
+    mocks.listDashboardTeamMembers.mockResolvedValueOnce([{ id: "member_1" }]);
     mocks.getConversationById.mockResolvedValueOnce({ id: "conv_1", subject: "Pricing" });
     vi.doMock("./dashboard-analytics-page", () => ({ DashboardAnalyticsPage: (props: unknown) => ((captures.analytics = props), <div>analytics</div>) }));
     vi.doMock("./dashboard-client", () => ({ DashboardClient: (props: unknown) => ((captures.inbox = props), <div>inbox</div>) }));
@@ -160,7 +193,8 @@ describe("dashboard page wrappers", () => {
       initialStats: { conversationsCount: 12 },
       initialSites: [{ id: "site_1" }],
       initialConversations: [{ id: "conv_1" }],
-      initialActiveConversation: { id: "conv_1", subject: "Pricing" }
+      initialActiveConversation: { id: "conv_1", subject: "Pricing" },
+      initialTeamMembers: [{ id: "member_1" }]
     });
   });
 });

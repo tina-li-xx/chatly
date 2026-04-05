@@ -77,18 +77,21 @@ describe("settings billing section", () => {
 
     renderSection(SettingsBillingSection, reactMocks, baseBilling, { onOpenBillingPortal, onChangePlan, onSetSelectedInterval, onSyncBilling: vi.fn() });
     expect((captures.hero as { actionLabel: string }).actionLabel).toBe("Start Growth");
-    (captures.grid as { onSetSelectedInterval: (value: string) => void }).onSetSelectedInterval("monthly");
+    (captures.grid as { onSetSelectedInterval: (value: string) => void; onMemberCountChange: (value: number) => void }).onSetSelectedInterval("monthly");
+    (captures.grid as { onMemberCountChange: (value: number) => void }).onMemberCountChange(10);
+    renderSection(SettingsBillingSection, reactMocks, baseBilling, { onOpenBillingPortal, onChangePlan, onSetSelectedInterval, onSyncBilling: vi.fn() });
     (captures.hero as { onAction: () => void }).onAction();
     renderSection(SettingsBillingSection, reactMocks, baseBilling, { onOpenBillingPortal, onChangePlan, onSetSelectedInterval, onSyncBilling: vi.fn() });
-    (captures.planModal as { onConfirm: () => void; intent: { mode: string; planKey: string; billingInterval: string } }).onConfirm();
+    (captures.planModal as { onConfirm: () => void; intent: { mode: string; planKey: string; billingInterval: string; seatQuantity?: number } }).onConfirm();
 
     expect(onSetSelectedInterval).toHaveBeenCalledWith("monthly");
-    expect((captures.planModal as { intent: { mode: string; planKey: string; billingInterval: string } }).intent).toEqual({
+    expect((captures.planModal as { intent: { mode: string; planKey: string; billingInterval: string; seatQuantity?: number } }).intent).toEqual({
       planKey: "growth",
       billingInterval: "annual",
-      mode: "upgrade"
+      mode: "upgrade",
+      seatQuantity: 10
     });
-    expect(onChangePlan).toHaveBeenCalledWith("growth", "annual");
+    expect(onChangePlan).toHaveBeenCalledWith("growth", "annual", 10);
     expect(onOpenBillingPortal).not.toHaveBeenCalled();
   });
 

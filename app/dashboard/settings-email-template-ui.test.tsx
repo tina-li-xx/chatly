@@ -11,7 +11,9 @@ function collectElements(node: ReactNode, predicate: (element: ReactElement) => 
   if (!node || typeof node === "string" || typeof node === "number" || typeof node === "boolean") return [];
   if (Array.isArray(node)) return node.flatMap((child) => collectElements(child, predicate));
   const element = node as ReactElement;
-  return [...(predicate(element) ? [element] : []), ...collectElements(element.props?.children, predicate)];
+  const renderedChildren =
+    typeof element.type === "function" ? collectElements(element.type(element.props), predicate) : [];
+  return [...(predicate(element) ? [element] : []), ...renderedChildren, ...collectElements(element.props?.children, predicate)];
 }
 
 function textContent(node: ReactNode): string {
@@ -52,6 +54,8 @@ describe("settings email template ui", () => {
     });
 
     expect(renderToStaticMarkup(tree)).toContain("Offline reply");
+    expect(renderToStaticMarkup(tree)).toContain("rounded-xl border border-slate-200 bg-white p-6");
+    expect(renderToStaticMarkup(tree)).toContain("-mx-6 border-t border-slate-200");
     const buttons = collectElements(tree, (element) => element.type === "button");
     buttons.find((element) => textContent(element.props.children).includes("Offline reply"))?.props.onClick();
     buttons.find((element) => element.props.role === "switch")?.props.onClick({ stopPropagation: vi.fn() });

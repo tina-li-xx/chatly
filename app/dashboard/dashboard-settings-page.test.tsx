@@ -29,24 +29,20 @@ async function renderSettingsPage(section: SettingsSection) {
     SettingsEmailTemplates: () => <div>Email templates editor</div>
   }));
   vi.doMock("./dashboard-settings-saved-replies-section", () => ({
-    SettingsSavedRepliesSection: () => <div>Saved replies section</div>
+    SettingsSavedRepliesSection: ({
+      title,
+      subtitle
+    }: {
+      title: string;
+      subtitle: string;
+    }) => (
+      <div>
+        <div>{title}</div>
+        <div>{subtitle}</div>
+        <div>Saved replies section</div>
+      </div>
+    )
   }));
-
-  vi.doMock("react", async () => {
-    const actual = await vi.importActual<typeof import("react")>("react");
-    let useStateCalls = 0;
-    return {
-      ...actual,
-      useEffect: vi.fn(),
-      useState: vi.fn((initialValue: unknown) => {
-        useStateCalls += 1;
-        if (useStateCalls === 1) {
-          return [section, vi.fn()];
-        }
-        return actual.useState(initialValue);
-      })
-    };
-  });
   const module = await import("./dashboard-settings-page");
   const DashboardSettingsPage = module.DashboardSettingsPage;
   const initialData = {
@@ -126,7 +122,9 @@ async function renderSettingsPage(section: SettingsSection) {
       }
     }
   };
-  return renderToStaticMarkup(<DashboardSettingsPage initialData={initialData} />);
+  return renderToStaticMarkup(
+    <DashboardSettingsPage initialData={initialData} activeSection={section} />
+  );
 }
 
 describe("dashboard settings page", () => {

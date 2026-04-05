@@ -13,16 +13,19 @@ export function DashboardThreadDetail({
   activeConversation,
   loadingConversationSummary,
   savingEmail,
+  assigningConversation = false,
   sendingReply,
   updatingStatus,
   isVisitorTyping,
   isLiveDisconnected,
   teamName,
   teamInitials,
+  teamMembers = [],
   showSidebarInline = true,
   showSidebarDrawer = false,
   showBackButton = false,
   onSaveConversationEmail,
+  onConversationAssignmentChange = async () => {},
   onSendReply,
   onRetryReply,
   onConversationStatusChange,
@@ -58,7 +61,9 @@ export function DashboardThreadDetail({
         {renderDashboardThreadDetailHeader({
           name: visitor.name,
           secondary: visitor.secondary,
+          assignedUserId: activeConversation.assignedUserId,
           status: activeConversation.status,
+          teamMembers,
           showBackButton,
           showSidebarInline,
           updatingStatus,
@@ -90,16 +95,20 @@ export function DashboardThreadDetail({
           onSendReply,
           onReplyComposerBlur,
           onReplyComposerFocus,
-          onReplyComposerInput
+          onReplyComposerInput,
+          onToggleTag
         })}
       </section>
 
       {renderDashboardThreadDetailSidebars({
         activeConversation,
         savingEmail,
+        assigningConversation,
+        teamMembers,
         showSidebarInline,
         showSidebarDrawer,
         onSaveConversationEmail,
+        onConversationAssignmentChange,
         onToggleTag,
         onCloseSidebar
       })}

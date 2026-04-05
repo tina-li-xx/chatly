@@ -37,6 +37,7 @@ async function loadDashboardState(options?: { pathname?: string; search?: string
   const actions = {
     handleSiteTitleSave: vi.fn(),
     handleSaveConversationEmail: vi.fn(),
+    handleConversationAssignmentChange: vi.fn(),
     handleReplySend: vi.fn(),
     handleReplyRetry: vi.fn(),
     handleConversationStatusChange: vi.fn(),
@@ -170,5 +171,26 @@ describe("use dashboard state", () => {
       "/dashboard/conversation?conversationId=conv_1",
       expect.anything()
     );
+  });
+
+  it("keeps dashboard network callbacks stable across rerenders", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
+    vi.stubGlobal("window", { history: { replaceState: vi.fn() } });
+
+    const { liveSyncCalls, reactMocks, useDashboardState } = await loadDashboardState();
+    reactMocks.beginRender();
+    useDashboardState(createProps());
+    await runMockEffects(reactMocks.effects);
+
+    reactMocks.beginRender();
+    useDashboardState(createProps());
+    await runMockEffects(reactMocks.effects);
+
+    expect(
+      (liveSyncCalls[0] as { markConversationAsRead: unknown }).markConversationAsRead
+    ).toBe((liveSyncCalls[1] as { markConversationAsRead: unknown }).markConversationAsRead);
+    expect(
+      (liveSyncCalls[0] as { refreshConversationList: unknown }).refreshConversationList
+    ).toBe((liveSyncCalls[1] as { refreshConversationList: unknown }).refreshConversationList);
   });
 });

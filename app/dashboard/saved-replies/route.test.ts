@@ -29,7 +29,8 @@ describe("dashboard saved replies route", () => {
       user: {
         id: "user_123",
         email: "hello@chatly.example",
-        workspaceRole: "admin"
+        workspaceRole: "admin",
+        workspaceOwnerId: "owner_123"
       }
     });
   });
@@ -41,7 +42,7 @@ describe("dashboard saved replies route", () => {
 
     const response = await GET();
 
-    expect(mocks.listSavedReplies).toHaveBeenCalledWith("user_123");
+    expect(mocks.listSavedReplies).toHaveBeenCalledWith("user_123", "owner_123");
     expect(await response.json()).toEqual({
       ok: true,
       savedReplies: [{ id: "reply_1", title: "Pricing", body: "Hello", tags: ["pricing"], updatedAt: "2026-04-02T12:00:00.000Z" }]
@@ -104,17 +105,25 @@ describe("dashboard saved replies route", () => {
       }
     });
     expect(await deleteResponse.json()).toEqual({ ok: true, id: "reply_1" });
-    expect(mocks.createSavedReply).toHaveBeenCalledWith("user_123", {
-      title: "Pricing",
-      body: "Hello",
-      tags: ["pricing", "sales"]
-    });
-    expect(mocks.updateSavedReply).toHaveBeenCalledWith("user_123", {
-      id: "reply_1",
-      title: "Pricing",
-      body: "Updated",
-      tags: ["pricing"]
-    });
+    expect(mocks.createSavedReply).toHaveBeenCalledWith(
+      "user_123",
+      {
+        title: "Pricing",
+        body: "Hello",
+        tags: ["pricing", "sales"]
+      },
+      "owner_123"
+    );
+    expect(mocks.updateSavedReply).toHaveBeenCalledWith(
+      "user_123",
+      {
+        id: "reply_1",
+        title: "Pricing",
+        body: "Updated",
+        tags: ["pricing"]
+      },
+      "owner_123"
+    );
   });
 
   it("forbids members and maps validation errors", async () => {

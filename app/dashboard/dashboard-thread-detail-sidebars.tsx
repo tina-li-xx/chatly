@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import type { DashboardTeamMember } from "@/lib/data/settings-types";
 import type { ConversationThread } from "@/lib/types";
 import { DashboardThreadDetailSidebar } from "./dashboard-thread-detail-sidebar";
 import { XIcon } from "./dashboard-ui";
@@ -6,9 +7,12 @@ import { XIcon } from "./dashboard-ui";
 export function renderDashboardThreadDetailSidebars(input: {
   activeConversation: ConversationThread;
   savingEmail: boolean;
+  assigningConversation: boolean;
+  teamMembers: DashboardTeamMember[];
   showSidebarInline: boolean;
   showSidebarDrawer: boolean;
   onSaveConversationEmail: (event: FormEvent<HTMLFormElement>) => Promise<void>;
+  onConversationAssignmentChange: (assignedUserId: string | null) => Promise<void>;
   onToggleTag: (tag: string) => Promise<void>;
   onCloseSidebar?: () => void;
 }) {
@@ -19,7 +23,10 @@ export function renderDashboardThreadDetailSidebars(input: {
           <DashboardThreadDetailSidebar
             activeConversation={input.activeConversation}
             savingEmail={input.savingEmail}
+            assigningConversation={input.assigningConversation}
+            teamMembers={input.teamMembers}
             onSaveConversationEmail={input.onSaveConversationEmail}
+            onConversationAssignmentChange={input.onConversationAssignmentChange}
             onToggleTag={input.onToggleTag}
           />
         </aside>
@@ -32,11 +39,11 @@ export function renderDashboardThreadDetailSidebars(input: {
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex h-14 items-center justify-between border-b border-slate-200 px-5">
-              <p className="text-sm font-medium text-slate-900">Visitor info</p>
+              <p className="text-sm font-medium text-slate-900">Contact info</p>
               <button
                 type="button"
                 onClick={input.onCloseSidebar}
-                aria-label="Close visitor info"
+                aria-label="Close contact info"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
               >
                 <XIcon className="h-4 w-4" />
@@ -45,7 +52,10 @@ export function renderDashboardThreadDetailSidebars(input: {
             <DashboardThreadDetailSidebar
               activeConversation={input.activeConversation}
               savingEmail={input.savingEmail}
+              assigningConversation={input.assigningConversation}
+              teamMembers={input.teamMembers}
               onSaveConversationEmail={input.onSaveConversationEmail}
+              onConversationAssignmentChange={input.onConversationAssignmentChange}
               onToggleTag={input.onToggleTag}
             />
           </aside>
