@@ -21,6 +21,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 - Added People contact profiles with saved contact history, statuses, custom fields, and in-place profile editing.
 - Stabilized inbox contact editing, visitor notes, and the supporting dashboard settings flows around the new People experience.
+- Fixed newsletter signup source syncing for brand-new subscribers.
 - Published a Chatting-first comparison post covering the best live chat tools for small businesses and where Chatting, Crisp, Tidio, HubSpot, and tawk.to fit.
 - Added a reusable digital-marketing prompt library for Chatting SEO posts, including master, comparison, how-to, and Reddit-to-article prompts.
 - Built a dedicated Automation settings editor for offline behavior, routing, FAQ suggestions, and proactive messages.
@@ -117,6 +118,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Public Site & Auth
 
+- Newsletter signups now preserve source updates correctly even for first-time subscribers.
 - Editorial landing page with modular sections and brand-aligned auth entry flows.
 - Marketing SEO now ships a generated sitemap/robots setup, homepage-specific metadata and copy, crawlable blog/free-tools links, author profile pages, and keyword-targeted blog slugs and aliases.
 - The marketing blog now includes a Chatting-first small-business live-chat comparison post aimed at high-intent buyers evaluating chat tools.

@@ -13,10 +13,12 @@ import {
   invalidateAuthEmailTokens
 } from "@/lib/repositories/auth-token-repository";
 import {
+  findNewsletterSubscriberById,
   findNewsletterSubscriberByEmail,
   insertNewsletterSubscriberRecord,
   markNewsletterWelcomeEmailSent,
-  updateNewsletterSubscriberSource
+  updateNewsletterSubscriberSource,
+  updateNewsletterSubscriberSubscription
 } from "@/lib/repositories/newsletter-repository";
 import {
   findUserOnboardingState,
@@ -93,6 +95,7 @@ describe("auth token, newsletter, and onboarding repositories", () => {
       email: "owner@example.com",
       source: "landing",
       last_source: "landing",
+      unsubscribed_at: null,
       welcome_email_sent_at: null,
       created_at: "2026-03-29T10:00:00.000Z",
       updated_at: "2026-03-29T10:00:00.000Z"
@@ -100,21 +103,31 @@ describe("auth token, newsletter, and onboarding repositories", () => {
     mocks.query
       .mockResolvedValueOnce({ rows: [subscriber] })
       .mockResolvedValueOnce({ rows: [subscriber] })
+      .mockResolvedValueOnce({ rows: [subscriber] })
       .mockResolvedValueOnce({ rows: [{ ...subscriber, last_source: "blog" }] })
+      .mockResolvedValueOnce({
+        rows: [{ ...subscriber, unsubscribed_at: "2026-03-30T10:00:00.000Z" }]
+      })
       .mockResolvedValueOnce({ rows: [] });
 
     await expect(findNewsletterSubscriberByEmail("owner@example.com")).resolves.toEqual(subscriber);
     await expect(
       insertNewsletterSubscriberRecord({ id: "sub_1", email: "owner@example.com", source: "landing" })
     ).resolves.toEqual(subscriber);
+    await expect(findNewsletterSubscriberById("sub_1")).resolves.toEqual(subscriber);
     await expect(updateNewsletterSubscriberSource("sub_1", "blog")).resolves.toMatchObject({
       last_source: "blog"
+    });
+    await expect(updateNewsletterSubscriberSubscription("sub_1", false)).resolves.toMatchObject({
+      unsubscribed_at: "2026-03-30T10:00:00.000Z"
     });
     await markNewsletterWelcomeEmailSent("sub_1");
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("FROM newsletter_subscribers");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("VALUES ($1, $2, $3, $3)");
-    expect(mocks.query.mock.calls[2]?.[0]).toContain("SET last_source = $2");
-    expect(mocks.query.mock.calls[3]?.[0]).toContain("SET welcome_email_sent_at = NOW()");
+    expect(mocks.query.mock.calls[2]?.[0]).toContain("WHERE id = $1");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("SET last_source = $2");
+    expect(mocks.query.mock.calls[4]?.[0]).toContain("SET unsubscribed_at = CASE WHEN $2 THEN NULL ELSE NOW() END");
+    expect(mocks.query.mock.calls[5]?.[0]).toContain("SET welcome_email_sent_at = NOW()");
   });
 });
