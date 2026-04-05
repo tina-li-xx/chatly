@@ -104,10 +104,21 @@ Once user approves the commit:
 
 3. **Update the public changelog**
    - Add or update the relevant entry in `src/lib/changelog-data.ts` so the shipped change is reflected on `/changelog`
+   - Write changelog copy for customers, not engineers
+   - Only include user-facing outcomes, product behavior, pricing, onboarding, marketing, or operational changes customers would actually care about
+   - Do not mention internal refactors, file splits, type fixes, build fixes, test fixes, or codebase maintenance unless they produced a clear customer-visible change
+   - If a small fix only slightly improves an existing shipped feature, fold it into that feature's existing entry instead of inventing a weak standalone changelog item
+   - If the change has no meaningful customer-facing story, do not force a changelog entry just to satisfy process
 
 **README Key Modules Sync (Required)**: For each user-approved commit, update both `README.md` sections: `## Recent Updates` and the relevant area(s) under `## 🚀 Key Modules`. Do not consider the task complete until both are updated for the shipped feature.
 
 **Changelog Sync (Required)**: For each user-approved commit that changes user-visible behavior, marketing surfaces, pricing, onboarding, or operations, update `src/lib/changelog-data.ts` in the same pass. Do not consider the task complete until the public changelog reflects the shipped change.
+**Changelog Writing Standard (Required)**:
+- The changelog must read like product communication, not engineering notes
+- Prefer concrete customer outcomes such as what teams can now do, what got easier, or what confusion/friction was removed
+- Avoid filler phrasing like "polish pass", "reliability pass", "under-the-hood improvements", or "rough edges"
+- If a sentence would make a customer think "who cares?", rewrite it or delete it
+- Good changelog bullets describe visible impact; bad changelog bullets describe implementation
 
 #### Quick Reference
 

@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Tightened repo changelog rules so public entries stay customer-facing and skip internal-only filler.
 - Added People contact profiles with saved contact history, statuses, custom fields, and in-place profile editing.
 - Stabilized inbox contact editing, visitor notes, and the supporting dashboard settings flows around the new People experience.
 - Fixed newsletter signup source syncing for brand-new subscribers.
@@ -224,6 +225,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Contributor Docs
 
 - Repo agent guidance, product context, and design-system reference docs live alongside the codebase.
+- Changelog guidance now explicitly requires customer-facing product language instead of internal engineering notes or filler.
 - Digital marketing docs now include a reusable SEO blog prompt library covering master, comparison, how-to, and Reddit-thread conversion prompts.
 - The SEO prompt library now explicitly forbids neutral first drafts and requires Chatting-first copy from the first pass.
 - The root TypeScript config now includes Vitest globals so colocated route and component tests type-check cleanly during `next build`.
