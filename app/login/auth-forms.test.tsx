@@ -28,11 +28,13 @@ async function renderAuthForms(
   });
 
   vi.doMock("./actions", () => ({
-    forgotPasswordAction: vi.fn(),
     loginAction: vi.fn(),
-    resendVerificationAction: vi.fn(),
-    resetPasswordAction: vi.fn(),
     signupAction: vi.fn()
+  }));
+  vi.doMock("./password-actions", () => ({
+    forgotPasswordAction: vi.fn(),
+    resendVerificationAction: vi.fn(),
+    resetPasswordAction: vi.fn()
   }));
   vi.doMock("../ui/toast-provider", () => ({ useToast: () => ({ showToast: vi.fn() }) }));
 
