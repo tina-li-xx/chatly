@@ -1,6 +1,6 @@
 import { sendDailyDigestEmail } from "@/lib/chatly-notification-email-senders";
-import { getAnalyticsDataset } from "@/lib/data/analytics";
-import { listConversationSummaries } from "@/lib/data/conversations";
+import { getAnalyticsDatasetForOwnerUserId } from "@/lib/data/analytics";
+import { mapSummary, queryConversationSummaries } from "@/lib/data/shared";
 import {
   dailyDeliveryDateKey,
   formatDateKeyLabel,
@@ -10,9 +10,9 @@ import {
 } from "@/lib/report-time";
 import { getPublicAppUrl } from "@/lib/env";
 import {
-  hasDailyDigestDelivery,
-  insertDailyDigestDelivery,
-  listDailyDigestRecipientRows
+  claimDailyDigestDelivery,
+  listDailyDigestRecipientRows,
+  releaseDailyDigestDelivery
 } from "@/lib/repositories/daily-digest-repository";
 import { displayNameFromEmail } from "@/lib/user-display";
 import { formatRelativeTime, optionalText, truncate } from "@/lib/utils";
@@ -81,12 +81,23 @@ function buildOpenConversationTitle(email: string | null, pageUrl: string | null
   return `${visitorName} from ${pageSourceLabel(pageUrl)}`;
 }
 
+async function listWorkspaceConversationSummaries(ownerUserId: string, viewerUserId: string) {
+  const result = await queryConversationSummaries(
+    "s.user_id = $1",
+    [ownerUserId],
+    "ORDER BY latest.created_at DESC NULLS LAST, c.updated_at DESC",
+    viewerUserId
+  );
+  return result.rows.map(mapSummary);
+}
+
 export function shouldRunDailyDigests(now = new Date(), timeZone?: string | null) {
   return shouldRunDailyReport(now, timeZone);
 }
 
 export async function sendUserDailyDigest(input: {
   userId: string;
+  ownerUserId: string;
   notificationEmail: string;
   timeZone?: string | null;
   now?: Date;
@@ -99,14 +110,9 @@ export async function sendUserDailyDigest(input: {
   }
 
   const deliveryDateKey = dailyDeliveryDateKey(now, timeZone);
-
-  if (await hasDailyDigestDelivery(input.userId, deliveryDateKey)) {
-    return "already-sent" as const;
-  }
-
   const [dataset, summaries] = await Promise.all([
-    getAnalyticsDataset(input.userId),
-    listConversationSummaries(input.userId)
+    getAnalyticsDatasetForOwnerUserId(input.ownerUserId),
+    listWorkspaceConversationSummaries(input.ownerUserId, input.userId)
   ]);
   const todaysConversations = dataset.conversations.filter((conversation) =>
     isConversationOnDateKey(conversation.createdAt, deliveryDateKey, timeZone)
@@ -129,22 +135,30 @@ export async function sendUserDailyDigest(input: {
     return "skipped" as const;
   }
 
+  if (!(await claimDailyDigestDelivery(input.userId, input.ownerUserId, deliveryDateKey))) {
+    return "already-sent" as const;
+  }
+
   const repliedWithinFifteenMinutes = responseTimes.length
     ? (responseTimes.filter((value) => value <= FIFTEEN_MINUTES_IN_SECONDS).length / responseTimes.length) * 100
     : null;
 
-  await sendDailyDigestEmail({
-    to: input.notificationEmail,
-    date: formatDateKeyLabel(deliveryDateKey),
-    metrics: [
-      { value: formatCount(todaysConversations.length), label: "new conversations" },
-      { value: formatDuration(average(responseTimes)), label: "avg first response" },
-      { value: formatPercent(repliedWithinFifteenMinutes), label: "replied within 15 min" }
-    ],
-    openConversations,
-    inboxUrl: `${getPublicAppUrl()}/dashboard/inbox`
-  });
-  await insertDailyDigestDelivery(input.userId, deliveryDateKey);
+  try {
+    await sendDailyDigestEmail({
+      to: input.notificationEmail,
+      date: formatDateKeyLabel(deliveryDateKey),
+      metrics: [
+        { value: formatCount(todaysConversations.length), label: "new conversations" },
+        { value: formatDuration(average(responseTimes)), label: "avg first response" },
+        { value: formatPercent(repliedWithinFifteenMinutes), label: "replied within 15 min" }
+      ],
+      openConversations,
+      inboxUrl: `${getPublicAppUrl()}/dashboard/inbox`
+    });
+  } catch (error) {
+    await releaseDailyDigestDelivery(input.userId, input.ownerUserId, deliveryDateKey);
+    throw error;
+  }
 
   return "sent" as const;
 }
@@ -158,6 +172,7 @@ export async function runScheduledDailyDigests(now = new Date()) {
     try {
       const status = await sendUserDailyDigest({
         userId: recipient.user_id,
+        ownerUserId: recipient.owner_user_id,
         notificationEmail: optionalText(recipient.notification_email) || recipient.email,
         timeZone: recipient.timezone,
         now
@@ -166,7 +181,7 @@ export async function runScheduledDailyDigests(now = new Date()) {
       skipped += status === "sent" ? 0 : 1;
     } catch (error) {
       skipped += 1;
-      console.error("daily digest send failed", recipient.user_id, error);
+      console.error("daily digest send failed", recipient.user_id, recipient.owner_user_id, error);
     }
   }
 

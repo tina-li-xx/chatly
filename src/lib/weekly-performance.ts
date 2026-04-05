@@ -1,177 +1,168 @@
-import { sendWeeklyPerformanceEmail } from "@/lib/chatly-notification-email-senders";
-import { getAnalyticsDataset, type AnalyticsConversationRecord } from "@/lib/data/analytics";
+import {
+  sendWeeklyPerformanceEmail,
+  sendWeeklyWidgetInstallEmail
+} from "@/lib/chatly-notification-email-senders";
 import { getPublicAppUrl } from "@/lib/env";
+import { optionalText } from "@/lib/utils";
 import {
   hasWeeklyPerformanceDelivery,
   insertWeeklyPerformanceDelivery,
-  listWeeklyPerformanceRecipientRows
+  listWeeklyPerformanceRecipientRows,
+  listWeeklyPerformanceWorkspaceRows
 } from "@/lib/repositories/weekly-performance-repository";
-import { optionalText } from "@/lib/utils";
 import {
-  formatDateKeyLabel,
-  isConversationInLocalWeek,
-  localHour,
   previousLocalWeekStartDateKey,
   resolveReportTimeZone,
-  shiftDateKey,
   shouldRunWeeklyReport
 } from "@/lib/report-time";
+import { getOrCreateWeeklyPerformanceSnapshot } from "@/lib/weekly-performance-snapshot-service";
 
-const FAST_REPLY_SECONDS = 5 * 60;
+type WeeklyPerformanceSendStatus = "sent" | "too-early" | "already-sent";
 
-function formatPercent(value: number | null) {
-  return value == null ? "—" : `${Math.round(value)}%`;
-}
-
-function pageLabelFromUrl(value: string | null) {
-  if (!value) {
-    return "/";
-  }
-  try {
-    return new URL(value).pathname || "/";
-  } catch {
-    return value;
-  }
-}
-
-function filterConversations(conversations: AnalyticsConversationRecord[], weekStart: string, timeZone?: string | null) {
-  return conversations.filter((conversation) => isConversationInLocalWeek(conversation.createdAt, weekStart, timeZone));
-}
-
-function buildVolumeHighlight(currentCount: number, previousCount: number) {
-  if (previousCount <= 0) {
-    return `${currentCount} conversations came in this week`;
-  }
-  const delta = ((currentCount - previousCount) / previousCount) * 100;
-  if (Math.abs(delta) < 0.5) {
-    return "Conversation volume matched last week";
-  }
-
-  return `Conversation volume was ${delta > 0 ? "up" : "down"} ${Math.round(Math.abs(delta))}% from last week`;
-}
-
-function buildFastReplyHighlight(conversations: AnalyticsConversationRecord[]) {
-  const values = conversations
-    .map((conversation) => conversation.firstResponseSeconds)
-    .filter((value): value is number => value != null);
-
-  if (!values.length) {
-    return "No first-response data was recorded this week";
-  }
-
-  const fastRate = (values.filter((value) => value <= FAST_REPLY_SECONDS).length / values.length) * 100;
-  return `Replies were under 5 minutes for ${formatPercent(fastRate)} of responded conversations`;
-}
-
-function buildResolutionHighlight(conversations: AnalyticsConversationRecord[]) {
-  const resolvedRate = (conversations.filter((conversation) => conversation.status === "resolved").length / conversations.length) * 100;
-  return `Resolved ${formatPercent(resolvedRate)} of this week's conversations`;
-}
-
-function formatHourBlock(startHour: number) {
-  const formatHour = (hour: number) => {
-    const normalized = ((hour % 24) + 24) % 24;
-    const suffix = normalized >= 12 ? "pm" : "am";
-    const hour12 = normalized % 12 || 12;
-    return `${hour12}${suffix}`;
+function reportLinks() {
+  const baseUrl = getPublicAppUrl();
+  return {
+    reportUrl: `${baseUrl}/dashboard/analytics?range=last_week`,
+    settingsUrl: `${baseUrl}/dashboard/settings?section=reports`,
+    widgetUrl: `${baseUrl}/dashboard/widget`
   };
-
-  return `${formatHour(startHour)}-${formatHour(startHour + 2)}`;
 }
 
-function buildBusiestHours(conversations: AnalyticsConversationRecord[], timeZone?: string | null) {
-  const resolvedTimeZone = resolveReportTimeZone(timeZone);
-  const hourlyCounts = Array.from({ length: 24 }, () => 0);
-  conversations.forEach((conversation) => {
-    hourlyCounts[localHour(new Date(conversation.createdAt), resolvedTimeZone)] += 1;
-  });
+function teamNameOrFallback(teamName?: string | null) {
+  return teamName || "Chatting";
+}
 
-  const windows = hourlyCounts
-    .slice(0, 23)
-    .map((count, startHour) => ({ startHour, count: count + hourlyCounts[startHour + 1] }))
-    .filter((window) => window.count > 0)
-    .sort(
-      (left, right) =>
-        right.count - left.count ||
-        hourlyCounts[right.startHour] - hourlyCounts[left.startHour] ||
-        left.startHour - right.startHour
-    );
+function buildWeeklySnapshotRequest(input: {
+  ownerUserId: string;
+  teamName?: string | null;
+  teamTimeZone?: string | null;
+  weekStart: string;
+  includeAiInsights?: boolean;
+  includeTeamLeaderboard?: boolean;
+}) {
+  return {
+    ...reportLinks(),
+    ownerUserId: input.ownerUserId,
+    teamName: teamNameOrFallback(input.teamName),
+    weekStart: input.weekStart,
+    teamTimeZone: resolveReportTimeZone(input.teamTimeZone),
+    includeAiInsights: input.includeAiInsights ?? true,
+    includeTeamLeaderboard: input.includeTeamLeaderboard ?? true
+  };
+}
 
-  if (!windows.length) {
-    return "No conversation spikes yet";
+export function shouldRunWeeklyPerformanceEmails(
+  now = new Date(),
+  recipientTimeZone?: string | null,
+  teamTimeZone?: string | null,
+  sendHour = 9,
+  sendMinute = 0
+) {
+  const recipientZone = resolveReportTimeZone(recipientTimeZone);
+  const workspaceZone = resolveReportTimeZone(teamTimeZone ?? recipientTimeZone);
+  return (
+    shouldRunWeeklyReport(now, recipientZone, sendHour, sendMinute) &&
+    previousLocalWeekStartDateKey(now, recipientZone) === previousLocalWeekStartDateKey(now, workspaceZone)
+  );
+}
+
+async function ensureWeeklySnapshots(now: Date) {
+  const workspaces = await listWeeklyPerformanceWorkspaceRows();
+
+  for (const workspace of workspaces) {
+    if (!workspace.widget_installed) {
+      continue;
+    }
+
+    await getOrCreateWeeklyPerformanceSnapshot(buildWeeklySnapshotRequest({
+      ownerUserId: workspace.owner_user_id,
+      teamName: workspace.team_name,
+      teamTimeZone: workspace.team_timezone,
+      weekStart: previousLocalWeekStartDateKey(now, workspace.team_timezone),
+      includeAiInsights: workspace.workspace_ai_insights_enabled,
+      includeTeamLeaderboard: workspace.workspace_include_team_leaderboard,
+    }));
   }
-
-  const primary = windows[0];
-  const secondary = windows.find((window) => Math.abs(window.startHour - primary.startHour) > 1);
-  return secondary
-    ? `${formatHourBlock(primary.startHour)} and ${formatHourBlock(secondary.startHour)}`
-    : formatHourBlock(primary.startHour);
-}
-
-function buildTopPages(conversations: AnalyticsConversationRecord[]) {
-  const counts = new Map<string, number>();
-  conversations.forEach((conversation) => {
-    const page = pageLabelFromUrl(conversation.pageUrl);
-    counts.set(page, (counts.get(page) ?? 0) + 1);
-  });
-
-  return [...counts.entries()]
-    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
-    .slice(0, 3)
-    .map(([page, count]) => `${page} — ${count} conversation${count === 1 ? "" : "s"}`);
-}
-
-export function shouldRunWeeklyPerformanceEmails(now = new Date(), timeZone?: string | null) {
-  return shouldRunWeeklyReport(now, timeZone);
 }
 
 export async function sendUserWeeklyPerformanceEmail(input: {
   userId: string;
+  ownerUserId: string;
   notificationEmail: string;
-  timeZone?: string | null;
+  recipientTimeZone?: string | null;
+  teamTimeZone?: string | null;
+  teamName?: string | null;
+  weeklyReportSendHour?: number;
+  weeklyReportSendMinute?: number;
+  weeklyReportIncludePersonalStats?: boolean;
+  workspaceIncludeTeamLeaderboard?: boolean;
+  workspaceAiInsightsEnabled?: boolean;
+  widgetInstalled?: boolean;
   now?: Date;
-}) {
+}): Promise<WeeklyPerformanceSendStatus> {
   const now = input.now ?? new Date();
-  const timeZone = resolveReportTimeZone(input.timeZone);
+  const teamTimeZone = resolveReportTimeZone(input.teamTimeZone ?? input.recipientTimeZone);
 
-  if (!shouldRunWeeklyReport(now, timeZone)) {
-    return "too-early" as const;
+  if (
+    !shouldRunWeeklyPerformanceEmails(
+      now,
+      input.recipientTimeZone,
+      teamTimeZone,
+      input.weeklyReportSendHour ?? 9,
+      input.weeklyReportSendMinute ?? 0
+    )
+  ) {
+    return "too-early";
   }
 
-  const deliveryKey = previousLocalWeekStartDateKey(now, timeZone);
-  const previousWeekStart = shiftDateKey(deliveryKey, -7);
-
-  if (await hasWeeklyPerformanceDelivery(input.userId, deliveryKey)) {
-    return "already-sent" as const;
+  const deliveryKey = previousLocalWeekStartDateKey(now, teamTimeZone);
+  if (await hasWeeklyPerformanceDelivery(input.userId, input.ownerUserId, deliveryKey)) {
+    return "already-sent";
   }
 
-  const dataset = await getAnalyticsDataset(input.userId);
-  const currentWeek = filterConversations(dataset.conversations, deliveryKey, timeZone);
+  const snapshotRequest = buildWeeklySnapshotRequest({
+    ownerUserId: input.ownerUserId,
+    teamName: input.teamName,
+    teamTimeZone,
+    weekStart: deliveryKey,
+    includeAiInsights: input.workspaceAiInsightsEnabled ?? true,
+    includeTeamLeaderboard: input.workspaceIncludeTeamLeaderboard ?? true
+  });
 
-  if (!currentWeek.length) {
-    return "skipped" as const;
+  if (!input.widgetInstalled) {
+    await sendWeeklyWidgetInstallEmail({
+      to: input.notificationEmail,
+      teamName: snapshotRequest.teamName,
+      widgetUrl: snapshotRequest.widgetUrl,
+      settingsUrl: snapshotRequest.settingsUrl
+    });
+    await insertWeeklyPerformanceDelivery(input.userId, input.ownerUserId, deliveryKey);
+    return "sent";
   }
 
-  const previousWeek = filterConversations(dataset.conversations, previousWeekStart, timeZone);
+  const snapshot = await getOrCreateWeeklyPerformanceSnapshot(snapshotRequest);
 
   await sendWeeklyPerformanceEmail({
     to: input.notificationEmail,
-    dateRange: `${formatDateKeyLabel(deliveryKey, "short")} - ${formatDateKeyLabel(shiftDateKey(deliveryKey, 6), "short")}`,
-    highlights: [
-      buildVolumeHighlight(currentWeek.length, previousWeek.length),
-      buildFastReplyHighlight(currentWeek),
-      buildResolutionHighlight(currentWeek)
-    ],
-    busiestHours: buildBusiestHours(currentWeek, timeZone),
-    topPages: buildTopPages(currentWeek),
-    reportUrl: `${getPublicAppUrl()}/dashboard/analytics`
+    footerTeamName: snapshotRequest.teamName,
+    report: {
+      ...snapshot,
+      recipientUserId: input.userId,
+      teamPerformance: input.workspaceIncludeTeamLeaderboard === false ? [] : snapshot.teamPerformance,
+      personalPerformance:
+        input.weeklyReportIncludePersonalStats === false
+          ? null
+          : snapshot.personalPerformanceByUserId[input.userId] ?? null
+    }
   });
-  await insertWeeklyPerformanceDelivery(input.userId, deliveryKey);
+  await insertWeeklyPerformanceDelivery(input.userId, input.ownerUserId, deliveryKey);
 
-  return "sent" as const;
+  return "sent";
 }
 
 export async function runScheduledWeeklyPerformanceEmails(now = new Date()) {
+  await ensureWeeklySnapshots(now);
+
   const recipients = await listWeeklyPerformanceRecipientRows();
   let sent = 0;
   let skipped = 0;
@@ -180,15 +171,24 @@ export async function runScheduledWeeklyPerformanceEmails(now = new Date()) {
     try {
       const status = await sendUserWeeklyPerformanceEmail({
         userId: recipient.user_id,
+        ownerUserId: recipient.owner_user_id,
         notificationEmail: optionalText(recipient.notification_email) || recipient.email,
-        timeZone: recipient.timezone,
+        recipientTimeZone: recipient.recipient_timezone,
+        teamTimeZone: recipient.team_timezone,
+        teamName: recipient.team_name,
+        weeklyReportSendHour: recipient.weekly_report_send_hour,
+        weeklyReportSendMinute: recipient.weekly_report_send_minute,
+        weeklyReportIncludePersonalStats: recipient.weekly_report_include_personal_stats,
+        workspaceIncludeTeamLeaderboard: recipient.workspace_include_team_leaderboard,
+        workspaceAiInsightsEnabled: recipient.workspace_ai_insights_enabled,
+        widgetInstalled: recipient.widget_installed,
         now
       });
       sent += status === "sent" ? 1 : 0;
       skipped += status === "sent" ? 0 : 1;
     } catch (error) {
       skipped += 1;
-      console.error("weekly performance email failed", recipient.user_id, error);
+      console.error("weekly performance email failed", recipient.user_id, recipient.owner_user_id, error);
     }
   }
 

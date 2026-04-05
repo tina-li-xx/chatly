@@ -1,0 +1,23 @@
+export const openConversation = {
+  id: "conv_1",
+  siteId: "site_1",
+  siteName: "Chatting",
+  email: "alex@example.com",
+  sessionId: "session_1",
+  status: "open" as const,
+  createdAt: "2026-03-30T08:00:00.000Z",
+  updatedAt: "2026-03-30T10:00:00.000Z",
+  pageUrl: "https://usechatting.com/pricing",
+  referrer: null,
+  userAgent: null,
+  country: null,
+  region: null,
+  city: null,
+  timezone: null,
+  locale: null,
+  lastMessageAt: "2026-03-30T13:00:00.000Z",
+  lastMessagePreview: "Can I remove Chatting branding on Growth?",
+  unreadCount: 1,
+  rating: null,
+  tags: []
+};
