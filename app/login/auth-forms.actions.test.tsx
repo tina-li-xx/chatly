@@ -117,8 +117,8 @@ describe("auth forms actions", () => {
     const forgotFlow = await loadAuthForms();
     const { AuthForms: ForgotAuthForms, reactMocks: forgotReactMocks, forgotPasswordAction, showToast: forgotToast } = forgotFlow;
     forgotPasswordAction
-      .mockResolvedValueOnce({ ok: false, error: "Email missing." })
-      .mockResolvedValueOnce({ ok: true, error: null, message: "Reset sent." });
+      .mockResolvedValueOnce({ ok: false, error: "Email missing.", message: null, nextPath: null })
+      .mockResolvedValueOnce({ ok: true, error: null, message: "Reset sent.", nextPath: null });
     forgotReactMocks.beginRender();
     let tree = ForgotAuthForms({ initialMode: "forgot" });
     submitForm(tree, { email: "hello@example.com" });
@@ -139,13 +139,21 @@ describe("auth forms actions", () => {
 
   it("submits password resets with the token and returns to auth actions", async () => {
     const { AuthForms, reactMocks, router, resetPasswordAction } = await loadAuthForms();
-    resetPasswordAction.mockResolvedValue({ ok: true, error: null, message: "Password reset complete." });
+    resetPasswordAction.mockResolvedValue({ ok: true, error: null, message: "Password reset complete.", nextPath: "/dashboard" });
     reactMocks.beginRender();
     let tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
     submitForm(tree, { password: "Password123!", confirmPassword: "Password123!" });
     await flushAsyncWork();
     const submittedFormData = resetPasswordAction.mock.calls[0]?.[0] as MockFormData;
     expect(submittedFormData.get("token")).toBe("token_123");
+    expect(router.replace).toHaveBeenCalledWith("/dashboard");
+
+    resetPasswordAction.mockResolvedValueOnce({ ok: true, error: null, message: "Password reset complete.", nextPath: null });
+
+    reactMocks.beginRender();
+    tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
+    submitForm(tree, { password: "Password123!", confirmPassword: "Password123!" });
+    await flushAsyncWork();
     reactMocks.beginRender();
     tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
     expect(renderToStaticMarkup(tree)).toContain("Password updated");
@@ -157,19 +165,18 @@ describe("auth forms actions", () => {
         typeof element.props.onClick === "function" &&
         textContent(element.props.children).length > 0
     );
-    buttons.find((element) => textContent(element.props.children).includes("Create account"))?.props.onClick();
+    expect(renderToStaticMarkup(tree)).not.toContain("Create account");
     buttons.find((element) => textContent(element.props.children).includes("Back to sign in"))?.props.onClick();
     reactMocks.beginRender();
     tree = AuthForms({ initialMode: "reset", resetToken: "token_123" });
-    expect(router.push).toHaveBeenCalledWith("/signup");
     expect(renderToStaticMarkup(tree)).toContain("Sign in");
   });
 
   it("submits resend-verification requests and shows confirmation copy", async () => {
     const { AuthForms, reactMocks, resendVerificationAction, showToast } = await loadAuthForms();
     resendVerificationAction
-      .mockResolvedValueOnce({ ok: false, error: "Email missing." })
-      .mockResolvedValueOnce({ ok: true, error: null, message: "Verification sent." });
+      .mockResolvedValueOnce({ ok: false, error: "Email missing.", message: null, nextPath: null })
+      .mockResolvedValueOnce({ ok: true, error: null, message: "Verification sent.", nextPath: null });
     reactMocks.beginRender();
     let tree = AuthForms({ initialMode: "verify" });
     submitForm(tree, { email: "hello@example.com" });

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllBlogAuthors, getBlogAuthorBySlug, getBlogPostsByAuthor } from "@/lib/blog-data";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
+import { buildDefaultSocialMetadata } from "@/lib/site-seo";
 import { BlogPostCard } from "../../blog-home-sections";
 import { BlogAuthorAvatar } from "../../blog-primitives";
 import { BlogShell } from "../../blog-shell";
@@ -29,16 +30,12 @@ export async function generateMetadata({ params }: BlogAuthorRouteProps): Promis
     title: `${author.name} | Chatting Blog`,
     description: author.bio,
     alternates: { canonical },
-    openGraph: {
+    ...buildDefaultSocialMetadata({
       title: `${author.name} | Chatting Blog`,
       description: author.bio,
-      url: canonical
-    },
-    twitter: {
-      card: "summary",
-      title: `${author.name} | Chatting Blog`,
-      description: author.bio
-    }
+      url: canonical,
+      openGraphType: "profile"
+    })
   };
 }
 

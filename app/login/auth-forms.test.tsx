@@ -112,7 +112,7 @@ describe("auth forms", () => {
 
     expect(html).toContain("Reset email sent");
     expect(html).toContain("Back to sign in");
-    expect(html).toContain("Create account");
+    expect(html).not.toContain("Create account");
   });
 
   it("renders invite-specific sign-in copy", async () => {

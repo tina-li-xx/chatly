@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { AuthPageShell, AuthFormIntro } from "../login/auth-shell";
 import { FormButtonLink } from "../ui/form-controls";
-import { acceptTeamInvite, getTeamInvitePreview } from "@/lib/workspace-access";
+import { acceptTeamInvite, getTeamInvitePreview, switchCurrentWorkspace } from "@/lib/workspace-access";
 
 type InvitePageProps = {
   searchParams: Promise<{
@@ -47,6 +47,7 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
     ? await getTeamInvitePreview(inviteId)
     : {
         id: "",
+        ownerUserId: null,
         email: "",
         role: "member" as const,
         message: "",
@@ -60,21 +61,32 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
 
   if (user && invite.state === "pending" && invite.email.toLowerCase() === user.email.toLowerCase()) {
     try {
-      await acceptTeamInvite({
+      const acceptedInvite = await acceptTeamInvite({
         inviteId,
         userId: user.id,
         email: user.email
       });
+      await switchCurrentWorkspace({
+        userId: user.id,
+        ownerUserId: acceptedInvite.ownerUserId
+      });
       redirect("/dashboard");
     } catch (error) {
-      autoAcceptError =
-        error instanceof Error && error.message === "INVITE_WORKSPACE_CONFLICT"
-          ? "This account already owns another workspace, so it can't join this one yet."
-          : "We couldn't accept this invite automatically.";
+      autoAcceptError = "We couldn't accept this invite automatically.";
     }
   }
 
   if (user && invite.state === "accepted" && invite.email.toLowerCase() === user.email.toLowerCase()) {
+    if (invite.ownerUserId) {
+      try {
+        await switchCurrentWorkspace({
+          userId: user.id,
+          ownerUserId: invite.ownerUserId
+        });
+      } catch {
+        // If the workspace access has changed since the invite was accepted, fall back to the user's current team.
+      }
+    }
     redirect("/dashboard");
   }
 

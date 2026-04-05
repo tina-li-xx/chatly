@@ -29,11 +29,16 @@ const workspaceMocks = vi.hoisted(() => ({
   acceptTeamInvite: vi.fn()
 }));
 
+const timeZoneMocks = vi.hoisted(() => ({
+  persistPreferredTimeZoneForUser: vi.fn()
+}));
+
 vi.mock("@/lib/auth", () => authMocks);
 vi.mock("@/lib/auth-email-verification", () => verificationMocks);
 vi.mock("@/lib/auth-password-reset", () => passwordResetMocks);
 vi.mock("@/lib/chatly-transactional-email-senders", () => emailMocks);
 vi.mock("@/lib/data", () => dataMocks);
+vi.mock("@/lib/user-timezone-preference", () => timeZoneMocks);
 vi.mock("@/lib/workspace-access", () => workspaceMocks);
 
 import { loginAction, signupAction, type AuthActionState } from "./actions";
@@ -55,6 +60,7 @@ export {
   callResendVerificationAction as resendVerificationAction,
   callResetPasswordAction as resetPasswordAction,
   callSignupAction as signupAction,
+  timeZoneMocks,
   verificationMocks,
   workspaceMocks,
   type AuthActionState
@@ -82,4 +88,5 @@ export function resetActionMocks() {
   vi.clearAllMocks();
   process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
   dataMocks.getPostAuthPath.mockResolvedValue("/onboarding?step=customize");
+  workspaceMocks.acceptTeamInvite.mockResolvedValue({ ownerUserId: "owner_123", alreadyAccepted: false });
 }

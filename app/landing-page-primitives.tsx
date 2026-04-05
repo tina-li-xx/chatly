@@ -76,8 +76,8 @@ export function LandingHeader() {
               Sign in
             </Link>
             <ButtonLink href="/signup" size="md">
-              <span className="sm:hidden">Start free</span>
-              <span className="hidden sm:inline">Start free</span>
+              <span className="sm:hidden">Start 14 day free trial</span>
+              <span className="hidden sm:inline">Start 14 day free trial</span>
             </ButtonLink>
           </div>
         </div>

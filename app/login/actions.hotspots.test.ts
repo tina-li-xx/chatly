@@ -5,6 +5,9 @@ const authMocks = vi.hoisted(() => ({
   signUpInvitedUser: vi.fn(),
   signUpUser: vi.fn()
 }));
+const timeZoneMocks = vi.hoisted(() => ({
+  persistPreferredTimeZoneForUser: vi.fn()
+}));
 
 vi.mock("@/lib/auth", () => authMocks);
 vi.mock("@/lib/auth-email-verification", () => ({
@@ -21,6 +24,7 @@ vi.mock("@/lib/data", () => ({
   getPostAuthPath: vi.fn(),
   onboardingPathForStep: (step: string) => (step === "done" ? "/dashboard" : `/onboarding?step=${step}`)
 }));
+vi.mock("@/lib/user-timezone-preference", () => timeZoneMocks);
 vi.mock("@/lib/workspace-access", () => ({ acceptTeamInvite: vi.fn() }));
 
 import { loginAction, signupAction, type AuthActionState } from "./actions";

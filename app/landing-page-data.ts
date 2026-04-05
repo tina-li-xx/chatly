@@ -9,33 +9,6 @@ export function codeSnippet() {
 ></script>`;
 }
 
-export const pillars = [
-  {
-    icon: "chat",
-    title: "Real-time, really",
-    body:
-      "See who's typing. Know when messages are read. No refresh button in sight. When someone asks a question, you answer, and they see it appear in real-time.",
-    stat: "",
-    meta: ""
-  },
-  {
-    icon: "eye",
-    title: "Context at a glance",
-    body:
-      "See what page they're viewing, where they came from, and how long they've been browsing. Start every conversation with context, not \"How can I help you today?\"",
-    stat: "",
-    meta: ""
-  },
-  {
-    icon: "users",
-    title: "Small team, big presence",
-    body:
-      "Customizable branding, smart away messages, and email fallback mean you're always on, even when you're not. Your team of 3 can feel like a team of 30.",
-    stat: "",
-    meta: ""
-  }
-];
-
 export const testimonials = [
   {
     initials: "M",
@@ -60,21 +33,21 @@ export const testimonials = [
 export const setupSteps = [
   {
     number: "1",
-    title: "Copy one line of code",
+    title: "Copy one snippet",
     body:
-      "Add our tiny script to your site. That's it. Works with any website, WordPress, Webflow, Shopify, or custom code."
+      "One line of code. Works with any site — WordPress, Webflow, Shopify, custom."
   },
   {
     number: "2",
-    title: "Customize your widget",
+    title: "Customize (optional)",
     body:
-      "Pick your colors. Write your welcome message. Position it where you want. See changes in real-time."
+      "Pick colors. Write your welcome message. Set hours. Or just use the defaults and go."
   },
   {
     number: "3",
     title: "Start chatting",
     body:
-      "When a visitor says hello, you'll know. Desktop notifications and email alerts help your team stay on top of every conversation."
+      "Visitor asks a question. You answer. Desktop notifications and email alerts also help your team stay on top of every conversation."
   }
 ];
 

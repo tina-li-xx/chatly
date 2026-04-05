@@ -2,14 +2,16 @@ const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
   getCurrentUser: vi.fn(),
   getTeamInvitePreview: vi.fn(),
-  acceptTeamInvite: vi.fn()
+  acceptTeamInvite: vi.fn(),
+  switchCurrentWorkspace: vi.fn()
 }));
 
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/auth", () => ({ getCurrentUser: mocks.getCurrentUser }));
 vi.mock("@/lib/workspace-access", () => ({
   acceptTeamInvite: mocks.acceptTeamInvite,
-  getTeamInvitePreview: mocks.getTeamInvitePreview
+  getTeamInvitePreview: mocks.getTeamInvitePreview,
+  switchCurrentWorkspace: mocks.switchCurrentWorkspace
 }));
 vi.mock("../login/auth-shell", () => ({
   AuthPageShell: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -22,6 +24,7 @@ import InvitePage from "./page";
 function pendingInvite(overrides: Record<string, unknown> = {}) {
   return {
     id: "invite_1",
+    ownerUserId: "owner_1",
     email: "alex@example.com",
     role: "admin" as const,
     message: "Come join us",
@@ -41,6 +44,7 @@ describe("invite page", () => {
     });
     mocks.getCurrentUser.mockResolvedValue(null);
     mocks.getTeamInvitePreview.mockResolvedValue(pendingInvite());
+    mocks.acceptTeamInvite.mockResolvedValue({ ownerUserId: "owner_1", alreadyAccepted: false });
   });
 
   it("renders pending invites with account links", async () => {
@@ -63,17 +67,21 @@ describe("invite page", () => {
       userId: "user_1",
       email: "alex@example.com"
     });
+    expect(mocks.switchCurrentWorkspace).toHaveBeenCalledWith({
+      userId: "user_1",
+      ownerUserId: "owner_1"
+    });
     expect(mocks.redirect).toHaveBeenCalledWith("/dashboard");
   });
 
   it("shows automatic acceptance failures and signed-in email mismatches", async () => {
     mocks.getCurrentUser.mockResolvedValue({ id: "user_1", email: "alex@example.com" });
-    mocks.acceptTeamInvite.mockRejectedValueOnce(new Error("INVITE_WORKSPACE_CONFLICT"));
+    mocks.acceptTeamInvite.mockRejectedValueOnce(new Error("boom"));
     const html = renderToStaticMarkup(await InvitePage({
       searchParams: Promise.resolve({ invite: "invite_1" })
     }));
 
-    expect(html).toContain("This account already owns another workspace, so it can&#x27;t join this one yet.");
+    expect(html).toContain("We couldn&#x27;t accept this invite automatically.");
 
     mocks.getCurrentUser.mockResolvedValueOnce({ id: "user_1", email: "owner@example.com" });
     const mismatchHtml = renderToStaticMarkup(await InvitePage({
@@ -88,6 +96,10 @@ describe("invite page", () => {
     await expect(
       InvitePage({ searchParams: Promise.resolve({ invite: "invite_1" }) })
     ).rejects.toThrow("REDIRECT:/dashboard");
+    expect(mocks.switchCurrentWorkspace).toHaveBeenCalledWith({
+      userId: "user_1",
+      ownerUserId: "owner_1"
+    });
 
     mocks.getCurrentUser.mockResolvedValueOnce(null);
     const html = renderToStaticMarkup(await InvitePage({

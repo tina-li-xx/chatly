@@ -1,15 +1,18 @@
 "use server";
 
+import { setUserSession } from "@/lib/auth";
 import { requestEmailVerification } from "@/lib/auth-email-verification";
 import { requestPasswordReset, resetPasswordWithToken } from "@/lib/auth-password-reset";
 import { FORGOT_PASSWORD_ERROR_MESSAGE, RESET_PASSWORD_ERROR_MESSAGE } from "./auth-error-messages";
 import type { PasswordActionState } from "./action-types";
+import { getOwnerPostAuthPath } from "./post-auth-path";
 
 function passwordActionError(error: string): PasswordActionState {
   return {
     ok: false,
     error,
-    message: null
+    message: null,
+    nextPath: null
   };
 }
 
@@ -31,7 +34,8 @@ async function runEmailAction(input: {
     return {
       ok: true,
       error: null,
-      message: successMessage
+      message: successMessage,
+      nextPath: null
     };
   } catch (error) {
     console.error(`${logLabel} failed`, error);
@@ -75,11 +79,15 @@ export async function resetPasswordAction(formData: FormData): Promise<PasswordA
   }
 
   try {
-    await resetPasswordWithToken(token, password);
+    const { userId } = await resetPasswordWithToken(token, password);
+    const nextPath = await getOwnerPostAuthPath(userId);
+    await setUserSession(userId);
+
     return {
       ok: true,
       error: null,
-      message: "Your password has been reset. You can sign in with the new one now."
+      message: "Your password has been reset.",
+      nextPath
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected password reset error.";

@@ -10,7 +10,7 @@ export function LandingConversionSections() {
           <section id="how-it-works" className="grid gap-14 px-2 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
             <div>
               <SectionLabel>Getting Started</SectionLabel>
-              <h2 className="display-font mt-5 text-4xl text-slate-900 sm:text-5xl">Live in 5 minutes. Seriously.</h2>
+              <h2 className="display-font mt-5 text-4xl text-slate-900 sm:text-5xl">Live in 3 minutes. Seriously.</h2>
 
               <div className="mt-10 space-y-8">
                 {setupSteps.map((step) => (
@@ -33,8 +33,8 @@ export function LandingConversionSections() {
                 <code>{codeSnippet()}</code>
               </pre>
               <p className="mt-5 text-sm leading-7 text-slate-300">
-                Add our tiny script to your site. That&apos;s it. Works with any website, WordPress, Webflow,
-                Shopify, custom code.
+                Add our tiny script to your site. That&apos;s it. Works with any website, WordPress, Webflow, Shopify,
+                custom code.
               </p>
             </div>
           </section>

@@ -1,13 +1,16 @@
 "use client";
 
 import Script from "next/script";
+import { useShouldLoadRemoteScript } from "./use-should-load-remote-script";
 
 export default function ChattingScript() {
-  return (
+  const shouldLoad = useShouldLoadRemoteScript();
+
+  return shouldLoad ? (
     <Script
       src="https://usechatting.com/widget.js"
       data-site-id="398b43bb-dc54-403c-bedd-5f387ba07092"
       strategy="afterInteractive"
     />
-  );
+  ) : null;
 }

@@ -14,4 +14,5 @@ export type PasswordActionState = {
   ok: boolean;
   error: string | null;
   message: string | null;
+  nextPath: string | null;
 };

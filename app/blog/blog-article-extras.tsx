@@ -1,10 +1,11 @@
+import type { Route } from "next";
 import Link from "next/link";
 import type { BlogAuthor, BlogPostWithDetails } from "@/lib/blog-types";
 import { BlogAuthorAvatar, BlogCategoryBadge } from "./blog-primitives";
 import { BlogPostCard } from "./blog-home-sections";
 
 export function BlogAuthorCard({ author }: { author: BlogAuthor }) {
-  const authorHref = `/blog/authors/${author.slug}`;
+  const authorHref = `/blog/authors/${author.slug}` as Route;
 
   return (
     <section className="rounded-[24px] bg-slate-50 px-6 py-6 sm:flex sm:items-start sm:gap-5">
@@ -30,7 +31,7 @@ export function BlogAuthorCard({ author }: { author: BlogAuthor }) {
 }
 
 export function BlogArticleHeader({ post }: { post: BlogPostWithDetails }) {
-  const authorHref = `/blog/authors/${post.author.slug}`;
+  const authorHref = `/blog/authors/${post.author.slug}` as Route;
 
   return (
     <section className="mx-auto max-w-4xl px-4 pb-10 pt-10 text-center sm:px-6 lg:px-8 lg:pb-12 lg:pt-16">

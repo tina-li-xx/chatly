@@ -18,6 +18,10 @@ vi.mock("@/lib/blog-data", () => ({
   getBlogPostsByAuthor: mocks.getBlogPostsByAuthor
 }));
 
+vi.mock("@/lib/env", () => ({
+  getPublicAppUrl: () => "http://localhost:3983"
+}));
+
 import BlogAuthorRoute, {
   generateMetadata,
   generateStaticParams
@@ -47,6 +51,15 @@ describe("blog author route", () => {
 
     expect(metadata.title).toBe("Tina | Chatting Blog");
     expect(String(metadata.alternates?.canonical)).toContain("/blog/authors/tina");
+    expect(metadata.openGraph?.images).toEqual([
+      {
+        url: "http://localhost:3983/api/og?template=a",
+        width: 1200,
+        height: 630,
+        alt: "Chatting — Live chat for small teams who care."
+      }
+    ]);
+    expect(metadata.twitter?.images).toEqual(["http://localhost:3983/api/og?template=a"]);
   });
 
   it("renders the author page and delegates missing authors to notFound", async () => {

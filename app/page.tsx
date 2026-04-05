@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
-import { HOME_PAGE_SEO_DESCRIPTION, SITE_SEO_DESCRIPTION, SITE_SEO_TITLE } from "@/lib/site-seo";
+import { buildDefaultSocialMetadata, HOME_PAGE_SEO_DESCRIPTION, SITE_SEO_DESCRIPTION, SITE_SEO_TITLE } from "@/lib/site-seo";
 import { LandingBottomSections } from "./landing-page-bottom";
 import { LandingHeader } from "./landing-page-primitives";
 import { LandingTopSections } from "./landing-page-top";
@@ -13,15 +13,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: homepageUrl
   },
-  openGraph: {
+  ...buildDefaultSocialMetadata({
     title: SITE_SEO_TITLE,
     description: HOME_PAGE_SEO_DESCRIPTION,
-    url: homepageUrl
-  },
-  twitter: {
-    title: SITE_SEO_TITLE,
-    description: HOME_PAGE_SEO_DESCRIPTION
-  }
+    url: homepageUrl,
+    openGraphType: "website",
+    includeSiteName: true
+  })
 };
 
 export default function HomePage() {

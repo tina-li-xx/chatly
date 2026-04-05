@@ -24,6 +24,8 @@ import { loginAction } from "./actions";
 import { forgotPasswordAction, resendVerificationAction, resetPasswordAction } from "./password-actions";
 import { ResendVerificationView } from "./auth-verification-view";
 
+const INVALID_RESET_LINK_MESSAGE = "That reset link is invalid or has expired.";
+
 export function AuthForms({
   initialMode = "signin",
   resetToken = "",
@@ -92,9 +94,21 @@ export function AuthForms({
       action: resetPasswordAction,
       event,
       mutateFormData: (formData) => formData.set("token", resetToken),
-      onError: (message) => showToast("error", message),
-      onSuccess: (result) =>
-        showSuccess("Password updated", "Your password has been reset. You can sign in with the new one now.", result),
+      onError: (message) => {
+        if (message === INVALID_RESET_LINK_MESSAGE) {
+          setMode("forgot");
+        }
+
+        showToast("error", message);
+      },
+      onSuccess: (result) => {
+        if (result.nextPath) {
+          router.replace(result.nextPath as never);
+          return;
+        }
+
+        showSuccess("Password updated", "Your password has been reset.", result);
+      },
       setSubmitting: setPasswordSubmitting
     });
   }
@@ -160,7 +174,6 @@ export function AuthForms({
         <AuthSuccessView
           body={successCopy.body}
           onBackToSignIn={handleBackToSignIn}
-          onCreateAccount={handleCreateAccount}
           title={successCopy.title}
         />
       ) : null}

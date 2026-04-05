@@ -87,8 +87,10 @@ describe("signup form actions", () => {
     let html = renderToStaticMarkup(tree);
     expect(html).toContain("Check your email");
     expect(html).toContain("hello@example.com");
+    expect(html).toContain("We sent a verification link to hello@example.com.");
+    expect(html).toContain("Wrong email? Edit it and send a new link.");
 
-    collectElements(tree, (element) => typeof element.type === "function" && element.props.children === "Back to sign up")[0]?.props.onClick();
+    collectElements(tree, (element) => typeof element.type === "function" && element.props.children === "Edit email")[0]?.props.onClick();
 
     reactMocks.beginRender();
     tree = SignupForm();

@@ -95,15 +95,6 @@ pre {
   animation: messageIn 450ms ease-out both;
 }
 
-.float-badge {
-  animation: floaty 4.2s ease-in-out infinite;
-}
-
-.float-badge-delayed {
-  animation: floaty 4.8s ease-in-out infinite;
-  animation-delay: 0.8s;
-}
-
 .glow-send {
   box-shadow:
     0 0 0 0 rgba(37, 99, 235, 0.25),
@@ -120,82 +111,6 @@ pre {
   box-shadow:
     0 0 0 10px rgba(37, 99, 235, 0.08),
     0 16px 32px rgba(37, 99, 235, 0.34);
-}
-
-.landing-pricing-range {
-  width: 100%;
-  height: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.landing-pricing-range:active {
-  cursor: grabbing;
-}
-
-.landing-pricing-range::-webkit-slider-runnable-track {
-  height: 100%;
-  background: transparent;
-}
-
-.landing-pricing-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  height: 24px;
-  width: 24px;
-  margin-top: 4px;
-  border: 3px solid #2563eb;
-  border-radius: 9999px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.landing-pricing-range::-moz-range-track {
-  height: 100%;
-  border: 0;
-  background: transparent;
-}
-
-.landing-pricing-range::-moz-range-thumb {
-  height: 24px;
-  width: 24px;
-  border: 3px solid #2563eb;
-  border-radius: 9999px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.landing-pricing-range:hover::-webkit-slider-thumb,
-.landing-pricing-range:hover::-moz-range-thumb {
-  transform: scale(1.1);
-  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
-}
-
-.landing-pricing-range:active::-webkit-slider-thumb,
-.landing-pricing-range:active::-moz-range-thumb {
-  transform: scale(1.15);
-}
-
-.landing-pricing-range:focus-visible::-webkit-slider-thumb,
-.landing-pricing-range:focus-visible::-moz-range-thumb {
-  box-shadow:
-    0 0 0 3px #93c5fd,
-    0 2px 8px rgba(37, 99, 235, 0.3);
-}
-
-.landing-pricing-amount {
-  animation: priceFlip 220ms ease;
-}
-
-.landing-pricing-badge {
-  animation: badgeAppear 180ms ease;
 }
 
 .typing-dot {
@@ -222,17 +137,6 @@ pre {
   }
 }
 
-@keyframes floaty {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
 @keyframes typingDot {
   0%,
   60%,
@@ -244,43 +148,6 @@ pre {
   30% {
     opacity: 1;
     transform: translateY(-4px);
-  }
-}
-
-@keyframes priceFlip {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes badgeAppear {
-  0% {
-    opacity: 0;
-    transform: scale(0.9) translateY(4px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@media (max-width: 639px) {
-  .landing-pricing-range::-webkit-slider-thumb {
-    height: 36px;
-    width: 36px;
-    margin-top: 0;
-  }
-
-  .landing-pricing-range::-moz-range-thumb {
-    height: 36px;
-    width: 36px;
   }
 }
 
@@ -415,8 +282,6 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 
-  .float-badge,
-  .float-badge-delayed,
   .typing-dot,
   .message-enter {
     animation: none !important;

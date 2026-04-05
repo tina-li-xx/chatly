@@ -1,20 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { createMockReactHooks, runMockEffects } from "./dashboard/test-react-hooks";
-
-async function loadGrometricsScript(hostname: string) {
-  vi.resetModules();
-  const reactMocks = createMockReactHooks();
-  const script = vi.fn();
-
-  vi.doMock("react", () => reactMocks.moduleFactory());
-  vi.doMock("next/script", () => ({
-    default: (props: Record<string, unknown>) => ((script(props), <script data-testid="grometrics" />))
-  }));
-  vi.stubGlobal("window", { location: { hostname } });
-
-  const module = await import("./grometrics-script");
-  return { GrometricsScript: module.default, reactMocks, script };
-}
+import { runMockEffects } from "./dashboard/test-react-hooks";
+import { loadRemoteScriptModule } from "./script-test-utils";
 
 describe("grometrics script", () => {
   afterEach(() => {
@@ -22,14 +8,14 @@ describe("grometrics script", () => {
   });
 
   it("loads the analytics script for non-local hosts", async () => {
-    const { GrometricsScript, reactMocks, script } = await loadGrometricsScript("usechatting.com");
+    const { Component, reactMocks, script } = await loadRemoteScriptModule("./grometrics-script", "usechatting.com", "grometrics");
 
     reactMocks.beginRender();
-    renderToStaticMarkup(<GrometricsScript />);
+    renderToStaticMarkup(<Component />);
     await runMockEffects(reactMocks.effects);
 
     reactMocks.beginRender();
-    const html = renderToStaticMarkup(<GrometricsScript />);
+    const html = renderToStaticMarkup(<Component />);
 
     expect(html).toContain("grometrics");
     expect(script).toHaveBeenCalledWith(expect.objectContaining({
@@ -40,14 +26,14 @@ describe("grometrics script", () => {
   });
 
   it("skips the analytics script on localhost", async () => {
-    const { GrometricsScript, reactMocks, script } = await loadGrometricsScript("localhost");
+    const { Component, reactMocks, script } = await loadRemoteScriptModule("./grometrics-script", "localhost", "grometrics");
 
     reactMocks.beginRender();
-    const firstHtml = renderToStaticMarkup(<GrometricsScript />);
+    const firstHtml = renderToStaticMarkup(<Component />);
     await runMockEffects(reactMocks.effects);
 
     reactMocks.beginRender();
-    const secondHtml = renderToStaticMarkup(<GrometricsScript />);
+    const secondHtml = renderToStaticMarkup(<Component />);
 
     expect(firstHtml).not.toContain("grometrics");
     expect(secondHtml).not.toContain("grometrics");

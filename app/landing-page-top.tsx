@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { ButtonLink } from "./components/ui/Button";
-import { pillars } from "./landing-page-data";
-import { PillarIcon, SectionLabel } from "./landing-page-primitives";
+import {
+  LandingHeroLogoStrip
+} from "./landing-page-hero-visuals";
 
 export function LandingTopSections() {
   return (
@@ -12,13 +12,13 @@ export function LandingTopSections() {
           <section className="grid gap-16 px-2 pb-20 pt-16 lg:grid-cols-[minmax(0,1fr)_396px] lg:items-center lg:pt-24">
             <div className="max-w-2xl">
               <h1 className="display-font text-5xl leading-[0.96] text-slate-900 sm:text-6xl lg:text-7xl">
-                Live chat
+                Every visitor you ignore
                 <br />
-                <span className="text-blue-600">for small teams. No tickets. No enterprise bloat.</span>
+                <span className="text-blue-600">is revenue you lose.</span>
               </h1>
               <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
-                White-label your widget, watch live visitors, reply from a shared inbox, and keep the same
-                conversation going by email when nobody is online.
+                Chatting puts live chat on your site so you can answer questions, close deals, and stop losing
+                customers to silence. Built for small teams. Priced like it.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -26,33 +26,25 @@ export function LandingTopSections() {
                   href="/signup"
                   trailingIcon={<span aria-hidden="true">→</span>}
                 >
-                  Start free
+                  Start 14 day free trial — live in 3 minutes
                 </ButtonLink>
                 <ButtonLink
-                  href="#pricing"
+                  href="#features"
                   variant="secondary"
                 >
-                  See pricing
+                  See it in action
                 </ButtonLink>
-              </div>
-
-              <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-medium text-slate-600">
-                <a href="#how-it-works" className="transition hover:text-slate-900">
-                  See how install works
-                </a>
               </div>
 
               <div className="mt-10">
                 <p className="max-w-md text-sm leading-6 text-slate-500">
-                  Operating hours, proactive chat, install verification, analytics exports, and weekly reports.
+                  2,400+ teams use Chatting to catch visitors before they bounce.
                 </p>
+                <LandingHeroLogoStrip />
               </div>
             </div>
 
             <div className="relative mx-auto w-full max-w-[396px]">
-              <div className="float-badge pointer-events-none absolute left-6 -top-12 z-10 hidden rounded-full border border-amber-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-[0_18px_50px_rgba(15,23,42,0.08)] xl:block">
-                White-label widget
-              </div>
               <div className="relative">
                 <div className="absolute inset-x-10 top-0 h-24 rounded-b-full bg-blue-100/70 blur-3xl" />
                 <div className="relative shadow-[0_24px_80px_rgba(15,23,42,0.10)]">
@@ -115,67 +107,64 @@ export function LandingTopSections() {
 
       <section className="bg-white">
         <div className="mx-auto w-full max-w-[1240px] px-4 py-24 sm:px-6 lg:px-8">
-          <div className="grid gap-12 px-2 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="max-w-2xl">
-              <h2 className="display-font text-4xl leading-tight text-slate-900 sm:text-5xl">
-                Talk to visitors while they&apos;re still deciding
-              </h2>
-              <p className="mt-5 text-xl font-medium leading-8 text-slate-800 sm:text-2xl">
-                They&apos;re on your pricing page. They&apos;re hovering over the buy button.
-              </p>
-              <p className="mt-6 text-lg leading-8 text-slate-600">
-                They just need one quick answer, but without live chat they disappear into a contact form or leave for
-                someone easier to reach.
-              </p>
-              <p className="mt-4 text-lg leading-8 text-slate-600">
-                No tickets, no queue theater, no support-suite detour. Just a faster way to answer while intent is still high.
-              </p>
-            </div>
-            <div className="flex flex-col justify-center lg:pl-12">
-              <div className="rounded-[28px] border border-slate-200 bg-[#FFFBF5] p-8 shadow-[0_18px_44px_rgba(15,23,42,0.05)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">What small teams need</p>
-                <h3 className="mt-4 text-3xl font-semibold leading-tight text-slate-900">
-                  Website chat that helps you answer now, then follow up later without switching tools.
-                </h3>
-                <ul className="mt-6 space-y-3 text-sm leading-7 text-slate-600">
-                  <li>White-label widget with colors, welcome copy, operating hours, and proactive prompts</li>
-                  <li>Live visitors, real-time inbox updates, and shared context while someone is still browsing</li>
-                  <li>Offline email capture plus threaded follow-up replies when the team is away</li>
-                </ul>
+          <div className="px-2">
+            <div className="grid gap-16 lg:grid-cols-[minmax(0,1.05fr)_320px] lg:items-start">
+              <div className="max-w-3xl">
+                <h2 className="display-font text-4xl leading-[1.02] text-slate-900 sm:text-5xl lg:text-6xl">
+                  Your contact form is a conversion killer.
+                </h2>
+
+                <div className="mt-8 space-y-5">
+                  <p className="max-w-2xl text-lg leading-8 text-slate-600">
+                    Someone&apos;s on your pricing page right now. They have one question. One hesitation. One thing
+                    standing between them and buying.
+                  </p>
+                  <p className="max-w-2xl text-lg leading-8 text-slate-600">
+                    But your &quot;contact us&quot; form? That&apos;s a 24-hour delay. By the time you reply, they&apos;ve
+                    bought from the competitor who was actually there.
+                  </p>
+                  <p className="max-w-2xl text-lg leading-8 text-slate-600">
+                    You&apos;re not losing customers because your product is bad. You&apos;re losing them because
+                    you&apos;re not in the room when they&apos;re ready to buy.
+                  </p>
+                  <p className="text-lg font-medium leading-8 text-slate-900">They don&apos;t wait. They leave.</p>
+                </div>
+              </div>
+
+              <div className="lg:pt-12">
+                <div className="h-1 w-28 rounded-full bg-blue-500" />
+                <p className="mt-8 text-6xl font-semibold tracking-[-0.04em] text-slate-900 sm:text-7xl">67%</p>
+                <p className="mt-6 max-w-[260px] text-2xl font-semibold leading-10 text-slate-900">
+                  of visitors leave without buying when they can&apos;t get instant answers
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="features" className="bg-slate-50">
+      <section id="features" className="bg-white">
         <div className="mx-auto w-full max-w-[1240px] px-4 py-24 sm:px-6 lg:px-8">
-          <div className="max-w-3xl px-2">
-            <SectionLabel>Shipped Strengths</SectionLabel>
+          <div className="mx-auto max-w-4xl px-2 text-center">
             <h2 className="display-font mt-5 text-4xl text-slate-900 sm:text-5xl">
-              The product story is simple: widget, visitors, inbox
+              Answer questions before they leave.
             </h2>
-            <p className="mt-5 text-lg leading-8 text-slate-600">
-              Chatting is built for small teams that want website live chat, not a help desk, not a CRM, and not a
-              suite full of ticketing ceremony.
-            </p>
-          </div>
-
-          <div className="mt-12 grid gap-6 px-2 lg:grid-cols-3">
-            {pillars.map((pillar) => (
-              <article key={pillar.title} className="hover-lift rounded-[28px] border border-slate-200/80 bg-white/85 p-7">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                  <PillarIcon icon={pillar.icon} />
-                </div>
-                <h3 className="mt-5 text-2xl font-semibold text-slate-900">{pillar.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-slate-600">{pillar.body}</p>
-              </article>
-            ))}
+            <div className="mx-auto mt-5 max-w-3xl space-y-4 text-lg leading-8 text-slate-600">
+              <p>
+                Chatting is live chat that helps small teams convert more visitors into paying customers. See who&apos;s
+                on your site, answer their questions in real-time.
+              </p>
+              <p>
+                Not a bloated &quot;customer platform.&quot; Not enterprise software with enterprise pricing. Just the
+                tool you need to turn traffic into revenue.
+              </p>
+              <p className="font-medium text-slate-900">
+                The difference between a visitor and a customer is often one answer.
+              </p>
+            </div>
           </div>
         </div>
       </section>
-
-      
     </>
   );
 }

@@ -53,7 +53,7 @@ describe("signup form", () => {
     expect(html).toContain("Website URL");
     expect(html).toContain("Referral code");
     expect(html).toContain("Free");
-    expect(html).toContain("5 min");
+    expect(html).toContain("3 min");
     expect(html).toContain("No CC");
     expect(html).toContain("Sign in");
   });

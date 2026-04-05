@@ -15,7 +15,6 @@ type PasswordActionViewProps = {
 type SuccessViewProps = {
   body: string;
   onBackToSignIn: () => void;
-  onCreateAccount: () => void;
   title: string;
 };
 
@@ -91,7 +90,6 @@ export function ResetPasswordView({
 export function AuthSuccessView({
   body,
   onBackToSignIn,
-  onCreateAccount,
   title
 }: SuccessViewProps) {
   return (
@@ -104,9 +102,6 @@ export function AuthSuccessView({
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <FormButton type="button" onClick={onBackToSignIn} trailingIcon={<span aria-hidden="true">→</span>}>
           Back to sign in
-        </FormButton>
-        <FormButton type="button" variant="secondary" onClick={onCreateAccount}>
-          Create account
         </FormButton>
       </div>
     </div>

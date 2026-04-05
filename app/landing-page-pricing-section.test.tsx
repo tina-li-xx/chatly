@@ -19,20 +19,20 @@ vi.mock("next/link", () => ({
 import { LandingPricingSection } from "./landing-page-pricing-section";
 
 describe("landing page pricing section", () => {
-  it("renders the billing-style starter and growth pricing cards", () => {
+  it("renders the simplified two-plan layout", () => {
     const html = renderToStaticMarkup(<LandingPricingSection />);
 
     expect(html).toContain("Simple, transparent pricing");
+    expect(html).toContain("Start 14 day free trial. Upgrade when you&#x27;re ready.");
     expect(html).toContain("Starter");
     expect(html).toContain("Growth");
-    expect(html).toContain("How many team members?");
+    expect(html).toContain("Recommended");
+    expect(html).not.toContain("How many team members?");
     expect(html).not.toContain("Preview Growth pricing.");
-    expect(html).toContain("1 team member");
-    expect(html).toContain("$0");
-    expect(html).toContain("$20");
-    expect(html).toContain("/month");
-    expect(html).toContain("Get started free");
-    expect(html).toContain("Start free trial");
+    expect(html).toContain("Start 14 day free trial →");
     expect(html).toContain("No credit card required");
+    expect(html).toContain("What if I need more than 3 members?");
+    expect(html).toContain("$6/member/month");
+    expect(html).toContain("$62/month");
   });
 });

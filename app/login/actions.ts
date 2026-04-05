@@ -3,19 +3,19 @@
 import { sanitizeReturnPath } from "@/lib/auth-redirect";
 import { requestEmailVerificationForUserId } from "@/lib/auth-email-verification";
 import {
-  resumeOwnerOnboardingForUser,
   setUserSession,
   signInUser,
   signUpInvitedUser,
   signUpUser
 } from "@/lib/auth";
 import { sendAccountWelcomeEmail } from "@/lib/chatly-transactional-email-senders";
-import { getPostAuthPath, onboardingPathForStep } from "@/lib/data";
+import { onboardingPathForStep } from "@/lib/data";
 import { getPublicAppUrl } from "@/lib/env";
 import { persistPreferredTimeZoneForUser } from "@/lib/user-timezone-preference";
 import { acceptTeamInvite } from "@/lib/workspace-access";
 import { formatAuthError, isExpectedAuthError } from "./action-errors";
 import type { AuthActionState } from "./action-types";
+import { getOwnerPostAuthPath } from "./post-auth-path";
 
 export type { AuthActionState, PasswordActionState } from "./action-types";
 
@@ -26,19 +26,6 @@ function emptyFields() {
     websiteUrl: "",
     referralCode: ""
   };
-}
-
-async function getOwnerPostAuthPath(userId: string) {
-  try {
-    await resumeOwnerOnboardingForUser(userId);
-    return await getPostAuthPath(userId);
-  } catch (error) {
-    if (error instanceof Error && error.message === "MISSING_DOMAIN") {
-      return onboardingPathForStep("customize");
-    }
-
-    throw error;
-  }
 }
 
 async function sendOwnerSignupFollowUps(user: { id: string; email: string }) {

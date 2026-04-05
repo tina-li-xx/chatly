@@ -7,31 +7,20 @@ const footerGroups = [
     links: [
       { label: "Features", href: "/#features" },
       { label: "Pricing", href: "/#pricing" },
-      { label: "Changelog" },
-      { label: "Status" }
+      { label: "Changelog", href: "/changelog" }
     ]
   },
   {
-    title: "Company",
-    links: [{ label: "About" }, { label: "Blog", href: "/blog" }, { label: "Careers" }, { label: "Contact" }]
+    title: "Learn",
+    links: [{ label: "Blog", href: "/blog" }, { label: "How it works", href: "/#how-it-works" }]
   },
   {
     title: "Resources",
-    links: [
-      { label: "Free Tools", href: "/free-tools" },
-      { label: "Help Center" },
-      { label: "API Docs", href: "/#docs" },
-      { label: "Widget Guide", href: "/#how-it-works" },
-      { label: "Security" }
-    ]
+    links: [{ label: "Free Tools", href: "/free-tools" }, { label: "Everything You Need", href: "/#everything" }]
   },
   {
     title: "Legal",
-    links: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-      { label: "Cookies" }
-    ]
+    links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }]
   }
 ] as const;
 
@@ -47,21 +36,18 @@ export function LandingFinalCtaFooter() {
         <section className="px-2 py-32 sm:py-36">
           <div className="mx-auto max-w-5xl text-center">
             <h2 className="display-font text-5xl leading-tight text-white sm:text-6xl lg:text-7xl">
-              Your next customer is on your site right now.
+              Live chat for small teams.
+              <br />
+              No enterprise bloat.
             </h2>
-            <p className="mx-auto mt-8 max-w-3xl text-xl leading-9 text-blue-100/90">
-              They have a question. Are you going to answer it?
-            </p>
             <div className="mt-12 flex flex-col items-center gap-8">
               <ButtonLink
-                href="/login"
+                href="/signup"
                 variant="secondary"
                 className="border-white bg-white px-9 text-blue-700 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
-                trailingIcon={<span aria-hidden="true">→</span>}
               >
-                Start chatting free
+                Start 14 day free trial — live in 3 minutes →
               </ButtonLink>
-              <p className="text-lg text-blue-100/85">Set up Chatting in 5 minutes. No credit card required.</p>
             </div>
           </div>
         </section>
@@ -71,7 +57,7 @@ export function LandingFinalCtaFooter() {
             <div className="max-w-sm">
               <p className="text-2xl font-semibold text-white">Chatting</p>
               <p className="mt-4 text-sm leading-7 text-blue-100/80">
-                Warm, fast live chat for small teams who want conversations to feel human.
+                Live chat for small teams that want fast conversations, shared context, and none of the enterprise bloat.
               </p>
             </div>
 

@@ -18,7 +18,7 @@ const INITIAL_AUTH_STATE: AuthActionState = {
   fields: { email: "", password: "", websiteUrl: "", referralCode: "" }
 };
 
-const SIGNUP_STATS = [{ value: "Free", label: "To start" }, { value: "5 min", label: "Setup time" }, { value: "No CC", label: "Required" }];
+const SIGNUP_STATS = [{ value: "Free", label: "To start" }, { value: "3 min", label: "Setup time" }, { value: "No CC", label: "Required" }];
 
 export function SignupForm() {
   const router = useRouter();
@@ -102,7 +102,7 @@ export function SignupForm() {
           }
           caption={
             showVerificationNotice
-              ? `We sent a verification link to ${verificationDestination}. Open it to finish setting up your account.`
+              ? `We sent a verification link to ${verificationDestination}.`
               : isInviteSignup
                 ? "Already have an account for this email?"
                 : "Already have an account?"
@@ -112,10 +112,15 @@ export function SignupForm() {
         />
 
         {showVerificationNotice ? (
-          <div className="mt-8 flex justify-center">
-            <FormButton type="button" variant="secondary" onClick={handleReturnToSignup}>
-              Back to sign up
-            </FormButton>
+          <div className="mt-8 space-y-3 text-center">
+            <p className="text-sm leading-6 text-slate-500">
+              Wrong email? Edit it and send a new link.
+            </p>
+            <div className="flex justify-center">
+              <FormButton type="button" variant="secondary" onClick={handleReturnToSignup}>
+                Edit email
+              </FormButton>
+            </div>
           </div>
         ) : (
           <>
