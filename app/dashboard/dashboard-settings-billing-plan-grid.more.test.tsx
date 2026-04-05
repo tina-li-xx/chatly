@@ -33,12 +33,32 @@ const baseBilling = {
 } as DashboardBillingSummary;
 
 describe("dashboard settings billing plan grid more", () => {
+  it("updates the growth price when the selected interval and member count change", () => {
+    const html = renderToStaticMarkup(
+      <DashboardSettingsBillingPlanGrid
+        billing={baseBilling}
+        billingPlanPending={null}
+        memberCount={9}
+        selectedInterval="annual"
+        onMemberCountChange={() => {}}
+        onSetSelectedInterval={() => {}}
+        onSelectPlan={() => {}}
+      />
+    );
+
+    expect(html).toContain("$540");
+    expect(html).toContain("/year");
+    expect(html).toContain("volume pricing from $60/member/year");
+  });
+
   it("shows current starter and processing states", () => {
     const starterHtml = renderToStaticMarkup(
       <DashboardSettingsBillingPlanGrid
         billing={baseBilling}
         billingPlanPending={null}
+        memberCount={2}
         selectedInterval="monthly"
+        onMemberCountChange={() => {}}
         onSetSelectedInterval={() => {}}
         onSelectPlan={() => {}}
       />
@@ -47,7 +67,9 @@ describe("dashboard settings billing plan grid more", () => {
       <DashboardSettingsBillingPlanGrid
         billing={baseBilling}
         billingPlanPending="starter:monthly"
+        memberCount={2}
         selectedInterval="monthly"
+        onMemberCountChange={() => {}}
         onSetSelectedInterval={() => {}}
         onSelectPlan={() => {}}
       />
@@ -62,7 +84,9 @@ describe("dashboard settings billing plan grid more", () => {
       <DashboardSettingsBillingPlanGrid
         billing={{ ...baseBilling, planKey: "growth", billingInterval: "annual" }}
         billingPlanPending={null}
+        memberCount={2}
         selectedInterval="annual"
+        onMemberCountChange={() => {}}
         onSetSelectedInterval={() => {}}
         onSelectPlan={() => {}}
       />
@@ -71,7 +95,9 @@ describe("dashboard settings billing plan grid more", () => {
       <DashboardSettingsBillingPlanGrid
         billing={{ ...baseBilling, planKey: "growth", billingInterval: "monthly" }}
         billingPlanPending={null}
+        memberCount={2}
         selectedInterval="annual"
+        onMemberCountChange={() => {}}
         onSetSelectedInterval={() => {}}
         onSelectPlan={() => {}}
       />

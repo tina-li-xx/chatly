@@ -8,13 +8,37 @@ import {
   type BillingPlanKey
 } from "@/lib/billing-plans";
 import type { DashboardBillingSummary } from "@/lib/data/billing-types";
-import { FormButton } from "../ui/form-controls";
+import { FormButton, FormButtonLink } from "../ui/form-controls";
 import { DashboardModal } from "./dashboard-modal";
 import { billingLostFeatures } from "./dashboard-billing-utils";
 import { formatMoney } from "./dashboard-settings-shared";
 import { CalendarIcon, CheckIcon, WarningIcon, XIcon } from "./dashboard-ui";
 
-export type BillingPlanIntent = { planKey: BillingPlanKey; billingInterval: BillingInterval; mode: "upgrade" | "switch" | "downgrade" } | null;
+export type BillingPlanIntent = {
+  planKey: BillingPlanKey;
+  billingInterval: BillingInterval;
+  mode: "upgrade" | "switch" | "downgrade";
+  seatQuantity?: number;
+} | null;
+
+const CUSTOM_QUOTE_EMAIL = "tina@usechatting.com";
+
+function buildCustomQuoteHref(seatCount: number, planName: string) {
+  const params = new URLSearchParams({
+    subject: `Chatting custom quote request for ${seatCount} members`,
+    body: `Hi Tina,\n\nWe'd like a custom quote for ${seatCount} members on the ${planName} plan.\n\nThanks!`
+  });
+
+  return `mailto:${CUSTOM_QUOTE_EMAIL}?${params.toString()}`;
+}
+
+function resolveSeatCount(intent: Exclude<BillingPlanIntent, null>, billing: DashboardBillingSummary) {
+  if (intent.mode === "upgrade") {
+    return Math.max(1, Math.floor(intent.seatQuantity ?? billing.usedSeats ?? 1));
+  }
+
+  return billing.billedSeats ?? billing.usedSeats;
+}
 
 export function DashboardSettingsBillingPlanModal({
   billing,
@@ -28,7 +52,7 @@ export function DashboardSettingsBillingPlanModal({
   }
 
   const plan = getBillingPlanDefinition(intent.planKey);
-  const seatCount = billing.billedSeats ?? billing.usedSeats;
+  const seatCount = resolveSeatCount(intent, billing);
   const displayPrice = getBillingPreviewDisplayPrice(intent.planKey, intent.billingInterval, seatCount);
   const subtotal = getBillingTotalCents(intent.planKey, intent.billingInterval, seatCount);
   if (intent.mode === "downgrade") {
@@ -118,7 +142,10 @@ export function DashboardSettingsBillingPlanModal({
           </div>
           {subtotal === null ? (
             <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
-              Teams with 50 or more members need a custom quote before billing can continue.
+              <p className="font-medium text-amber-900">Teams with 50 or more members need a custom quote before billing can continue.</p>
+              <p className="mt-2">
+                Email Tina directly and we&apos;ll help you with pricing, rollout, and billing setup for larger teams.
+              </p>
             </div>
           ) : (
             <div className="mt-3 border-t border-slate-200 pt-3">
@@ -148,15 +175,19 @@ export function DashboardSettingsBillingPlanModal({
           <FormButton type="button" onClick={onClose} variant="secondary" size="md">
             Cancel
           </FormButton>
-          <FormButton type="button" onClick={onConfirm} size="md" disabled={pending || subtotal === null}>
-            {pending
-              ? "Processing..."
-              : subtotal === null
-                ? "Custom quote required"
+          {subtotal === null ? (
+            <FormButtonLink href={buildCustomQuoteHref(seatCount, plan.name)} size="md">
+              Email Tina for a quote
+            </FormButtonLink>
+          ) : (
+            <FormButton type="button" onClick={onConfirm} size="md" disabled={pending}>
+              {pending
+                ? "Processing..."
                 : billing.planKey === "starter"
                   ? `Confirm ${plan.name}`
                   : "Continue in Stripe"}
-          </FormButton>
+            </FormButton>
+          )}
         </div>
       </div>
     </DashboardModal>

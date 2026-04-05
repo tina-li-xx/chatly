@@ -9,7 +9,7 @@ export function useDashboardSettingsBilling(input: {
   activeSection: SettingsSection;
   initialBilling: DashboardBillingSummary;
   searchParams: Pick<URLSearchParams, "get">;
-  setNotice: (notice: DashboardNoticeState) => void;
+  onNotice: (notice: Exclude<DashboardNoticeState, null>) => void;
 }) {
   const [billing, setBilling] = useState<DashboardBillingSummary>(input.initialBilling);
   const [billingPlanPending, setBillingPlanPending] = useState<string | null>(null);
@@ -44,7 +44,7 @@ export function useDashboardSettingsBilling(input: {
         setSelectedBillingInterval(payload.billing.billingInterval);
       }
     } catch (error) {
-      input.setNotice({
+      input.onNotice({
         tone: "error",
         message: billingErrorMessage(error instanceof Error ? error.message : "billing-sync-failed")
       });
@@ -53,7 +53,11 @@ export function useDashboardSettingsBilling(input: {
     }
   }
 
-  async function handleBillingPlanChange(planKey: BillingPlanKey, billingInterval: BillingInterval) {
+  async function handleBillingPlanChange(
+    planKey: BillingPlanKey,
+    billingInterval: BillingInterval,
+    seatQuantity?: number
+  ) {
     const pendingKey = `${planKey}:${billingInterval}`;
 
     if (
@@ -66,10 +70,15 @@ export function useDashboardSettingsBilling(input: {
     setBillingPlanPending(pendingKey);
 
     try {
+      const body: Record<string, unknown> = { plan: planKey, interval: billingInterval };
+      if (typeof seatQuantity === "number" && Number.isFinite(seatQuantity)) {
+        body.seatQuantity = Math.max(1, Math.floor(seatQuantity));
+      }
+
       const response = await fetch("/dashboard/settings/billing/plan", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ plan: planKey, interval: billingInterval })
+        body: JSON.stringify(body)
       });
       const payload = (await response.json()) as
         | { ok: true; redirectUrl: string }
@@ -81,7 +90,7 @@ export function useDashboardSettingsBilling(input: {
 
       window.location.assign(payload.redirectUrl);
     } catch (error) {
-      input.setNotice({
+      input.onNotice({
         tone: "error",
         message: billingErrorMessage(error instanceof Error ? error.message : "billing-plan-update-failed")
       });
@@ -111,7 +120,7 @@ export function useDashboardSettingsBilling(input: {
 
       window.location.assign(payload.redirectUrl);
     } catch (error) {
-      input.setNotice({
+      input.onNotice({
         tone: "error",
         message: billingErrorMessage(error instanceof Error ? error.message : "billing-portal-session-failed")
       });
@@ -125,14 +134,14 @@ export function useDashboardSettingsBilling(input: {
 
     if (billingState === "checkout-success") {
       billingSyncedRef.current = true;
-      input.setNotice({ tone: "success", message: "Stripe checkout completed" });
+      input.onNotice({ tone: "success", message: "Stripe checkout completed" });
       void syncBillingFromStripe();
     } else if (billingState === "checkout-cancelled") {
       billingSyncedRef.current = true;
-      input.setNotice({ tone: "error", message: "Stripe checkout was cancelled" });
+      input.onNotice({ tone: "error", message: "Stripe checkout was cancelled" });
     } else if (billingState === "portal-return") {
       billingSyncedRef.current = true;
-      input.setNotice({ tone: "success", message: "Billing details refreshed from Stripe" });
+      input.onNotice({ tone: "success", message: "Billing details refreshed from Stripe" });
       void syncBillingFromStripe();
     }
   }, [input.searchParams]);

@@ -2,8 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 
 vi.mock("next/dynamic", () => ({
   default: (_loader: unknown, _options: unknown) =>
-    ({ initialSites, initialBilling }: { initialSites: unknown; initialBilling: unknown }) =>
-      <div data-sites={JSON.stringify(initialSites)} data-billing={JSON.stringify(initialBilling)}>dynamic-widget</div>
+    ({ initialSites, proactiveChatUnlocked }: { initialSites: unknown; proactiveChatUnlocked: unknown }) =>
+      <div data-sites={JSON.stringify(initialSites)} data-proactive-chat={JSON.stringify(proactiveChatUnlocked)}>dynamic-widget</div>
 }));
 
 import { DashboardWidgetPageClient } from "./widget-page-client";
@@ -13,12 +13,12 @@ describe("widget page client", () => {
     const html = renderToStaticMarkup(
       <DashboardWidgetPageClient
         initialSites={[{ id: "site_1" }] as never}
-        initialBilling={{ planKey: "growth" } as never}
+        proactiveChatUnlocked
       />
     );
 
     expect(html).toContain("dynamic-widget");
     expect(html).toContain("site_1");
-    expect(html).toContain("growth");
+    expect(html).toContain("true");
   });
 });

@@ -15,11 +15,11 @@ import {
   type WidgetTab
 } from "./dashboard-widget-settings-shared";
 
-export function useDashboardWidgetSettings(initialSites: Site[]) {
+export function useDashboardWidgetSettings(initialSites: Site[], initialTab: WidgetTab = "appearance") {
   const [savedSites, setSavedSites] = useState(initialSites);
   const [draftSites, setDraftSites] = useState(initialSites);
   const [activeSiteId, setActiveSiteId] = useState(initialSites[0]?.id ?? "");
-  const [activeTab, setActiveTab] = useState<WidgetTab>("appearance");
+  const [activeTab, setActiveTab] = useState<WidgetTab>(initialTab);
   const [previewDevice, setPreviewDevice] = useState<PreviewDevice>("desktop");
   const [installPlatform, setInstallPlatform] = useState<InstallPlatform>("html");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");

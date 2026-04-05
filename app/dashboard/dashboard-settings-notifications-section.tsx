@@ -1,16 +1,19 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { DashboardSettingsNotifications } from "@/lib/data/settings-types";
 import { SettingsCard, SettingsSectionHeader, ToggleRow } from "./dashboard-settings-shared";
 
 export function SettingsNotificationsSection({
   title,
   subtitle,
+  headerActions,
   notifications,
   onUpdateNotifications
 }: {
   title: string;
   subtitle: string;
+  headerActions?: ReactNode;
   notifications: DashboardSettingsNotifications;
   onUpdateNotifications: <K extends keyof DashboardSettingsNotifications>(
     key: K,
@@ -19,9 +22,12 @@ export function SettingsNotificationsSection({
 }) {
   return (
     <div className="space-y-6">
-      <SettingsSectionHeader title={title} subtitle={subtitle} />
+      <SettingsSectionHeader title={title} subtitle={subtitle} actions={headerActions} />
 
-      <SettingsCard title="New messages">
+      <SettingsCard
+        title="Inbox alerts"
+        description="Choose how Chatting should get your attention when a conversation needs a reply."
+      >
         <div className="space-y-3">
           <ToggleRow
             label="Browser notifications"
@@ -44,7 +50,10 @@ export function SettingsNotificationsSection({
         </div>
       </SettingsCard>
 
-      <SettingsCard title="Visitor activity">
+      <SettingsCard
+        title="Visitor activity"
+        description="Stay on top of new traffic and high-intent visitor behavior across your sites."
+      >
         <div className="space-y-3">
           <ToggleRow
             label="New visitor alerts"

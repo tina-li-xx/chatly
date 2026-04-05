@@ -38,7 +38,7 @@ export function AutomationFaqConnectionState({
           </div>
           <Button
             type="button"
-            size="sm"
+            size="md"
             variant="secondary"
             onClick={onRetry}
             className="h-auto border-0 bg-transparent px-0 py-0 text-green-700 hover:bg-transparent hover:text-green-800"
@@ -62,7 +62,7 @@ export function AutomationFaqConnectionState({
         </div>
         <Button
           type="button"
-          size="sm"
+          size="md"
           variant="secondary"
           onClick={onRetry}
           className="h-auto border-0 bg-transparent px-0 py-0 text-red-700 hover:bg-transparent hover:text-red-800"

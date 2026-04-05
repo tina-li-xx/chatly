@@ -59,12 +59,14 @@ describe("dashboard settings shared helpers", () => {
           <div>Body only</div>
         </SettingsCard>
         <SettingsSectionHeader title="Profile" subtitle="Team defaults" />
+        <SettingsSectionHeader title="Help center" />
       </>
     );
 
     expect(cardHtml).toContain("Manage your account");
     expect(cardHtml).toContain("Body only");
     expect(cardHtml).toContain("Team defaults");
+    expect(cardHtml).toContain("Help center");
     expect(formatMoney(2900, "usd")).toContain("29");
 
     const toggleTree = (

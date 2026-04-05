@@ -25,15 +25,18 @@ describe("dashboard settings update route", () => {
   });
 
   it("saves profile, notification, email, and password payloads", async () => {
-    mocks.updateDashboardSettings.mockResolvedValueOnce({ profile: { firstName: "Tina" } });
+    mocks.updateDashboardSettings.mockResolvedValueOnce({ profile: { firstName: "Tina" }, teamName: "Chatting Team" });
 
     const response = await POST(
       new Request("http://localhost/dashboard/settings/update", {
         method: "POST",
         body: JSON.stringify({
           profile: { firstName: "Tina" },
+          teamName: "Chatting Team",
           notifications: { browserNotifications: true },
           email: { notificationEmail: "team@example.com" },
+          reports: { weeklyReportEnabled: true, weeklyReportSendTime: "09:30" },
+          automation: { offline: { autoReplyEnabled: true } },
           password: null
         })
       })
@@ -41,18 +44,21 @@ describe("dashboard settings update route", () => {
 
     expect(mocks.updateDashboardSettings).toHaveBeenCalledWith("user_123", {
       profile: { firstName: "Tina" },
+      teamName: "Chatting Team",
       notifications: { browserNotifications: true },
       email: { notificationEmail: "team@example.com" },
+      reports: { weeklyReportEnabled: true, weeklyReportSendTime: "09:30" },
+      automation: { offline: { autoReplyEnabled: true } },
       password: null
     });
     expect(await response.json()).toEqual({
       ok: true,
-      settings: { profile: { firstName: "Tina" } }
+      settings: { profile: { firstName: "Tina" }, teamName: "Chatting Team" }
     });
   });
 
   it("maps validation errors into 400 responses", async () => {
-    mocks.updateDashboardSettings.mockRejectedValueOnce(new Error("PASSWORD_CONFIRM"));
+    mocks.updateDashboardSettings.mockRejectedValueOnce(new Error("MISSING_TEAM_NAME"));
 
     const response = await POST(
       new Request("http://localhost/dashboard/settings/update", {
@@ -62,7 +68,7 @@ describe("dashboard settings update route", () => {
     );
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toEqual({ ok: false, error: "password_confirm" });
+    expect(await response.json()).toEqual({ ok: false, error: "missing_team_name" });
   });
 
   it("maps unexpected failures to a generic server error", async () => {

@@ -13,7 +13,11 @@ export async function POST(request: Request) {
       profile: payload.profile as never,
       notifications: payload.notifications as never,
       email: payload.email as never,
-      password: (payload.password ?? null) as never
+      ...(payload.contacts && typeof payload.contacts === "object" ? { contacts: payload.contacts as never } : {}),
+      ...(payload.reports && typeof payload.reports === "object" ? { reports: payload.reports as never } : {}),
+      ...(payload.automation && typeof payload.automation === "object" ? { automation: payload.automation as never } : {}),
+      password: (payload.password ?? null) as never,
+      ...(typeof payload.teamName === "string" ? { teamName: payload.teamName } : {})
     });
 
     return jsonOk({ settings: updated });
@@ -23,6 +27,8 @@ export async function POST(request: Request) {
       if (
         code === "EMAIL_TAKEN" ||
         code === "MISSING_EMAIL" ||
+        code === "MISSING_TEAM_NAME" ||
+        code === "CONTACT_SETTINGS_FORBIDDEN" ||
         code === "MISSING_CURRENT_PASSWORD" ||
         code === "MISSING_PASSWORD" ||
         code === "WEAK_PASSWORD" ||

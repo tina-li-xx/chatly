@@ -2,7 +2,8 @@ import {
   joinEmailText,
   renderButtonRow,
   renderChattingEmailPage,
-  renderParagraph
+  renderParagraph,
+  renderSmallText
 } from "./chatly-email-foundation";
 import { escapeHtml } from "./utils";
 
@@ -110,13 +111,19 @@ export function renderStarterUpgradePromptEmail(prompt: TeamNotificationUpgradeP
           panelBackground: "#EFF6FF",
           panelBorderColor: "#BFDBFE",
           panelPadding: "20px"
+        },
+        {
+          kind: "html",
+          html: renderSmallText(
+            escapeHtml(
+              `You're receiving this because your workspace crossed the ${milestoneLabel.toLowerCase()} monthly freemium usage milestone.`
+            ),
+            "center"
+          ),
+          padding: "0 32px 24px"
         }
       ],
-      actions: { primary: { href: prompt.billingUrl, label: buttonLabel }, padding: "0 32px 24px", borderTopColor: undefined },
-      footer: {
-        text: `You're receiving this because your workspace crossed the ${milestoneLabel.toLowerCase()} monthly freemium usage milestone.`,
-        padding: "0 32px 32px"
-      }
+      actions: { primary: { href: prompt.billingUrl, label: buttonLabel }, padding: "0 32px 24px", borderTopColor: undefined }
     })
   };
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
+  getBillingDisplayPrice,
+  getBillingPreviewDisplayPrice,
   type BillingInterval,
   type BillingPlanKey
 } from "@/lib/billing-plans";
 import type { DashboardBillingSummary } from "@/lib/data/billing-types";
 import {
-  CHATTING_GROWTH_CONTACT_TEAM_SIZE,
   getChattingGrowthPricingSummary
 } from "@/lib/pricing";
 import { FormButton } from "../ui/form-controls";
@@ -18,22 +18,20 @@ import { DashboardSettingsBillingTeamSizeSlider } from "./dashboard-settings-bil
 export function DashboardSettingsBillingPlanGrid({
   billing,
   billingPlanPending,
+  memberCount,
   selectedInterval,
+  onMemberCountChange,
   onSetSelectedInterval,
   onSelectPlan
 }: {
   billing: DashboardBillingSummary;
   billingPlanPending: string | null;
+  memberCount: number;
   selectedInterval: BillingInterval;
+  onMemberCountChange: (value: number) => void;
   onSetSelectedInterval: (value: BillingInterval) => void;
-  onSelectPlan: (planKey: BillingPlanKey, billingInterval: BillingInterval) => void;
+  onSelectPlan: (planKey: BillingPlanKey, billingInterval: BillingInterval, seatQuantity?: number) => void;
 }) {
-  const [memberCount, setMemberCount] = useState(Math.min(Math.max(billing.usedSeats, 1), CHATTING_GROWTH_CONTACT_TEAM_SIZE));
-
-  useEffect(() => {
-    setMemberCount(Math.min(Math.max(billing.usedSeats, 1), CHATTING_GROWTH_CONTACT_TEAM_SIZE));
-  }, [billing.usedSeats]);
-
   const preview = getChattingGrowthPricingSummary(selectedInterval, memberCount);
   const growthPendingKey = `growth:${selectedInterval}`;
   const starterPendingKey = `starter:${selectedInterval}`;
@@ -47,7 +45,7 @@ export function DashboardSettingsBillingPlanGrid({
         <DashboardSettingsBillingTeamSizeSlider
           memberCount={memberCount}
           interval={selectedInterval}
-          onMemberCountChange={setMemberCount}
+          onMemberCountChange={onMemberCountChange}
           onIntervalChange={onSetSelectedInterval}
         />
 
@@ -56,6 +54,7 @@ export function DashboardSettingsBillingPlanGrid({
             planKey="starter"
             interval={selectedInterval}
             featuredLabel={starterIsCurrent ? "Current plan" : null}
+            priceNotePlacement="hidden"
             action={
               <FormButton
                 type="button"
@@ -72,11 +71,14 @@ export function DashboardSettingsBillingPlanGrid({
           <PricingPlanCard
             planKey="growth"
             interval={selectedInterval}
+            displayPriceOverride={getBillingPreviewDisplayPrice("growth", selectedInterval, memberCount)}
             featuredLabel={growthIsCurrentPlan ? "Current plan" : null}
+            priceNote={getBillingDisplayPrice("growth", selectedInterval).note}
+            priceNotePlacement="feature"
             action={
               <FormButton
                 type="button"
-                onClick={() => onSelectPlan("growth", selectedInterval)}
+                onClick={() => onSelectPlan("growth", selectedInterval, memberCount)}
                 disabled={growthMatchesSelectedInterval || preview.totalCents === null || Boolean(billingPlanPending)}
                 fullWidth
               >

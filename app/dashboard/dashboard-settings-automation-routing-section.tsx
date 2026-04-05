@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { DashboardBillingSummary } from "@/lib/data/billing-types";
 import type { DashboardAutomationSettings, DashboardTeamMember } from "@/lib/data/settings-types";
+import { getAutomationRuleLimit } from "@/lib/plan-limits";
 import { BranchIcon } from "./dashboard-ui";
-import { automationRuleLimit, createAutomationId } from "./dashboard-settings-automation-options";
+import { createAutomationId } from "./dashboard-settings-automation-options";
 import { AutomationAssignActionField } from "./dashboard-settings-automation-routing-action-fields";
 import { AutomationTagPicker } from "./dashboard-settings-automation-tag-picker";
 import {
@@ -38,7 +39,7 @@ export function SettingsAutomationRoutingSection({
   onChange: (updater: (current: DashboardAutomationSettings) => DashboardAutomationSettings) => void;
   onAnnounce: (message: string) => void;
 }) {
-  const limit = automationRuleLimit(billing.planKey);
+  const limit = getAutomationRuleLimit(billing.planKey);
   const locked = false;
   const tagActionOptions = getRoutingTagActionOptions(tagOptions);
   const suggestedTagOptions = tagActionOptions.filter(
@@ -100,10 +101,11 @@ export function SettingsAutomationRoutingSection({
     onAnnounce("Auto-tag rule added.");
   };
   const reorderList = (list: RoutingListKey, ruleId: string, targetIndex: number) => {
-    updateRouting((current) => ({
-      ...current,
-      [list]: reorderRoutingItems(current[list], ruleId, targetIndex)
-    }));
+    if (list === "assignRules") {
+      updateAssignRules((current) => reorderRoutingItems(current, ruleId, targetIndex));
+    } else {
+      updateTagRules((current) => reorderRoutingItems(current, ruleId, targetIndex));
+    }
     setDragState(null);
   };
 

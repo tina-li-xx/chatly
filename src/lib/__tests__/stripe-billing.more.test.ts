@@ -236,6 +236,38 @@ describe("stripe billing more", () => {
     );
   });
 
+  it("keeps a freshly purchased seat quantity from being auto-reduced on sync", async () => {
+    ensureBillingAccount.mockResolvedValueOnce(accountRow({ seat_quantity: 2 }));
+    stripeMocks.customersRetrieve.mockResolvedValueOnce({
+      deleted: false,
+      name: null,
+      email: "owner@example.com",
+      invoice_settings: { default_payment_method: null }
+    });
+    stripeMocks.subscriptionsList.mockResolvedValueOnce({
+      data: [
+        {
+          id: "sub_live",
+          status: "active",
+          created: 2,
+          metadata: {},
+          items: { data: [{ id: "si_live", quantity: 10, price: { id: "price_growth_monthly" } }] },
+          current_period_end: 1713484800,
+          trial_start: 1711670400,
+          trial_end: null
+        }
+      ]
+    });
+    stripeMocks.invoicesList.mockResolvedValueOnce({ data: [] });
+
+    await syncStripeBillingState("user_1", "owner@example.com", 3);
+
+    expect(stripeMocks.subscriptionsUpdate).not.toHaveBeenCalled();
+    expect(stripeMocks.upsertBillingAccountRow).toHaveBeenLastCalledWith(
+      expect.objectContaining({ seatQuantity: 10, planKey: "growth" })
+    );
+  });
+
   it("syncs webhook events through subscription lookups", async () => {
     stripeMocks.findBillingAccountRowByStripeSubscriptionId.mockResolvedValueOnce({ user_id: "user_1" });
     stripeMocks.customersRetrieve.mockResolvedValueOnce({ deleted: false, email: "owner@example.com", name: null, invoice_settings: { default_payment_method: null } });

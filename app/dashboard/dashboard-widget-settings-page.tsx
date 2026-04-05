@@ -1,6 +1,5 @@
 "use client";
 
-import type { DashboardBillingSummary } from "@/lib/data/billing-types";
 import type { Site } from "@/lib/types";
 import { classNames } from "@/lib/utils";
 import {
@@ -8,7 +7,7 @@ import {
   ChevronDownIcon
 } from "./dashboard-ui";
 import { WidgetPreviewPane } from "./dashboard-widget-settings-preview-pane";
-import { TAB_OPTIONS } from "./dashboard-widget-settings-shared";
+import { TAB_OPTIONS, type WidgetTab } from "./dashboard-widget-settings-shared";
 import { WidgetAppearancePanel } from "./dashboard-widget-settings-appearance-panel";
 import { WidgetBehaviorPanel } from "./dashboard-widget-settings-behavior-panel";
 import { WidgetInstallationPanel } from "./dashboard-widget-settings-installation-panel";
@@ -16,10 +15,15 @@ import { useDashboardWidgetSettings } from "./use-dashboard-widget-settings";
 
 type DashboardWidgetSettingsPageProps = {
   initialSites: Site[];
-  initialBilling: DashboardBillingSummary;
+  proactiveChatUnlocked: boolean;
+  initialTab?: WidgetTab;
 };
 
-export function DashboardWidgetSettingsPage({ initialSites, initialBilling }: DashboardWidgetSettingsPageProps) {
+export function DashboardWidgetSettingsPage({
+  initialSites,
+  proactiveChatUnlocked,
+  initialTab
+}: DashboardWidgetSettingsPageProps) {
   const {
     activeSite,
     activeSiteId,
@@ -47,7 +51,7 @@ export function DashboardWidgetSettingsPage({ initialSites, initialBilling }: Da
     verificationError,
     verificationState,
     verifyInstallation
-  } = useDashboardWidgetSettings(initialSites);
+  } = useDashboardWidgetSettings(initialSites, initialTab);
 
   if (!activeSite) {
     return (
@@ -159,7 +163,7 @@ export function DashboardWidgetSettingsPage({ initialSites, initialBilling }: Da
             {activeTab === "behavior" ? (
               <WidgetBehaviorPanel
                 activeSite={activeSite}
-                proactiveChatUnlocked={initialBilling.features.proactiveChat}
+                proactiveChatUnlocked={proactiveChatUnlocked}
                 onUpdateActiveSite={updateActiveSite}
               />
             ) : null}

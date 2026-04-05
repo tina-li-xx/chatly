@@ -8,7 +8,7 @@ import { maybeSendAnalyticsExpansionEmail } from "@/lib/growth-outreach";
 import { publishDashboardLive } from "@/lib/live-events";
 import { findBillingAccountRow, findBillingUsageRow } from "@/lib/repositories/billing-repository";
 
-type IncomingVisitorMessageNotificationInput = {
+export type IncomingVisitorMessageNotificationInput = {
   userId: string;
   conversationId: string;
   createdAt: string;

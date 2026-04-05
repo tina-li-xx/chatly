@@ -120,6 +120,8 @@ describe("settings email template test route", () => {
       expect.objectContaining({
         from: "Example Support via Chatting <noreply@mail.usechatting.com>",
         to: "dest@example.com",
+        emailCategory: "critical",
+        footerTeamName: "Example Support",
         rendered: expect.objectContaining({ subject: "Transcript preview" })
       })
     );

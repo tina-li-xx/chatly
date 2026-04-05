@@ -90,6 +90,25 @@ function metadataValue(value: string | null | undefined) {
   return normalized || null;
 }
 
+function resolveSyncedSeatQuantity(input: {
+  accountSeatQuantity?: number | null;
+  desiredSeatCount?: number;
+  subscription: Stripe.Subscription | null;
+}) {
+  const currentSubscriptionQuantity = input.subscription?.items.data[0]?.quantity ?? 0;
+  const accountSeatQuantity =
+    typeof input.accountSeatQuantity === "number" && Number.isFinite(input.accountSeatQuantity)
+      ? Math.max(1, Math.floor(input.accountSeatQuantity))
+      : 0;
+  const desiredSeatCount =
+    typeof input.desiredSeatCount === "number" && Number.isFinite(input.desiredSeatCount)
+      ? Math.max(1, Math.floor(input.desiredSeatCount))
+      : 0;
+  const nextSeatQuantity = Math.max(currentSubscriptionQuantity, accountSeatQuantity, desiredSeatCount);
+
+  return nextSeatQuantity > 0 ? nextSeatQuantity : undefined;
+}
+
 function subscriptionTimestamp(
   subscription: Stripe.Subscription | null | undefined,
   key: "current_period_end" | "trial_start" | "trial_end"
@@ -303,7 +322,12 @@ export async function syncStripeBillingState(userId: string, email?: string, des
 
   const customer = customerResult;
   let subscription = getActiveSubscription(subscriptions.data);
-  subscription = await syncSubscriptionSeatQuantityIfNeeded(stripe, subscription, desiredSeatCount);
+  const syncedSeatQuantity = resolveSyncedSeatQuantity({
+    subscription,
+    desiredSeatCount,
+    accountSeatQuantity: account?.seat_quantity
+  });
+  subscription = await syncSubscriptionSeatQuantityIfNeeded(stripe, subscription, syncedSeatQuantity);
 
   const subscriptionItem = subscription?.items.data[0] ?? null;
   const priceId = subscriptionItem?.price?.id ?? null;
@@ -331,7 +355,7 @@ export async function syncStripeBillingState(userId: string, email?: string, des
         : null;
   const seatQuantity = Math.max(
     1,
-    subscriptionItem?.quantity ?? desiredSeatCount ?? account?.seat_quantity ?? 1
+    subscriptionItem?.quantity ?? syncedSeatQuantity ?? account?.seat_quantity ?? 1
   );
   const trialExtensionUsedAt =
     metadataValue(subscription?.metadata?.trialExtensionUsedAt) ??

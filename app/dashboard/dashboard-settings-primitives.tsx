@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import type { ComponentType, ReactNode, SVGProps } from "react";
 import { classNames } from "@/lib/utils";
@@ -160,7 +161,7 @@ export function SettingsDesktopNavItem({
 
     return (
       <Link
-        href={href}
+        href={href as Route}
         prefetch={prefetch}
         className={className}
       >

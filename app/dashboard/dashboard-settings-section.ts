@@ -2,6 +2,7 @@ import type { SettingsSection } from "./dashboard-settings-shared";
 
 const VALID_SETTINGS_SECTIONS = new Set<SettingsSection>([
   "profile",
+  "contacts",
   "automation",
   "notifications",
   "savedReplies",

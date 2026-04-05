@@ -9,7 +9,7 @@ describe("widget page client loading fallback", () => {
 
     const { DashboardWidgetPageClient } = await import("./widget-page-client");
     const html = renderToStaticMarkup(
-      <DashboardWidgetPageClient initialSites={[]} initialBilling={{ planKey: "starter" } as never} />
+      <DashboardWidgetPageClient initialSites={[]} proactiveChatUnlocked={false} />
     );
 
     expect(html).toContain("rounded-xl border border-slate-200 bg-white p-6");

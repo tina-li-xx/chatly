@@ -82,7 +82,7 @@ export function WidgetAppearancePanel({
           <p className="mt-1.5 text-xs text-slate-400">Shown in the widget header.</p>
         </div>
 
-        <div className="mt-5">
+        <div id="welcome-message" className="mt-5 scroll-mt-24">
           <label className="mb-2 block text-sm font-medium text-slate-700">Welcome message</label>
           <textarea
             value={activeSite.greetingText}

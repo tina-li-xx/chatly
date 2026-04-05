@@ -1,7 +1,13 @@
+import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   SETTINGS_NAV,
   SettingsCard,
+  SettingsCardBody,
+  SettingsCardEmptyState,
+  SettingsCardRow,
+  SettingsCardRows,
+  SettingsDesktopNavItem,
   SettingsNavIcon,
   SettingsSectionHeader,
   ToggleRow,
@@ -13,6 +19,21 @@ import {
   passwordStrength,
   settingsErrorMessage
 } from "./dashboard-settings-shared";
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...props
+  }: {
+    href: string;
+    children: ReactNode;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  )
+}));
 
 describe("dashboard settings shared", () => {
   it("formats settings helpers and error messages", () => {
@@ -37,6 +58,11 @@ describe("dashboard settings shared", () => {
         <SettingsCard title="Profile" description="Manage account details." actions={<button type="button">Edit</button>}>
           <div>content</div>
         </SettingsCard>
+        <SettingsCardBody><div>body</div></SettingsCardBody>
+        <SettingsCardRows>
+          <SettingsCardRow>row</SettingsCardRow>
+        </SettingsCardRows>
+        <SettingsCardEmptyState>empty</SettingsCardEmptyState>
         <SettingsSectionHeader title="Notifications" subtitle="Fine-tune alerts" />
         <ToggleSwitch checked onChange={() => {}} label="Browser notifications" />
         <ToggleRow
@@ -45,15 +71,27 @@ describe("dashboard settings shared", () => {
           checked={false}
           onChange={() => {}}
         />
+      
+        <SettingsDesktopNavItem
+          icon={() => <svg><path d="M0 0h1" /></svg>}
+          label="Widget"
+          description="Branding and install"
+          href="/dashboard/widget"
+        />
         <SettingsNavIcon icon={() => <svg><path d="M0 0h1" /></svg>} />
       </>
     );
 
     expect(html).toContain("Profile");
     expect(html).toContain("Manage account details.");
+    expect(html).toContain("border-t border-slate-200 px-6 py-5");
+    expect(html).toContain("border-b border-slate-100 px-6 py-5");
+    expect(html).toContain("px-6 py-8 text-sm text-slate-500");
     expect(html).toContain("Notifications");
     expect(html).toContain('role="switch"');
     expect(html).toContain("Sound alerts");
+    expect(html).toContain("Branding and install");
+    expect(html).toContain("min-h-[76px]");
     expect(html).toContain("<svg");
   });
 });

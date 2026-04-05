@@ -14,7 +14,7 @@ export function DashboardSettingsBillingUpgradeCard({
   billing: DashboardBillingSummary;
   billingPlanPending: string | null;
   selectedInterval: BillingInterval;
-  onChangePlan: (planKey: BillingPlanKey, billingInterval: BillingInterval) => void;
+  onChangePlan: (planKey: BillingPlanKey, billingInterval: BillingInterval, seatQuantity?: number) => void;
 }) {
   if (
     billing.planKey !== "starter" ||

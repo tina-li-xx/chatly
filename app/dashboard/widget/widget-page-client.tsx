@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { DashboardBillingSummary } from "@/lib/data/billing-types";
+import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import type { WidgetTab } from "../dashboard-widget-settings-shared";
 import type { Site } from "@/lib/types";
 
 const DashboardWidgetSettingsPage = dynamic(
@@ -36,9 +38,41 @@ const DashboardWidgetSettingsPage = dynamic(
 
 type DashboardWidgetPageClientProps = {
   initialSites: Site[];
-  initialBilling: DashboardBillingSummary;
+  proactiveChatUnlocked: boolean;
 };
 
-export function DashboardWidgetPageClient({ initialSites, initialBilling }: DashboardWidgetPageClientProps) {
-  return <DashboardWidgetSettingsPage initialSites={initialSites} initialBilling={initialBilling} />;
+function normalizeWidgetTab(value: string | null): WidgetTab | undefined {
+  if (value === "appearance" || value === "behavior" || value === "installation") {
+    return value;
+  }
+  return undefined;
+}
+
+export function DashboardWidgetPageClient({
+  initialSites,
+  proactiveChatUnlocked
+}: DashboardWidgetPageClientProps) {
+  const searchParams = useSearchParams();
+  const initialTab = normalizeWidgetTab(searchParams?.get("tab") ?? null);
+  const focusTarget = searchParams?.get("focus") ?? null;
+
+  useEffect(() => {
+    if (!focusTarget) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      document.getElementById(focusTarget)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+
+    return () => window.clearTimeout(timer);
+  }, [focusTarget, initialTab]);
+
+  return (
+    <DashboardWidgetSettingsPage
+      initialSites={initialSites}
+      proactiveChatUnlocked={proactiveChatUnlocked}
+      initialTab={initialTab}
+    />
+  );
 }

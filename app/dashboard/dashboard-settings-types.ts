@@ -4,6 +4,7 @@ import {
   BarChartIcon,
   BellIcon,
   ChatBubbleIcon,
+  PeopleIcon,
   CodeIcon,
   CreditCardIcon,
   MailIcon,
@@ -14,6 +15,7 @@ import {
 
 export type SettingsSection =
   | "profile"
+  | "contacts"
   | "automation"
   | "notifications"
   | "savedReplies"
@@ -23,7 +25,7 @@ export type SettingsSection =
   | "billing"
   | "referrals";
 export type EditableSettings =
-  Pick<DashboardSettingsData, "profile" | "notifications" | "email"> & {
+  Pick<DashboardSettingsData, "profile" | "notifications" | "email" | "contacts"> & {
     teamName: string;
     reports: NonNullable<DashboardSettingsData["reports"]>;
     automation: DashboardAutomationSettings;
@@ -53,6 +55,7 @@ export const SETTINGS_NAV: Array<{ label: string; items: SettingsNavItem[] }> = 
   {
     label: "Preferences",
     items: [
+      { type: "section", value: "contacts", label: "Contacts", icon: PeopleIcon, description: "Statuses, custom fields, and retention" },
       { type: "section", value: "automation", label: "Automation", icon: RefreshIcon, description: "Handle repetitive work automatically" },
       { type: "section", value: "notifications", label: "Notifications", icon: BellIcon, description: "Alert preferences" },
       { type: "section", value: "savedReplies", label: "Saved replies", icon: ChatBubbleIcon, description: "Canned replies for the inbox" },

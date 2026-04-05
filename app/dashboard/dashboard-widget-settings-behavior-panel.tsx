@@ -100,7 +100,7 @@ export function WidgetBehaviorPanel({
         </div>
       </div>
       <WidgetOfflineCopyPanel activeSite={activeSite} onUpdateActiveSite={onUpdateActiveSite} />
-      <div>
+      <div id="operating-hours" className="scroll-mt-24">
         <ToggleRow
           label="Set operating hours"
           description="Show as offline outside business hours."

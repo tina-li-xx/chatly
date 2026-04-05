@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type {
   DashboardAutomationSettings,
@@ -13,12 +12,11 @@ import type { DashboardNoticeState } from "./dashboard-controls";
 import { buildOwnerName, editableSignature, passwordStrength, settingsErrorMessage, type EditableSettings } from "./dashboard-settings-shared";
 import { buildEditableSettings, emptyPasswordDraft, type PasswordDraft } from "./dashboard-settings-form-state";
 const EMPTY_PASSWORD_SIGNATURE = JSON.stringify(emptyPasswordDraft());
-
 export function useDashboardSettingsForm(
   initialData: DashboardSettingsData,
   onNotice: (notice: Exclude<DashboardNoticeState, null>) => void
 ) {
-  const initialSettings = buildEditableSettings(initialData);
+  const initialSettings = useMemo(() => buildEditableSettings(initialData), [initialData]);
   const [savedSettings, setSavedSettings] = useState<EditableSettings>(initialSettings);
   const [draftSettings, setDraftSettings] = useState<EditableSettings>(initialSettings);
   const [passwordDraft, setPasswordDraft] = useState<PasswordDraft>(emptyPasswordDraft);
@@ -28,6 +26,8 @@ export function useDashboardSettingsForm(
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const currentProfileName = buildOwnerName(draftSettings.profile);
   const passwordMeter = passwordStrength(passwordDraft.newPassword);
+  const initialSignature = editableSignature(initialSettings);
+  const savedSettingsSignature = editableSignature(savedSettings);
   const draftSignature = editableSignature(draftSettings);
   const savedSignature = pendingSaveSignature?.settings ?? editableSignature(savedSettings);
   const passwordSignature = JSON.stringify(passwordDraft);
@@ -37,7 +37,14 @@ export function useDashboardSettingsForm(
       passwordSignature !== (pendingSaveSignature?.password ?? EMPTY_PASSWORD_SIGNATURE),
     [draftSignature, passwordSignature, pendingSaveSignature, savedSignature]
   );
-
+  useEffect(() => {
+    if (initialSignature === savedSettingsSignature) {
+      return;
+    }
+    setSavedSettings(initialSettings);
+    setDraftSettings((current) => editableSignature(current) === savedSettingsSignature ? initialSettings : current);
+    setPendingSaveSignature(null);
+  }, [initialSettings, initialSignature, savedSettingsSignature]);
   useEffect(() => {
     if (!isDirty) {
       return;
@@ -49,14 +56,12 @@ export function useDashboardSettingsForm(
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [isDirty]);
-
   function updateProfile<K extends keyof DashboardSettingsProfile>(key: K, value: DashboardSettingsProfile[K]) {
     setDraftSettings((current) => ({
       ...current,
       profile: { ...current.profile, [key]: value }
     }));
   }
-
   function updateTeamName(value: string) {
     setDraftSettings((current) => ({ ...current, teamName: value }));
   }
@@ -70,6 +75,12 @@ export function useDashboardSettingsForm(
     setDraftSettings((current) => ({
       ...current,
       email: { ...current.email, [key]: value }
+    }));
+  }
+  function updateContacts(value: EditableSettings["contacts"]) {
+    setDraftSettings((current) => ({
+      ...current,
+      contacts: value
     }));
   }
   function updateReports<K extends keyof DashboardSettingsReports>(key: K, value: DashboardSettingsReports[K]) {
@@ -106,6 +117,7 @@ export function useDashboardSettingsForm(
           teamName: submittedSettings.teamName,
           notifications: submittedSettings.notifications,
           email: submittedSettings.email,
+          contacts: submittedSettings.contacts,
           reports: submittedSettings.reports,
           automation: submittedSettings.automation,
           password: submittedPassword
@@ -114,7 +126,6 @@ export function useDashboardSettingsForm(
       const payload = (await response.json()) as
         | { ok: true; settings: DashboardSettingsData }
         | { ok: false; error: string };
-
       if (!response.ok || !payload.ok) {
         throw new Error(payload.ok ? "settings-save-failed" : payload.error);
       }
@@ -180,6 +191,7 @@ export function useDashboardSettingsForm(
     setPasswordExpanded,
     updateEmail,
     updateAutomation,
+    updateContacts,
     updateNotifications,
     updateProfile,
     updateReports,

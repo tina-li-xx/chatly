@@ -120,6 +120,27 @@ describe("billing plan route", () => {
     });
   });
 
+  it("uses the requested seat quantity for starter-to-growth checkout", async () => {
+    mocks.createDashboardBillingCheckoutSession.mockResolvedValueOnce("https://checkout.stripe.com/custom-seats");
+
+    const response = await POST(
+      new Request("http://localhost/dashboard/settings/billing/plan", {
+        method: "POST",
+        body: JSON.stringify({ plan: "growth", interval: "monthly", seatQuantity: 10 })
+      })
+    );
+
+    expect(await response.json()).toEqual({
+      ok: true,
+      redirectUrl: "https://checkout.stripe.com/custom-seats"
+    });
+    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatly.example", {
+      planKey: "growth",
+      billingInterval: "monthly",
+      seatQuantity: 10
+    });
+  });
+
   it("opens the billing portal for starter downgrade flow", async () => {
     mocks.createDashboardBillingPortalSession.mockResolvedValueOnce("https://billing.stripe.com/session");
 
@@ -167,6 +188,22 @@ describe("billing plan route", () => {
       new Request("http://localhost/dashboard/settings/billing/plan", {
         method: "POST",
         body: JSON.stringify({ plan: "growth" })
+      })
+    );
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      ok: false,
+      error: "contact_sales_required"
+    });
+    expect(mocks.createDashboardBillingCheckoutSession).not.toHaveBeenCalled();
+  });
+
+  it("blocks custom-quote seat counts even when the workspace is currently smaller", async () => {
+    const response = await POST(
+      new Request("http://localhost/dashboard/settings/billing/plan", {
+        method: "POST",
+        body: JSON.stringify({ plan: "growth", seatQuantity: 50 })
       })
     );
 

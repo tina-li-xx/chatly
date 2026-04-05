@@ -88,7 +88,7 @@ describe("dashboard billing history and modals", () => {
     const upgradeHtml = renderToStaticMarkup(
       <DashboardSettingsBillingPlanModal
         billing={{ ...baseBilling, planKey: "starter", billedSeats: null, usedSeats: 1 }}
-        intent={{ planKey: "growth", billingInterval: "annual", mode: "upgrade" }}
+        intent={{ planKey: "growth", billingInterval: "annual", mode: "upgrade", seatQuantity: 10 }}
         pending={false}
         onClose={() => {}}
         onConfirm={() => {}}
@@ -109,6 +109,7 @@ describe("dashboard billing history and modals", () => {
     expect(downgradeHtml).toContain("Open Stripe to cancel");
     expect(upgradeHtml).toContain("Upgrade to Growth");
     expect(upgradeHtml).toContain("Trial starts now");
+    expect(upgradeHtml).toContain("10 members");
     expect(upgradeHtml).toContain("Confirm Growth");
   });
 

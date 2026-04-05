@@ -6,6 +6,14 @@ import {
 import { isGrowthContactSalesTeamSize } from "@/lib/pricing";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 
+function readSeatQuantity(value: unknown) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return Math.max(1, Math.floor(value));
+}
+
 export async function POST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
@@ -20,9 +28,14 @@ export async function POST(request: Request) {
     const payload = (await request.json()) as Record<string, unknown>;
     const plan = payload.plan === "growth" ? "growth" : "starter";
     const interval = payload.interval === "annual" ? "annual" : "monthly";
+    const requestedSeatQuantity = readSeatQuantity(payload.seatQuantity);
     const billing = await getDashboardBillingSummary(auth.user.id);
+    const seatQuantity =
+      plan === "growth" && billing.planKey === "starter"
+        ? requestedSeatQuantity ?? Math.max(1, billing.usedSeats)
+        : Math.max(1, billing.usedSeats);
 
-    if (plan === "growth" && isGrowthContactSalesTeamSize(billing.usedSeats)) {
+    if (plan === "growth" && isGrowthContactSalesTeamSize(seatQuantity)) {
       return jsonError("contact_sales_required", 409);
     }
 
@@ -31,7 +44,7 @@ export async function POST(request: Request) {
         ? await createDashboardBillingCheckoutSession(auth.user.id, auth.user.email, {
             planKey: plan,
             billingInterval: interval,
-            seatQuantity: Math.max(1, billing.usedSeats)
+            seatQuantity
           })
         : await createDashboardBillingPortalSession(auth.user.id, auth.user.email);
 

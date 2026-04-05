@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { SettingsEmailTemplates } from "./settings-email-templates";
 import type { DashboardSettingsEmail } from "@/lib/data/settings-types";
 import {
@@ -12,6 +13,7 @@ export { SettingsBillingSection } from "./dashboard-settings-billing-section";
 export function SettingsEmailSection({
   title,
   subtitle,
+  headerActions,
   email,
   profileEmail,
   profileName,
@@ -22,6 +24,7 @@ export function SettingsEmailSection({
 }: {
   title: string;
   subtitle: string;
+  headerActions?: ReactNode;
   email: DashboardSettingsEmail;
   profileEmail: string;
   profileName: string;
@@ -32,7 +35,7 @@ export function SettingsEmailSection({
 }) {
   return (
     <div className="space-y-6">
-      <SettingsSectionHeader title={title} subtitle={subtitle} />
+      <SettingsSectionHeader title={title} subtitle={subtitle} actions={headerActions} />
 
       <SettingsCard title="Notification email" description="Where we send team notifications.">
         <label className="space-y-1.5">

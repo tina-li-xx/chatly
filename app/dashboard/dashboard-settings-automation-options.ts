@@ -1,4 +1,3 @@
-import type { BillingPlanKey } from "@/lib/data/billing-types";
 import type {
   DashboardAutomationAwayWhen,
   DashboardAutomationPromptDelaySeconds,
@@ -47,14 +46,6 @@ export function replyTimePreview(value: WidgetResponseTimeMode) {
 export function promptDelayLabel(value: DashboardAutomationPromptDelaySeconds) {
   const label = PROMPT_DELAY_OPTIONS.find((option) => option.value === value)?.label ?? "30 seconds";
   return value === 0 ? label : `After ${label}`;
-}
-
-export function automationRuleLimit(planKey: BillingPlanKey) {
-  return planKey === "growth" ? null : 1;
-}
-
-export function automationPromptLimit(planKey: BillingPlanKey) {
-  return planKey === "growth" ? null : 1;
 }
 
 export function createAutomationId(prefix: string) {

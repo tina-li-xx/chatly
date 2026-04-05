@@ -1,6 +1,6 @@
 export { DEFAULT_TAGS } from "./data/constants";
 export {
-  addFounderReply,
+  addTeamReply,
   addInboundReply,
   createUserMessage,
   getAttachmentForPublic,
@@ -9,8 +9,11 @@ export {
   getConversationSummaryById,
   getConversationNotificationContext,
   getConversationEmail,
+  getConversationReplyDeliveryState,
   markConversationRead,
+  handoffPublicConversationToTeam,
   getPublicConversationMessages,
+  getPublicConversationState,
   getPublicConversationTypingStatus,
   listConversationSummaries,
   recordFeedback,
@@ -21,6 +24,7 @@ export {
   updateVisitorTyping,
   updateConversationEmail
 } from "./data/conversations";
+export { updateConversationAssignment } from "./data/conversation-assignment";
 export {
   getOnboardingData,
   getPostAuthPath,
@@ -44,6 +48,20 @@ export {
 } from "./data/sites";
 export { getVisitorPresenceSession, listVisitorPresenceSessions, recordVisitorPresence } from "./data/visitors";
 export {
+  bulkUpdateDashboardContacts,
+  createDashboardContact,
+  deleteDashboardContact,
+  getDashboardContact,
+  getDashboardContactConversations,
+  listDashboardContactTagOptions,
+  getDashboardContactSettings,
+  identifyDashboardContact,
+  listDashboardContacts,
+  syncDashboardContactFromPresence,
+  updateDashboardContact,
+  updateDashboardContactSettings
+} from "./data/contacts";
+export {
   getConversationVisitorNote,
   getSiteVisitorNote,
   migrateVisitorNoteIdentity,
@@ -66,6 +84,22 @@ export {
   updateDashboardSettings,
   updateTeamInviteRole
 } from "./data/settings";
+export { getDashboardTeamPageData } from "./data/team-page";
+export { listDashboardTeamMembers } from "./data/dashboard-team-members";
+export {
+  createSavedReply,
+  deleteSavedReply,
+  listSavedReplies,
+  updateSavedReply
+} from "./data/saved-replies";
+export {
+  createHelpCenterArticle,
+  deleteHelpCenterArticle,
+  getHelpCenterArticleForSite,
+  listHelpCenterArticles,
+  listHelpCenterArticlesForSite,
+  updateHelpCenterArticle
+} from "./data/help-center";
 export {
   createDashboardBillingCheckoutSession,
   createDashboardBillingPortalSession,
@@ -90,5 +124,6 @@ export type {
   DashboardSettingsData,
   DashboardSettingsEmail,
   DashboardSettingsNotifications,
-  DashboardSettingsProfile
+  DashboardSettingsProfile,
+  DashboardSettingsReports
 } from "./data/settings-types";

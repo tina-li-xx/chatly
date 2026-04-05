@@ -46,20 +46,23 @@ const baseBilling = {
 } as DashboardBillingSummary;
 
 describe("dashboard settings billing plan grid", () => {
-  it("shows the growth starting price without a duplicate preview footer", () => {
+  it("shows the live growth preview total without a duplicate preview footer", () => {
     const html = renderToStaticMarkup(
       <DashboardSettingsBillingPlanGrid
         billing={baseBilling}
         billingPlanPending={null}
+        memberCount={25}
         selectedInterval="monthly"
+        onMemberCountChange={() => {}}
         onSetSelectedInterval={() => {}}
         onSelectPlan={() => {}}
       />
     );
 
     expect(html).toContain("Growth");
-    expect(html).toContain("$20");
+    expect(html).toContain("$100");
     expect(html).toContain("/month");
+    expect(html).toContain("volume pricing from $6/member/month");
     expect(html).not.toContain("Preview:");
   });
 });

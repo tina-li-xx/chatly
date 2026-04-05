@@ -1,6 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { DashboardBillingSummary } from "@/lib/data";
 import { createSite } from "./use-dashboard-actions.test-helpers";
 
 function collectElements(node: ReactNode, predicate: (element: ReactElement) => boolean): ReactElement[] {
@@ -16,36 +15,6 @@ function textContent(node: ReactNode): string {
   if (Array.isArray(node)) return node.map(textContent).join("");
   return textContent((node as ReactElement).props?.children);
 }
-
-const billing = {
-  planKey: "growth",
-  planName: "Growth",
-  priceLabel: "$20/month",
-  billingInterval: "monthly",
-  usedSeats: 1,
-  billedSeats: 1,
-  seatLimit: null,
-  siteCount: 1,
-  conversationCount: 2,
-  messageCount: 3,
-  avgResponseSeconds: 60,
-  conversationLimit: null,
-  conversationUsagePercent: null,
-  upgradePromptThreshold: 30,
-  remainingConversations: null,
-  showUpgradePrompt: false,
-  limitReached: false,
-  nextBillingDate: null,
-  trialEndsAt: null,
-  subscriptionStatus: "active",
-  customerId: "cus_1",
-  portalAvailable: true,
-  checkoutAvailable: true,
-  features: { billedPerSeat: true, proactiveChat: true, removeBranding: true },
-  paymentMethod: null,
-  invoices: [],
-  referrals: { programs: [], attributedSignups: [], rewards: [], pendingRewardCount: 0, earnedRewardCount: 0, earnedFreeMonths: 0, earnedDiscountCents: 0, earnedCommissionCents: 0 }
-} as DashboardBillingSummary;
 
 async function loadPage(hookValue: Record<string, unknown>) {
   vi.resetModules();
@@ -93,7 +62,9 @@ describe("dashboard widget settings page", () => {
       verifyInstallation: vi.fn()
     });
 
-    const html = renderToStaticMarkup(<DashboardWidgetSettingsPage initialSites={[]} initialBilling={billing} />);
+    const html = renderToStaticMarkup(
+      <DashboardWidgetSettingsPage initialSites={[]} proactiveChatUnlocked />
+    );
     expect(html).toContain("Once you have a site in Chatting");
   });
 
@@ -133,8 +104,16 @@ describe("dashboard widget settings page", () => {
       verifyInstallation: vi.fn()
     });
 
-    const tree = <DashboardWidgetSettingsPage initialSites={draftSites} initialBilling={billing} />;
-    const rendered = DashboardWidgetSettingsPage({ initialSites: draftSites, initialBilling: billing });
+    const tree = (
+      <DashboardWidgetSettingsPage
+        initialSites={draftSites}
+        proactiveChatUnlocked
+      />
+    );
+    const rendered = DashboardWidgetSettingsPage({
+      initialSites: draftSites,
+      proactiveChatUnlocked: true
+    });
     const selects = collectElements(rendered, (element) => element.type === "select");
     const buttons = collectElements(rendered, (element) => element.type === "button");
     const html = renderToStaticMarkup(tree);

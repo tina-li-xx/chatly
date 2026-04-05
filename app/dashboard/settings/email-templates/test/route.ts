@@ -84,6 +84,8 @@ export async function POST(request: Request) {
       from: resolveConversationTemplateMailFrom(key, previewContext.teamName),
       to: notificationEmail,
       replyTo: replyToEmail || undefined,
+      emailCategory: "critical",
+      footerTeamName: previewContext.teamName,
       rendered
     });
 

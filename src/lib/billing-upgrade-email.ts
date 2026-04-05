@@ -12,6 +12,8 @@ export async function sendStarterUpgradePromptEmail(input: {
   await sendRenderedEmail({
     from: resolvePrimaryBrandHelloMailFrom(),
     to: input.to,
+    emailCategory: "optional",
+    footerTeamName: "Chatting",
     rendered: renderStarterUpgradePromptEmail(input.prompt)
   });
 }

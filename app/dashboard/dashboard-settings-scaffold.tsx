@@ -8,6 +8,7 @@ import { SETTINGS_NAV, SettingsDesktopNavItem, type SettingsSection } from "./da
 
 const UNSAVED_DOT_SECTIONS = new Set<SettingsSection>([
   "profile",
+  "contacts",
   "automation",
   "notifications",
   "email"

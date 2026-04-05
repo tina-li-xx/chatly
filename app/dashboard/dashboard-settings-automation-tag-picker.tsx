@@ -11,6 +11,7 @@ export function AutomationTagPicker({
   options,
   primaryOptions = [],
   secondaryOptions = [],
+  inputId,
   hasError,
   placeholder,
   onChange
@@ -19,6 +20,7 @@ export function AutomationTagPicker({
   options: string[];
   primaryOptions?: string[];
   secondaryOptions?: string[];
+  inputId?: string;
   hasError?: boolean;
   placeholder?: string;
   onChange: (value: string) => void;
@@ -60,6 +62,7 @@ export function AutomationTagPicker({
     <div ref={rootRef} className="relative">
       <div className="relative">
         <Input
+          id={inputId}
           value={value}
           placeholder={placeholder}
           onFocus={() => setIsOpen(true)}

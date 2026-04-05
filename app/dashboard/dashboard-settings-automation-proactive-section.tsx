@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import type { DashboardBillingSummary } from "@/lib/data/billing-types";
-import type { DashboardAutomationSettings } from "@/lib/data/settings-types";
+import { getAutomationPromptLimit } from "@/lib/plan-limits";
+import type { DashboardAutomationPagePrompt, DashboardAutomationSettings } from "@/lib/data/settings-types";
 import { Button } from "../components/ui/Button";
 import { AutomationEmptyState, AutomationSectionCard, AutomationUpgradeCard } from "./dashboard-settings-automation-ui";
-import { automationPromptLimit, promptDelayLabel } from "./dashboard-settings-automation-options";
+import { promptDelayLabel } from "./dashboard-settings-automation-options";
 import {
   createProactivePrompt,
   isEmptyProactivePrompt,
@@ -33,12 +34,12 @@ export function SettingsAutomationProactiveSection({
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [dragPromptId, setDragPromptId] = useState<string | null>(null);
   const [dropPromptId, setDropPromptId] = useState<string | null>(null);
-  const limit = automationPromptLimit(billing.planKey);
+  const limit = getAutomationPromptLimit(billing.planKey);
   const prompts = automation.proactive.pagePrompts;
   const atLimit = limit !== null && prompts.length >= limit;
   const resolvedExpandedPromptId =
     prompts.some((prompt) => prompt.id === expandedPromptId) ? expandedPromptId : prompts.length === 1 ? prompts[0].id : null;
-  const updatePagePrompts = (updater: (prompts: typeof prompts) => typeof prompts) =>
+  const updatePagePrompts = (updater: (prompts: DashboardAutomationPagePrompt[]) => DashboardAutomationPagePrompt[]) =>
     onChange((current) => ({ ...current, proactive: { ...current.proactive, pagePrompts: updater(current.proactive.pagePrompts) } }));
   const clearDragState = () => {
     setDropPromptId(null);
@@ -56,7 +57,7 @@ export function SettingsAutomationProactiveSection({
     onAnnounce("Proactive message rule added.");
   };
 
-  const updatePrompt = (id: string, updater: (prompt: typeof prompts[number]) => typeof prompts[number]) =>
+  const updatePrompt = (id: string, updater: (prompt: DashboardAutomationPagePrompt) => DashboardAutomationPagePrompt) =>
     updatePagePrompts((currentPrompts) => currentPrompts.map((prompt) => (prompt.id === id ? updater(prompt) : prompt)));
 
   const deletePrompt = (id: string) => {
@@ -70,7 +71,7 @@ export function SettingsAutomationProactiveSection({
     updatePagePrompts((currentPrompts) => reorderProactivePrompts(currentPrompts, promptId, targetPromptId));
     clearDragState();
   };
-  const requestDelete = (prompt: typeof prompts[number]) => {
+  const requestDelete = (prompt: DashboardAutomationPagePrompt) => {
     if (isEmptyProactivePrompt(prompt)) {
       deletePrompt(prompt.id);
       return;
