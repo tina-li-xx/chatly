@@ -1,6 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { ButtonLink } from "./components/ui/Button";
+import { GrometricsButtonLink } from "./grometrics-button-link";
 import { ChatBubbleIcon, EyeIcon, UsersIcon } from "./dashboard/dashboard-ui";
 
 const LANDING_NAV_ITEMS = [
@@ -76,10 +77,10 @@ export function LandingHeader() {
             <Link href="/login" className={TEXT_LINK_CLASS}>
               Sign in
             </Link>
-            <ButtonLink href="/signup" size="md">
+            <GrometricsButtonLink href="/signup" size="md" eventName="signup_started" eventProperties={{ source: "landing_header" }}>
               <span className="sm:hidden">Start 14 day free trial</span>
               <span className="hidden sm:inline">Start 14 day free trial</span>
-            </ButtonLink>
+            </GrometricsButtonLink>
           </div>
         </div>
       </div>

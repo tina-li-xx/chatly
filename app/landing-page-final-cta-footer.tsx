@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ButtonLink } from "./components/ui/Button";
+import { GrometricsButtonLink } from "./grometrics-button-link";
 
 const footerGroups = [
   {
@@ -41,13 +41,15 @@ export function LandingFinalCtaFooter() {
               No enterprise bloat.
             </h2>
             <div className="mt-12 flex flex-col items-center gap-8">
-              <ButtonLink
+              <GrometricsButtonLink
                 href="/signup"
+                eventName="signup_started"
+                eventProperties={{ source: "landing_footer" }}
                 variant="secondary"
                 className="border-white bg-white px-9 text-blue-700 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
               >
                 Start 14 day free trial — live in 3 minutes →
-              </ButtonLink>
+              </GrometricsButtonLink>
             </div>
           </div>
         </section>

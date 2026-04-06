@@ -1,5 +1,5 @@
 import { ChatBubbleIcon, CheckIcon } from "./dashboard/dashboard-ui";
-import { ButtonLink } from "./components/ui/Button";
+import { GrometricsButtonLink } from "./grometrics-button-link";
 import { PricingPlanCard, type PricingFeatureItem } from "./pricing-plan-card";
 
 const starterFeatures: PricingFeatureItem[] = [
@@ -49,9 +49,16 @@ export function LandingPricingSection() {
             priceNotePlacement="hidden"
             summaryLabel="For testing the waters"
             action={
-              <ButtonLink href="/signup" variant="secondary" fullWidth className="h-12 rounded-[10px] border-slate-300 text-[15px]">
+              <GrometricsButtonLink
+                href="/signup"
+                variant="secondary"
+                fullWidth
+                className="h-12 rounded-[10px] border-slate-300 text-[15px]"
+                eventName="signup_started"
+                eventProperties={{ plan: "starter", source: "pricing_page" }}
+              >
                 Start 14 day free trial →
-              </ButtonLink>
+              </GrometricsButtonLink>
             }
           />
           <PricingPlanCard
@@ -63,9 +70,15 @@ export function LandingPricingSection() {
             priceNotePlacement="hidden"
             summaryLabel="For teams ready to convert"
             action={
-              <ButtonLink href="/signup" fullWidth className="h-12 rounded-[10px] text-[15px] shadow-[0_4px_12px_rgba(37,99,235,0.25)]">
+              <GrometricsButtonLink
+                href="/signup"
+                fullWidth
+                className="h-12 rounded-[10px] text-[15px] shadow-[0_4px_12px_rgba(37,99,235,0.25)]"
+                eventName="signup_started"
+                eventProperties={{ plan: "growth", source: "pricing_page" }}
+              >
                 Start 14 day free trial →
-              </ButtonLink>
+              </GrometricsButtonLink>
             }
           />
         </div>

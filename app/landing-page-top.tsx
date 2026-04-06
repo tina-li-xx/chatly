@@ -1,4 +1,5 @@
 import { ButtonLink } from "./components/ui/Button";
+import { GrometricsButtonLink } from "./grometrics-button-link";
 import {
   LandingHeroLogoStrip
 } from "./landing-page-hero-visuals";
@@ -22,12 +23,14 @@ export function LandingTopSections() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <ButtonLink
+                <GrometricsButtonLink
                   href="/signup"
+                  eventName="signup_started"
+                  eventProperties={{ source: "landing_hero" }}
                   trailingIcon={<span aria-hidden="true">→</span>}
                 >
                   Start 14 day free trial — live in 3 minutes
-                </ButtonLink>
+                </GrometricsButtonLink>
                 <ButtonLink
                   href="#features"
                   variant="secondary"

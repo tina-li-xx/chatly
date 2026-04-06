@@ -1,4 +1,4 @@
-import { ButtonLink } from "./components/ui/Button";
+import { GrometricsButtonLink } from "./grometrics-button-link";
 import {
   ContactContextFeatureIllustration,
   InboxFeatureIllustration,
@@ -104,13 +104,15 @@ export function LandingCoreFeaturesSection() {
             This is all most teams need to convert more visitors.
           </p>
           <div className="mt-6">
-            <ButtonLink
+            <GrometricsButtonLink
               href="/signup"
+              eventName="signup_started"
+              eventProperties={{ source: "landing_features" }}
               className="shadow-[0_10px_26px_rgba(37,99,235,0.28)] hover:-translate-y-0.5"
               trailingIcon={<span aria-hidden="true">→</span>}
             >
               Start chatting free
-            </ButtonLink>
+            </GrometricsButtonLink>
           </div>
         </div>
       </div>
