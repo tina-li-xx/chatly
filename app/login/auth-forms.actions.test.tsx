@@ -45,6 +45,7 @@ async function loadAuthForms(options: { loginState?: Record<string, unknown> } =
   const resendVerificationAction = vi.fn();
   const resetPasswordAction = vi.fn();
   const showToast = vi.fn();
+  const trackGrometricsEvent = vi.fn();
   vi.doMock("next/navigation", () => ({ useRouter: () => router }));
   vi.doMock("react-dom", async () => {
     const actual = await vi.importActual<typeof import("react-dom")>("react-dom");
@@ -74,6 +75,7 @@ async function loadAuthForms(options: { loginState?: Record<string, unknown> } =
     resendVerificationAction,
     resetPasswordAction
   }));
+  vi.doMock("@/lib/grometrics", () => ({ trackGrometricsEvent }));
   vi.doMock("../ui/toast-provider", () => ({ useToast: () => ({ showToast }) }));
   const module = await import("./auth-forms");
   return {
@@ -83,14 +85,15 @@ async function loadAuthForms(options: { loginState?: Record<string, unknown> } =
     forgotPasswordAction,
     resendVerificationAction,
     resetPasswordAction,
-    showToast
+    showToast,
+    trackGrometricsEvent
   };
 }
 describe("auth forms actions", () => {
   beforeEach(() => vi.stubGlobal("FormData", MockFormData as unknown as typeof FormData));
   afterEach(() => vi.unstubAllGlobals());
   it("redirects successful logins, toasts login errors, and handles forgot-password retries", async () => {
-    const { AuthForms, reactMocks, router, showToast } = await loadAuthForms({
+    const { AuthForms, reactMocks, router, showToast, trackGrometricsEvent } = await loadAuthForms({
       loginState: { ok: true, nextPath: "/dashboard" }
     });
 
@@ -98,6 +101,10 @@ describe("auth forms actions", () => {
     AuthForms({});
     await runMockEffects(reactMocks.effects);
     expect(router.replace).toHaveBeenCalledWith("/dashboard");
+    expect(trackGrometricsEvent).toHaveBeenCalledWith("login_completed", {
+      source: "login_page",
+      flow: "self_serve"
+    });
     expect(showToast).not.toHaveBeenCalled();
 
     const loginErrorFlow = await loadAuthForms({
@@ -135,6 +142,20 @@ describe("auth forms actions", () => {
     const html = renderToStaticMarkup(tree);
     expect(html).toContain("Reset email sent");
     expect(html).toContain("Reset sent.");
+  });
+
+  it("tracks create-account clicks from the sign-in view", async () => {
+    const { AuthForms, reactMocks, router, trackGrometricsEvent } = await loadAuthForms();
+
+    reactMocks.beginRender();
+    const tree = AuthForms({ inviteId: "invite_123", inviteEmail: "teammate@example.com" });
+    collectElements(tree, (element) => typeof element.type === "function" && element.props.actionLabel === "Create one")[0]?.props.onAction();
+
+    expect(trackGrometricsEvent).toHaveBeenCalledWith("signup_started", {
+      source: "invite_login",
+      flow: "invite"
+    });
+    expect(router.push).toHaveBeenCalledWith("/signup?invite=invite_123&email=teammate%40example.com");
   });
 
   it("submits password resets with the token and returns to auth actions", async () => {

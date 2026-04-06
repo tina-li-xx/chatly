@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackGrometricsEvent } from "@/lib/grometrics";
 import { useToast } from "../ui/toast-provider";
 import {
   AuthSuccessView,
@@ -44,14 +45,24 @@ export function AuthForms({
   const [successCopy, setSuccessCopy] = useState(DEFAULT_SUCCESS_COPY);
   const [loginState, loginFormAction] = useActionState(loginAction, INITIAL_AUTH_STATE);
   const lastLoginToastErrorRef = useRef<string | null>(null);
-  const handleCreateAccount = () => router.push(`/signup${inviteQuery}` as never);
+  const handleCreateAccount = () => {
+    trackGrometricsEvent("signup_started", {
+      source: isInviteFlow ? "invite_login" : "login_page",
+      flow: isInviteFlow ? "invite" : "self_serve"
+    });
+    router.push(`/signup${inviteQuery}` as never);
+  };
   const handleBackToSignIn = () => handleModeChange("signin");
 
   useEffect(() => {
     if (loginState.ok) {
+      trackGrometricsEvent("login_completed", {
+        source: isInviteFlow ? "invite_login" : "login_page",
+        flow: isInviteFlow ? "invite" : "self_serve"
+      });
       router.replace((loginState.nextPath ?? "/dashboard") as never);
     }
-  }, [loginState.nextPath, loginState.ok, router]);
+  }, [isInviteFlow, loginState.nextPath, loginState.ok, router]);
 
   useEffect(() => {
     if (!loginState.error || lastLoginToastErrorRef.current === loginState.error) {

@@ -35,6 +35,7 @@ async function loadSignupForm(searchParams?: Record<string, string>) {
   const router = { replace: vi.fn(), push: vi.fn(), refresh: vi.fn(), prefetch: vi.fn() };
   const signupAction = vi.fn();
   const showToast = vi.fn();
+  const trackGrometricsEvent = vi.fn();
 
   vi.doMock("next/navigation", () => ({
     useRouter: () => router,
@@ -43,9 +44,10 @@ async function loadSignupForm(searchParams?: Record<string, string>) {
   vi.doMock("react", async () => ({ ...(await reactMocks.moduleFactory()) }));
   vi.doMock("../login/actions", () => ({ signupAction }));
   vi.doMock("../ui/toast-provider", () => ({ useToast: () => ({ showToast }) }));
+  vi.doMock("@/lib/grometrics", () => ({ trackGrometricsEvent }));
 
   const module = await import("./signup-form");
-  return { SignupForm: module.SignupForm, reactMocks, router, signupAction, showToast };
+  return { SignupForm: module.SignupForm, reactMocks, router, signupAction, showToast, trackGrometricsEvent };
 }
 
 describe("signup form actions", () => {
@@ -53,7 +55,7 @@ describe("signup form actions", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("lets people reopen the standalone signup form from the verification notice", async () => {
-    const { SignupForm, reactMocks, router, signupAction } = await loadSignupForm({ ref: "hello" });
+    const { SignupForm, reactMocks, router, signupAction, trackGrometricsEvent } = await loadSignupForm({ ref: "hello" });
     signupAction.mockResolvedValue({
       ok: true,
       error: null,
@@ -81,6 +83,12 @@ describe("signup form actions", () => {
 
     const submittedFormData = signupAction.mock.calls[0]?.[1] as MockFormData;
     expect(submittedFormData.get("referralCode")).toBe("HELLO");
+    expect(trackGrometricsEvent).toHaveBeenCalledWith("signup_completed", {
+      source: "signup_page",
+      flow: "self_serve",
+      has_referral_code: true,
+      has_website_url: true
+    });
     expect(router.replace).not.toHaveBeenCalled();
     reactMocks.beginRender();
     tree = SignupForm();
@@ -127,7 +135,7 @@ describe("signup form actions", () => {
   });
 
   it("toasts returned signup errors without rendering them inline", async () => {
-    const { SignupForm, reactMocks, signupAction, showToast } = await loadSignupForm();
+    const { SignupForm, reactMocks, signupAction, showToast, trackGrometricsEvent } = await loadSignupForm();
     signupAction.mockResolvedValue({
       ok: false,
       error: "That email already has an account.",
@@ -158,5 +166,6 @@ describe("signup form actions", () => {
     tree = SignupForm();
     expect(renderToStaticMarkup(tree)).not.toContain("That email already has an account.");
     expect(showToast).toHaveBeenCalledWith("error", "That email already has an account.");
+    expect(trackGrometricsEvent).not.toHaveBeenCalled();
   });
 });

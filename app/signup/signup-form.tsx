@@ -10,6 +10,7 @@ import { useToast } from "../ui/toast-provider";
 import { getGenericAuthErrorMessage } from "../login/auth-error-messages";
 import { AuthFormIntro, AuthPageShell } from "../login/auth-shell";
 import { signupAction, type AuthActionState } from "../login/actions";
+import { trackGrometricsEvent } from "@/lib/grometrics";
 
 const INITIAL_AUTH_STATE: AuthActionState = {
   error: null,
@@ -65,15 +66,23 @@ export function SignupForm() {
     try {
       const result = await signupAction(INITIAL_AUTH_STATE, formData);
       setSignupState(result);
-      if (result.ok && result.nextPath) {
-        router.replace(result.nextPath as never);
+      if (result.ok) {
+        trackGrometricsEvent("signup_completed", {
+          source: isInviteSignup ? "invite_signup" : "signup_page",
+          flow: isInviteSignup ? "invite" : "self_serve",
+          has_referral_code: !isInviteSignup && Boolean(referralCode),
+          has_website_url: Boolean(websiteUrl)
+        });
+        if (result.nextPath) {
+          router.replace(result.nextPath as never);
+        } else {
+          setIsSubmitting(false);
+        }
       } else if (!result.ok) {
         setIsSubmitting(false);
         if (result.error) {
           showToast("error", result.error);
         }
-      } else {
-        setIsSubmitting(false);
       }
     } catch {
       const error = getGenericAuthErrorMessage("signup");
