@@ -190,6 +190,7 @@ Chatting's philosophy is "Conversational, Not Corporate" — every interface sho
 
 - **Maximum File Length**: No code file (`.ts`, `.tsx`, `.js`, `.jsx`) should exceed **200 lines of code**. This is a strict requirement that must be met *before* any commit occurs. Use custom hooks, utility functions, and sub-components to modularize large files.
 - **DRY (Don't Repeat Yourself)**: Always minimize code duplication. Extract common logic into reusable hooks, utility functions, or services.
+- **Cleanup Pass Is Required By Default**: Unless the user explicitly says not to, always finish implementation with a behavior-preserving cleanup pass. Make the result lean and DRY, remove bloat, duplicate logic, dead code, and parallel code paths, and tighten oversized files where practical.
 - **Senior Engineering Mindset**: Act and code as a senior software engineer. Prioritize readability, modularity, and maintainability. Avoid "hacky" solutions; choose robust architectural patterns that scale.
 
 ---
@@ -203,13 +204,14 @@ Chatting's philosophy is "Conversational, Not Corporate" — every interface sho
 1. Confirm scope, acceptance criteria, and assumptions before implementation.
 2. Identify impacted layers (Widget, Dashboard UI, API route/service, WebSocket, DB schema/data, notifications).
 3. Implement the smallest complete vertical slice first, then expand as needed.
-4. Add/update both unit and integration tests for affected behavior.
-5. Ask the user before running any tests in this thread.
-6. Share a change summary with:
+4. Do a final cleanup pass before stopping: remove duplicate logic, dead code, and unnecessary branches; extract shared helpers where they clearly reduce repetition; keep behavior unchanged.
+5. Add/update both unit and integration tests for affected behavior.
+6. Ask the user before running any tests in this thread.
+7. Share a change summary with:
    - Files changed and why
    - Files intentionally untouched
    - Potential concerns and follow-up checks
-7. Do not run `git add`/`git commit`/`git push` unless explicitly requested.
+8. Do not run `git add`/`git commit`/`git push` unless explicitly requested.
 
 #### Workflow B: Bugfix / Regression
 
