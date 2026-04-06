@@ -1,4 +1,5 @@
 const mocks = vi.hoisted(() => ({
+  getDashboardAiAssistUsage: vi.fn(),
   getWorkspaceAccess: vi.fn(),
   listAnalyticsConversations: vi.fn(),
   listAnalyticsReplyEvents: vi.fn(),
@@ -11,6 +12,9 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/workspace-access", () => ({
   getWorkspaceAccess: mocks.getWorkspaceAccess
+}));
+vi.mock("@/lib/data/settings-ai-assist-usage-read", () => ({
+  getDashboardAiAssistUsage: mocks.getDashboardAiAssistUsage
 }));
 vi.mock("@/lib/repositories/analytics-repository", () => ({
   listAnalyticsConversations: mocks.listAnalyticsConversations,
@@ -35,7 +39,13 @@ import { getDashboardStats } from "@/lib/data/stats";
 describe("small dashboard data modules", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1" });
+    mocks.getWorkspaceAccess.mockResolvedValue({
+      ownerUserId: "owner_1",
+      role: "admin"
+    });
+    mocks.getDashboardAiAssistUsage.mockResolvedValue({
+      overview: { requests: 0 }
+    });
   });
 
   it("maps analytics dataset rows into dashboard records", async () => {
@@ -68,9 +78,16 @@ describe("small dashboard data modules", () => {
           tags: []
         })
       ],
-      replyEvents: [{ createdAt: "2026-03-01T10:02:00.000Z", responseSeconds: 18 }]
+      replyEvents: [{ createdAt: "2026-03-01T10:02:00.000Z", responseSeconds: 18 }],
+      aiAssist: { overview: { requests: 0 } }
     });
     expect(mocks.listAnalyticsConversations).toHaveBeenCalledWith("owner_1");
+    expect(mocks.getDashboardAiAssistUsage).toHaveBeenCalledWith({
+      ownerUserId: "owner_1",
+      viewerUserId: "viewer_1",
+      viewerRole: "admin",
+      recentLimit: 12
+    });
   });
 
   it("maps dashboard stats and delegates user presence writes", async () => {

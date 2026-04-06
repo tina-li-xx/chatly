@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   findEmailTemplateSettingsRow: vi.fn(),
   findBillingSummaryRow: vi.fn(),
   findNotificationSettingsRow: vi.fn(),
+  findWorkspaceAiAssistSettingsValue: vi.fn(),
   findUserIdByEmailExcludingUser: vi.fn(),
   getDashboardContactSettings: vi.fn(),
   getDashboardBillingSummary: vi.fn(),
@@ -28,6 +29,7 @@ const mocks = vi.hoisted(() => ({
   updatePendingTeamInviteRole: vi.fn(),
   upsertDashboardReportUserSettings: vi.fn(),
   updateSettingsUserEmail: vi.fn(),
+  upsertWorkspaceAiAssistSettings: vi.fn(),
   upsertUserSettingsRecord: vi.fn(),
   upsertWorkspaceAutomationSettings: vi.fn(),
   upsertWorkspaceReportSettings: vi.fn(),
@@ -77,6 +79,10 @@ vi.mock("@/lib/repositories/settings-repository", () => ({
   updateSettingsUserEmail: mocks.updateSettingsUserEmail,
   upsertUserSettingsRecord: mocks.upsertUserSettingsRecord,
   upsertWorkspaceAutomationSettings: mocks.upsertWorkspaceAutomationSettings
+}));
+vi.mock("@/lib/repositories/ai-assist-settings-repository", () => ({
+  findWorkspaceAiAssistSettingsValue: mocks.findWorkspaceAiAssistSettingsValue,
+  upsertWorkspaceAiAssistSettings: mocks.upsertWorkspaceAiAssistSettings
 }));
 vi.mock("@/lib/repositories/saved-replies-repository", () => ({ listSavedReplyRows: mocks.listSavedReplyRows }));
 vi.mock("@/lib/repositories/workspace-repository", () => ({
@@ -131,6 +137,7 @@ describe("settings data more", () => {
     mocks.findDashboardSettingsRow.mockResolvedValue(settingsRow());
     mocks.findBillingSummaryRow.mockResolvedValue({ site_count: 0 });
     mocks.findDashboardReportSettingsRow.mockResolvedValue(null);
+    mocks.findWorkspaceAiAssistSettingsValue.mockResolvedValue("");
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "user_1", role: "owner" });
     mocks.getDashboardContactSettings.mockResolvedValue({
       planKey: "starter",

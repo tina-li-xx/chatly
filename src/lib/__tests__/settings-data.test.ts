@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   findEmailTemplateSettingsRow: vi.fn(),
   findBillingSummaryRow: vi.fn(),
   findNotificationSettingsRow: vi.fn(),
+  findWorkspaceAiAssistSettingsValue: vi.fn(),
   findUserIdByEmailExcludingUser: vi.fn(),
   countHelpCenterArticleRows: vi.fn(),
   getDashboardContactSettings: vi.fn(),
@@ -24,6 +25,7 @@ const mocks = vi.hoisted(() => ({
   updateSiteWidgetSettings: vi.fn(),
   updateSettingsUserEmail: vi.fn(),
   upsertDashboardReportUserSettings: vi.fn(),
+  upsertWorkspaceAiAssistSettings: vi.fn(),
   upsertUserSettingsRecord: vi.fn(),
   upsertWorkspaceAutomationSettings: vi.fn(),
   upsertWorkspaceReportSettings: vi.fn()
@@ -66,6 +68,10 @@ vi.mock("@/lib/repositories/settings-repository", () => ({
   updateSettingsUserEmail: mocks.updateSettingsUserEmail,
   upsertUserSettingsRecord: mocks.upsertUserSettingsRecord,
   upsertWorkspaceAutomationSettings: mocks.upsertWorkspaceAutomationSettings
+}));
+vi.mock("@/lib/repositories/ai-assist-settings-repository", () => ({
+  findWorkspaceAiAssistSettingsValue: mocks.findWorkspaceAiAssistSettingsValue,
+  upsertWorkspaceAiAssistSettings: mocks.upsertWorkspaceAiAssistSettings
 }));
 vi.mock("@/lib/repositories/saved-replies-repository", () => ({ listSavedReplyRows: mocks.listSavedReplyRows }));
 vi.mock("@/lib/repositories/workspace-repository", () => ({
@@ -152,6 +158,7 @@ describe("settings data", () => {
     mocks.findDashboardSettingsRow.mockResolvedValue(settingsRow());
     mocks.findBillingSummaryRow.mockResolvedValue({ site_count: 1 });
     mocks.findDashboardReportSettingsRow.mockResolvedValue(null);
+    mocks.findWorkspaceAiAssistSettingsValue.mockResolvedValue("");
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1", role: "owner" });
     mocks.getDashboardContactSettings.mockResolvedValue({
       planKey: "starter",
@@ -231,6 +238,12 @@ describe("settings data", () => {
     expect(mocks.listHelpCenterArticleRows).not.toHaveBeenCalled();
     expect(data.profile.email).toBe("tina@usechatting.com");
     expect(data.teamName).toBe("Chatting Team");
+    expect(data.aiAssist).toEqual({
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    });
     expect(data.reports).toEqual(expect.objectContaining({ weeklyReportEnabled: true, canManageWorkspaceReports: false }));
     expect(data.automationContext).toEqual(expect.objectContaining({
       brandColor: "#2563EB",
@@ -252,6 +265,12 @@ describe("settings data", () => {
       profile: { firstName: "Tina", lastName: "Bauer", email: "new@usechatting.com", jobTitle: "Founder", avatarDataUrl: null },
       teamName: "Chatting Support",
       notifications: { browserNotifications: true, soundAlerts: false, emailNotifications: true, newVisitorAlerts: true, highIntentAlerts: true },
+      aiAssist: {
+        replySuggestionsEnabled: false,
+        conversationSummariesEnabled: true,
+        rewriteAssistanceEnabled: true,
+        suggestedTagsEnabled: true
+      },
       email: { notificationEmail: "team@usechatting.com", replyToEmail: "reply@usechatting.com", templates: [{ id: "welcome" }] as never, emailSignature: "Best,\nTina" },
       reports: {
         weeklyReportEnabled: true,
@@ -266,6 +285,10 @@ describe("settings data", () => {
 
     expect(mocks.updateSettingsUserEmail).toHaveBeenCalledWith("user_1", "new@usechatting.com");
     expect(mocks.upsertUserSettingsRecord).toHaveBeenCalledWith(expect.objectContaining({ userId: "user_1", notificationEmail: "team@usechatting.com", replyToEmail: "reply@usechatting.com", emailTemplatesJson: '[{"id":"welcome"}]' }));
+    expect(mocks.upsertWorkspaceAiAssistSettings).toHaveBeenCalledWith(
+      "owner_1",
+      expect.any(String)
+    );
     expect(mocks.upsertDashboardReportUserSettings).toHaveBeenCalledWith({
       userId: "user_1",
       weeklyReportEnabled: true,
@@ -292,6 +315,12 @@ describe("settings data", () => {
     await updateDashboardSettings("user_1", {
       profile: { firstName: "Tina", lastName: "Bauer", email: "tina@usechatting.com", jobTitle: "Founder", avatarDataUrl: null },
       notifications: { browserNotifications: true, soundAlerts: true, emailNotifications: true, newVisitorAlerts: false, highIntentAlerts: true },
+      aiAssist: {
+        replySuggestionsEnabled: true,
+        conversationSummariesEnabled: true,
+        rewriteAssistanceEnabled: true,
+        suggestedTagsEnabled: true
+      },
       email: { notificationEmail: "team@usechatting.com", replyToEmail: "reply@usechatting.com", templates: [] as never, emailSignature: "Best,\nTina" },
       automation
     });
