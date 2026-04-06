@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { useShouldLoadRemoteScript } from "./use-should-load-remote-script";
 
-const ANALYTICS_SCRIPT_SRC = "https://grometrics-166523647849.europe-west1.run.app/js/script.js";
+const ANALYTICS_SCRIPT_SRC = "https://usegrometrics.com/js/script.js";
 const ANALYTICS_WEBSITE_ID = "gm_13c7a11993d9d7ce797e06a3";
 const ANALYTICS_DOMAIN = "usechatting.com";
 

@@ -1,6 +1,6 @@
 import { createMockReactHooks } from "./dashboard/test-react-hooks";
 
-export async function loadRemoteScriptModule(modulePath: string, hostname: string, testId: string) {
+export async function loadRemoteScriptModule(modulePath: string, hostname: string, testId: string, cookie = "") {
   vi.resetModules();
   const reactMocks = createMockReactHooks();
   const script = vi.fn();
@@ -9,7 +9,12 @@ export async function loadRemoteScriptModule(modulePath: string, hostname: strin
   vi.doMock("next/script", () => ({
     default: (props: Record<string, unknown>) => ((script(props), <script data-testid={testId} />))
   }));
-  vi.stubGlobal("window", { location: { hostname } });
+  vi.stubGlobal("document", { cookie });
+  vi.stubGlobal("window", {
+    location: { hostname },
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn()
+  });
 
   const module = await import(modulePath);
   return { Component: module.default, reactMocks, script };

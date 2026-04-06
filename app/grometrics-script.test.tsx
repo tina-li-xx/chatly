@@ -7,7 +7,25 @@ describe("grometrics script", () => {
     vi.unstubAllGlobals();
   });
 
-  it("loads the analytics script for non-local hosts", async () => {
+  it("loads the analytics script on non-local hosts", async () => {
+    const { Component, reactMocks, script } = await loadRemoteScriptModule("./grometrics-script", "usechatting.com", "grometrics");
+
+    reactMocks.beginRender();
+    renderToStaticMarkup(<Component />);
+    await runMockEffects(reactMocks.effects);
+
+    reactMocks.beginRender();
+    const html = renderToStaticMarkup(<Component />);
+
+    expect(html).toContain("grometrics");
+    expect(script).toHaveBeenCalledWith(expect.objectContaining({
+      "data-domain": "usechatting.com",
+      "data-website-id": "gm_13c7a11993d9d7ce797e06a3",
+      id: "grometrics-script"
+    }));
+  });
+
+  it("still loads without a consent cookie", async () => {
     const { Component, reactMocks, script } = await loadRemoteScriptModule("./grometrics-script", "usechatting.com", "grometrics");
 
     reactMocks.beginRender();
