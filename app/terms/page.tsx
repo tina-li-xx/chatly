@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
+import { buildAbsoluteUrl } from "@/lib/blog-utils";
 import { LegalPageShell } from "../legal-page-shell";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | Chatting",
+  alternates: {
+    canonical: buildAbsoluteUrl("/terms")
+  }
+};
 
 export default function TermsPage() {
   return (

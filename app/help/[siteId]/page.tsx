@@ -1,10 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listHelpCenterArticlesForSite } from "@/lib/data";
+import { NO_INDEX_METADATA } from "@/lib/site-seo";
 import { HelpCenterShell, formatHelpCenterDate } from "../help-center-shell";
 
 type HelpCenterIndexRouteProps = {
   params: Promise<{ siteId: string }>;
+};
+
+export const metadata: Metadata = {
+  title: "Help Center | Chatting",
+  ...NO_INDEX_METADATA
 };
 
 export default async function HelpCenterIndexPage({ params }: HelpCenterIndexRouteProps) {

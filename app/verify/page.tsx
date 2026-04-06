@@ -1,10 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { verifyEmailWithToken } from "@/lib/auth-email-verification";
+import { NO_INDEX_METADATA } from "@/lib/site-seo";
 
 type VerifyPageProps = {
   searchParams: Promise<{
     token?: string;
   }>;
+};
+
+export const metadata: Metadata = {
+  title: "Email Verification | Chatting",
+  ...NO_INDEX_METADATA
 };
 
 export default async function VerifyPage({ searchParams }: VerifyPageProps) {

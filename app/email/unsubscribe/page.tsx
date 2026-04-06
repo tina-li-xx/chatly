@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
 import { ButtonLink } from "../../components/ui/Button";
 import { getEmailUnsubscribePreferencesByToken } from "@/lib/email-unsubscribe";
+import { NO_INDEX_METADATA } from "@/lib/site-seo";
 import { EmailUnsubscribePanel } from "../email-unsubscribe-panel";
 
 type EmailUnsubscribePageProps = {
   searchParams: Promise<{
     token?: string;
   }>;
+};
+
+export const metadata: Metadata = {
+  title: "Email Preferences | Chatting",
+  ...NO_INDEX_METADATA
 };
 
 function InvalidUnsubscribeLink() {

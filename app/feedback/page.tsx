@@ -1,12 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { parseConversationRating } from "@/lib/conversation-feedback";
 import { recordFeedback } from "@/lib/data";
+import { NO_INDEX_METADATA } from "@/lib/site-seo";
 
 type FeedbackPageProps = {
   searchParams: Promise<{
     conversationId?: string;
     rating?: string;
   }>;
+};
+
+export const metadata: Metadata = {
+  title: "Conversation Feedback | Chatting",
+  ...NO_INDEX_METADATA
 };
 
 export default async function FeedbackPage({ searchParams }: FeedbackPageProps) {

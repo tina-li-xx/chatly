@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 export default function LegacyLiveChatRoiCalculatorRoute() {
-  redirect("/free-tools/live-chat-roi-calculator");
+  permanentRedirect("/free-tools/live-chat-roi-calculator");
 }

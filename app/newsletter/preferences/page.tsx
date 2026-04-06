@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
 import { ButtonLink } from "../../components/ui/Button";
 import { getNewsletterPreferencesByToken } from "@/lib/data/newsletter";
+import { NO_INDEX_METADATA } from "@/lib/site-seo";
 import { NewsletterPreferencesPanel } from "../newsletter-preferences-panel";
 
 type NewsletterPreferencesPageProps = {
   searchParams: Promise<{
     token?: string;
   }>;
+};
+
+export const metadata: Metadata = {
+  title: "Newsletter Preferences | Chatting",
+  ...NO_INDEX_METADATA
 };
 
 function InvalidPreferencesLink() {

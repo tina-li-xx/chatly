@@ -9,6 +9,12 @@ export const HOME_PAGE_SEO_DESCRIPTION =
 export const DEFAULT_OG_IMAGE_ALT = "Chatting — Live chat for small teams who care.";
 const DEFAULT_OG_IMAGE_WIDTH = 1200;
 const DEFAULT_OG_IMAGE_HEIGHT = 630;
+export const NO_INDEX_METADATA: Pick<Metadata, "robots"> = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 type SocialMetadataOptions = {
   title: string;

@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Tightened public indexing signals by noindexing utility/help routes, adding legal-page canonicals, and making the legacy ROI tool URL a permanent redirect.
 - Blog post registration now auto-generates during `dev` and `build`, so new `src/lib/blog-post-*.ts` files automatically feed the published blog routes and sitemap.
 - Updated public changelog notes so follow-up routing and email changes read like product updates instead of engineering filler.
 - Kept weekly performance heatmap snapshots build-safe by typing their computed intensity rows explicitly.
@@ -133,6 +134,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Public Site & Auth
 
+- Utility public routes like feedback, verification, preference links, and hosted help-center pages now emit explicit `noindex` metadata, while legal pages expose canonicals and the legacy ROI calculator path permanently redirects to its indexed free-tool URL.
 - Shared landing navigation and footer links now stay aligned with Next route typing during production builds.
 - Newsletter signups now preserve source updates correctly even for first-time subscribers.
 - Public marketing regression coverage now matches the current blog, legal, and pricing copy.

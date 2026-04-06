@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
+import { buildAbsoluteUrl } from "@/lib/blog-utils";
 import { LegalPageShell } from "../legal-page-shell";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | Chatting",
+  alternates: {
+    canonical: buildAbsoluteUrl("/privacy")
+  }
+};
 
 export default function PrivacyPage() {
   return (
