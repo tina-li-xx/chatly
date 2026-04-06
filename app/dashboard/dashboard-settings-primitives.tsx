@@ -151,18 +151,10 @@ export function SettingsDesktopNavItem({
       SETTINGS_NAV_ITEM_CLASS,
       active ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
     );
-    if (documentNavigation) {
-      return (
-        <a href={href} className={className}>
-          {content}
-        </a>
-      );
-    }
-
     return (
       <Link
         href={href as Route}
-        prefetch={prefetch}
+        prefetch={documentNavigation ? false : prefetch}
         className={className}
       >
         {content}

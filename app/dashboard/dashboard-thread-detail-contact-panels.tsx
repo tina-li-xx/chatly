@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ContactDetail, ContactStatusDefinition } from "@/lib/contact-types";
 import { formatDateTime } from "@/lib/utils";
 import { Button } from "../components/ui/Button";
@@ -125,9 +126,9 @@ export function ThreadContactNotes({
           </div>
         )) : <p className="text-sm text-slate-400">No team notes yet.</p>}
       </div>
-      <a href={`/dashboard/visitors?tab=contacts&contact=${encodeURIComponent(contact.id)}`} className="mt-4 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700">
+      <Link href={`/dashboard/visitors?tab=contacts&contact=${encodeURIComponent(contact.id)}`} className="mt-4 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700">
         View full profile →
-      </a>
+      </Link>
     </section>
   );
 }
