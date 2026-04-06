@@ -52,6 +52,7 @@ export function useDashboardState({
   );
   const openRequestIdRef = useRef(0);
   const lastTypingSentAtRef = useRef(0);
+  const visitorActivityRequestedRef = useRef<Set<string>>(new Set());
   const recentOptimisticReplyAtRef = useRef<Map<string, number>>(new Map());
   const pendingTagMutationsRef = useRef<Set<string>>(new Set());
   const {
@@ -60,6 +61,7 @@ export function useDashboardState({
     refreshConversationList,
     refreshConversationSummary,
     refreshConversation,
+    hydrateConversationVisitorActivity,
     openConversation,
     clearActiveConversation,
     markConversationAsRead,
@@ -71,6 +73,7 @@ export function useDashboardState({
     setActiveConversation,
     setLoadingConversationId,
     conversationCacheRef,
+    visitorActivityRequestedRef,
     openRequestIdRef,
     activeTypingConversationIdRef,
     lastTypingSentAtRef
@@ -111,6 +114,7 @@ export function useDashboardState({
     refreshConversationList,
     refreshConversationSummary,
     refreshConversation,
+    hydrateConversationVisitorActivity,
     openConversation,
     clearActiveConversation,
     clearTypingSignal,
@@ -142,6 +146,7 @@ export function useDashboardState({
     setUpdatingStatus,
     setAnsweredConversations,
     setBanner,
+    conversationCacheRef,
     recentOptimisticReplyAtRef,
     pendingTagMutationsRef,
     activeTypingConversationIdRef,

@@ -1,5 +1,6 @@
 "use client";
 
+import type { DashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
 import type { DashboardTeamMember } from "@/lib/data/settings-types";
 import { DashboardThreadDetail } from "./dashboard-thread-detail";
 import { DashboardThreadsPanel } from "./dashboard-threads-panel";
@@ -12,6 +13,7 @@ type DashboardClientPanelsProps = {
   keyboardConversationId: string | null;
   teamName: string;
   teamInitials: string;
+  aiAssistSettings: DashboardAiAssistSettings;
   teamMembers?: DashboardTeamMember[];
   showMobileList: boolean;
   showSidebarDrawer: boolean;
@@ -77,13 +79,14 @@ function renderThreadDetail({
   state,
   teamName,
   teamInitials,
+  aiAssistSettings,
   teamMembers,
   showSidebarDrawer,
   showSidebarInline,
   showBackButton,
   clearConversationSelection,
   setShowSidebarDrawer
-}: Pick<DashboardClientPanelsProps, "state" | "teamName" | "teamInitials" | "teamMembers" | "showSidebarDrawer" | "clearConversationSelection" | "setShowSidebarDrawer"> & {
+}: Pick<DashboardClientPanelsProps, "state" | "teamName" | "teamInitials" | "aiAssistSettings" | "teamMembers" | "showSidebarDrawer" | "clearConversationSelection" | "setShowSidebarDrawer"> & {
   showSidebarInline: boolean;
   showBackButton?: boolean;
 }) {
@@ -98,6 +101,7 @@ function renderThreadDetail({
     isLiveDisconnected: state.liveConnectionState === "reconnecting",
     teamName,
     teamInitials,
+    aiAssistSettings,
     teamMembers,
     showSidebarInline,
     showSidebarDrawer,
@@ -128,6 +132,7 @@ export function renderDashboardClientPanels({
   keyboardConversationId,
   teamName,
   teamInitials,
+  aiAssistSettings,
   teamMembers,
   showMobileList,
   showSidebarDrawer,
@@ -143,7 +148,7 @@ export function renderDashboardClientPanels({
           renderThreadPanel({ state, initialWidgetInstalled, widgetSiteIds, keyboardConversationId, searchInputId, openConversation, teamMembers, className: "min-h-[calc(100vh-56px)] border-r-0" })
         ) : (
           <div className="min-h-[calc(100vh-56px)]">
-            {renderThreadDetail({ state, teamName, teamInitials, teamMembers, showSidebarDrawer, showSidebarInline: false, showBackButton: true, clearConversationSelection, setShowSidebarDrawer })}
+            {renderThreadDetail({ state, teamName, teamInitials, aiAssistSettings, teamMembers, showSidebarDrawer, showSidebarInline: false, showBackButton: true, clearConversationSelection, setShowSidebarDrawer })}
           </div>
         )}
       </div>
@@ -151,7 +156,7 @@ export function renderDashboardClientPanels({
       <section className="hidden h-full min-h-0 lg:block">
         <div className="grid h-full min-h-0 grid-cols-[280px_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] overflow-hidden bg-white xl:grid-cols-[280px_minmax(0,1fr)_300px]">
           {renderThreadPanel({ state, initialWidgetInstalled, widgetSiteIds, keyboardConversationId, searchInputId, openConversation, teamMembers })}
-          {renderThreadDetail({ state, teamName, teamInitials, teamMembers, showSidebarDrawer, showSidebarInline: true, clearConversationSelection, setShowSidebarDrawer })}
+          {renderThreadDetail({ state, teamName, teamInitials, aiAssistSettings, teamMembers, showSidebarDrawer, showSidebarInline: true, clearConversationSelection, setShowSidebarDrawer })}
         </div>
       </section>
     </>

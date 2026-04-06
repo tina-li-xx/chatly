@@ -9,7 +9,14 @@ function createProps(): DashboardClientProps {
     initialStats: { totalConversations: 2, answeredConversations: 1, ratedConversations: 0, topTags: [] },
     initialSites: [createSite()],
     initialConversations: [createConversationSummary(), createConversationSummary({ id: "conv_2" })],
-    initialActiveConversation: createConversationThread()
+    initialActiveConversation: createConversationThread(),
+    initialAiAssistSettings: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
+    initialBillingPlanKey: "growth"
   };
 }
 

@@ -16,6 +16,7 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps =
   const activeSection = resolveSettingsSection(requestedSection);
   const settings = await getDashboardSettingsData(user.id, {
     fullBilling: activeSection === "billing" || activeSection === "referrals",
+    aiAssistUsage: activeSection === "aiAssist",
     workspace: {
       ownerUserId: user.workspaceOwnerId,
       role: user.workspaceRole

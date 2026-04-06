@@ -7,6 +7,8 @@ import type {
   DashboardStats,
   Site
 } from "@/lib/types";
+import type { BillingPlanKey } from "@/lib/billing-plans";
+import type { DashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
 import type { DashboardTeamMember } from "@/lib/data/settings-types";
 
 export type BannerState = {
@@ -21,6 +23,8 @@ export type DashboardClientProps = {
   initialConversations: ConversationSummary[];
   initialActiveConversation: ConversationThread | null;
   initialTeamMembers?: DashboardTeamMember[];
+  initialAiAssistSettings: DashboardAiAssistSettings;
+  initialBillingPlanKey: BillingPlanKey;
 };
 
 export type DashboardActionHandlers = {

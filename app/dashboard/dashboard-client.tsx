@@ -10,18 +10,27 @@ import {
   renderDashboardCommandPalette,
   renderDashboardShortcutsDialog
 } from "./dashboard-client-overlays";
+import { dispatchDashboardAiAssistRequest } from "./dashboard-ai-assist-events";
 import { renderDashboardClientPanels } from "./dashboard-client-panels";
 import { countUnreadConversations, useSetDashboardUnreadCount } from "./dashboard-unread-count";
 import { useDashboardNavigation } from "./dashboard-shell";
+import { useDashboardAiAssistActivity } from "./use-dashboard-ai-assist-activity";
 import { useDashboardInboxKeyboardShortcuts } from "./use-dashboard-inbox-keyboard-shortcuts";
 import { useDashboardState } from "./use-dashboard-state";
 
 const SEARCH_INPUT_ID = "dashboard-inbox-search";
-
+const DEFAULT_AI_ASSIST_SETTINGS = {
+  replySuggestionsEnabled: true,
+  conversationSummariesEnabled: true,
+  rewriteAssistanceEnabled: true,
+  suggestedTagsEnabled: true
+} as const;
 export function DashboardClient(props: DashboardClientProps) {
+  const aiAssistSettings = props.initialAiAssistSettings ?? DEFAULT_AI_ASSIST_SETTINGS;
   const dashboardNavigation = useDashboardNavigation();
   const setDashboardUnreadCount = useSetDashboardUnreadCount();
   const state = useDashboardState(props);
+  useDashboardAiAssistActivity();
   const unreadCount = countUnreadConversations(state.conversations);
   const initialWidgetInstalled = props.initialSites.some((site) => isSiteWidgetInstalled(site));
   const widgetSiteIds = props.initialSites.map((site) => site.id);
@@ -44,7 +53,6 @@ export function DashboardClient(props: DashboardClientProps) {
       setShowSidebarDrawer(false);
       return;
     }
-
     if (window.innerWidth < 1024) {
       setShowMobileList(false);
     }
@@ -74,6 +82,11 @@ export function DashboardClient(props: DashboardClientProps) {
     setShowCommandPalette(false);
   }
 
+  function openShortcuts() {
+    closeCommandPalette();
+    setShowShortcuts(true);
+  }
+
   function navigateFromPalette(path: string) {
     closeCommandPalette();
     dashboardNavigation?.navigate(path);
@@ -82,6 +95,24 @@ export function DashboardClient(props: DashboardClientProps) {
   function toggleConversationStatus() {
     void state.handleConversationStatusChange(state.activeConversation?.status === "open" ? "resolved" : "open");
   }
+
+  function requestAiAssist(action: "reply" | "summarize") {
+    if (!state.activeConversation) {
+      return;
+    }
+
+    dispatchDashboardAiAssistRequest({
+      action,
+      conversationId: state.activeConversation.id
+    });
+  }
+
+  const canRequestAiReply = Boolean(
+    state.activeConversation && aiAssistSettings.replySuggestionsEnabled
+  );
+  const canRequestAiSummary = Boolean(
+    state.activeConversation && aiAssistSettings.conversationSummariesEnabled
+  );
 
   function openConversation(conversationId: string) {
     setKeyboardConversationId(conversationId);
@@ -107,9 +138,14 @@ export function DashboardClient(props: DashboardClientProps) {
       focusSearch();
       closeCommandPalette();
     },
+    onOpenShortcuts: openShortcuts,
     onOpenWidgetSettings: () => navigateFromPalette("/dashboard/widget"),
     onOpenVisitors: () => navigateFromPalette("/dashboard/visitors"),
     onOpenSettings: () => navigateFromPalette("/dashboard/settings"),
+    canRequestAiReply,
+    canRequestAiSummary,
+    onRequestAiReply: () => requestAiAssist("reply"),
+    onRequestAiSummary: () => requestAiAssist("summarize"),
     onToggleConversationStatus: () => {
       closeCommandPalette();
       toggleConversationStatus();
@@ -132,7 +168,11 @@ export function DashboardClient(props: DashboardClientProps) {
     focusSearch,
     openConversation,
     clearConversationSelection,
-    toggleConversationStatus
+    toggleConversationStatus,
+    canRequestAiReply,
+    canRequestAiSummary,
+    requestAiReply: () => requestAiAssist("reply"),
+    requestAiSummary: () => requestAiAssist("summarize")
   });
 
   return (
@@ -144,6 +184,7 @@ export function DashboardClient(props: DashboardClientProps) {
         keyboardConversationId,
         teamName,
         teamInitials,
+        aiAssistSettings,
         teamMembers: props.initialTeamMembers ?? [],
         showMobileList,
         showSidebarDrawer,

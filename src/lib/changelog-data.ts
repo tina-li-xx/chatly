@@ -8,6 +8,11 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  entry("Early April 2026", "AI Assist is now built into the inbox", "Chatting now includes AI Assist to help teams reply faster, with suggestions that stay human-controlled and grounded in the live conversation.", [
+    "Teams can now generate reply suggestions, summarize longer threads, rewrite drafts, and get suggested tags directly inside the inbox.",
+    "Starter workspaces get 5 AI Assist requests per billing cycle, and usage is tracked across the full set of AI features.",
+    "AI Assist also includes recent activity, a full usage log with filters and CSV export, and visibility controls so detailed activity stays scoped to the right teammates."
+  ]),
   entry("Early April 2026", "People now gives teams real contact memory, not just live sessions", "Chatting can now keep track of who a visitor is across conversations so teams have useful context the moment they open the inbox.", [
     "Contact profiles now bring together identity, activity, tags, notes, conversations, and custom fields in one place.",
     "Teams can create and manage their own contact statuses and custom fields from settings.",

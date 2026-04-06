@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type {
   DashboardAutomationSettings,
   DashboardSettingsData,
+  DashboardAiAssistSettings,
   DashboardSettingsEmail,
   DashboardSettingsNotifications,
   DashboardSettingsProfile,
@@ -71,6 +72,12 @@ export function useDashboardSettingsForm(
       notifications: { ...current.notifications, [key]: value }
     }));
   }
+  function updateAiAssist<K extends keyof DashboardAiAssistSettings>(key: K, value: DashboardAiAssistSettings[K]) {
+    setDraftSettings((current) => ({
+      ...current,
+      aiAssist: { ...current.aiAssist, [key]: value }
+    }));
+  }
   function updateEmail<K extends keyof DashboardSettingsEmail>(key: K, value: DashboardSettingsEmail[K]) {
     setDraftSettings((current) => ({
       ...current,
@@ -116,6 +123,7 @@ export function useDashboardSettingsForm(
           profile: submittedSettings.profile,
           teamName: submittedSettings.teamName,
           notifications: submittedSettings.notifications,
+          aiAssist: submittedSettings.aiAssist,
           email: submittedSettings.email,
           contacts: submittedSettings.contacts,
           reports: submittedSettings.reports,
@@ -193,6 +201,7 @@ export function useDashboardSettingsForm(
     updateAutomation,
     updateContacts,
     updateNotifications,
+    updateAiAssist,
     updateProfile,
     updateReports,
     updateTeamName

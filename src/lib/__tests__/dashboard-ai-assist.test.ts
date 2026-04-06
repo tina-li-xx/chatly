@@ -14,6 +14,9 @@ describe("dashboard ai assist helpers", () => {
       validateDashboardAiAssistRequest({ action: "rewrite", conversationId: "conv_1", draft: "   " })
     ).toBe("draft-required");
     expect(
+      validateDashboardAiAssistRequest({ action: "rewrite", conversationId: "conv_1", draft: "Hello", tone: "invalid" })
+    ).toBe("invalid-tone");
+    expect(
       validateDashboardAiAssistRequest({ action: "archive", conversationId: "conv_1" })
     ).toBe("unknown-action");
   });
@@ -36,20 +39,34 @@ describe("dashboard ai assist helpers", () => {
 
     const prompt = buildDashboardAiAssistPrompt({
       action: "reply",
-      conversation
+      conversation,
+      savedReplies: [
+        {
+          id: "reply_1",
+          owner_user_id: "owner_1",
+          title: "Seat pricing",
+          body: "We charge per seat after the included team size.",
+          tags: ["pricing"],
+          updated_at: "2026-04-02T12:00:00.000Z"
+        }
+      ]
     });
 
     expect(prompt).toContain("Site: Main site");
     expect(prompt).toContain("Visitor: Do you charge per seat?");
-    expect(parseDashboardAiAssistResult("summarize", '{"summary":"Visitor is pricing-sensitive.","focus":"Answer the seat question."}')).toEqual({
+    expect(prompt).toContain("Saved replies:");
+    expect(parseDashboardAiAssistResult("summarize", '{"summary":"Visitor is pricing-sensitive."}')).toEqual({
       action: "summarize",
-      summary: "Visitor is pricing-sensitive.",
-      focus: "Answer the seat question."
+      summary: "Visitor is pricing-sensitive."
     });
-    expect(parseDashboardAiAssistResult("tags", '{"tags":["pricing","bug"],"summary":"Pricing question with a reported bug."}')).toEqual({
+    expect(parseDashboardAiAssistResult("rewrite", '{"draft":"Short version"}', "shorter")).toEqual({
+      action: "rewrite",
+      draft: "Short version",
+      tone: "shorter"
+    });
+    expect(parseDashboardAiAssistResult("tags", '{"tags":["pricing","bug"]}')).toEqual({
       action: "tags",
-      tags: ["pricing", "bug"],
-      summary: "Pricing question with a reported bug."
+      tags: ["pricing", "bug"]
     });
   });
 });

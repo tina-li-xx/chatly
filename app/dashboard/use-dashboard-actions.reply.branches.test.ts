@@ -57,6 +57,7 @@ function createReplyActions(overrides: Partial<Parameters<typeof createDashboard
     setSendingReply: vi.fn(),
     setAnsweredConversations: vi.fn(),
     setBanner: vi.fn(),
+    conversationCacheRef: { current: new Map() },
     recentOptimisticReplyAtRef: { current: new Map<string, number>() },
     showBanner: vi.fn(),
     clearTypingSignal: vi.fn().mockResolvedValue(undefined),

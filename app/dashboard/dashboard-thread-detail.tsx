@@ -2,12 +2,19 @@
 
 import { WarningIcon } from "./dashboard-ui";
 import { conversationIdentity } from "./dashboard-conversation-display";
-import { renderDashboardThreadDetailComposer } from "./dashboard-thread-detail-composer";
+import { DashboardThreadDetailComposer } from "./dashboard-thread-detail-composer";
 import { renderDashboardThreadDetailHeader } from "./dashboard-thread-detail-header";
 import { renderDashboardThreadDetailSidebars } from "./dashboard-thread-detail-sidebars";
 import { renderDashboardThreadDetailEmptyState, renderDashboardThreadDetailLoadingState } from "./dashboard-thread-detail-states";
 import { renderDashboardThreadDetailTimeline } from "./dashboard-thread-detail-timeline";
 import type { DashboardThreadDetailProps } from "./dashboard-thread-detail-types";
+
+const DEFAULT_AI_ASSIST_SETTINGS = {
+  replySuggestionsEnabled: true,
+  conversationSummariesEnabled: true,
+  rewriteAssistanceEnabled: true,
+  suggestedTagsEnabled: true
+} as const;
 
 export function DashboardThreadDetail({
   activeConversation,
@@ -20,6 +27,7 @@ export function DashboardThreadDetail({
   isLiveDisconnected,
   teamName,
   teamInitials,
+  aiAssistSettings = DEFAULT_AI_ASSIST_SETTINGS,
   teamMembers = [],
   showSidebarInline = true,
   showSidebarDrawer = false,
@@ -89,21 +97,23 @@ export function DashboardThreadDetail({
           teamName,
           onRetryReply
         })}
-        {renderDashboardThreadDetailComposer({
-          activeConversation,
-          sendingReply,
-          onSendReply,
-          onReplyComposerBlur,
-          onReplyComposerFocus,
-          onReplyComposerInput,
-          onToggleTag
-        })}
+        <DashboardThreadDetailComposer
+          activeConversation={activeConversation}
+          sendingReply={sendingReply}
+          aiAssistSettings={aiAssistSettings}
+          onSendReply={onSendReply}
+          onReplyComposerBlur={onReplyComposerBlur}
+          onReplyComposerFocus={onReplyComposerFocus}
+          onReplyComposerInput={onReplyComposerInput}
+          onToggleTag={onToggleTag}
+        />
       </section>
 
       {renderDashboardThreadDetailSidebars({
         activeConversation,
         savingEmail,
         assigningConversation,
+        aiAssistSettings,
         teamMembers,
         showSidebarInline,
         showSidebarDrawer,

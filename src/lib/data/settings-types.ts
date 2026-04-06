@@ -1,10 +1,15 @@
 import type { DashboardBillingSummary } from "@/lib/data/billing-types";
 import type { ContactWorkspaceSettings } from "@/lib/contact-types";
 import type { DashboardEmailTemplate } from "@/lib/email-templates";
+import type { DashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
+import type { DashboardAiAssistUsageSnapshot } from "@/lib/data/settings-ai-assist-usage";
 import type {
   DashboardAutomationContext,
   DashboardAutomationSettings
 } from "@/lib/data/settings-automation-types";
+export type {
+  DashboardAiAssistSettings
+} from "@/lib/data/settings-ai-assist";
 export type {
   DashboardAutomationAssignRule,
   DashboardAutomationAwayWhen,
@@ -104,6 +109,8 @@ export type DashboardSettingsData = {
   profile: DashboardSettingsProfile;
   teamName?: string;
   notifications: DashboardSettingsNotifications;
+  aiAssist: DashboardAiAssistSettings;
+  aiAssistUsage?: DashboardAiAssistUsageSnapshot;
   email: DashboardSettingsEmail;
   contacts: ContactWorkspaceSettings;
   reports?: DashboardSettingsReports;
@@ -128,6 +135,7 @@ export type UpdateDashboardSettingsInput = {
   profile: DashboardSettingsProfile;
   teamName?: string;
   notifications: DashboardSettingsNotifications;
+  aiAssist?: DashboardAiAssistSettings;
   email: DashboardSettingsEmail;
   contacts?: ContactWorkspaceSettings;
   reports?: UpdateDashboardSettingsReportsInput;

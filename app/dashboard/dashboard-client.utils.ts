@@ -70,8 +70,16 @@ export function errorMessageForCode(code: string) {
       return "We couldn't update the assignee just now.";
     case "draft-required":
       return "Write a draft first so AI has something to rewrite.";
+    case "invalid-tone":
+      return "Choose a rewrite style and try again.";
     case "ai-provider-not-configured":
       return "AI assist isn't configured yet.";
+    case "feature-disabled":
+      return "That AI Assist feature is turned off in settings.";
+    case "ai-assist-requires-growth":
+      return "AI Assist is available on Growth.";
+    case "ai-assist-limit-reached":
+      return "The AI Assist requests included in this billing cycle have been used.";
     case "ai-assist-failed":
       return "AI assist couldn't finish that request.";
     case "forbidden":

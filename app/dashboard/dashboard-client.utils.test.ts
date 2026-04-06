@@ -40,6 +40,9 @@ describe("dashboard client utils", () => {
 
   it("maps known error codes to friendly messages", () => {
     expect(errorMessageForCode("auth")).toBe("Your session expired. Sign in again.");
+    expect(errorMessageForCode("ai-assist-limit-reached")).toBe(
+      "The AI Assist requests included in this billing cycle have been used."
+    );
     expect(errorMessageForCode("attachment-too-large")).toBe(
       "Each attachment must be smaller than 4 MB."
     );

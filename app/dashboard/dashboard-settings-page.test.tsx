@@ -60,6 +60,12 @@ async function renderSettingsPage(section: SettingsSection) {
       newVisitorAlerts: false,
       highIntentAlerts: true
     },
+    aiAssist: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
     email: {
       notificationEmail: "team@chatly.example",
       replyToEmail: "reply@chatly.example",

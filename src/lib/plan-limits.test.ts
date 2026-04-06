@@ -1,4 +1,5 @@
 import {
+  getAiAssistMonthlyRequestLimit,
   getAutomationPromptLimit,
   getAutomationRuleLimit,
   getContactPlanLimits,
@@ -8,6 +9,7 @@ import {
 describe("plan limits", () => {
   it("returns starter limits from one shared source", () => {
     expect(getDashboardPlanLimits("starter")).toMatchObject({
+      aiAssistMonthlyRequests: 5,
       contacts: {
         fullProfiles: false,
         exportEnabled: false,
@@ -20,6 +22,7 @@ describe("plan limits", () => {
         proactivePrompts: 1
       }
     });
+    expect(getAiAssistMonthlyRequestLimit("starter")).toBe(5);
     expect(getContactPlanLimits("starter").customStatusesLimit).toBe(1);
     expect(getAutomationRuleLimit("starter")).toBe(1);
     expect(getAutomationPromptLimit("starter")).toBe(1);
@@ -27,6 +30,7 @@ describe("plan limits", () => {
 
   it("returns growth limits from one shared source", () => {
     expect(getDashboardPlanLimits("growth")).toMatchObject({
+      aiAssistMonthlyRequests: 2000,
       contacts: {
         fullProfiles: true,
         exportEnabled: true,
@@ -39,5 +43,6 @@ describe("plan limits", () => {
         proactivePrompts: null
       }
     });
+    expect(getAiAssistMonthlyRequestLimit("growth")).toBe(2000);
   });
 });

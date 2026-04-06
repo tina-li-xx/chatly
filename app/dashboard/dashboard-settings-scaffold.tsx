@@ -11,6 +11,7 @@ const UNSAVED_DOT_SECTIONS = new Set<SettingsSection>([
   "contacts",
   "automation",
   "notifications",
+  "aiAssist",
   "email"
 ]);
 

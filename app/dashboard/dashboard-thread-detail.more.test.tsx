@@ -49,6 +49,12 @@ function baseProps() {
     isLiveDisconnected: false,
     teamName: "Chatting",
     teamInitials: "CH",
+    aiAssistSettings: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
     onSaveConversationEmail: vi.fn(),
     onSendReply: vi.fn(),
     onRetryReply: vi.fn(),
@@ -144,30 +150,37 @@ describe("dashboard thread detail more", () => {
     resolveButton?.props.onClick();
     overlay?.props.onClick();
     closeButton?.props.onClick();
-    textarea?.props.onKeyDown({
-      key: "Enter",
-      shiftKey: true,
-      preventDefault,
-      currentTarget: { form: { requestSubmit } }
-    });
+    const composer = collect(
+      tree,
+      (element) =>
+        typeof element.type === "function" &&
+        element.props?.onReplyComposerFocus === props.onReplyComposerFocus
+    )[0];
 
     expect(props.onConversationStatusChange).toHaveBeenCalledWith("resolved");
     expect(props.onCloseSidebar).toHaveBeenCalledTimes(2);
     expect(preventDefault).not.toHaveBeenCalled();
     expect(requestSubmit).not.toHaveBeenCalled();
+    expect(composer?.props.onSendReply).toBe(props.onSendReply);
   });
 
   it("keeps the composer editable while a reply is sending", () => {
+    const props = baseProps();
     const tree = DashboardThreadDetail({
-      ...baseProps(),
+      ...props,
       sendingReply: true,
       activeConversation: createConversationThread({ status: "open" }),
       showSidebarInline: false
     });
     const textarea = getComposerTextarea(tree);
-    const sendButton = buttonByLabel(tree, "Send reply");
+    const composer = collect(
+      tree,
+      (element) =>
+        typeof element.type === "function" &&
+        element.props?.onReplyComposerFocus === props.onReplyComposerFocus
+    )[0];
 
     expect(textarea?.props.disabled).toBeUndefined();
-    expect(sendButton?.props.disabled).toBe(true);
+    expect(composer?.props.sendingReply).toBe(true);
   });
 });

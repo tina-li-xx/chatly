@@ -1,3 +1,4 @@
+import { renderAiAssistWarningEmail } from "@/lib/chatly-ai-assist-warning-email";
 import {
   renderDailyDigestEmail,
   renderMentionNotificationEmail,
@@ -70,5 +71,23 @@ export async function sendWeeklyWidgetInstallEmail(input: {
     emailCategory: "optional",
     footerTeamName: input.teamName,
     rendered: renderWeeklyWidgetInstallEmail(input)
+  });
+}
+
+export async function sendAiAssistWarningEmail(input: {
+  to: string;
+  teamName: string;
+  used: number;
+  limit: number;
+  resetsAt: string;
+  billingUrl: string;
+  state: "warning" | "limited";
+}) {
+  return sendRenderedEmail({
+    from: resolveWeeklyPerformanceReportMailFrom(),
+    to: input.to,
+    emailCategory: "critical",
+    footerTeamName: input.teamName,
+    rendered: renderAiAssistWarningEmail(input)
   });
 }

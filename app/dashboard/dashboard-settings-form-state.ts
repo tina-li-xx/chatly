@@ -1,3 +1,4 @@
+import { createDefaultDashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
 import { createDefaultDashboardAutomationSettings } from "@/lib/data/settings-automation";
 import { normalizeDashboardSettingsReports } from "@/lib/data/settings-reports";
 import type { DashboardSettingsData } from "@/lib/data/settings-types";
@@ -41,6 +42,8 @@ export function buildEditableSettings(initialData: DashboardSettingsData): Edita
     profile: initialData.profile,
     teamName: initialData.teamName ?? "",
     notifications: initialData.notifications,
+    aiAssist:
+      initialData.aiAssist ?? createDefaultDashboardAiAssistSettings(),
     email: initialData.email,
     contacts: sanitizeContactSettings(initialData.contacts),
     reports: normalizeDashboardSettingsReports(initialData.reports),

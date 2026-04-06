@@ -1,10 +1,10 @@
 import { seatCountFromActiveMemberships } from "@/lib/billing-seats";
 import { getDashboardContactSettings } from "@/lib/data/contacts";
+import { parseDashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
+import { getDashboardAiAssistUsage } from "@/lib/data/settings-ai-assist-usage-read";
 import { getDashboardBillingSummary } from "@/lib/data/billing";
 import { getDashboardSettingsBillingSnapshot } from "@/lib/data/settings-billing-snapshot";
-import {
-  parseDashboardAutomationSettings
-} from "@/lib/data/settings-automation";
+import { parseDashboardAutomationSettings } from "@/lib/data/settings-automation";
 import { mapDashboardSettingsReports } from "@/lib/data/settings-reports";
 import type {
   DashboardEmailTemplateSettings,
@@ -17,18 +17,15 @@ import {
   mapDashboardNotificationSettings,
   splitSettingsName
 } from "@/lib/data/settings-helpers";
-import {
-  parseDashboardEmailTemplates
-} from "@/lib/email-templates";
-import {
-  findDashboardReportSettingsRow
-} from "@/lib/repositories/report-settings-repository";
+import { parseDashboardEmailTemplates } from "@/lib/email-templates";
+import { findDashboardReportSettingsRow } from "@/lib/repositories/report-settings-repository";
 import { countHelpCenterArticleRows } from "@/lib/repositories/help-center-repository";
 import {
   findBillingSummaryRow,
   findDashboardSettingsRow,
   findEmailTemplateSettingsRow
 } from "@/lib/repositories/settings-repository";
+import { findWorkspaceAiAssistSettingsValue } from "@/lib/repositories/ai-assist-settings-repository";
 import { listSavedReplyRows } from "@/lib/repositories/saved-replies-repository";
 import { listActiveTeamMemberRows } from "@/lib/repositories/workspace-repository";
 import { displayNameFromEmail } from "@/lib/user-display";
@@ -38,6 +35,7 @@ import { DEFAULT_TAGS } from "./constants";
 
 export type DashboardSettingsLoadOptions = {
   fullBilling?: boolean;
+  aiAssistUsage?: boolean;
   workspace?: {
     ownerUserId: string;
     role: "owner" | "admin" | "member";
@@ -85,7 +83,9 @@ export async function getDashboardSettingsData(
     savedReplyRows,
     helpCenterArticleCount,
     billingSummary,
-    contactsSettings
+    contactsSettings,
+    aiAssistSettingsValue,
+    aiAssistUsage
   ] = await Promise.all([
     findDashboardSettingsRow(userId),
     workspace.ownerUserId === userId ? Promise.resolve(null) : findDashboardSettingsRow(workspace.ownerUserId),
@@ -97,7 +97,15 @@ export async function getDashboardSettingsData(
     options?.fullBilling === false
       ? findBillingSummaryRow(workspace.ownerUserId)
       : Promise.resolve(null),
-    getDashboardContactSettings(userId)
+    getDashboardContactSettings(userId),
+    findWorkspaceAiAssistSettingsValue(workspace.ownerUserId),
+    options?.aiAssistUsage
+      ? getDashboardAiAssistUsage({
+          ownerUserId: workspace.ownerUserId,
+          viewerUserId: userId,
+          viewerRole: workspace.role
+        })
+      : Promise.resolve(undefined)
   ]);
 
   if (!row) {
@@ -157,6 +165,8 @@ export async function getDashboardSettingsData(
     },
     teamName,
     notifications: mapDashboardNotificationSettings(row),
+    aiAssist: parseDashboardAiAssistSettings(aiAssistSettingsValue),
+    aiAssistUsage,
     email: {
       notificationEmail: optionalText(row.notification_email) || row.email,
       replyToEmail: optionalText(row.reply_to_email) || row.email,

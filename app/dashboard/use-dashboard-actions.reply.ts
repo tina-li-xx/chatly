@@ -1,5 +1,11 @@
 import type { FormEvent } from "react";
 import {
+  aiAssistReplyUsageEventDetail,
+  readAiAssistReplyUsage,
+  storedAiAssistReplyUsage,
+  type AiAssistReplyUsage
+} from "./dashboard-ai-reply-usage";
+import {
   applyReplySummary,
   buildOptimisticReply,
   buildReplyFormData,
@@ -11,6 +17,7 @@ import {
   snapshotReplySummary,
   type ReplyDelivery
 } from "./dashboard-reply-helpers";
+import { trackDashboardAiAssistEvent } from "./dashboard-ai-assist-events";
 import { postDashboardForm } from "./dashboard-client.api";
 import {
   markOptimisticMessageFailed,
@@ -19,11 +26,11 @@ import {
   settleOptimisticMessage,
   updateConversationSummaryList
 } from "./dashboard-state-helpers";
-import type { ThreadMessage } from "@/lib/types";
+import { trackGrometricsEvent } from "@/lib/grometrics";
+import type { ConversationThread, ThreadMessage } from "@/lib/types";
 import type { DashboardActionsParams } from "./use-dashboard-actions.types";
 
 type ReplyResponse = { conversationId: string; message: ThreadMessage; emailDelivery: ReplyDelivery };
-
 export function createDashboardReplyActions({
   activeConversation,
   sendingReply,
@@ -32,15 +39,24 @@ export function createDashboardReplyActions({
   setSendingReply,
   setAnsweredConversations,
   setBanner,
+  conversationCacheRef,
   recentOptimisticReplyAtRef,
   showBanner,
   clearTypingSignal
 }: DashboardActionsParams) {
-  function syncConversationSummary(createdAt: string, preview: string) {
-    if (!activeConversation) {
-      return;
-    }
+  function updateActiveThread(updater: (current: ConversationThread) => ConversationThread) {
+    setActiveConversation((current) => {
+      if (!current) {
+        return current;
+      }
+      const next = updater(current);
+      conversationCacheRef.current.set(next.id, next);
+      return next;
+    });
+  }
 
+  function syncConversationSummary(createdAt: string, preview: string) {
+    if (!activeConversation) return;
     setConversations((current) =>
       updateConversationSummaryList(current, activeConversation.id, (conversation) =>
         applyReplySummary(conversation, createdAt, preview)
@@ -53,10 +69,7 @@ export function createDashboardReplyActions({
     optimisticPreview: string,
     previousSummary: ReturnType<typeof snapshotReplySummary>
   ) {
-    if (!activeConversation) {
-      return;
-    }
-
+    if (!activeConversation) return;
     setConversations((current) =>
       updateConversationSummaryList(current, activeConversation.id, (conversation) =>
         restoreReplySummary(conversation, optimisticCreatedAt, optimisticPreview, previousSummary)
@@ -67,15 +80,18 @@ export function createDashboardReplyActions({
   async function submitReply({
     content,
     files,
-    messageId
+    messageId,
+    aiAssistReplyUsage
   }: {
     content: string;
     files: File[];
     messageId?: string;
+    aiAssistReplyUsage?: AiAssistReplyUsage | null;
   }) {
     if (!activeConversation) {
       return;
     }
+    const conversationId = activeConversation.id;
     const retryingMessage = messageId ? findRetryableReply(activeConversation.messages, messageId) : null;
     if (messageId && !retryingMessage) {
       return;
@@ -84,60 +100,64 @@ export function createDashboardReplyActions({
     const optimisticCreatedAt = new Date().toISOString();
     const optimisticMessage: ThreadMessage = buildOptimisticReply({
       content,
-      conversationId: activeConversation.id,
+      conversationId,
       createdAt: optimisticCreatedAt,
       files,
-      retryingMessage
+      retryingMessage,
+      aiAssistReplyUsage: aiAssistReplyUsage ?? null
     });
     const optimisticPreview = previewForMessage(optimisticMessage);
     const previousSummary = snapshotReplySummary(activeConversation);
-    const formData = buildReplyFormData(activeConversation.id, content, files);
-
+    const formData = buildReplyFormData(conversationId, content, files);
     setSendingReply(true);
     setBanner(null);
     await clearTypingSignal();
-    setActiveConversation((current) =>
-      current
-        ? {
-            ...applyReplySummary(current, optimisticCreatedAt, optimisticPreview),
-            messages: retryingMessage
-              ? current.messages.map((message) =>
-                  message.id === optimisticMessage.id ? optimisticMessage : message
-                )
-              : [...current.messages, optimisticMessage]
-          }
-        : current
-    );
+    recentOptimisticReplyAtRef.current.set(conversationId, Date.now());
+    updateActiveThread((current) => ({
+      ...applyReplySummary(current, optimisticCreatedAt, optimisticPreview),
+      messages: retryingMessage
+        ? current.messages.map((message) =>
+            message.id === optimisticMessage.id ? optimisticMessage : message
+          )
+        : [...current.messages, optimisticMessage]
+    }));
     syncConversationSummary(optimisticCreatedAt, optimisticPreview);
     try {
       const payload = await postDashboardForm<ReplyResponse>("/dashboard/reply", formData);
       const { message, emailDelivery } = payload;
       const postedPreview = previewForMessage(message);
-      setActiveConversation((current) =>
-        current
-          ? {
-              ...applyReplySummary(current, message.createdAt, postedPreview),
-              messages: settleOptimisticMessage(current.messages, optimisticMessage.id, message)
-            }
-          : current
-      );
+      updateActiveThread((current) => ({
+        ...applyReplySummary(current, message.createdAt, postedPreview),
+        messages: settleOptimisticMessage(current.messages, optimisticMessage.id, message)
+      }));
       syncConversationSummary(message.createdAt, postedPreview);
 
+      trackGrometricsEvent("team_reply_sent", {
+        source: "dashboard_inbox",
+        has_content: Boolean(content),
+        has_attachments: files.length > 0,
+        attachment_count: files.length,
+        email_delivery: emailDelivery,
+        retry: Boolean(messageId)
+      });
+      if (optimisticMessage.aiAssistReplyEditLevel !== undefined) {
+        trackDashboardAiAssistEvent("ai.reply.used", {
+          conversationId,
+          ...aiAssistReplyUsageEventDetail(optimisticMessage.aiAssistReplyEditLevel)
+        });
+      }
       if (!hadTeamReply) {
         setAnsweredConversations((count) => count + 1);
       }
-      recentOptimisticReplyAtRef.current.set(activeConversation.id, Date.now());
+      recentOptimisticReplyAtRef.current.set(conversationId, Date.now());
       revokeOptimisticAttachmentUrls(optimisticMessage);
       showBanner("success", messageForReplyDelivery(emailDelivery));
     } catch (error) {
-      setActiveConversation((current) =>
-        current
-          ? {
-              ...restoreReplySummary(current, optimisticCreatedAt, optimisticPreview, previousSummary),
-              messages: markOptimisticMessageFailed(current.messages, optimisticMessage.id, files)
-            }
-          : current
-      );
+      recentOptimisticReplyAtRef.current.delete(conversationId);
+      updateActiveThread((current) => ({
+        ...restoreReplySummary(current, optimisticCreatedAt, optimisticPreview, previousSummary),
+        messages: markOptimisticMessageFailed(current.messages, optimisticMessage.id, files)
+      }));
       restoreConversationSummary(optimisticCreatedAt, optimisticPreview, previousSummary);
       showBanner("error", error instanceof Error ? error.message : "Reply could not be sent.");
     } finally {
@@ -150,9 +170,9 @@ export function createDashboardReplyActions({
     const formData = new FormData(event.currentTarget);
     const content = String(formData.get("content") ?? "").trim();
     const files = parseReplyFiles(formData);
-
+    const aiAssistReplyUsage = readAiAssistReplyUsage(formData, content);
     event.currentTarget.reset();
-    await submitReply({ content, files });
+    await submitReply({ content, files, aiAssistReplyUsage });
   }
 
   async function handleReplyRetry(messageId: string) {
@@ -167,7 +187,8 @@ export function createDashboardReplyActions({
     await submitReply({
       messageId,
       content: retryingMessage.content,
-      files: retryingMessage.retryFiles ?? []
+      files: retryingMessage.retryFiles ?? [],
+      aiAssistReplyUsage: storedAiAssistReplyUsage(retryingMessage.aiAssistReplyEditLevel)
     });
   }
 

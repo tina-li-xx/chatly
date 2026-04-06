@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     const updated = await updateDashboardSettings(auth.user.id, {
       profile: payload.profile as never,
       notifications: payload.notifications as never,
+      ...(payload.aiAssist && typeof payload.aiAssist === "object" ? { aiAssist: payload.aiAssist as never } : {}),
       email: payload.email as never,
       ...(payload.contacts && typeof payload.contacts === "object" ? { contacts: payload.contacts as never } : {}),
       ...(payload.reports && typeof payload.reports === "object" ? { reports: payload.reports as never } : {}),

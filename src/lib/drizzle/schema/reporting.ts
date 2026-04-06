@@ -75,3 +75,35 @@ export const contactEvents = pgTable("contact_events", {
     contactEventsEventTypeCreatedAtIdx: index("contact_events_event_type_created_at_idx").on(table.eventType, table.createdAt),
     contactEventsSiteEmailCreatedAtIdx: index("contact_events_site_email_created_at_idx").on(table.siteId, table.contactEmail, table.createdAt),
   }));
+
+export const aiAssistEvents = pgTable("ai_assist_events", {
+    id: text("id").notNull(),
+    ownerUserId: text("owner_user_id").notNull(),
+    actorUserId: text("actor_user_id"),
+    conversationId: text("conversation_id"),
+    feature: text("feature").notNull(),
+    action: text("action").notNull(),
+    metadataJson: jsonb("metadata_json").notNull().default(sql.raw("'{}'::jsonb")),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  }, (table) => ({
+    aiAssistEventsPkey: primaryKey({ name: "ai_assist_events_pkey", columns: [table.id] }),
+    aiAssistEventsActorUserIdFkey: foreignKey({ name: "ai_assist_events_actor_user_id_fkey", columns: [table.actorUserId], foreignColumns: [users.id] }).onDelete("set null"),
+    aiAssistEventsOwnerUserIdFkey: foreignKey({ name: "ai_assist_events_owner_user_id_fkey", columns: [table.ownerUserId], foreignColumns: [users.id] }).onDelete("cascade"),
+    aiAssistEventsOwnerCreatedAtIdx: index("ai_assist_events_owner_created_at_idx").on(table.ownerUserId, table.createdAt),
+    aiAssistEventsOwnerActorCreatedAtIdx: index("ai_assist_events_owner_actor_created_at_idx").on(table.ownerUserId, table.actorUserId, table.createdAt),
+    aiAssistEventsOwnerFeatureCreatedAtIdx: index("ai_assist_events_owner_feature_created_at_idx").on(table.ownerUserId, table.feature, table.createdAt),
+    aiAssistEventsConversationCreatedAtIdx: index("ai_assist_events_conversation_created_at_idx").on(table.conversationId, table.createdAt),
+  }));
+
+export const aiAssistWarningDeliveries = pgTable("ai_assist_warning_deliveries", {
+    userId: text("user_id").notNull(),
+    ownerUserId: text("owner_user_id").notNull(),
+    cycleStart: date("cycle_start", { mode: "string" }).notNull(),
+    warningKey: text("warning_key").notNull(),
+    sentAt: timestamp("sent_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  }, (table) => ({
+    aiAssistWarningDeliveriesPkey: primaryKey({ name: "ai_assist_warning_deliveries_pkey", columns: [table.userId, table.ownerUserId, table.cycleStart, table.warningKey] }),
+    aiAssistWarningDeliveriesOwnerUserIdFkey: foreignKey({ name: "ai_assist_warning_deliveries_owner_user_id_fkey", columns: [table.ownerUserId], foreignColumns: [users.id] }).onDelete("cascade"),
+    aiAssistWarningDeliveriesUserIdFkey: foreignKey({ name: "ai_assist_warning_deliveries_user_id_fkey", columns: [table.userId], foreignColumns: [users.id] }).onDelete("cascade"),
+    aiAssistWarningDeliveriesOwnerCycleIdx: index("ai_assist_warning_deliveries_owner_cycle_idx").on(table.ownerUserId, table.cycleStart, table.warningKey),
+  }));

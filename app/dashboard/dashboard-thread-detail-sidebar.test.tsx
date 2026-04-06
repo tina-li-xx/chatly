@@ -136,6 +136,12 @@ describe("dashboard thread detail sidebar", () => {
         })}
         savingEmail={false}
         assigningConversation={false}
+        aiAssistSettings={{
+          replySuggestionsEnabled: true,
+          conversationSummariesEnabled: true,
+          rewriteAssistanceEnabled: true,
+          suggestedTagsEnabled: true
+        }}
         teamMembers={[]}
         onSaveConversationEmail={vi.fn()}
         onConversationAssignmentChange={vi.fn()}
@@ -162,6 +168,12 @@ describe("dashboard thread detail sidebar", () => {
       activeConversation: createConversationThread({ email: null }),
       savingEmail: true,
       assigningConversation: false,
+      aiAssistSettings: {
+        replySuggestionsEnabled: true,
+        conversationSummariesEnabled: true,
+        rewriteAssistanceEnabled: true,
+        suggestedTagsEnabled: true
+      },
       teamMembers: [],
       onSaveConversationEmail,
       onConversationAssignmentChange: vi.fn(),

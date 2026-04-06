@@ -14,6 +14,8 @@ export type DashboardCommandOption = {
 const SHORTCUT_ROWS = [
   ["Ctrl/Cmd + K", "Open command palette"],
   ["Ctrl/Cmd + /", "Show keyboard shortcuts"],
+  ["Ctrl/Cmd + J", "Suggest reply"],
+  ["Ctrl/Cmd + Shift + S", "Summarize conversation"],
   ["↑ / ↓", "Move between conversations"],
   ["Enter", "Open selected conversation"],
   ["Enter", "Send message in the reply box"],
@@ -41,26 +43,55 @@ function OverlayPanel({
 export function buildDashboardCommandOptions({
   activeConversation,
   onFocusSearch,
+  onOpenShortcuts,
   onOpenWidgetSettings,
   onOpenVisitors,
   onOpenSettings,
+  canRequestAiReply,
+  canRequestAiSummary,
+  onRequestAiReply,
+  onRequestAiSummary,
   onToggleConversationStatus
 }: {
   activeConversation: ConversationThread | null;
   onFocusSearch: () => void;
+  onOpenShortcuts: () => void;
   onOpenWidgetSettings: () => void;
   onOpenVisitors: () => void;
   onOpenSettings: () => void;
+  canRequestAiReply: boolean;
+  canRequestAiSummary: boolean;
+  onRequestAiReply: () => void;
+  onRequestAiSummary: () => void;
   onToggleConversationStatus: () => void;
 }) {
   const commandOptions: DashboardCommandOption[] = [
     { id: "focus-search", label: "Focus search", description: "Jump to the conversation search box.", action: onFocusSearch },
+    { id: "show-shortcuts", label: "Show keyboard shortcuts", description: "See inbox shortcuts and AI Assist commands.", action: onOpenShortcuts },
     { id: "open-widget", label: "Open widget settings", description: "Review your widget install and branding settings.", action: onOpenWidgetSettings },
     { id: "open-visitors", label: "Open visitors", description: "Go to the visitors area.", action: onOpenVisitors },
     { id: "open-settings", label: "Open settings", description: "Manage workspace and account settings.", action: onOpenSettings }
   ];
 
   if (activeConversation) {
+    if (canRequestAiReply) {
+      commandOptions.push({
+        id: "suggest-reply",
+        label: "Suggest reply",
+        description: "Ask AI Assist for a draft reply to the active conversation.",
+        action: onRequestAiReply
+      });
+    }
+
+    if (canRequestAiSummary) {
+      commandOptions.push({
+        id: "summarize-conversation",
+        label: "Summarize conversation",
+        description: "Generate a quick summary for the active conversation.",
+        action: onRequestAiSummary
+      });
+    }
+
     commandOptions.push({
       id: "toggle-resolved",
       label: activeConversation.status === "open" ? "Mark conversation resolved" : "Reopen conversation",
@@ -147,7 +178,7 @@ export function renderDashboardShortcutsDialog({
       </div>
       <div className="space-y-3 px-5 py-4 text-sm text-slate-600">
         {SHORTCUT_ROWS.map(([shortcut, description]) => (
-          <div key={shortcut} className="flex items-center justify-between gap-4">
+          <div key={`${shortcut}-${description}`} className="flex items-center justify-between gap-4">
             <span>{description}</span>
             <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-500">{shortcut}</span>
           </div>

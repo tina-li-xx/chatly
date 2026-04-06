@@ -1,4 +1,5 @@
 import type { ConversationSummary, ThreadMessage } from "@/lib/types";
+import type { AiAssistReplyUsage } from "./dashboard-ai-reply-usage";
 import { createOptimisticAttachmentUrls } from "./dashboard-state-helpers";
 
 export type ReplyDelivery = "sent" | "skipped" | "queued_retry" | "failed";
@@ -21,6 +22,7 @@ type BuildOptimisticReplyInput = {
   createdAt: string;
   files: File[];
   retryingMessage: RetryableReply | null;
+  aiAssistReplyUsage: AiAssistReplyUsage | null;
 };
 
 export function applyReplySummary<T extends ReplySummaryTarget>(target: T, createdAt: string, preview: string): T {
@@ -32,7 +34,8 @@ export function buildOptimisticReply({
   conversationId,
   createdAt,
   files,
-  retryingMessage
+  retryingMessage,
+  aiAssistReplyUsage
 }: BuildOptimisticReplyInput): ThreadMessage {
   if (retryingMessage) {
     return {
@@ -41,7 +44,10 @@ export function buildOptimisticReply({
       createdAt,
       pending: true,
       failed: false,
-      retryFiles: files.length ? files : undefined
+      retryFiles: files.length ? files : undefined,
+      ...(aiAssistReplyUsage
+        ? { aiAssistReplyEditLevel: aiAssistReplyUsage.editLevel }
+        : {})
     };
   }
 
@@ -53,7 +59,10 @@ export function buildOptimisticReply({
     createdAt,
     attachments: createOptimisticAttachmentUrls(files),
     pending: true,
-    retryFiles: files.length ? files : undefined
+    retryFiles: files.length ? files : undefined,
+    ...(aiAssistReplyUsage
+      ? { aiAssistReplyEditLevel: aiAssistReplyUsage.editLevel }
+      : {})
   };
 }
 

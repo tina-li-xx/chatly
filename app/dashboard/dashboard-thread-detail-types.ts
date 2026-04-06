@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import type { DashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
 import type { DashboardTeamMember } from "@/lib/data/settings-types";
 import type { ConversationStatus, ConversationSummary, ConversationThread } from "@/lib/types";
 
@@ -13,6 +14,7 @@ export type DashboardThreadDetailProps = {
   isLiveDisconnected: boolean;
   teamName: string;
   teamInitials: string;
+  aiAssistSettings: DashboardAiAssistSettings;
   teamMembers?: DashboardTeamMember[];
   showSidebarInline?: boolean;
   showSidebarDrawer?: boolean;

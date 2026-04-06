@@ -81,6 +81,7 @@ describe("dashboard reply action edge cases", () => {
     const setAnsweredConversations = vi.fn();
     const setBanner = vi.fn();
     const showBanner = vi.fn();
+    const conversationCacheRef = { current: new Map() };
     const recentOptimisticReplyAtRef = { current: new Map<string, number>() };
     const actions = createDashboardReplyActions({
       activeConversation: null,
@@ -89,6 +90,7 @@ describe("dashboard reply action edge cases", () => {
       setSendingReply,
       setAnsweredConversations,
       setBanner,
+      conversationCacheRef,
       recentOptimisticReplyAtRef,
       showBanner,
       clearTypingSignal

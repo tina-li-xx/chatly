@@ -21,6 +21,13 @@ function createProps(overrides: Partial<DashboardClientProps> = {}): DashboardCl
       createConversationSummary({ id: "conv_2", status: "resolved", city: "Paris" })
     ],
     initialActiveConversation: null,
+    initialAiAssistSettings: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
+    initialBillingPlanKey: "growth",
     ...overrides
   };
 }

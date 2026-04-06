@@ -10,6 +10,8 @@ export function getSettingsPageCopy(activeSection: SettingsSection) {
       return { title: "Automation", subtitle: "Handle the repetitive stuff automatically" };
     case "notifications":
       return { title: "Notifications", subtitle: "Choose how you want to be notified" };
+    case "aiAssist":
+      return { title: "AI Assist", subtitle: "Control summaries, reply suggestions, rewrites, and suggested tags" };
     case "savedReplies":
       return { title: "Saved replies", subtitle: "Manage reusable replies for the shared inbox" };
     case "integrations":

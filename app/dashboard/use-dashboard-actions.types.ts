@@ -18,6 +18,7 @@ export type DashboardActionsParams = {
   setUpdatingStatus: StateSetter<boolean>;
   setAnsweredConversations: StateSetter<number>;
   setBanner: StateSetter<BannerState>;
+  conversationCacheRef: MutableRefObject<Map<string, ConversationThread>>;
   recentOptimisticReplyAtRef: MutableRefObject<Map<string, number>>;
   pendingTagMutationsRef: MutableRefObject<Set<string>>;
   activeTypingConversationIdRef: MutableRefObject<string | null>;

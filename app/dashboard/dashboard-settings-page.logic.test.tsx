@@ -17,6 +17,12 @@ function createInitialData() {
       newVisitorAlerts: false,
       highIntentAlerts: true
     },
+    aiAssist: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
     email: {
       notificationEmail: "team@usechatting.com",
       replyToEmail: "reply@usechatting.com",
@@ -84,6 +90,7 @@ async function loadSettingsPage(search = "") {
   vi.doMock("./dashboard-settings-automation-section", () => ({ SettingsAutomationSection: (props: unknown) => ((captures.automation = props), <div>automation</div>) }));
   vi.doMock("./dashboard-settings-profile-section", () => ({ SettingsProfileSection: (props: unknown) => ((captures.profile = props), <div>profile</div>) }));
   vi.doMock("./dashboard-settings-notifications-section", () => ({ SettingsNotificationsSection: (props: unknown) => ((captures.notifications = props), <div>notifications</div>) }));
+  vi.doMock("./dashboard-settings-ai-assist-section", () => ({ SettingsAiAssistSection: (props: unknown) => ((captures.aiAssist = props), <div>ai assist</div>) }));
   vi.doMock("./dashboard-settings-reports-section", () => ({ SettingsReportsSection: (props: unknown) => ((captures.reports = props), <div>reports</div>) }));
   vi.doMock("./dashboard-settings-email-billing-sections", () => ({
     SettingsEmailSection: (props: unknown) => ((captures.email = props), <div>email</div>),

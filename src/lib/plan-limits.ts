@@ -7,12 +7,14 @@ type AutomationPlanLimits = {
 };
 
 type DashboardPlanLimits = {
+  aiAssistMonthlyRequests: number | null;
   contacts: ContactPlanLimits;
   automation: AutomationPlanLimits;
 };
 
 const DASHBOARD_PLAN_LIMITS: Record<BillingPlanKey, DashboardPlanLimits> = {
   starter: {
+    aiAssistMonthlyRequests: 5,
     contacts: {
       fullProfiles: false,
       exportEnabled: false,
@@ -26,6 +28,7 @@ const DASHBOARD_PLAN_LIMITS: Record<BillingPlanKey, DashboardPlanLimits> = {
     }
   },
   growth: {
+    aiAssistMonthlyRequests: 2000,
     contacts: {
       fullProfiles: true,
       exportEnabled: true,
@@ -46,6 +49,10 @@ export function getDashboardPlanLimits(planKey: BillingPlanKey) {
 
 export function getContactPlanLimits(planKey: BillingPlanKey) {
   return getDashboardPlanLimits(planKey).contacts;
+}
+
+export function getAiAssistMonthlyRequestLimit(planKey: BillingPlanKey) {
+  return getDashboardPlanLimits(planKey).aiAssistMonthlyRequests;
 }
 
 export function getAutomationRuleLimit(planKey: BillingPlanKey) {

@@ -5,6 +5,7 @@ function createInitialData(planKey: "starter" | "growth" = "starter", billingInt
   return {
     profile: { firstName: "Tina", lastName: "Bauer", email: "tina@usechatting.com", jobTitle: "Founder", avatarDataUrl: null },
     notifications: { browserNotifications: true, soundAlerts: true, emailNotifications: true, newVisitorAlerts: false, highIntentAlerts: true },
+    aiAssist: { replySuggestionsEnabled: true, conversationSummariesEnabled: true, rewriteAssistanceEnabled: true, suggestedTagsEnabled: true },
     email: { notificationEmail: "team@usechatting.com", replyToEmail: "reply@usechatting.com", templates: [], emailSignature: "Best,\nChatting" },
     reports: { weeklyReportEnabled: true, weeklyReportSendTime: "09:00", weeklyReportIncludePersonalStats: true, workspaceWeeklyReportsEnabled: true, workspaceIncludeTeamLeaderboard: true, workspaceAiInsightsEnabled: true, canManageWorkspaceReports: true, recipientTimeZone: "Europe/London", teamTimeZone: "Europe/London" },
     teamMembers: [],
@@ -24,6 +25,7 @@ async function loadSettingsPage(search = "") {
   vi.doMock("./dashboard-settings-automation-section", () => ({ SettingsAutomationSection: (props: unknown) => ((captures.automation = props), <div>automation</div>) }));
   vi.doMock("./dashboard-settings-profile-section", () => ({ SettingsProfileSection: (props: unknown) => ((captures.profile = props), <div>profile</div>) }));
   vi.doMock("./dashboard-settings-notifications-section", () => ({ SettingsNotificationsSection: (props: unknown) => ((captures.notifications = props), <div>notifications</div>) }));
+  vi.doMock("./dashboard-settings-ai-assist-section", () => ({ SettingsAiAssistSection: (props: unknown) => ((captures.aiAssist = props), <div>ai assist</div>) }));
   vi.doMock("./dashboard-settings-reports-section", () => ({ SettingsReportsSection: (props: unknown) => ((captures.reports = props), <div>reports</div>) }));
   vi.doMock("./dashboard-settings-email-billing-sections", () => ({ SettingsEmailSection: (props: unknown) => ((captures.email = props), <div>email</div>), SettingsBillingSection: (props: unknown) => ((captures.billing = props), <div>billing</div>) }));
   vi.doMock("./dashboard-settings-saved-replies-section", () => ({ SettingsSavedRepliesSection: (props: unknown) => ((captures.savedReplies = props), <div>saved replies</div>) }));
@@ -35,7 +37,7 @@ async function loadSettingsPage(search = "") {
 describe("dashboard settings page sections", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("maps automation, notifications, saved replies, integrations, reports, email, referrals, and invalid sections into the expected page props", async () => {
+  it("maps automation, notifications, ai assist, saved replies, integrations, reports, email, referrals, and invalid sections into the expected page props", async () => {
     const automation = await loadSettingsPage("section=automation");
     automation.reactMocks.beginRender();
     renderToStaticMarkup(<automation.DashboardSettingsPage initialData={createInitialData()} />);
@@ -55,6 +57,15 @@ describe("dashboard settings page sections", () => {
     renderToStaticMarkup(<notifications.DashboardSettingsPage initialData={createInitialData()} />);
     expect((notifications.captures.scaffold as { activeSection: string }).activeSection).toBe("notifications");
     expect((notifications.captures.notifications as { title: string }).title).toBe("Notifications");
+
+    const aiAssist = await loadSettingsPage("section=aiAssist");
+    aiAssist.reactMocks.beginRender();
+    renderToStaticMarkup(<aiAssist.DashboardSettingsPage initialData={createInitialData("growth")} />);
+    await runMockEffects(aiAssist.reactMocks.effects);
+    aiAssist.reactMocks.beginRender();
+    renderToStaticMarkup(<aiAssist.DashboardSettingsPage initialData={createInitialData("growth")} />);
+    expect((aiAssist.captures.aiAssist as { title: string }).title).toBe("AI Assist");
+    expect((aiAssist.captures.aiAssist as { planKey: string }).planKey).toBe("growth");
 
     const reports = await loadSettingsPage("section=reports");
     reports.reactMocks.beginRender();

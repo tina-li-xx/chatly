@@ -137,6 +137,9 @@ export function createDashboardActionsHarness(options?: {
   const updatingStatusState = createStateRecorder(false);
   const answeredConversationsState = createStateRecorder(0);
   const bannerState = createStateRecorder<BannerState>(null);
+  const conversationCacheRef: MutableRefObject<Map<string, ConversationThread>> = {
+    current: activeConversation ? new Map([[activeConversation.id, activeConversation]]) : new Map()
+  };
   const recentOptimisticReplyAtRef: MutableRefObject<Map<string, number>> = { current: new Map() };
   const pendingTagMutationsRef: MutableRefObject<Set<string>> = { current: new Set() };
   const activeTypingConversationIdRef: MutableRefObject<string | null> = { current: null };
@@ -161,6 +164,7 @@ export function createDashboardActionsHarness(options?: {
     setUpdatingStatus: updatingStatusState.set,
     setAnsweredConversations: answeredConversationsState.set,
     setBanner: bannerState.set,
+    conversationCacheRef,
     recentOptimisticReplyAtRef,
     pendingTagMutationsRef,
     activeTypingConversationIdRef,
@@ -178,6 +182,7 @@ export function createDashboardActionsHarness(options?: {
     answeredConversationsState,
     bannerState,
     clearTypingSignal,
+    conversationCacheRef,
     conversationsState,
     lastTypingSentAtRef,
     pendingTagMutationsRef,

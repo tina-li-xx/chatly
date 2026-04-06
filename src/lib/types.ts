@@ -124,6 +124,8 @@ export type MessageAttachment = {
   isImage: boolean;
 };
 
+export type AiAssistReplyEditLevel = "light" | "heavy";
+
 export type ThreadMessage = {
   id: string;
   conversationId: string;
@@ -134,6 +136,7 @@ export type ThreadMessage = {
   pending?: boolean;
   failed?: boolean;
   retryFiles?: File[];
+  aiAssistReplyEditLevel?: AiAssistReplyEditLevel | null;
 };
 
 export type VisitorActivity = {

@@ -1,11 +1,13 @@
 import "server-only";
 
 import type { ConversationThread } from "@/lib/types";
+import type { SavedReplyRow } from "@/lib/repositories/saved-replies-repository";
 import { getMiniMaxConfig } from "@/lib/env.server";
 import {
   buildDashboardAiAssistPrompt,
   parseDashboardAiAssistResult,
-  type DashboardAiAssistAction
+  type DashboardAiAssistAction,
+  type DashboardAiRewriteTone
 } from "@/lib/dashboard-ai-assist";
 
 const SYSTEM_PROMPT =
@@ -24,6 +26,8 @@ export async function generateDashboardAiAssist(input: {
   action: DashboardAiAssistAction;
   conversation: ConversationThread;
   draft?: string;
+  tone?: DashboardAiRewriteTone;
+  savedReplies?: SavedReplyRow[];
 }) {
   const config = getMiniMaxConfig();
   const response = await fetch(`${config.baseUrl}/v1/text/chatcompletion_v2`, {
@@ -58,7 +62,7 @@ export async function generateDashboardAiAssist(input: {
   }
 
   try {
-    return parseDashboardAiAssistResult(input.action, content);
+    return parseDashboardAiAssistResult(input.action, content, input.tone);
   } catch {
     throw new Error("INVALID_DASHBOARD_AI_ASSIST_RESPONSE");
   }

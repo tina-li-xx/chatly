@@ -120,6 +120,33 @@ describe("dashboard reply action hotspots", () => {
     });
   });
 
+  it("marks optimistic replies before the request settles and clears the marker on failure", async () => {
+    let rejectReply!: (reason?: unknown) => void;
+    mocks.postDashboardForm.mockReturnValueOnce(
+      new Promise((_, reject) => {
+        rejectReply = reject;
+      })
+    );
+    const harness = createDashboardActionsHarness();
+
+    const sendPromise = harness.actions.handleReplySend(createReplyEvent("Hello there"));
+
+    expect(harness.recentOptimisticReplyAtRef.current.has("conv_1")).toBe(true);
+    expect(harness.activeConversationState.current?.messages[1]).toMatchObject({
+      content: "Hello there",
+      pending: true
+    });
+    expect(harness.conversationCacheRef.current.get("conv_1")?.messages[1]).toMatchObject({
+      content: "Hello there",
+      pending: true
+    });
+
+    rejectReply(new Error("Reply failed"));
+    await sendPromise;
+
+    expect(harness.recentOptimisticReplyAtRef.current.has("conv_1")).toBe(false);
+  });
+
   it("uses the generic banner when the reply failure is not an Error instance", async () => {
     mocks.postDashboardForm.mockRejectedValueOnce("boom");
     const clearTypingSignal = vi.fn().mockResolvedValue(undefined);
@@ -129,6 +156,7 @@ describe("dashboard reply action hotspots", () => {
     const setAnsweredConversations = vi.fn();
     const setBanner = vi.fn();
     const showBanner = vi.fn();
+    const conversationCacheRef = { current: new Map() };
     const recentOptimisticReplyAtRef = { current: new Map<string, number>() };
     const actions = createDashboardReplyActions({
       activeConversation: createDashboardActionsHarness().activeConversationState.current,
@@ -137,6 +165,7 @@ describe("dashboard reply action hotspots", () => {
       setSendingReply,
       setAnsweredConversations,
       setBanner,
+      conversationCacheRef,
       recentOptimisticReplyAtRef,
       showBanner,
       clearTypingSignal

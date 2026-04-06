@@ -38,7 +38,11 @@ export function useDashboardInboxKeyboardShortcuts({
   focusSearch,
   openConversation,
   clearConversationSelection,
-  toggleConversationStatus
+  toggleConversationStatus,
+  canRequestAiReply,
+  canRequestAiSummary,
+  requestAiReply,
+  requestAiSummary
 }: {
   keyboardConversationId: string | null;
   showCommandPalette: boolean;
@@ -55,6 +59,10 @@ export function useDashboardInboxKeyboardShortcuts({
   openConversation: (conversationId: string) => void;
   clearConversationSelection: () => void;
   toggleConversationStatus: () => void;
+  canRequestAiReply: boolean;
+  canRequestAiSummary: boolean;
+  requestAiReply: () => void;
+  requestAiSummary: () => void;
 }) {
   useEffect(() => {
     const openCommandPalette = () => {
@@ -97,6 +105,26 @@ export function useDashboardInboxKeyboardShortcuts({
       if ((event.metaKey || event.ctrlKey) && event.key === "/") {
         event.preventDefault();
         openShortcutsDialog();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "j") {
+        if (!canRequestAiReply) {
+          return;
+        }
+
+        event.preventDefault();
+        requestAiReply();
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "s") {
+        if (!canRequestAiSummary) {
+          return;
+        }
+
+        event.preventDefault();
+        requestAiSummary();
         return;
       }
 
@@ -155,6 +183,8 @@ export function useDashboardInboxKeyboardShortcuts({
     focusSearch,
     keyboardConversationId,
     openConversation,
+    requestAiReply,
+    requestAiSummary,
     setCommandQuery,
     setKeyboardConversationId,
     setShowCommandPalette,
@@ -163,6 +193,8 @@ export function useDashboardInboxKeyboardShortcuts({
     showCommandPalette,
     showShortcuts,
     showSidebarDrawer,
-    toggleConversationStatus
+    toggleConversationStatus,
+    canRequestAiReply,
+    canRequestAiSummary
   ]);
 }

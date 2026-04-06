@@ -5,6 +5,7 @@ function createInitialData() {
   return {
     profile: { firstName: "Tina", lastName: "Bauer", email: "tina@usechatting.com", jobTitle: "Founder", avatarDataUrl: null },
     notifications: { browserNotifications: true, soundAlerts: true, emailNotifications: true, newVisitorAlerts: false, highIntentAlerts: true },
+    aiAssist: { replySuggestionsEnabled: true, conversationSummariesEnabled: true, rewriteAssistanceEnabled: true, suggestedTagsEnabled: true },
     email: { notificationEmail: "team@usechatting.com", replyToEmail: "reply@usechatting.com", templates: [], emailSignature: "Best,\nChatting" },
     reports: { weeklyReportEnabled: true, weeklyReportSendTime: "09:00", weeklyReportIncludePersonalStats: true, workspaceWeeklyReportsEnabled: true, workspaceIncludeTeamLeaderboard: true, workspaceAiInsightsEnabled: true, canManageWorkspaceReports: true, recipientTimeZone: "Europe/London", teamTimeZone: "Europe/London" },
     teamMembers: [],

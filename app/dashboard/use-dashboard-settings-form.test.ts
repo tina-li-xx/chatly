@@ -17,6 +17,12 @@ function createInitialData() {
       newVisitorAlerts: false,
       highIntentAlerts: true
     },
+    aiAssist: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
     email: {
       notificationEmail: "team@usechatting.com",
       replyToEmail: "reply@usechatting.com",

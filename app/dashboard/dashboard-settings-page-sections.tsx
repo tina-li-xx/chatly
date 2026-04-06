@@ -2,10 +2,13 @@
 
 import type { ChangeEvent, Dispatch, RefObject, SetStateAction } from "react";
 import type { BillingInterval, BillingPlanKey, DashboardBillingSummary } from "@/lib/data/billing-types";
+import type { DashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
+import type { DashboardAiAssistUsageSnapshot } from "@/lib/data/settings-ai-assist-usage";
 import type { DashboardAutomationContext, DashboardAutomationSettings, DashboardTeamMember } from "@/lib/data/settings-types";
 import { shouldShowTranscriptBranding } from "@/lib/billing-plans";
 import type { DashboardNoticeState } from "./dashboard-controls";
 import { SettingsSaveActions } from "./dashboard-settings-save-actions";
+import { SettingsAiAssistSection } from "./dashboard-settings-ai-assist-section";
 import { type EditableSettings, type SettingsSection } from "./dashboard-settings-shared";
 import { SettingsAutomationSection } from "./dashboard-settings-automation-section";
 import { SettingsContactsSection } from "./dashboard-settings-contacts-section";
@@ -27,6 +30,7 @@ export function renderSettingsPageSection(input: {
   billingPlanPending: string | null;
   billingPortalPending: boolean;
   billingSyncPending: boolean;
+  aiAssistUsage?: DashboardAiAssistUsageSnapshot;
   automationContext?: DashboardAutomationContext;
   currentProfileName: string;
   draftSettings: EditableSettings;
@@ -45,6 +49,10 @@ export function renderSettingsPageSection(input: {
   onUpdateEmail: <K extends keyof EditableSettings["email"]>(key: K, value: EditableSettings["email"][K]) => void;
   onUpdateContacts: (value: EditableSettings["contacts"]) => void;
   onUpdateAutomation: (updater: (current: DashboardAutomationSettings) => DashboardAutomationSettings) => void;
+  onUpdateAiAssist: <K extends keyof DashboardAiAssistSettings>(
+    key: K,
+    value: DashboardAiAssistSettings[K]
+  ) => void;
   onUpdateNotifications: <K extends keyof EditableSettings["notifications"]>(key: K, value: EditableSettings["notifications"][K]) => void;
   onUpdateReports: <K extends keyof NonNullable<EditableSettings["reports"]>>(key: K, value: NonNullable<EditableSettings["reports"]>[K]) => void;
   onUpdateProfile: <K extends keyof EditableSettings["profile"]>(key: K, value: EditableSettings["profile"][K]) => void;
@@ -121,6 +129,20 @@ export function renderSettingsPageSection(input: {
         headerActions={saveActions}
         notifications={input.draftSettings.notifications}
         onUpdateNotifications={input.onUpdateNotifications}
+      />
+    );
+  }
+
+  if (input.activeSection === "aiAssist") {
+    return (
+      <SettingsAiAssistSection
+        title={input.pageCopy.title}
+        subtitle={input.pageCopy.subtitle}
+        headerActions={saveActions}
+        aiAssist={input.draftSettings.aiAssist}
+        planKey={input.billing.planKey}
+        usage={input.aiAssistUsage}
+        onUpdateAiAssist={input.onUpdateAiAssist}
       />
     );
   }

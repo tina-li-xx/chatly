@@ -54,6 +54,12 @@ function baseProps() {
     isLiveDisconnected: false,
     teamName: "Chatting",
     teamInitials: "CH",
+    aiAssistSettings: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
     onSaveConversationEmail: vi.fn(),
     onSendReply: vi.fn(),
     onRetryReply: vi.fn(),
@@ -158,11 +164,18 @@ describe("dashboard thread detail", () => {
     expect(props.onBack).toHaveBeenCalled();
     expect(props.onConversationStatusChange).toHaveBeenCalledWith("resolved");
     expect(props.onOpenSidebar).toHaveBeenCalled();
-    expect(props.onReplyComposerFocus).toHaveBeenCalledWith("Hello");
-    expect(props.onReplyComposerInput).toHaveBeenCalledWith("Hello again");
-    expect(props.onReplyComposerBlur).toHaveBeenCalled();
-    expect(preventDefault).toHaveBeenCalled();
-    expect(requestSubmit).toHaveBeenCalled();
-    expect(props.onSendReply).toHaveBeenCalled();
+    const composer = collectElements(
+      tree,
+      (element) =>
+        typeof element.type === "function" &&
+        element.props?.onReplyComposerFocus === props.onReplyComposerFocus
+    )[0];
+
+    expect(composer?.props.onReplyComposerFocus).toBe(props.onReplyComposerFocus);
+    expect(composer?.props.onReplyComposerInput).toBe(props.onReplyComposerInput);
+    expect(composer?.props.onReplyComposerBlur).toBe(props.onReplyComposerBlur);
+    expect(composer?.props.onSendReply).toBe(props.onSendReply);
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(requestSubmit).not.toHaveBeenCalled();
   });
 });

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import type { DashboardAiAssistSettings } from "@/lib/data/settings-ai-assist";
 import { encodeContactId } from "@/lib/contact-utils";
 import type { DashboardTeamMember } from "@/lib/data/settings-types";
 import type { ConversationThread } from "@/lib/types";
 import { formatDateTime, formatRelativeTime } from "@/lib/utils";
+import { DashboardAiConversationSummary } from "./dashboard-ai-conversation-summary";
 import { DASHBOARD_TAGS } from "./dashboard-client.utils";
 import { conversationIdentity, conversationPageUrl } from "./dashboard-conversation-display";
 import {
@@ -32,6 +34,7 @@ export function DashboardThreadDetailSidebar({
   activeConversation,
   savingEmail,
   assigningConversation,
+  aiAssistSettings,
   teamMembers,
   onSaveConversationEmail,
   onConversationAssignmentChange,
@@ -40,6 +43,7 @@ export function DashboardThreadDetailSidebar({
   activeConversation: ConversationThread;
   savingEmail: boolean;
   assigningConversation: boolean;
+  aiAssistSettings: DashboardAiAssistSettings;
   teamMembers: DashboardTeamMember[];
   onSaveConversationEmail: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   onConversationAssignmentChange: (assignedUserId: string | null) => Promise<void>;
@@ -48,6 +52,9 @@ export function DashboardThreadDetailSidebar({
   const visitor = conversationIdentity(activeConversation.email, "No email saved yet");
   const visitorLocation = locationLabel(activeConversation);
   const visitorActivity = activeConversation.visitorActivity;
+  const showConversationSummary =
+    activeConversation.messages.length >= 4 &&
+    aiAssistSettings.conversationSummariesEnabled;
   const availableTags = DASHBOARD_TAGS.filter((tag) => !activeConversation.tags.includes(tag));
   const currentPageUrl = conversationPageUrl(activeConversation);
   const [contactTagDraft, setContactTagDraft] = useState("");
@@ -79,76 +86,87 @@ export function DashboardThreadDetailSidebar({
   return (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto p-5">
-      <ThreadSidebarIdentity
-        visitor={visitor}
-        conversationId={activeConversation.id}
-        hasEmail={Boolean(activeConversation.email)}
-        savingEmail={savingEmail}
-        onSaveConversationEmail={onSaveConversationEmail}
-      />
-      <SidebarDivider />
+        <ThreadSidebarIdentity
+          visitor={visitor}
+          conversationId={activeConversation.id}
+          hasEmail={Boolean(activeConversation.email)}
+          savingEmail={savingEmail}
+          onSaveConversationEmail={onSaveConversationEmail}
+        />
+        <SidebarDivider />
 
-      {activeConversation.email ? (
-        <>
-          <ThreadCustomerContext contact={contact} statuses={contactStatuses} />
+        {showConversationSummary ? (
+          <>
+            <DashboardAiConversationSummary
+              activeConversation={activeConversation}
+              aiAssist={aiAssistSettings}
+            />
 
-          <SidebarDivider />
-        </>
-      ) : null}
+            <SidebarDivider />
+          </>
+        ) : null}
 
-      <SidebarSection title="Contact profile">
-        <SidebarKeyValueRows rows={contactRows} />
-      </SidebarSection>
+        {activeConversation.email ? (
+          <>
+            <ThreadCustomerContext contact={contact} statuses={contactStatuses} />
 
-      <SidebarDivider />
+            <SidebarDivider />
+          </>
+        ) : null}
 
-      <SidebarSection title="Current session">
-        <SidebarKeyValueRows rows={sessionRows} />
-      </SidebarSection>
+        <SidebarSection title="Contact profile">
+          <SidebarKeyValueRows rows={contactRows} />
+        </SidebarSection>
 
-      <SidebarDivider />
+        <SidebarDivider />
 
-      {contact ? (
-        <>
-          <ThreadContactTags
-            contact={contact}
-            draftTag={contactTagDraft}
-            onDraftTagChange={setContactTagDraft}
-            onSavePatch={saveContactPatch}
-          />
+        <SidebarSection title="Current session">
+          <SidebarKeyValueRows rows={sessionRows} />
+        </SidebarSection>
 
-          <SidebarDivider />
+        <SidebarDivider />
 
-          <ThreadContactNotes
-            contact={contact}
-            onAddNote={() => setActiveNoteId("new")}
-            onEditNote={setActiveNoteId}
-          />
+        {contact ? (
+          <>
+            <ThreadContactTags
+              contact={contact}
+              draftTag={contactTagDraft}
+              onDraftTagChange={setContactTagDraft}
+              onSavePatch={saveContactPatch}
+            />
 
-          <SidebarDivider />
-        </>
-      ) : null}
+            <SidebarDivider />
 
-      <DashboardThreadAssignmentControls
-        assignedUserId={activeConversation.assignedUserId}
-        teamMembers={teamMembers}
-        assigningConversation={assigningConversation}
-        onAssignConversation={onConversationAssignmentChange}
-      />
+            <ThreadContactNotes
+              contact={contact}
+              onAddNote={() => setActiveNoteId("new")}
+              onEditNote={setActiveNoteId}
+            />
 
-      <SidebarDivider />
+            <SidebarDivider />
+          </>
+        ) : null}
 
-      <ThreadConversationTagsSection
-        tags={activeConversation.tags}
-        availableTags={availableTags}
-        onToggleTag={onToggleTag}
-      />
+        <DashboardThreadAssignmentControls
+          assignedUserId={activeConversation.assignedUserId}
+          teamMembers={teamMembers}
+          assigningConversation={assigningConversation}
+          onAssignConversation={onConversationAssignmentChange}
+        />
 
-      <SidebarDivider />
+        <SidebarDivider />
 
-      <ThreadSharedVisitorNotesSection conversationId={activeConversation.id} />
+        <ThreadConversationTagsSection
+          tags={activeConversation.tags}
+          availableTags={availableTags}
+          onToggleTag={onToggleTag}
+        />
 
-      <ThreadRecentHistorySection visitorActivity={visitorActivity} />
+        <SidebarDivider />
+
+        <ThreadSharedVisitorNotesSection conversationId={activeConversation.id} />
+
+        <ThreadRecentHistorySection visitorActivity={visitorActivity} />
       </div>
       <ThreadContactNoteModalSection
         contact={contact}

@@ -3,6 +3,7 @@ import type { DashboardAutomationSettings, DashboardSettingsData } from "@/lib/d
 import {
   BarChartIcon,
   BellIcon,
+  BoltIcon,
   ChatBubbleIcon,
   PeopleIcon,
   CodeIcon,
@@ -18,6 +19,7 @@ export type SettingsSection =
   | "contacts"
   | "automation"
   | "notifications"
+  | "aiAssist"
   | "savedReplies"
   | "integrations"
   | "reports"
@@ -25,7 +27,7 @@ export type SettingsSection =
   | "billing"
   | "referrals";
 export type EditableSettings =
-  Pick<DashboardSettingsData, "profile" | "notifications" | "email" | "contacts"> & {
+  Pick<DashboardSettingsData, "profile" | "notifications" | "aiAssist" | "email" | "contacts"> & {
     teamName: string;
     reports: NonNullable<DashboardSettingsData["reports"]>;
     automation: DashboardAutomationSettings;
@@ -58,6 +60,7 @@ export const SETTINGS_NAV: Array<{ label: string; items: SettingsNavItem[] }> = 
       { type: "section", value: "contacts", label: "Contacts", icon: PeopleIcon, description: "Statuses, custom fields, and retention" },
       { type: "section", value: "automation", label: "Automation", icon: RefreshIcon, description: "Handle repetitive work automatically" },
       { type: "section", value: "notifications", label: "Notifications", icon: BellIcon, description: "Alert preferences" },
+      { type: "section", value: "aiAssist", label: "AI Assist", icon: BoltIcon, description: "Summaries, suggestions, and rewrites" },
       { type: "section", value: "savedReplies", label: "Saved replies", icon: ChatBubbleIcon, description: "Canned replies for the inbox" },
       { type: "section", value: "integrations", label: "Integrations", icon: CodeIcon, description: "Connected tools and syncs" },
       { type: "section", value: "reports", label: "Reports", icon: BarChartIcon, description: "Weekly report delivery" },

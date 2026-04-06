@@ -39,7 +39,6 @@ export function DashboardAiAssistResultCard({
     return (
       <ResultShell eyebrow="Conversation summary">
         <p>{result.summary}</p>
-        <p className="text-slate-600">{result.focus}</p>
       </ResultShell>
     );
   }
@@ -65,7 +64,6 @@ export function DashboardAiAssistResultCard({
   if (result.action === "tags") {
     return (
       <ResultShell eyebrow="Suggested tags">
-        <p>{result.summary}</p>
         {result.tags.length ? (
           <div className="flex flex-wrap gap-2">
             {result.tags.map((tag) => {

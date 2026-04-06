@@ -5,6 +5,7 @@ const VALID_SETTINGS_SECTIONS = new Set<SettingsSection>([
   "contacts",
   "automation",
   "notifications",
+  "aiAssist",
   "savedReplies",
   "integrations",
   "reports",

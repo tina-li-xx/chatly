@@ -9,7 +9,14 @@ function createProps(): DashboardClientProps {
     initialStats: { totalConversations: 2, answeredConversations: 1, ratedConversations: 0, topTags: [] },
     initialSites: [createSite()],
     initialConversations: [createConversationSummary(), createConversationSummary({ id: "conv_2" })],
-    initialActiveConversation: createConversationThread()
+    initialActiveConversation: createConversationThread(),
+    initialAiAssistSettings: {
+      replySuggestionsEnabled: true,
+      conversationSummariesEnabled: true,
+      rewriteAssistanceEnabled: true,
+      suggestedTagsEnabled: true
+    },
+    initialBillingPlanKey: "growth"
   };
 }
 
@@ -140,5 +147,51 @@ describe("dashboard client more", () => {
     )[0];
     settingsButton?.props.onClick();
     expect(navigation.navigate).toHaveBeenCalledWith("/dashboard/settings");
+  });
+
+  it("posts ai assist analytics events to the server logger", async () => {
+    const listeners: Record<string, (event: Record<string, unknown>) => void> = {};
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("document", {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      getElementById: vi.fn(() => null)
+    });
+    vi.stubGlobal("window", {
+      innerWidth: 1280,
+      addEventListener: vi.fn((name: string, handler: (event: Record<string, unknown>) => void) => {
+        listeners[name] = handler;
+      }),
+      removeEventListener: vi.fn(),
+      history: { pushState: vi.fn() }
+    });
+
+    const { DashboardClient, reactMocks } = await loadDashboardClient();
+    reactMocks.beginRender();
+    DashboardClient(createProps());
+    await runMockEffects(reactMocks.effects);
+
+    listeners["chatly:analytics-event"]?.({
+      detail: {
+        name: "ai.rewrite.applied",
+        conversationId: "conv_1",
+        tone: "friendlier"
+      }
+    });
+    await Promise.resolve();
+
+    expect(fetchMock).toHaveBeenCalledWith("/dashboard/ai-assist/events", {
+      method: "POST",
+      keepalive: true,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: "ai.rewrite.applied",
+        conversationId: "conv_1",
+        metadata: {
+          tone: "friendlier"
+        }
+      })
+    });
   });
 });

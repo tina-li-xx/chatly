@@ -1,6 +1,10 @@
 import { changeUserPassword } from "@/lib/auth";
 import { updateDashboardContactSettings } from "@/lib/data/contacts";
 import {
+  normalizeDashboardAiAssistSettings,
+  serializeDashboardAiAssistSettings
+} from "@/lib/data/settings-ai-assist";
+import {
   getDashboardSettingsData
 } from "@/lib/data/settings-read";
 import {
@@ -25,6 +29,7 @@ import {
   upsertUserSettingsRecord,
   upsertWorkspaceAutomationSettings
 } from "@/lib/repositories/settings-repository";
+import { upsertWorkspaceAiAssistSettings } from "@/lib/repositories/ai-assist-settings-repository";
 import { optionalText } from "@/lib/utils";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
 import { updateSiteName, updateSiteWidgetSettings } from "./sites";
@@ -44,6 +49,9 @@ export async function updateDashboardSettings(
   const teamName = input.teamName?.trim();
   const reports = input.reports ? validateDashboardSettingsReports(input.reports) : null;
   const workspace = await getWorkspaceAccess(userId);
+  const aiAssist = input.aiAssist
+    ? normalizeDashboardAiAssistSettings(input.aiAssist)
+    : null;
   const primarySite =
     teamName || input.automation
       ? await findPrimarySiteForOwner(workspace.ownerUserId)
@@ -134,6 +142,13 @@ export async function updateDashboardSettings(
         operatingHours: primarySite.operatingHours
       });
     }
+  }
+
+  if (aiAssist) {
+    await upsertWorkspaceAiAssistSettings(
+      workspace.ownerUserId,
+      serializeDashboardAiAssistSettings(aiAssist)
+    );
   }
 
   if (input.contacts) {
