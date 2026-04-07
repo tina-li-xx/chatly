@@ -86,10 +86,10 @@ describe("auth edge cases", () => {
     const cookieStore = { get: vi.fn().mockReturnValue(undefined), set: vi.fn(), delete: vi.fn() };
     mocks.cookies.mockResolvedValue(cookieStore);
     await setUserSession("user_1");
-    expect(cookieStore.set).toHaveBeenCalledWith("chatly_session", expect.any(String), expect.objectContaining({ secure: true }));
+    expect(cookieStore.set).toHaveBeenCalledWith("chatting_session", expect.any(String), expect.objectContaining({ secure: true }));
     await clearUserSession();
     expect(mocks.deleteAuthSessionByTokenHash).not.toHaveBeenCalled();
-    expect(cookieStore.delete).toHaveBeenCalledWith("chatly_session");
+    expect(cookieStore.delete).toHaveBeenCalledWith("chatting_session");
     process.env.NODE_ENV = previousEnv;
   });
 });

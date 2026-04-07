@@ -31,7 +31,7 @@ describe("env.server", () => {
   });
 
   it("centralizes auth, database, ses, and reply env access", () => {
-    expect(getAuthSecret({ environment: "development", source: {} })).toBe("chatly-dev-secret");
+    expect(getAuthSecret({ environment: "development", source: {} })).toBe("chatting-dev-secret");
     expect(() => getAuthSecret({ environment: "production", source: {} })).toThrow(
       "AUTH_SECRET is not configured."
     );
@@ -39,11 +39,11 @@ describe("env.server", () => {
     expect(
       getDatabaseConfig({
         source: {
-          DATABASE_URL: "postgres://localhost/chatly"
+          DATABASE_URL: "postgres://localhost/chatting"
         }
       })
     ).toEqual({
-      connectionString: "postgres://localhost/chatly"
+      connectionString: "postgres://localhost/chatting"
     });
 
     expect(
@@ -74,7 +74,7 @@ describe("env.server", () => {
         })
       )
     ).toEqual(["arn:one", "arn:two"]);
-    expect(getReplyDomain({ REPLY_DOMAIN: "reply.chatly.example" })).toBe("reply.chatly.example");
+    expect(getReplyDomain({ REPLY_DOMAIN: "reply.chatting.example" })).toBe("reply.chatting.example");
   });
 
   it("detects missing production startup env vars", () => {
@@ -105,7 +105,7 @@ describe("env.server", () => {
           STRIPE_WEBHOOK_SECRET: "",
           STRIPE_PRICE_GROWTH_MONTHLY: "",
           STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         }
       })
     ).toEqual(["STRIPE_PRICE_GROWTH_MONTHLY", "STRIPE_WEBHOOK_SECRET"]);
@@ -117,7 +117,7 @@ describe("env.server", () => {
           STRIPE_WEBHOOK_SECRET: "",
           STRIPE_PRICE_GROWTH_MONTHLY: "",
           STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         }
       })
     ).toEqual(["STRIPE_PRICE_GROWTH_MONTHLY"]);
@@ -127,7 +127,7 @@ describe("env.server", () => {
         STRIPE_SECRET_KEY: "sk_test",
         STRIPE_PRICE_GROWTH_MONTHLY: "price_growth_monthly",
         STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-        NEXT_PUBLIC_APP_URL: "https://chatly.example"
+        NEXT_PUBLIC_APP_URL: "https://chatting.example"
       })
     ).toBe(true);
 
@@ -136,7 +136,7 @@ describe("env.server", () => {
         STRIPE_SECRET_KEY: "sk_test",
         STRIPE_PRICE_GROWTH_MONTHLY: "price_growth_monthly",
         STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-        NEXT_PUBLIC_APP_URL: "https://chatly.example"
+        NEXT_PUBLIC_APP_URL: "https://chatting.example"
       })
     ).toBe(false);
   });
@@ -179,7 +179,7 @@ describe("env.server", () => {
           STRIPE_DEV_PRICE_GROWTH_ANNUAL: "price_dev_annual",
           STRIPE_PRICE_GROWTH_MONTHLY: "price_growth_monthly",
           STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         },
         "development"
       )
@@ -192,7 +192,7 @@ describe("env.server", () => {
           STRIPE_DEV_WEBHOOK_SECRET: "whsec_dev",
           STRIPE_DEV_PRICE_GROWTH_MONTHLY: "price_dev_monthly",
           STRIPE_DEV_PRICE_GROWTH_ANNUAL: "price_dev_annual",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         },
         "development"
       )
@@ -249,9 +249,9 @@ describe("env.server", () => {
       assertStartupProductionCoreEnvConfigured({
         environment: "production",
         source: {
-          DATABASE_URL: "postgres://localhost/chatly",
+          DATABASE_URL: "postgres://localhost/chatting",
           AUTH_SECRET: "secret",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         },
         cache: false
       })
@@ -279,7 +279,7 @@ describe("env.server", () => {
           STRIPE_WEBHOOK_SECRET: "whsec_test",
           STRIPE_PRICE_GROWTH_MONTHLY: "price_growth_monthly",
           STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         },
         cache: false
       })
@@ -293,7 +293,7 @@ describe("env.server", () => {
           STRIPE_WEBHOOK_SECRET: "whsec_test",
           STRIPE_PRICE_GROWTH_MONTHLY: "price_growth_monthly",
           STRIPE_PRICE_GROWTH_ANNUAL: "price_growth_annual",
-          NEXT_PUBLIC_APP_URL: "https://chatly.example"
+          NEXT_PUBLIC_APP_URL: "https://chatting.example"
         },
         cache: false
       })
@@ -307,7 +307,7 @@ describe("env.server", () => {
           R2_ACCESS_KEY_ID: "access",
           R2_SECRET_ACCESS_KEY: "secret",
           R2_BUCKET_NAME: "uploads",
-          R2_PUBLIC_BASE_URL: "https://cdn.chatly.example"
+          R2_PUBLIC_BASE_URL: "https://cdn.chatting.example"
         },
         cache: false
       })

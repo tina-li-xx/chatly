@@ -49,7 +49,7 @@ describe("dashboard timezone sync hook", () => {
       method: "POST",
       headers: { "content-type": "application/json" }
     }));
-    expect(document.cookie).toContain("chatly_timezone=Europe/London");
+    expect(document.cookie).toContain("chatting_timezone=Europe/London");
     expect(document.cookie).toContain("SameSite=Lax");
     expect(document.cookie).toContain("Secure");
     expect(refreshMock).not.toHaveBeenCalled();

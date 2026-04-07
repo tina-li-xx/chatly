@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { AUTH_SESSION_COOKIE_NAME } from "@/lib/auth-redirect";
+import { readAuthSessionCookieValue } from "@/lib/auth-redirect";
 import { hashSessionToken } from "@/lib/auth-session-token";
 import {
   findAuthSessionWorkspaceOwnerByTokenHash,
@@ -8,7 +8,7 @@ import {
 
 async function getCurrentSessionTokenHash() {
   try {
-    const token = (await cookies()).get(AUTH_SESSION_COOKIE_NAME)?.value;
+    const token = readAuthSessionCookieValue(await cookies());
     return token ? hashSessionToken(token) : null;
   } catch {
     return null;

@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  WIDGET_MOUNTED_EVENT
+} from "@/lib/browser-event-contracts";
 
 type WidgetMountedEventDetail = {
   siteId?: string;
@@ -8,7 +11,7 @@ type WidgetMountedEventDetail = {
 
 declare global {
   interface Window {
-    __chatlyMountedSiteIds?: string[];
+    __chattingMountedSiteIds?: string[];
   }
 }
 
@@ -17,7 +20,9 @@ function isMountedForSite(siteIds: string[]) {
     return false;
   }
 
-  const mountedSiteIds = Array.isArray(window.__chatlyMountedSiteIds) ? window.__chatlyMountedSiteIds : [];
+  const mountedSiteIds = Array.isArray(window.__chattingMountedSiteIds)
+    ? window.__chattingMountedSiteIds
+    : [];
   return siteIds.some((siteId) => mountedSiteIds.includes(siteId));
 }
 
@@ -45,8 +50,11 @@ export function useWidgetInstallState(initialInstalled: boolean, siteIds: string
       }
     };
 
-    window.addEventListener("chatly:widget:mounted", handleMounted);
-    return () => window.removeEventListener("chatly:widget:mounted", handleMounted);
+    window.addEventListener(WIDGET_MOUNTED_EVENT, handleMounted);
+
+    return () => {
+      window.removeEventListener(WIDGET_MOUNTED_EVENT, handleMounted);
+    };
   }, [installed, siteIds]);
 
   return installed;

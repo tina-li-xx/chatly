@@ -7,7 +7,7 @@ import {
 describe("weekly performance scheduler", () => {
   it("starts once and runs weekly emails on an interval", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyWeeklyPerformanceScheduler__");
+    resetGlobalScheduler("__chattingWeeklyPerformanceScheduler__");
 
     const runScheduledWeeklyPerformanceEmails = vi.fn().mockResolvedValue(undefined);
     vi.doMock("@/lib/weekly-performance", () => ({
@@ -38,7 +38,7 @@ describe("weekly performance scheduler", () => {
 
   it("skips overlapping weekly runs", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyWeeklyPerformanceScheduler__");
+    resetGlobalScheduler("__chattingWeeklyPerformanceScheduler__");
 
     let resolveRun: (() => void) | null = null;
     const runScheduledWeeklyPerformanceEmails = vi.fn(

@@ -67,7 +67,7 @@ type Listener<T> = (event: T) => void;
 
 declare global {
   // eslint-disable-next-line no-var
-  var __chatlyLiveListeners:
+  var __chattingLiveListeners:
     | {
         dashboardByUserId: Map<string, Set<Listener<DashboardLiveEvent>>>;
         conversationById: Map<string, Set<Listener<PublicConversationLiveEvent>>>;
@@ -76,14 +76,14 @@ declare global {
 }
 
 function getState() {
-  if (!global.__chatlyLiveListeners) {
-    global.__chatlyLiveListeners = {
+  if (!global.__chattingLiveListeners) {
+    global.__chattingLiveListeners = {
       dashboardByUserId: new Map(),
       conversationById: new Map()
     };
   }
 
-  return global.__chatlyLiveListeners;
+  return global.__chattingLiveListeners;
 }
 
 function subscribe<T>(

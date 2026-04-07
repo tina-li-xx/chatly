@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DASHBOARD_NOTIFICATION_SETTINGS_UPDATED_EVENT } from "@/lib/browser-event-contracts";
 import type { DashboardSettingsNotifications } from "@/lib/data/settings-types";
 import { pageLabelFromUrl } from "./dashboard-ui";
 import { subscribeDashboardLiveClient } from "./dashboard-live-client";
@@ -95,9 +96,16 @@ export function useDashboardNotificationCenterState(input: {
       }
     };
 
-    window.addEventListener("chatly:notification-settings-updated", handleSettingsUpdate as EventListener);
+    window.addEventListener(
+      DASHBOARD_NOTIFICATION_SETTINGS_UPDATED_EVENT,
+      handleSettingsUpdate as EventListener
+    );
+
     return () => {
-      window.removeEventListener("chatly:notification-settings-updated", handleSettingsUpdate as EventListener);
+      window.removeEventListener(
+        DASHBOARD_NOTIFICATION_SETTINGS_UPDATED_EVENT,
+        handleSettingsUpdate as EventListener
+      );
     };
   }, []);
 

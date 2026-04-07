@@ -64,8 +64,8 @@ describe("dashboard notification center more", () => {
     DashboardNotificationCenter({ initialSettings: { browserNotifications: true, soundAlerts: true, emailNotifications: true, newVisitorAlerts: false, highIntentAlerts: false } });
     await runMockEffects(reactMocks.effects);
 
-    windowListeners["chatly:notification-settings-updated"]?.(
-      new CustomEvent("chatly:notification-settings-updated", {
+    windowListeners["chatting:notification-settings-updated"]?.(
+      new CustomEvent("chatting:notification-settings-updated", {
         detail: { browserNotifications: true, soundAlerts: false, emailNotifications: true, newVisitorAlerts: true, highIntentAlerts: false }
       })
     );

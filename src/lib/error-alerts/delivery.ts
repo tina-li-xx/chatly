@@ -23,7 +23,7 @@ type ErrorAlertMessage = {
 };
 
 type ErrorAlertRuntimeStore = typeof globalThis & {
-  __chatlyErrorAlertDispatching?: boolean;
+  __chattingErrorAlertDispatching?: boolean;
 };
 
 function getRuntimeStore() {
@@ -31,7 +31,7 @@ function getRuntimeStore() {
 }
 
 export function isErrorAlertDispatching() {
-  return Boolean(getRuntimeStore().__chatlyErrorAlertDispatching);
+  return Boolean(getRuntimeStore().__chattingErrorAlertDispatching);
 }
 
 function renderSection(section: ErrorAlertSection) {
@@ -77,7 +77,7 @@ export async function sendErrorAlertEmail(message: ErrorAlertMessage) {
   const appName = getAppDisplayName() || "Chatting";
   const store = getRuntimeStore();
 
-  store.__chatlyErrorAlertDispatching = true;
+  store.__chattingErrorAlertDispatching = true;
 
   try {
     await sendSesEmail({
@@ -96,6 +96,6 @@ export async function sendErrorAlertEmail(message: ErrorAlertMessage) {
   } catch {
     return;
   } finally {
-    store.__chatlyErrorAlertDispatching = false;
+    store.__chattingErrorAlertDispatching = false;
   }
 }

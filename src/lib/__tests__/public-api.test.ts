@@ -21,13 +21,13 @@ describe("public api helpers", () => {
       {
         status: 201,
         headers: {
-          "x-chatly": "1"
+          "x-chatting": "1"
         }
       }
     );
 
     expect(response.status).toBe(201);
-    expect(response.headers.get("x-chatly")).toBe("1");
+    expect(response.headers.get("x-chatting")).toBe("1");
     expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
     expect(await response.json()).toEqual({ ok: true });
   });

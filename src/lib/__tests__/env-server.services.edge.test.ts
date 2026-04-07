@@ -10,7 +10,7 @@ import {
 describe("env-server services edge cases", () => {
   it("prefers explicit auth secrets and derives the development fallback from NODE_ENV", () => {
     expect(getAuthSecret({ source: { AUTH_SECRET: "secret" } })).toBe("secret");
-    expect(getAuthSecret({ source: { NODE_ENV: "test" } })).toBe("chatly-dev-secret");
+    expect(getAuthSecret({ source: { NODE_ENV: "test" } })).toBe("chatting-dev-secret");
     expect(() => getAuthSecret({ source: { NODE_ENV: "production" } })).toThrow("AUTH_SECRET is not configured.");
   });
 

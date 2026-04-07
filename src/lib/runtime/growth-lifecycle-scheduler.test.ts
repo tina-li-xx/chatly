@@ -7,7 +7,7 @@ import {
 describe("growth lifecycle scheduler", () => {
   it("starts once and runs lifecycle emails on an interval", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyGrowthLifecycleScheduler__");
+    resetGlobalScheduler("__chattingGrowthLifecycleScheduler__");
 
     const runScheduledGrowthLifecycleEmails = vi.fn().mockResolvedValue(undefined);
     vi.doMock("@/lib/growth-outreach-runner", () => ({
@@ -38,7 +38,7 @@ describe("growth lifecycle scheduler", () => {
 
   it("skips overlapping lifecycle runs", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyGrowthLifecycleScheduler__");
+    resetGlobalScheduler("__chattingGrowthLifecycleScheduler__");
 
     let resolveRun: (() => void) | null = null;
     const runScheduledGrowthLifecycleEmails = vi.fn(

@@ -1,8 +1,8 @@
 import "server-only";
 
 import {
-  AUTH_REQUEST_METHOD_HEADER,
-  AUTH_REQUEST_PATH_HEADER
+  readAuthRequestMethodHeader,
+  readAuthRequestPathHeader
 } from "@/lib/auth-redirect";
 
 export type ErrorAlertRequestContext = {
@@ -28,12 +28,12 @@ function contextFromHeaders(
   return {
     method:
       request?.method ||
-      readHeader(headersValue, AUTH_REQUEST_METHOD_HEADER) ||
+      readAuthRequestMethodHeader(headersValue) ||
       readHeader(headersValue, "x-http-method-override"),
     path:
       fallbackUrl?.pathname
         ? `${fallbackUrl.pathname}${fallbackUrl.search}`
-        : readHeader(headersValue, AUTH_REQUEST_PATH_HEADER),
+        : readAuthRequestPathHeader(headersValue),
     host: fallbackUrl?.host || readHeader(headersValue, "host"),
     userAgent: readHeader(headersValue, "user-agent"),
     forwardedFor: readHeader(headersValue, "x-forwarded-for"),

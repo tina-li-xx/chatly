@@ -7,7 +7,7 @@ import {
 
 describe("live events", () => {
   beforeEach(() => {
-    delete global.__chatlyLiveListeners;
+    delete global.__chattingLiveListeners;
     vi.restoreAllMocks();
   });
 

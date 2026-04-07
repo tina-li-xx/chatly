@@ -1,11 +1,44 @@
 import type { Route } from "next";
 
-export const AUTH_REQUEST_PATH_HEADER = "x-chatly-request-path";
+export const AUTH_REQUEST_PATH_HEADER = "x-chatting-request-path";
+export const AUTH_REQUEST_METHOD_HEADER = "x-chatting-request-method";
 export const AUTH_RETURN_TO_QUERY_PARAM = "redirectTo";
-export const AUTH_SESSION_COOKIE_NAME = "chatly_session";
+export const AUTH_SESSION_COOKIE_NAME = "chatting_session";
 const LOGIN_PATH = "/login";
 const SIGNUP_PATH = "/signup";
 const DISALLOWED_RETURN_PATH_PREFIXES = [LOGIN_PATH, SIGNUP_PATH, "/auth", "/api", "/_next"];
+
+type HeaderReader = {
+  get(name: string): string | null | undefined;
+};
+
+type CookieReader = {
+  get(name: string): { value?: string } | undefined;
+};
+
+export function readAuthRequestPathHeader(headersValue: HeaderReader | null | undefined) {
+  if (!headersValue) {
+    return null;
+  }
+
+  return headersValue.get(AUTH_REQUEST_PATH_HEADER)?.trim() || null;
+}
+
+export function readAuthRequestMethodHeader(headersValue: HeaderReader | null | undefined) {
+  if (!headersValue) {
+    return null;
+  }
+
+  return headersValue.get(AUTH_REQUEST_METHOD_HEADER)?.trim() || null;
+}
+
+export function readAuthSessionCookieValue(cookieStore: CookieReader | null | undefined) {
+  if (!cookieStore) {
+    return null;
+  }
+
+  return cookieStore.get(AUTH_SESSION_COOKIE_NAME)?.value || null;
+}
 
 export function buildRequestPath(pathname: string, search = "") {
   return search ? `${pathname}${search}` : pathname;

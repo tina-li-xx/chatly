@@ -19,7 +19,7 @@ describe("dashboard widget install card", () => {
     (globalThis as { window?: Window & typeof globalThis }).window = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-      __chatlyMountedSiteIds: []
+      __chattingMountedSiteIds: []
     } as unknown as Window & typeof globalThis;
   });
 
@@ -36,7 +36,7 @@ describe("dashboard widget install card", () => {
 
   it("hides the card immediately when the site is already mounted", async () => {
     const { DashboardWidgetInstallCard, reactMocks } = await loadInstallCard();
-    window.__chatlyMountedSiteIds = ["site_1"];
+    window.__chattingMountedSiteIds = ["site_1"];
     reactMocks.beginRender();
     renderToStaticMarkup(<DashboardWidgetInstallCard initialInstalled={false} siteIds={["site_1"]} />);
     await runMockEffects(reactMocks.effects);
@@ -61,7 +61,7 @@ describe("dashboard widget install card", () => {
       <DashboardWidgetInstallCard initialInstalled={false} siteIds={["site_1"]} />
     )).toContain("Check installation");
 
-    mountedListener(new CustomEvent("chatly:widget:mounted", { detail: { siteId: "site_1" } }));
+    mountedListener(new CustomEvent("chatting:widget:mounted", { detail: { siteId: "site_1" } }));
     reactMocks.beginRender();
     const installedHtml = renderToStaticMarkup(
       <DashboardWidgetInstallCard initialInstalled={false} siteIds={["site_1"]} />
@@ -69,6 +69,6 @@ describe("dashboard widget install card", () => {
     cleanups[0]?.();
 
     expect(installedHtml).toBe("");
-    expect(window.removeEventListener).toHaveBeenCalledWith("chatly:widget:mounted", mountedListener);
+    expect(window.removeEventListener).toHaveBeenCalledWith("chatting:widget:mounted", mountedListener);
   });
 });

@@ -1,13 +1,13 @@
 const ALERT_COOLDOWN_MS = 5 * 60 * 1000;
 
 type ErrorAlertStore = typeof globalThis & {
-  __chatlyErrorAlertSentAt?: Map<string, number>;
+  __chattingErrorAlertSentAt?: Map<string, number>;
 };
 
 function getAlertStore() {
   const store = globalThis as ErrorAlertStore;
-  store.__chatlyErrorAlertSentAt ??= new Map<string, number>();
-  return store.__chatlyErrorAlertSentAt;
+  store.__chattingErrorAlertSentAt ??= new Map<string, number>();
+  return store.__chattingErrorAlertSentAt;
 }
 
 export function shouldSendErrorAlert(key: string, now = Date.now()) {

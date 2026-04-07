@@ -8,16 +8,16 @@ import { isErrorAlertDispatching } from "@/lib/error-alerts/delivery";
 import { isRouteErrorAlertingContextActive } from "@/lib/route-error-alerting";
 
 type ErrorAlertRuntimeStore = typeof globalThis & {
-  __chatlyServerErrorAlertingInstalled?: boolean;
+  __chattingServerErrorAlertingInstalled?: boolean;
 };
 
 export function registerServerErrorAlerting() {
   const store = globalThis as ErrorAlertRuntimeStore;
-  if (store.__chatlyServerErrorAlertingInstalled) {
+  if (store.__chattingServerErrorAlertingInstalled) {
     return;
   }
 
-  store.__chatlyServerErrorAlertingInstalled = true;
+  store.__chattingServerErrorAlertingInstalled = true;
 
   const originalConsoleError = console.error.bind(console);
 

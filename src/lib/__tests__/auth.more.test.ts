@@ -82,7 +82,7 @@ describe("auth more", () => {
       expect.objectContaining({ userId: insertedUser.userId, activeWorkspaceOwnerId: "owner_1" })
     );
     expect(cookieStore.set).toHaveBeenCalledWith(
-      "chatly_session",
+      "chatting_session",
       expect.any(String),
       expect.objectContaining({ httpOnly: true, sameSite: "lax", secure: false, path: "/" })
     );
@@ -118,7 +118,7 @@ describe("auth more", () => {
 
     mocks.cookies.mockResolvedValueOnce({ get: vi.fn().mockReturnValue(undefined), delete: vi.fn() });
     mocks.headers.mockResolvedValueOnce(
-      new Headers({ "x-chatly-request-path": "/dashboard/inbox?id=conversation_1" })
+      new Headers({ "x-chatting-request-path": "/dashboard/inbox?id=conversation_1" })
     );
     await requireUser();
     expect(mocks.redirect).toHaveBeenCalledWith("/login?redirectTo=%2Fdashboard%2Finbox%3Fid%3Dconversation_1");

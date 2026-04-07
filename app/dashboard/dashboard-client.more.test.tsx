@@ -172,7 +172,7 @@ describe("dashboard client more", () => {
     DashboardClient(createProps());
     await runMockEffects(reactMocks.effects);
 
-    listeners["chatly:analytics-event"]?.({
+    listeners["chatting:analytics-event"]?.({
       detail: {
         name: "ai.rewrite.applied",
         conversationId: "conv_1",

@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  DASHBOARD_AI_ASSIST_REQUEST_EVENT,
+  DASHBOARD_ANALYTICS_EVENT,
+} from "@/lib/browser-event-contracts";
 import type { AiAssistReplyEditLevel } from "@/lib/types";
 
 export type DashboardAiAssistRequestAction = "reply" | "summarize";
@@ -18,17 +22,10 @@ export type DashboardAiAssistAnalyticsDetail = {
   editLevel?: AiAssistReplyEditLevel;
 };
 
-const AI_ASSIST_REQUEST_EVENT = "chatly:ai-assist-request";
-const ANALYTICS_EVENT = "chatly:analytics-event";
-
 export function dispatchDashboardAiAssistRequest(
   detail: DashboardAiAssistRequestDetail
 ) {
-  window.dispatchEvent(
-    new CustomEvent<DashboardAiAssistRequestDetail>(AI_ASSIST_REQUEST_EVENT, {
-      detail
-    })
-  );
+  window.dispatchEvent(new CustomEvent<DashboardAiAssistRequestDetail>(DASHBOARD_AI_ASSIST_REQUEST_EVENT, { detail }));
 }
 
 export function subscribeDashboardAiAssistRequests(
@@ -41,12 +38,11 @@ export function subscribeDashboardAiAssistRequests(
     }
   };
 
-  window.addEventListener(AI_ASSIST_REQUEST_EVENT, handler as EventListener);
-  return () =>
-    window.removeEventListener(
-      AI_ASSIST_REQUEST_EVENT,
-      handler as EventListener
-    );
+  window.addEventListener(DASHBOARD_AI_ASSIST_REQUEST_EVENT, handler as EventListener);
+
+  return () => {
+    window.removeEventListener(DASHBOARD_AI_ASSIST_REQUEST_EVENT, handler as EventListener);
+  };
 }
 
 export function subscribeDashboardAiAssistAnalyticsEvents(
@@ -59,18 +55,17 @@ export function subscribeDashboardAiAssistAnalyticsEvents(
     }
   };
 
-  window.addEventListener(ANALYTICS_EVENT, handler as EventListener);
-  return () =>
-    window.removeEventListener(ANALYTICS_EVENT, handler as EventListener);
+  window.addEventListener(DASHBOARD_ANALYTICS_EVENT, handler as EventListener);
+
+  return () => {
+    window.removeEventListener(DASHBOARD_ANALYTICS_EVENT, handler as EventListener);
+  };
 }
 
 export function trackDashboardAiAssistEvent(
   name: string,
   detail: Record<string, unknown> = {}
 ) {
-  window.dispatchEvent(
-    new CustomEvent(ANALYTICS_EVENT, {
-      detail: { name, ...detail }
-    })
-  );
+  const payload = { detail: { name, ...detail } };
+  window.dispatchEvent(new CustomEvent(DASHBOARD_ANALYTICS_EVENT, payload));
 }

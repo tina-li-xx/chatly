@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import {
+  AUTH_REQUEST_METHOD_HEADER,
   AUTH_REQUEST_PATH_HEADER,
   AUTH_SESSION_COOKIE_NAME,
   buildLoginPath,
@@ -16,12 +17,15 @@ export function proxy(request: NextRequest) {
 
   const requestPath = buildRequestPath(request.nextUrl.pathname, request.nextUrl.search);
 
-  if (isDashboardPath(request.nextUrl.pathname) && !request.cookies.get(AUTH_SESSION_COOKIE_NAME)?.value) {
+  const hasSession = request.cookies.get(AUTH_SESSION_COOKIE_NAME)?.value;
+
+  if (isDashboardPath(request.nextUrl.pathname) && !hasSession) {
     return NextResponse.redirect(new URL(buildLoginPath(requestPath), request.url));
   }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(AUTH_REQUEST_PATH_HEADER, requestPath);
+  requestHeaders.set(AUTH_REQUEST_METHOD_HEADER, request.method);
 
   return NextResponse.next({
     request: {

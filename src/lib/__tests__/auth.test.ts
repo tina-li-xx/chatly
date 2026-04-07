@@ -70,7 +70,7 @@ describe("auth session helpers", () => {
     mocks.getWorkspaceAccess.mockResolvedValue({
       ownerUserId: "user_123",
       role: "owner",
-      ownerEmail: "hello@chatly.example",
+      ownerEmail: "hello@chatting.example",
       ownerCreatedAt: "2026-03-27T00:00:00.000Z"
     });
     mocks.findAuthUserByEmail.mockResolvedValue(null);
@@ -127,7 +127,7 @@ describe("auth session helpers", () => {
     await clearUserSession();
 
     expect(mocks.deleteAuthSessionByTokenHash).toHaveBeenCalledTimes(1);
-    expect(deleteCookie).toHaveBeenCalledWith("chatly_session");
+    expect(deleteCookie).toHaveBeenCalledWith("chatting_session");
   });
 
   it("starts resumable onboarding for new workspace owners", async () => {

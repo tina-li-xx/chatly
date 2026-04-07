@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import {
+  DASHBOARD_NOTIFICATION_SETTINGS_UPDATED_EVENT
+} from "@/lib/browser-event-contracts";
 import type {
   DashboardAutomationSettings,
   DashboardSettingsData,
@@ -147,7 +150,7 @@ export function useDashboardSettingsForm(
         setPasswordExpanded(false);
       }
       window.dispatchEvent(
-        new CustomEvent("chatly:notification-settings-updated", {
+        new CustomEvent(DASHBOARD_NOTIFICATION_SETTINGS_UPDATED_EVENT, {
           detail: payload.settings.notifications
         })
       );

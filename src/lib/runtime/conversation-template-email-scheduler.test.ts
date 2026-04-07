@@ -7,7 +7,7 @@ import {
 describe("conversation template email scheduler", () => {
   it("starts once and runs retries on an interval", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyConversationTemplateEmailScheduler__");
+    resetGlobalScheduler("__chattingConversationTemplateEmailScheduler__");
 
     const runScheduledConversationTemplateEmailRetries = vi.fn().mockResolvedValue(undefined);
     vi.doMock("@/lib/conversation-template-email-runner", () => ({

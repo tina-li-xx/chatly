@@ -7,7 +7,7 @@ import {
 describe("daily digest scheduler", () => {
   it("starts once and runs digests on an interval", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyDailyDigestScheduler__");
+    resetGlobalScheduler("__chattingDailyDigestScheduler__");
 
     const runScheduledDailyDigests = vi.fn().mockResolvedValue(undefined);
     vi.doMock("@/lib/daily-digest", () => ({
@@ -38,7 +38,7 @@ describe("daily digest scheduler", () => {
 
   it("skips overlapping digest runs", async () => {
     vi.useFakeTimers();
-    resetGlobalScheduler("__chatlyDailyDigestScheduler__");
+    resetGlobalScheduler("__chattingDailyDigestScheduler__");
 
     let resolveRun: (() => void) | null = null;
     const runScheduledDailyDigests = vi.fn(

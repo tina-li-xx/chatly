@@ -2,7 +2,12 @@ import { randomBytes } from "node:crypto";
 import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AUTH_REQUEST_PATH_HEADER, AUTH_SESSION_COOKIE_NAME, buildLoginPath } from "@/lib/auth-redirect";
+import {
+  AUTH_SESSION_COOKIE_NAME,
+  buildLoginPath,
+  readAuthRequestPathHeader,
+  readAuthSessionCookieValue
+} from "@/lib/auth-redirect";
 import { hashSessionToken } from "@/lib/auth-session-token";
 import { isProductionRuntime } from "@/lib/env";
 import { deleteAuthSessionByTokenHash, findCurrentUserByTokenHash, insertAuthSession } from "@/lib/repositories/auth-repository";
@@ -42,7 +47,7 @@ export async function setUserSession(userId: string, activeWorkspaceOwnerId?: st
 
 export async function clearUserSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_SESSION_COOKIE_NAME)?.value;
+  const token = readAuthSessionCookieValue(cookieStore);
 
   if (token) {
     await deleteAuthSessionByTokenHash(hashSessionToken(token));
@@ -52,7 +57,7 @@ export async function clearUserSession() {
 }
 
 export const getCurrentUser = cache(async function getCurrentUser() {
-  const token = (await cookies()).get(AUTH_SESSION_COOKIE_NAME)?.value;
+  const token = readAuthSessionCookieValue(await cookies());
   if (!token) {
     return null;
   }
@@ -75,7 +80,7 @@ export async function requireUser() {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect(buildLoginPath((await headers()).get(AUTH_REQUEST_PATH_HEADER)));
+    redirect(buildLoginPath(readAuthRequestPathHeader(await headers())));
   }
 
   return user;

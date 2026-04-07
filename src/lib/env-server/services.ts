@@ -41,7 +41,7 @@ export function getAuthSecret(params?: {
   }
 
   if ((params?.environment || getRuntimeEnvironment(source.NODE_ENV)) !== "production") {
-    return "chatly-dev-secret";
+    return "chatting-dev-secret";
   }
 
   throw new Error("AUTH_SECRET is not configured.");

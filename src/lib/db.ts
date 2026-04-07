@@ -14,18 +14,18 @@ type ChatlyDb = ReturnType<typeof createDb>;
 
 declare global {
   // eslint-disable-next-line no-var
-  var __chatlyPool: Pool | undefined;
+  var __chattingPool: Pool | undefined;
   // eslint-disable-next-line no-var
-  var __chatlyPoolReady: Promise<Pool> | undefined;
+  var __chattingPoolReady: Promise<Pool> | undefined;
   // eslint-disable-next-line no-var
-  var __chatlySchemaReady: Promise<void> | undefined;
+  var __chattingSchemaReady: Promise<void> | undefined;
   // eslint-disable-next-line no-var
-  var __chatlySchemaVersion: string | undefined;
+  var __chattingSchemaVersion: string | undefined;
   // eslint-disable-next-line no-var
-  var __chatlyDb: ChatlyDb | undefined;
+  var __chattingDb: ChatlyDb | undefined;
 }
 
-const SCHEMA_VERSION = "2026-04-06-ai-assist-events";
+const SCHEMA_VERSION = "2026-04-07-workspace-zapier-delivery-queue";
 const SCHEMA_LOCK_KEY = [20260401, 1] as const;
 
 async function createPool() {
@@ -67,53 +67,53 @@ async function runMigrationsWithLock(pool: Pool) {
 }
 
 export async function getPool() {
-  if (global.__chatlyPool) {
-    return global.__chatlyPool;
+  if (global.__chattingPool) {
+    return global.__chattingPool;
   }
 
-  if (!global.__chatlyPoolReady) {
-    global.__chatlyPoolReady = createPool()
+  if (!global.__chattingPoolReady) {
+    global.__chattingPoolReady = createPool()
       .then((pool) => {
-        global.__chatlyPool = pool;
+        global.__chattingPool = pool;
         return pool;
       })
       .catch((error) => {
-        global.__chatlyPoolReady = undefined;
+        global.__chattingPoolReady = undefined;
         throw error;
       });
   }
 
-  return global.__chatlyPoolReady;
+  return global.__chattingPoolReady;
 }
 
 export async function getDb() {
-  if (global.__chatlyDb) {
-    return global.__chatlyDb;
+  if (global.__chattingDb) {
+    return global.__chattingDb;
   }
 
   const db = createDb(await getPool());
-  global.__chatlyDb = db;
+  global.__chattingDb = db;
   return db;
 }
 
 export async function ensureSchema() {
   if (
-    !global.__chatlySchemaReady ||
-    global.__chatlySchemaVersion !== SCHEMA_VERSION
+    !global.__chattingSchemaReady ||
+    global.__chattingSchemaVersion !== SCHEMA_VERSION
   ) {
-    global.__chatlySchemaVersion = SCHEMA_VERSION;
-    global.__chatlySchemaReady = (async () => {
+    global.__chattingSchemaVersion = SCHEMA_VERSION;
+    global.__chattingSchemaReady = (async () => {
       await runMigrationsWithLock(await getPool());
     })().catch((error) => {
-      if (global.__chatlySchemaVersion === SCHEMA_VERSION) {
-        global.__chatlySchemaReady = undefined;
+      if (global.__chattingSchemaVersion === SCHEMA_VERSION) {
+        global.__chattingSchemaReady = undefined;
       }
 
       throw error;
     });
   }
 
-  await global.__chatlySchemaReady;
+  await global.__chattingSchemaReady;
 }
 
 export async function query<T extends QueryResultRow>(text: string, values?: unknown[]) {

@@ -50,9 +50,7 @@ export async function writePreferredTimeZoneCookie(value: unknown) {
 
 export async function readPreferredTimeZoneCookie() {
   const cookieStore = await cookies();
-  return normalizePreferredTimeZoneInput(
-    cookieStore.get(PREFERRED_TIME_ZONE_COOKIE_NAME)?.value
-  );
+  return normalizePreferredTimeZoneInput(cookieStore.get(PREFERRED_TIME_ZONE_COOKIE_NAME)?.value);
 }
 
 export async function persistPreferredTimeZoneForUser(
