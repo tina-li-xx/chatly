@@ -12,12 +12,13 @@ import { insertWorkspaceAiAssistEvent } from "@/lib/repositories/ai-assist-event
 import { countWorkspaceAiAssistRequestsForRange } from "@/lib/repositories/ai-assist-events-read-repository";
 import { listSavedReplyRows } from "@/lib/repositories/saved-replies-repository";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function requestedFeature(action: string) {
   return action === "summarize" ? "summary" : action;
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -138,3 +139,5 @@ export async function POST(request: Request) {
     return jsonError("ai-assist-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/ai-assist/route.ts:POST");

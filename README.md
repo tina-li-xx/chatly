@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Centralized admin error alerts now cover wrapped routes, server actions, browser exceptions, and process-level failures, with dev/build checks that block new unwrapped server entry points.
 - Dashboard now includes an internal publishing queue and preview workspace, and the Publishing nav only appears for the designated reviewer account.
 - Scheduled April and May blog backlog posts now cover Gorgias, customer-support software, Zendesk alternatives, low-conversion diagnosis, small ecommerce support workflow, and Shopify live-chat growth uses.
 - AI Assist is now built into the inbox with reply suggestions, summaries, rewrites, suggested tags, starter usage limits, and a full activity log.
@@ -223,6 +224,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Admin error alerting now routes server request failures, browser exceptions, and process/runtime crashes through one shared email pipeline, and repo verification blocks new routes or server actions from skipping the shared wrappers.
 - Weekly performance heatmap snapshot generation now stays build-safe while preserving the same report output.
 - Visitor follow-up email templates now avoid repeating extra conversation-link guidance when that instruction is already present.
 - Drizzle config and cached database typing now stay aligned with the schema-backed Postgres setup during production builds.

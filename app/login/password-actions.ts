@@ -3,9 +3,13 @@
 import { setUserSession } from "@/lib/auth";
 import { requestEmailVerification } from "@/lib/auth-email-verification";
 import { requestPasswordReset, resetPasswordWithToken } from "@/lib/auth-password-reset";
+import { withServerActionErrorAlerting } from "@/lib/server-action-error-alerting";
 import { FORGOT_PASSWORD_ERROR_MESSAGE, RESET_PASSWORD_ERROR_MESSAGE } from "./auth-error-messages";
 import type { PasswordActionState } from "./action-types";
 import { getOwnerPostAuthPath } from "./post-auth-path";
+
+const RESEND_VERIFICATION_ERROR_MESSAGE =
+  "We couldn't send the verification link right now. Please try again in a moment.";
 
 function passwordActionError(error: string): PasswordActionState {
   return {
@@ -16,56 +20,66 @@ function passwordActionError(error: string): PasswordActionState {
   };
 }
 
+function readEmail(formData: FormData) {
+  return String(formData.get("email") ?? "").trim();
+}
+
+function isInvalidResetTokenError(error: unknown) {
+  return error instanceof Error && error.message === "INVALID_RESET_TOKEN";
+}
+
+function wrapPasswordAction(
+  actionId: string,
+  action: (formData: FormData) => Promise<PasswordActionState>,
+  onError: (error: unknown) => PasswordActionState,
+  shouldReport?: (error: unknown) => boolean
+) {
+  return withServerActionErrorAlerting(action, {
+    actionId,
+    onError,
+    shouldReport
+  });
+}
+
 async function runEmailAction(input: {
   action: (email: string) => Promise<unknown>;
   email: string;
-  errorMessage: string;
-  logLabel: string;
   successMessage: string;
 }) {
-  const { action, email, errorMessage, logLabel, successMessage } = input;
+  const { action, email, successMessage } = input;
 
   if (!email) {
     return passwordActionError("Enter your work email to continue.");
   }
 
-  try {
-    await action(email);
-    return {
-      ok: true,
-      error: null,
-      message: successMessage,
-      nextPath: null
-    };
-  } catch (error) {
-    console.error(`${logLabel} failed`, error);
-    return passwordActionError(errorMessage);
-  }
+  await action(email);
+  return {
+    ok: true,
+    error: null,
+    message: successMessage,
+    nextPath: null
+  };
 }
 
-export async function forgotPasswordAction(formData: FormData): Promise<PasswordActionState> {
-  const email = String(formData.get("email") ?? "").trim();
+async function handleForgotPasswordAction(formData: FormData): Promise<PasswordActionState> {
+  const email = readEmail(formData);
   return runEmailAction({
     action: requestPasswordReset,
     email,
-    errorMessage: FORGOT_PASSWORD_ERROR_MESSAGE,
-    logLabel: "forgotPasswordAction",
     successMessage: `We sent a password reset link to ${email}.`
   });
 }
 
-export async function resendVerificationAction(formData: FormData): Promise<PasswordActionState> {
-  const email = String(formData.get("email") ?? "").trim();
+async function handleResendVerificationAction(formData: FormData): Promise<PasswordActionState> {
+  const email = readEmail(formData);
   return runEmailAction({
     action: requestEmailVerification,
     email,
-    errorMessage: "We couldn't send the verification link right now. Please try again in a moment.",
-    logLabel: "resendVerificationAction",
     successMessage: "If that address belongs to an account that still needs verification, we sent a new link."
   });
 }
 
-export async function resetPasswordAction(formData: FormData): Promise<PasswordActionState> {
+async function handleResetPasswordAction(formData: FormData): Promise<PasswordActionState> {
   const token = String(formData.get("token") ?? "").trim();
   const password = String(formData.get("password") ?? "").trim();
   const confirmPassword = String(formData.get("confirmPassword") ?? "").trim();
@@ -78,25 +92,38 @@ export async function resetPasswordAction(formData: FormData): Promise<PasswordA
     return passwordActionError("Your password confirmation does not match.");
   }
 
-  try {
-    const { userId } = await resetPasswordWithToken(token, password);
-    const nextPath = await getOwnerPostAuthPath(userId);
-    await setUserSession(userId);
+  const { userId } = await resetPasswordWithToken(token, password);
+  const nextPath = await getOwnerPostAuthPath(userId);
+  await setUserSession(userId);
 
-    return {
-      ok: true,
-      error: null,
-      message: "Your password has been reset.",
-      nextPath
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unexpected password reset error.";
-    if (message !== "INVALID_RESET_TOKEN") {
-      console.error("resetPasswordAction failed", error);
-    }
-
-    return passwordActionError(
-      message === "INVALID_RESET_TOKEN" ? "That reset link is invalid or has expired." : RESET_PASSWORD_ERROR_MESSAGE
-    );
-  }
+  return {
+    ok: true,
+    error: null,
+    message: "Your password has been reset.",
+    nextPath
+  };
 }
+
+export const forgotPasswordAction = wrapPasswordAction(
+  "app/login/password-actions.ts:forgotPasswordAction",
+  handleForgotPasswordAction,
+  () => passwordActionError(FORGOT_PASSWORD_ERROR_MESSAGE)
+);
+
+export const resendVerificationAction = wrapPasswordAction(
+  "app/login/password-actions.ts:resendVerificationAction",
+  handleResendVerificationAction,
+  () => passwordActionError(RESEND_VERIFICATION_ERROR_MESSAGE)
+);
+
+export const resetPasswordAction = wrapPasswordAction(
+  "app/login/password-actions.ts:resetPasswordAction",
+  handleResetPasswordAction,
+  (error) =>
+    passwordActionError(
+      isInvalidResetTokenError(error)
+        ? "That reset link is invalid or has expired."
+        : RESET_PASSWORD_ERROR_MESSAGE
+    ),
+  (error) => !isInvalidResetTokenError(error)
+);

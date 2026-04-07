@@ -8,6 +8,7 @@ import {
 import { dashboardAiAssistActorLabel } from "@/lib/data/settings-ai-assist-activity-map";
 import { requireJsonRouteUser } from "@/lib/route-helpers";
 import { listWorkspaceAiAssistFilteredActivityRows } from "@/lib/repositories/ai-assist-activity-page-repository";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function toCsvValue(value: string | null) {
   return `"${String(value ?? "").replaceAll('"', '""')}"`;
@@ -57,7 +58,7 @@ function exportFileName(range: { start: string; end: string }) {
   return `ai-assist-activity-${startLabel}-to-${endLabel}.csv`;
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -104,3 +105,5 @@ export async function GET(request: Request) {
     }
   });
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/dashboard/analytics/activity-export/route.ts:GET");

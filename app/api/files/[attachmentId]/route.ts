@@ -1,7 +1,8 @@
 import { getCurrentUser } from "@/lib/auth";
 import { getAttachmentForPublic, getAttachmentForUser } from "@/lib/data";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function GET(
+async function handleGET(
   request: Request,
   { params }: { params: Promise<{ attachmentId: string }> }
 ) {
@@ -43,3 +44,5 @@ export async function GET(
     }
   });
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/api/files/[attachmentId]/route.ts:GET");

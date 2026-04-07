@@ -4,12 +4,13 @@ import {
   validateResponseToneMessage
 } from "@/lib/response-tone-checker";
 import { analyzeResponseToneWithClaude } from "@/lib/response-tone-checker-service";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const payload = (await request.json()) as { message?: string; context?: string };
     const message = String(payload.message ?? "");
@@ -37,3 +38,6 @@ export async function POST(request: Request) {
     return publicJsonResponse({ error: "response_tone_analysis_failed" }, { status: 500 });
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/response-tone-checker/route.ts:OPTIONS");
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/public/response-tone-checker/route.ts:POST");

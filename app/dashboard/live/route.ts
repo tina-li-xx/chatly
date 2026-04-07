@@ -1,5 +1,6 @@
 import { subscribeDashboardLive } from "@/lib/live-events";
 import { requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,7 +13,7 @@ function sseHeaders() {
   };
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -50,3 +51,5 @@ export async function GET(request: Request) {
 
   return new Response(stream, { headers: sseHeaders() });
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/dashboard/live/route.ts:GET");

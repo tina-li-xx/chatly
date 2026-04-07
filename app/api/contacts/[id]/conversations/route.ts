@@ -1,7 +1,8 @@
 import { getDashboardContactConversations } from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function GET(
+async function handleGET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -18,3 +19,5 @@ export async function GET(
 
   return jsonOk({ conversations });
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/api/contacts/[id]/conversations/route.ts:GET");

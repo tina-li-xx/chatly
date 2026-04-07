@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { buildClarityBootstrapScript } from "@/lib/clarity-script";
 import { buildDefaultSocialMetadata, getSiteBaseUrl, SITE_SEO_DESCRIPTION, SITE_SEO_TITLE } from "@/lib/site-seo";
 import ChattingScript from "./chatting-script";
+import { ClientErrorReporter } from "./client-error-reporter";
 import GrometricsScript from "./grometrics-script";
 import { ToastProvider } from "./ui/toast-provider";
 import "./globals.css";
@@ -36,7 +37,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <ClientErrorReporter />
+          {children}
+        </ToastProvider>
         <ChattingScript />
         <GrometricsScript />
       </body>

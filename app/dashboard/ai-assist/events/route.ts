@@ -4,6 +4,7 @@ import { insertWorkspaceAiAssistEvent } from "@/lib/repositories/ai-assist-event
 import { hasConversationAccess } from "@/lib/repositories/shared-conversation-repository";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function sanitizeMetadata(input: unknown) {
   if (!input || typeof input !== "object") {
@@ -28,7 +29,7 @@ function sanitizeMetadata(input: unknown) {
   };
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -69,3 +70,5 @@ export async function POST(request: Request) {
 
   return jsonOk({ logged: true }, 202);
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/ai-assist/events/route.ts:POST");

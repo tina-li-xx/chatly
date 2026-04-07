@@ -1,12 +1,13 @@
 import { getSiteByPublicId, updateVisitorTyping } from "@/lib/data";
 import { publishDashboardLive } from "@/lib/live-events";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json();
     const siteId = String(body.siteId ?? "").trim();
@@ -48,3 +49,6 @@ export async function POST(request: Request) {
     return publicJsonResponse({ error: "Unable to update typing state." }, { status: 500 });
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/typing/route.ts:OPTIONS");
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/public/typing/route.ts:POST");

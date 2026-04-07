@@ -10,6 +10,7 @@ import {
   sendConversationMentionNotifications
 } from "@/lib/mention-notifications";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function readIdentity(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,7 +23,7 @@ function readIdentity(request: Request) {
   };
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
   return jsonOk({ ...note, mentionableUsers: [] });
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -170,3 +171,6 @@ async function resolveNoteMentions(
     return { mentions: [], recipients: [], ...emptyMentionResult() };
   }
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/dashboard/visitor-note/route.ts:GET");
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/visitor-note/route.ts:POST");

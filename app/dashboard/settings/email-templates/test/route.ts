@@ -15,8 +15,9 @@ import { resolveConversationTemplateMailFrom } from "@/lib/mail-from-addresses";
 import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { displayNameFromEmail } from "@/lib/user-display";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -95,3 +96,5 @@ export async function POST(request: Request) {
     return jsonError("email-template-test-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/settings/email-templates/test/route.ts:POST");

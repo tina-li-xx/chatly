@@ -3,8 +3,9 @@ import { sendOfflineReplyTemplateEmail } from "@/lib/conversation-template-email
 import { extractUploadedAttachments } from "@/lib/conversation-io";
 import { publishConversationLive, publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -90,3 +91,5 @@ export async function POST(request: Request) {
     return jsonError("reply-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/reply/route.ts:POST");

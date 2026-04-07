@@ -1,6 +1,7 @@
 import { setUserOnboardingStep } from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import type { OnboardingStep } from "@/lib/types";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function nextAllowedStep(value: unknown): Exclude<OnboardingStep, "signup"> | null {
   if (value === "customize" || value === "install" || value === "done") {
@@ -10,7 +11,7 @@ function nextAllowedStep(value: unknown): Exclude<OnboardingStep, "signup"> | nu
   return null;
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -36,3 +37,5 @@ export async function POST(request: Request) {
     return jsonError("onboarding-update-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/onboarding/complete/route.ts:POST");

@@ -2,6 +2,7 @@ import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 // Deploying as a standard Node.js Serverless Function (50MB limit) 
 // instead of Edge (1MB limit) to easily accommodate the 1.2MB of custom .ttf fonts.
@@ -12,7 +13,7 @@ const dmSans400P = readFile(join(process.cwd(), 'public', 'og-fonts', 'DMSans-Re
 const dmSans500P = readFile(join(process.cwd(), 'public', 'og-fonts', 'DMSans-Medium.ttf'));
 const dmSans600P = readFile(join(process.cwd(), 'public', 'og-fonts', 'DMSans-SemiBold.ttf'));
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     
@@ -206,3 +207,5 @@ export async function GET(req: NextRequest) {
     return new Response('Failed to generate image', { status: 500 });
   }
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/api/og/route.tsx:GET");

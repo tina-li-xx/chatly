@@ -1,7 +1,8 @@
 import { updateDashboardSettings } from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -43,3 +44,5 @@ export async function POST(request: Request) {
     return jsonError("settings-save-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/settings/update/route.ts:POST");

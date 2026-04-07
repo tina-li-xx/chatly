@@ -4,8 +4,9 @@ import {
 } from "@/lib/data";
 import { publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -47,3 +48,5 @@ export async function POST(request: Request) {
     return jsonError("assignment-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/assignment/route.ts:POST");

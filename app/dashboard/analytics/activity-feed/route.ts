@@ -6,8 +6,9 @@ import {
   resolveAiAssistActivityFiltersFromSearchParams
 } from "@/lib/data/analytics-ai-assist-activity-query";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -24,3 +25,5 @@ export async function GET(request: Request) {
 
   return jsonOk(slice);
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/dashboard/analytics/activity-feed/route.ts:GET");

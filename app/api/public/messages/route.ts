@@ -3,13 +3,14 @@ import { extractUploadedAttachments, extractVisitorMetadata } from "@/lib/conver
 import { sendWelcomeTemplateEmail } from "@/lib/conversation-template-emails";
 import { publishConversationLive } from "@/lib/live-events";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const contentType = request.headers.get("content-type") || "";
     const isMultipart = contentType.includes("multipart/form-data");
@@ -119,3 +120,6 @@ export async function POST(request: Request) {
     return publicJsonResponse({ error: message }, { status });
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/messages/route.ts:OPTIONS");
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/public/messages/route.ts:POST");

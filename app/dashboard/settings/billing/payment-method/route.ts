@@ -1,7 +1,8 @@
 import { createDashboardBillingPortalSession } from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST() {
+async function handlePOST() {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -22,3 +23,5 @@ export async function POST() {
     return jsonError("billing-portal-session-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/settings/billing/payment-method/route.ts:POST");

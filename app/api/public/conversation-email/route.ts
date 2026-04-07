@@ -1,12 +1,13 @@
 import { sendWelcomeTemplateEmail } from "@/lib/conversation-template-emails";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { saveVisitorConversationEmail } from "@/lib/data";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json();
     const siteId = String(body.siteId ?? "").trim();
@@ -56,3 +57,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/conversation-email/route.ts:OPTIONS");
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/public/conversation-email/route.ts:POST");

@@ -3,8 +3,9 @@ import {
   updateDashboardContactSettings
 } from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -45,3 +46,5 @@ export async function PATCH(request: Request) {
     return jsonError("contact-settings-save-failed", 500);
   }
 }
+
+export const PATCH = withRouteErrorAlerting(handlePATCH, "app/api/contacts/settings/route.ts:PATCH");

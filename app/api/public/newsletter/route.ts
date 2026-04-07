@@ -1,11 +1,12 @@
 import { subscribeToNewsletter } from "@/lib/data";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const payload = (await request.json()) as {
       email?: string;
@@ -39,3 +40,6 @@ export async function POST(request: Request) {
     return publicJsonResponse({ error: "newsletter_subscribe_failed" }, { status: 500 });
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/newsletter/route.ts:OPTIONS");
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/public/newsletter/route.ts:POST");

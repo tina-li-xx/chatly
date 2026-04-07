@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { syncStripeBillingStateFromEvent } from "@/lib/stripe-billing";
 import { getStripe, getStripeWebhookSecret } from "@/lib/stripe";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 export const runtime = "nodejs";
 
@@ -61,7 +62,7 @@ function extractEventContext(event: Stripe.Event) {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const signature = request.headers.get("stripe-signature");
     if (!signature) {
@@ -82,3 +83,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid webhook" }, { status: 400 });
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/stripe/webhook/route.ts:POST");

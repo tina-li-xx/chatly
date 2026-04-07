@@ -1,11 +1,12 @@
 import { getPublicConversationMessages } from "@/lib/data";
 import { subscribeConversationLive } from "@/lib/live-events";
 import { publicNoContentResponse } from "@/lib/public-api";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
@@ -18,7 +19,7 @@ function sseHeaders() {
   };
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
   const siteId = String(searchParams.get("siteId") ?? "").trim();
   const sessionId = String(searchParams.get("sessionId") ?? "").trim();
@@ -65,3 +66,6 @@ export async function GET(request: Request) {
 
   return new Response(stream, { headers: sseHeaders() });
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/conversation-live/route.ts:OPTIONS");
+export const GET = withRouteErrorAlerting(handleGET, "app/api/public/conversation-live/route.ts:GET");

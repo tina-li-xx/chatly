@@ -6,6 +6,7 @@ import { listInboundReplyAuthorizedEmails } from "@/lib/repositories/conversatio
 import { parseSesInboundReply } from "@/lib/ses-inbound";
 import { verifySnsWebhookPayload } from "@/lib/sns-webhook-auth";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function jsonError(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
@@ -25,7 +26,7 @@ function normalizeEmailAddress(value: string | null | undefined) {
   return normalized ? normalized : null;
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const payload = await request.json().catch(() => null);
     const verified = await verifySnsWebhookPayload(payload);
@@ -113,6 +114,8 @@ export async function POST(request: Request) {
     const message =
       error instanceof Error ? error.message : "Unable to process inbound email.";
 
-    return jsonError(message);
+    return jsonError(message, 400);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/email/inbound/route.ts:POST");

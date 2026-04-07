@@ -1,8 +1,9 @@
 import { updateConversationTyping } from "@/lib/data";
 import { publishConversationLive, publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -41,3 +42,5 @@ export async function POST(request: Request) {
 
   return jsonOk({ conversationId, typing });
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/typing/route.ts:POST");

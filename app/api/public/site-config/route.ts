@@ -1,12 +1,13 @@
 import { extractVisitorMetadata } from "@/lib/conversation-io";
 import { getSiteWidgetConfig, recordSiteWidgetSeen } from "@/lib/data";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const siteId = String(searchParams.get("siteId") ?? "").trim();
@@ -55,3 +56,6 @@ export async function GET(request: Request) {
     return publicJsonResponse({ error: "Unable to load site config." }, { status: 500 });
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/site-config/route.ts:OPTIONS");
+export const GET = withRouteErrorAlerting(handleGET, "app/api/public/site-config/route.ts:GET");

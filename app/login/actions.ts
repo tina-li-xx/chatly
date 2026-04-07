@@ -13,7 +13,7 @@ import { onboardingPathForStep } from "@/lib/data";
 import { getPublicAppUrl } from "@/lib/env";
 import { persistPreferredTimeZoneForUser } from "@/lib/user-timezone-preference";
 import { acceptTeamInvite } from "@/lib/workspace-access";
-import { formatAuthError, isExpectedAuthError } from "./action-errors";
+import { resolveExpectedAuthActionError, wrapAuthAction } from "./action-error-alerting";
 import type { AuthActionState } from "./action-types";
 import { getOwnerPostAuthPath } from "./post-auth-path";
 
@@ -46,16 +46,45 @@ async function sendOwnerSignupFollowUps(user: { id: string; email: string }) {
   }
 }
 
-export async function loginAction(
+function readInviteContext(formData: FormData) {
+  return {
+    inviteId: String(formData.get("inviteId") ?? "").trim(),
+    timeZone: String(formData.get("timezone") ?? "").trim()
+  };
+}
+
+function readLoginFields(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "").trim();
+  return {
+    ...readInviteContext(formData),
+    email,
+    password,
+    redirectTo: String(formData.get("redirectTo") ?? "").trim(),
+    fields: { ...emptyFields(), email, password }
+  };
+}
+
+function readSignupFields(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
+  const referralCode = String(formData.get("referralCode") ?? "").trim();
+  return {
+    ...readInviteContext(formData),
+    email,
+    password,
+    websiteUrl,
+    referralCode,
+    fields: { email, password, websiteUrl, referralCode }
+  };
+}
+
+async function handleLoginAction(
   _previousState: AuthActionState,
   formData: FormData
 ): Promise<AuthActionState> {
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "").trim();
-  const inviteId = String(formData.get("inviteId") ?? "").trim();
-  const redirectTo = String(formData.get("redirectTo") ?? "").trim();
-  const timeZone = String(formData.get("timezone") ?? "").trim();
-  const fields = { ...emptyFields(), email, password };
+  const { email, password, inviteId, redirectTo, timeZone, fields } = readLoginFields(formData);
 
   if (!email) return { ok: false, error: "Work email is required.", nextPath: null, fields };
   if (!password) return { ok: false, error: "Password is required.", nextPath: null, fields };
@@ -87,31 +116,26 @@ export async function loginAction(
 
     return { ok: true, error: null, nextPath, fields };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unexpected login error.";
-    if (!isExpectedAuthError(message)) {
-      console.error("loginAction failed", error);
+    const formattedError = resolveExpectedAuthActionError(error, "login");
+    if (!formattedError) {
+      throw error;
     }
 
     return {
       ok: false,
-      error: formatAuthError(message, "login"),
+      error: formattedError,
       nextPath: null,
       fields
     };
   }
 }
 
-export async function signupAction(
+async function handleSignupAction(
   _previousState: AuthActionState,
   formData: FormData
 ): Promise<AuthActionState> {
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
-  const websiteUrl = String(formData.get("websiteUrl") ?? "").trim();
-  const referralCode = String(formData.get("referralCode") ?? "").trim();
-  const inviteId = String(formData.get("inviteId") ?? "").trim();
-  const timeZone = String(formData.get("timezone") ?? "").trim();
-  const fields = { email, password, websiteUrl, referralCode };
+  const { email, password, websiteUrl, referralCode, inviteId, timeZone, fields } =
+    readSignupFields(formData);
 
   try {
     const user = inviteId
@@ -141,16 +165,30 @@ export async function signupAction(
       fields
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unexpected signup error.";
-    if (!isExpectedAuthError(message)) {
-      console.error("signupAction failed", error);
+    const formattedError = resolveExpectedAuthActionError(error, "signup");
+    if (!formattedError) {
+      throw error;
     }
 
     return {
       ok: false,
-      error: formatAuthError(message, "signup"),
+      error: formattedError,
       nextPath: null,
       fields
     };
   }
 }
+
+export const loginAction = wrapAuthAction(
+  "app/login/actions.ts:loginAction",
+  "login",
+  readLoginFields,
+  handleLoginAction
+);
+
+export const signupAction = wrapAuthAction(
+  "app/login/actions.ts:signupAction",
+  "signup",
+  readSignupFields,
+  handleSignupAction
+);

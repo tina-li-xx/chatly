@@ -29,6 +29,12 @@ export function isExpectedAuthError(message: string) {
     message === "MISSING_EMAIL" ||
     message === "MISSING_DOMAIN" ||
     message === "INVALID_REFERRAL_CODE" ||
-    message === "SELF_REFERRAL"
+    message === "SELF_REFERRAL" ||
+    message === "INVITE_NOT_FOUND" ||
+    message === "INVITE_EXPIRED" ||
+    message === "INVITE_REVOKED" ||
+    message === "INVITE_ALREADY_ACCEPTED" ||
+    message === "INVITE_EMAIL_MISMATCH" ||
+    message === "INVITE_OWNER_CONFLICT"
   );
 }

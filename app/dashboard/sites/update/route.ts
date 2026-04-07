@@ -3,8 +3,9 @@ import { getBillingPlanFeatures, normalizeBillingPlanKey } from "@/lib/billing-p
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { findBillingAccountRow } from "@/lib/repositories/billing-repository";
 import { createDefaultOperatingHours, normalizeSiteDomain } from "@/lib/widget-settings";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -93,3 +94,5 @@ export async function POST(request: Request) {
 
   return jsonOk({ siteId, widgetTitle: updated });
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/sites/update/route.ts:POST");

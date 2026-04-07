@@ -5,6 +5,7 @@ import {
 } from "@/lib/data";
 import { isGrowthContactSalesTeamSize } from "@/lib/pricing";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function readSeatQuantity(value: unknown) {
   if (typeof value !== "number" || !Number.isFinite(value)) {
@@ -14,7 +15,7 @@ function readSeatQuantity(value: unknown) {
   return Math.max(1, Math.floor(value));
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
     return auth.response;
@@ -67,3 +68,5 @@ export async function POST(request: Request) {
     return jsonError("billing-plan-update-failed", 500);
   }
 }
+
+export const POST = withRouteErrorAlerting(handlePOST, "app/dashboard/settings/billing/plan/route.ts:POST");

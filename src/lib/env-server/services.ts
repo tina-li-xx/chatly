@@ -27,6 +27,8 @@ type MiniMaxConfig = {
   baseUrl: string;
 };
 
+const DEFAULT_ADMIN_ALERT_EMAIL = "tina@usechatting.com";
+
 export function getAuthSecret(params?: {
   environment?: RuntimeEnvironment;
   source?: ServerEnvSource;
@@ -57,6 +59,10 @@ export function getDatabaseConfig(params?: {
 
 export function getAppDisplayName(source: ServerEnvSource = process.env) {
   return getOptionalServerEnv("APP_NAME", source)!;
+}
+
+export function getAdminAlertEmail(source: ServerEnvSource = process.env) {
+  return getOptionalServerEnv("ADMIN_ALERT_EMAIL", source) || DEFAULT_ADMIN_ALERT_EMAIL;
 }
 
 export function getReplyDomain(source: ServerEnvSource = process.env) {

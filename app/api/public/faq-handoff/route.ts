@@ -1,12 +1,13 @@
 import { handoffPublicConversationToTeam } from "@/lib/data";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export function OPTIONS() {
+function handleOPTIONS() {
   return publicNoContentResponse();
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const body = await request.json();
     const siteId = String(body.siteId ?? "").trim();
@@ -40,3 +41,6 @@ export async function POST(request: Request) {
     return publicJsonResponse({ error: "Unable to hand off this conversation." }, { status: 500 });
   }
 }
+
+export const OPTIONS = withRouteErrorAlerting(handleOPTIONS, "app/api/public/faq-handoff/route.ts:OPTIONS");
+export const POST = withRouteErrorAlerting(handlePOST, "app/api/public/faq-handoff/route.ts:POST");

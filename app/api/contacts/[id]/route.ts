@@ -5,8 +5,9 @@ import {
   updateDashboardContact
 } from "@/lib/data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
-export async function GET(
+async function handleGET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -33,7 +34,7 @@ export async function GET(
   });
 }
 
-export async function PATCH(
+async function handlePATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -101,7 +102,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
+async function handleDELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -118,3 +119,7 @@ export async function DELETE(
 
   return jsonOk({});
 }
+
+export const GET = withRouteErrorAlerting(handleGET, "app/api/contacts/[id]/route.ts:GET");
+export const PATCH = withRouteErrorAlerting(handlePATCH, "app/api/contacts/[id]/route.ts:PATCH");
+export const DELETE = withRouteErrorAlerting(handleDELETE, "app/api/contacts/[id]/route.ts:DELETE");
