@@ -16,7 +16,7 @@ import type {
 } from "@/lib/types";
 
 export type InstallTab = "code" | "nextjs" | "wordpress" | "shopify" | "other";
-export type OnboardingFlowStep = Exclude<OnboardingStep, "signup" | "team">;
+export type OnboardingFlowStep = Exclude<OnboardingStep, "signup" | "team" | "done">;
 export type OnboardingFlowProps = {
   initialStep: OnboardingFlowStep;
   initialSite: Site | null;
@@ -49,8 +49,7 @@ export type WidgetDraft = {
 
 export const STEP_META: Array<{ step: OnboardingFlowStep; title: string; duration: string }> = [
   { step: "customize", title: "Customize", duration: "60 sec" },
-  { step: "install", title: "Install", duration: "2-3 min" },
-  { step: "done", title: "Done", duration: "Ready" }
+  { step: "install", title: "Install", duration: "2-3 min" }
 ];
 
 export const INSTALL_TABS: Array<{ value: InstallTab; label: string }> = [

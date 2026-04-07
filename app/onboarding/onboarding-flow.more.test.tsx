@@ -9,7 +9,6 @@ async function loadFlow() {
   const captures: Record<string, unknown> = {};
   vi.doMock("react", () => reactMocks.moduleFactory());
   vi.doMock("next/navigation", () => ({ useRouter: () => routerMocks }));
-  vi.doMock("./onboarding-done-screen", () => ({ OnboardingDoneScreen: () => <div>done-screen</div> }));
   vi.doMock("./onboarding-flow-sections", () => ({
     OnboardingLeftPanel: (props: unknown) => ((captures.left = props), <div>left-panel</div>)
   }));

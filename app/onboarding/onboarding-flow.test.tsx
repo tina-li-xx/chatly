@@ -15,9 +15,6 @@ async function loadFlow() {
     useRouter: () => routerMocks
   }));
   vi.doMock("@/lib/grometrics", () => ({ trackGrometricsEvent }));
-  vi.doMock("./onboarding-done-screen", () => ({
-    OnboardingDoneScreen: () => <div>done-screen</div>
-  }));
   vi.doMock("./onboarding-flow-sections", () => ({
     OnboardingLeftPanel: (props: unknown) => ((captures.left = props), <div>left-panel</div>)
   }));
@@ -35,13 +32,6 @@ describe("onboarding flow", () => {
     vi.clearAllMocks();
     vi.stubGlobal("fetch", vi.fn());
     vi.stubGlobal("navigator", { clipboard: { writeText: vi.fn().mockResolvedValue(undefined) } });
-  });
-
-  it("renders the done screen when the active step is done", async () => {
-    const { OnboardingFlow, reactMocks } = await loadFlow();
-    reactMocks.beginRender();
-
-    expect(renderToStaticMarkup(<OnboardingFlow initialStep="done" initialSite={null} />)).toContain("done-screen");
   });
 
   it("surfaces a missing workspace error before customize submit", async () => {
@@ -147,7 +137,7 @@ describe("onboarding flow", () => {
     expect((captures.left as { verificationMessage: string }).verificationMessage).toContain("https://docs.usechatting.com/pricing");
 
     await (captures.left as { onSkipInstall: () => Promise<void> }).onSkipInstall();
-    expect(routerMocks.replace).toHaveBeenCalledWith("/onboarding?step=done");
+    expect(routerMocks.replace).toHaveBeenCalledWith("/dashboard");
 
     await (captures.left as { onCompleteAndGo: (path: string) => Promise<void> }).onCompleteAndGo("/dashboard/widget");
     expect(routerMocks.replace).toHaveBeenCalledWith("/dashboard/widget");

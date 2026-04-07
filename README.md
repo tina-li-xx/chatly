@@ -383,3 +383,5 @@ The inbound route now:
 - handles SES `Received` notifications
 - parses raw MIME email content with `mailparser`
 - strips common quoted reply blocks before saving the new user message
+- Onboarding now finishes directly in the dashboard, and the old standalone done screen no longer appears as a separate end state.
+- Onboarding now resolves completed workspaces straight to the dashboard, and the old `/onboarding?step=done` success screen has been removed.

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { trackGrometricsEvent } from "@/lib/grometrics";
 import { DEFAULT_BRAND_COLOR } from "@/lib/widget-settings";
 import type { Site } from "@/lib/types";
-import { OnboardingDoneScreen } from "./onboarding-done-screen";
 import { OnboardingLeftPanel } from "./onboarding-flow-sections";
 import {
   buildNextJsSnippet,
@@ -228,7 +227,7 @@ export function OnboardingFlow({
     }
   }
 
-  async function handleFinish() {
+  async function handleSkipInstall() {
     await fetch("/onboarding/complete", {
       method: "POST",
       headers: {
@@ -237,16 +236,14 @@ export function OnboardingFlow({
       body: JSON.stringify({ step: "done" })
     });
 
-    setActiveStep("done");
-    setVerificationMessage("You can finish installation later from Widget settings.");
     trackGrometricsEvent("onboarding_completed", {
       source: "onboarding_install",
-      destination: "done",
+      destination: "/dashboard",
       installation_verified: verificationState === "verified"
     });
 
     startTransition(() => {
-      router.replace("/onboarding?step=done" as never);
+      router.replace("/dashboard" as never);
     });
   }
 
@@ -276,9 +273,6 @@ export function OnboardingFlow({
   const showRightPanel = activeStep === "customize" || (activeStep === "install" && showInstallSuccess);
   const verifiedSiteHref = normalizeSiteHref(verifiedUrl ?? domain);
   const verifiedSiteUrl = siteDisplayUrl(verifiedUrl ?? domain);
-  if (activeStep === "done") {
-    return <OnboardingDoneScreen />;
-  }
 
   return (
     <main className="min-h-dvh bg-slate-50 p-3 sm:p-4 lg:h-dvh lg:overflow-hidden lg:p-6">
@@ -341,7 +335,7 @@ export function OnboardingFlow({
           onInstallTabChange={setInstallTab}
           onCopyCode={handleCopyCode}
           onVerifyInstallation={handleVerifyInstallation}
-          onSkipInstall={handleFinish}
+          onSkipInstall={handleSkipInstall}
           onCompleteAndGo={completeOnboardingAndGo}
         />
 

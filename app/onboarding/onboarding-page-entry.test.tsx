@@ -54,7 +54,7 @@ describe("onboarding page and entry", () => {
     });
   });
 
-  it("redirects completed onboarding back to the dashboard unless explicitly requesting done", async () => {
+  it("redirects completed onboarding back to the dashboard even when done is requested", async () => {
     mocks.getCurrentUser.mockResolvedValueOnce({ id: "user_1" });
     mocks.getOnboardingData.mockResolvedValueOnce({ step: "done", site: { id: "site_1" } });
     mocks.redirect.mockImplementation((url: string) => {
@@ -63,6 +63,6 @@ describe("onboarding page and entry", () => {
 
     const { OnboardingEntry } = await import("./onboarding-entry");
 
-    await expect(OnboardingEntry({ requestedStep: "install" })).rejects.toThrow("/dashboard");
+    await expect(OnboardingEntry({ requestedStep: "done" })).rejects.toThrow("/dashboard");
   });
 });

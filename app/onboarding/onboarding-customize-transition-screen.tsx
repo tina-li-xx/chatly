@@ -44,7 +44,7 @@ export function OnboardingCustomizeTransitionScreen({
 
           <div className="mx-auto flex w-full max-w-[460px] flex-1 flex-col justify-center py-6 lg:py-8">
             <div className="mb-12 flex items-start">
-              {["Customize", "Install", "Done"].map((label, index) => (
+              {["Customize", "Install"].map((label, index) => (
                 <div key={label} className="flex min-w-0 flex-1 items-start">
                   <div className="flex shrink-0 flex-col items-center text-center">
                     <div
@@ -57,7 +57,7 @@ export function OnboardingCustomizeTransitionScreen({
                       {label}
                     </p>
                   </div>
-                  {index < 2 ? <div className="mx-3 mt-[6px] h-[2px] flex-1 bg-slate-200" /> : null}
+                  {index < 1 ? <div className="mx-3 mt-[6px] h-[2px] flex-1 bg-slate-200" /> : null}
                 </div>
               ))}
             </div>

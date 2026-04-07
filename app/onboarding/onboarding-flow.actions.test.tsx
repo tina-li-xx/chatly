@@ -11,7 +11,6 @@ async function loadFlow() {
   vi.doMock("react", () => reactMocks.moduleFactory());
   vi.doMock("next/navigation", () => ({ useRouter: () => routerMocks }));
   vi.doMock("@/lib/grometrics", () => ({ trackGrometricsEvent }));
-  vi.doMock("./onboarding-done-screen", () => ({ OnboardingDoneScreen: () => <div>done-screen</div> }));
   vi.doMock("./onboarding-flow-sections", () => ({
     OnboardingLeftPanel: (props: unknown) => ((captures.left = props), <div>left-panel</div>)
   }));
@@ -94,7 +93,7 @@ describe("onboarding flow actions", () => {
 
     expect(trackGrometricsEvent).toHaveBeenNthCalledWith(2, "onboarding_completed", {
       source: "onboarding_install",
-      destination: "done",
+      destination: "/dashboard",
       installation_verified: true
     });
     expect(trackGrometricsEvent).toHaveBeenNthCalledWith(3, "onboarding_completed", {
@@ -102,7 +101,7 @@ describe("onboarding flow actions", () => {
       destination: "/dashboard/inbox",
       installation_verified: true
     });
-    expect(routerMocks.replace).toHaveBeenCalledWith("/onboarding?step=done");
+    expect(routerMocks.replace).toHaveBeenCalledWith("/dashboard");
     expect(routerMocks.replace).toHaveBeenCalledWith("/dashboard/inbox");
     expect(fetch).toHaveBeenCalledWith("/onboarding/complete", expect.any(Object));
   });

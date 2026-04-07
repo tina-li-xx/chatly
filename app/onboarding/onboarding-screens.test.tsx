@@ -8,7 +8,6 @@ vi.mock("next/link", () => ({
 
 import Loading from "./loading";
 import { OnboardingCustomizeTransitionScreen } from "./onboarding-customize-transition-screen";
-import { OnboardingDoneScreen } from "./onboarding-done-screen";
 
 describe("onboarding screens", () => {
   it("renders the loading shell through the customize transition screen", () => {
@@ -33,15 +32,5 @@ describe("onboarding screens", () => {
     expect(html).toContain("docs.usechatting.com");
     expect(html).toContain("Talk to the team");
     expect(html).toContain("Continue");
-  });
-
-  it("renders the done screen calls to action", () => {
-    const html = renderToStaticMarkup(<OnboardingDoneScreen />);
-
-    expect(html).toContain("You&#x27;re all set!");
-    expect(html).toContain("Open inbox");
-    expect(html).toContain('href="/dashboard/team"');
-    expect(html).toContain('href="/dashboard/widget"');
-    expect(html).toContain("Take a product tour");
   });
 });

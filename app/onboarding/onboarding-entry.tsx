@@ -5,18 +5,13 @@ import { normalizeOnboardingStep } from "@/lib/data/onboarding";
 import type { OnboardingStep, Site } from "@/lib/types";
 import { OnboardingFlow } from "./onboarding-flow";
 
-type OnboardingFlowStep = Exclude<OnboardingStep, "signup" | "team">;
+type OnboardingFlowStep = Exclude<OnboardingStep, "signup" | "team" | "done">;
 
 function resolveInitialStep(input: {
   requestedStep: string | undefined;
-  persistedStep: OnboardingStep;
+  persistedStep: OnboardingFlowStep;
 }): OnboardingFlowStep {
   const requestedStep = normalizeOnboardingStep(input.requestedStep, input.persistedStep) as OnboardingFlowStep;
-
-  if (input.persistedStep === "done") {
-    return "done";
-  }
-
   const normalizedPersistedStep = normalizeOnboardingStep(input.persistedStep, "customize") as OnboardingFlowStep;
   const order = ["customize", "install"] as const;
   const persistedIndex = order.indexOf(normalizedPersistedStep as (typeof order)[number]);
@@ -49,14 +44,14 @@ export async function OnboardingEntry({
     });
   }
 
+  if (onboarding.step === "done") {
+    redirect("/dashboard");
+  }
+
   const initialStep = resolveInitialStep({
     requestedStep,
     persistedStep: onboarding.step
   });
-
-  if (onboarding.step === "done" && requestedStep !== "done") {
-    redirect("/dashboard");
-  }
 
   return (
     <OnboardingFlow

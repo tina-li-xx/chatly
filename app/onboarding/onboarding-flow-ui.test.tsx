@@ -49,7 +49,7 @@ describe("onboarding flow ui", () => {
     expect(html).toContain("Test it yourself");
     expect(html).toContain("Customize");
     expect(html).toContain("Install");
-    expect(html).toContain("Done");
+    expect(html).not.toContain("Done");
   });
 
   it("renders preview widgets across avatar and verification states", () => {
