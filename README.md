@@ -20,6 +20,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## Recent Updates
 
 - Dashboard now includes an internal publishing queue and preview workspace, and the Publishing nav only appears for the designated reviewer account.
+- Scheduled April and May blog backlog posts now cover Gorgias, customer-support software, Zendesk alternatives, low-conversion diagnosis, small ecommerce support workflow, and Shopify live-chat growth uses.
 - AI Assist is now built into the inbox with reply suggestions, summaries, rewrites, suggested tags, starter usage limits, and a full activity log.
 - Dashboard home, inbox, and thread loading now do less work up front so the main team views open faster.
 - Added a public guides area plus a dedicated inbox shortcuts guide, with direct shortcuts-guide entry points from the dashboard inbox.
@@ -138,6 +139,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## 🚀 Key Modules
 
 ### Public Site & Auth
+- The marketing blog backlog now includes scheduled comparison, conversion, and ecommerce workflow posts that unlock from their target publish dates across April and May.
 - The public site now includes a dedicated guides area, and the inbox shortcuts guide is linked directly from the dashboard for easier discovery.
 - Utility public routes like feedback, verification, preference links, and hosted help-center pages now emit explicit `noindex` metadata, while legal pages expose canonicals and the legacy ROI calculator path permanently redirects to its indexed free-tool URL.
 - Shared landing navigation and footer links now stay aligned with Next route typing during production builds.

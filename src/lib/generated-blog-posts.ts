@@ -6,26 +6,38 @@ import { addLiveChatToShopifyPost } from "./blog-post-add-live-chat-to-shopify";
 import { afterHoursLiveChatEcommerceLeadsPost } from "./blog-post-after-hours-live-chat-ecommerce-leads";
 import { bestIntercomAlternativesSmallTeamsPost } from "./blog-post-best-intercom-alternatives-small-teams";
 import { bestLiveChatForStartupsPost } from "./blog-post-best-live-chat-for-startups";
+import { bestLiveChatSoftwareCustomerSupportPost } from "./blog-post-best-live-chat-software-customer-support";
 import { bestLiveChatToolsSmallBusinessPost } from "./blog-post-best-live-chat-tools-small-business";
 import { chatlyVsIntercomPost } from "./blog-post-chatly-vs-intercom";
 import { chatlyVsZendeskPost } from "./blog-post-chatly-vs-zendesk";
+import { chattingVsGorgiasPost } from "./blog-post-chatting-vs-gorgias";
 import { ecommerceLiveChatSupportPost } from "./blog-post-ecommerce-live-chat-support";
 import { liveChatSoftwareSmallTeamsPost } from "./blog-post-live-chat-software-small-teams";
 import { liveChatVsContactFormsPost } from "./blog-post-live-chat-vs-contact-forms";
 import { reduceResponseTimeUnderTwoMinutesPost } from "./blog-post-reduce-response-time-under-2-minutes";
+import { shopifyLiveChatGrowthUsesPost } from "./blog-post-shopify-live-chat-growth-uses";
+import { smallEcommerceCustomerSupportWorkflowPost } from "./blog-post-small-ecommerce-customer-support-workflow";
+import { trafficLowConversionPost } from "./blog-post-traffic-low-conversion";
 import { wordpressLiveChatSetupPost } from "./blog-post-wordpress-live-chat-setup";
+import { zendeskAlternativesSmallTeamsPost } from "./blog-post-zendesk-alternatives-small-teams";
 
 export const generatedBlogPosts: BlogPost[] = [
   addLiveChatToShopifyPost,
   afterHoursLiveChatEcommerceLeadsPost,
   bestIntercomAlternativesSmallTeamsPost,
   bestLiveChatForStartupsPost,
+  bestLiveChatSoftwareCustomerSupportPost,
   bestLiveChatToolsSmallBusinessPost,
   chatlyVsIntercomPost,
   chatlyVsZendeskPost,
+  chattingVsGorgiasPost,
   ecommerceLiveChatSupportPost,
   liveChatSoftwareSmallTeamsPost,
   liveChatVsContactFormsPost,
   reduceResponseTimeUnderTwoMinutesPost,
+  shopifyLiveChatGrowthUsesPost,
+  smallEcommerceCustomerSupportWorkflowPost,
+  trafficLowConversionPost,
   wordpressLiveChatSetupPost,
+  zendeskAlternativesSmallTeamsPost,
 ];

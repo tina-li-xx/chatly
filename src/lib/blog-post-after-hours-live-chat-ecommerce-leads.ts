@@ -20,6 +20,6 @@ export const afterHoursLiveChatEcommerceLeadsPost: BlogPost = {
     alt: "Illustrated night-time storefront dashboard with an active chat bubble capturing an after-hours lead."
   },
   aliases: ["after-hours-live-chat-for-e-commerce-how-small-stores-capture-better-leads"],
-  relatedSlugs: ["ecommerce-live-chat-support", "shopify-live-chat", "live-chat-vs-contact-forms"],
+  relatedSlugs: ["ecommerce-live-chat-support", "chatting-vs-gorgias", "live-chat-vs-contact-forms"],
   sections: [...afterHoursLiveChatEcommerceLeadsPrimarySections, ...afterHoursLiveChatEcommerceLeadsSecondarySections]
 };

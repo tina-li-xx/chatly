@@ -4,6 +4,8 @@ import {
   getBlogPostBySlug,
   getBlogPostsByAuthor,
   getFeaturedBlogPost,
+  getQueuedBlogPostBySlug,
+  getQueuedBlogPosts,
   getRelatedBlogPosts
 } from "@/lib/blog-data";
 
@@ -54,5 +56,31 @@ describe("blog data", () => {
   it("resolves the Zendesk retarget slug and the new startups article", () => {
     expect(getBlogPostBySlug("zendesk-vs-simple-live-chat")?.slug).toBe("chatting-vs-zendesk");
     expect(getBlogPostBySlug("best-live-chat-for-startups")?.slug).toBe("best-live-chat-for-startups");
+  });
+
+  it("keeps draft backlog posts out of public blog lookups", () => {
+    expect(getBlogPostBySlug("chatting-vs-gorgias")).toBeNull();
+    expect(getBlogPostBySlug("best-live-chat-software-customer-support")).toBeNull();
+    expect(getBlogPostBySlug("zendesk-alternatives-small-teams")).toBeNull();
+    expect(getBlogPostBySlug("traffic-low-conversion")).toBeNull();
+    expect(getBlogPostBySlug("small-ecommerce-customer-support-workflow")).toBeNull();
+    expect(getBlogPostBySlug("shopify-live-chat-growth-uses")).toBeNull();
+  });
+
+  it("returns queued posts with hydrated author and category details", () => {
+    expect(getQueuedBlogPosts().map((post) => post.slug)).toEqual([
+      "chatting-vs-gorgias",
+      "best-live-chat-software-customer-support",
+      "zendesk-alternatives-small-teams",
+      "traffic-low-conversion",
+      "small-ecommerce-customer-support-workflow",
+      "shopify-live-chat-growth-uses"
+    ]);
+    expect(getQueuedBlogPosts().every((post) => post.author.name && post.category.label)).toBe(true);
+  });
+
+  it("resolves queued posts by slug and alias", () => {
+    expect(getQueuedBlogPostBySlug("zendesk-alternatives-small-teams")?.slug).toBe("zendesk-alternatives-small-teams");
+    expect(getQueuedBlogPostBySlug("zendesk-alternative-for-small-teams")?.slug).toBe("zendesk-alternatives-small-teams");
   });
 });

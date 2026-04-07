@@ -20,6 +20,6 @@ export const bestLiveChatToolsSmallBusinessPost: BlogPost = {
     alt: "Illustrated comparison board showing five live chat tool cards for small businesses."
   },
   aliases: ["5-best-live-chat-tools-worth-looking-at-if-youre-a-small-business"],
-  relatedSlugs: ["live-chat-software-small-teams", "best-live-chat-for-startups", "intercom-alternatives-small-business"],
+  relatedSlugs: ["best-live-chat-software-customer-support", "live-chat-software-small-teams", "best-live-chat-for-startups"],
   sections: [...bestLiveChatToolsSmallBusinessPrimarySections, ...bestLiveChatToolsSmallBusinessSecondarySections]
 };
