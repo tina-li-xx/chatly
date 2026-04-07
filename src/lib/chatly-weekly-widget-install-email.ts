@@ -1,5 +1,6 @@
 import {
   joinEmailText,
+  renderBulletList,
   renderChattingEmailPage,
   renderParagraph,
   renderSmallText,
@@ -18,7 +19,14 @@ export function renderWeeklyWidgetInstallEmail(input: {
     subject: `Install your widget to start getting weekly reports`,
     bodyText: joinEmailText([
       `${input.teamName} has not installed the Chatting widget yet.`,
-      "Install the widget to start collecting conversations and unlock the weekly report.",
+      "Your inbox stays empty until the widget is live.",
+      "Install the widget on your site so visitors can start conversations, your team can reply faster, and Chatting can begin tracking what's actually happening.",
+      "Once it's live, you'll start seeing:",
+      "- new conversations in your inbox",
+      "- where visitors were when they reached out",
+      "- first-response time and weekly activity",
+      "- after-hours questions you can follow up on later",
+      "Once it's live, Chatting will switch from setup guidance to real conversation data.",
       `Install widget → ${input.widgetUrl}`,
       `Manage report settings → ${input.settingsUrl}`
     ]),
@@ -32,14 +40,22 @@ export function renderWeeklyWidgetInstallEmail(input: {
           html: renderStack(
             [
               renderTextBlock({
-                html: "Your weekly report is ready as soon as the widget is live.",
+                html: "Your inbox stays empty until the widget is live.",
                 color: "#0F172A",
                 fontSize: 22,
                 lineHeight: "1.3",
                 fontWeight: 600
               }),
-              renderParagraph("Install the widget on your site so Chatting can capture conversations, response times, and page activity for the next Monday report."),
-              renderSmallText("Once the widget is live, this report will switch from setup guidance to real performance data.")
+              renderParagraph(
+                "Install the widget on your site so visitors can start conversations, your team can reply faster, and Chatting can begin tracking what's actually happening."
+              ),
+              renderBulletList([
+                "new conversations in your inbox",
+                "where visitors were when they reached out",
+                "first-response time and weekly activity",
+                "after-hours questions you can follow up on later"
+              ]),
+              renderSmallText("Once it's live, Chatting will switch from setup guidance to real conversation data.")
             ],
             { gap: "12px" }
           ),
