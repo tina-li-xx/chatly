@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { getPublicAppUrl } from "@/lib/env";
 import type { CurrentUser } from "@/lib/types";
 
 type JsonRouteUserResult =
@@ -10,8 +11,8 @@ type JsonRouteUserResult =
       response: NextResponse;
     };
 
-export function redirect303(request: Request, path: string) {
-  return NextResponse.redirect(new URL(path, request.url), {
+export function redirect303(_request: Request, path: string) {
+  return NextResponse.redirect(new URL(path, getPublicAppUrl()), {
     status: 303
   });
 }

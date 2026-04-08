@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Logout and auth redirects now use the configured app URL so sign-out no longer bounces people to container-only hosts like `0.0.0.0:8080`.
 - Centralized admin error alerts now cover wrapped routes, server actions, browser exceptions, and process-level failures, with dev/build checks that block new unwrapped server entry points.
 - Inbox contact tags now add on Enter, update optimistically, and sit in a cleaner shared tags block so teammates can edit thread context faster.
 - Slack, Zapier, Shopify, and webhook settings now live in one integrations area with real connection state, live backend routes, and working Zapier triggers/actions for teams building automations around Chatting.
@@ -142,6 +143,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## 🚀 Key Modules
 
 ### Public Site & Auth
+- Logout and auth redirects now resolve from the configured public app URL so container runtime hosts do not leak into browser redirects.
 - The marketing blog backlog now includes scheduled comparison, conversion, and ecommerce workflow posts that unlock from their target publish dates across April and May.
 - The public site now includes a dedicated guides area, and the inbox shortcuts guide is linked directly from the dashboard for easier discovery.
 - Utility public routes like feedback, verification, preference links, and hosted help-center pages now emit explicit `noindex` metadata, while legal pages expose canonicals and the legacy ROI calculator path permanently redirects to its indexed free-tool URL.
