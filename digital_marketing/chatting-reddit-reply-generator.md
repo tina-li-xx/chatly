@@ -42,6 +42,9 @@ mention chatting when the post is about:
 - ecommerce "best live chat" threads where the pain is pre-purchase questions, but shopify integration and mobile/on-the-go workflows need to be qualified instead of assumed
 - ecommerce live chat recommendation threads where shopify is a plus, not the whole requirement, and the stronger chatting angle is easy setup plus email follow-up
 - small-business ecommerce live chat threads where the real pain is workload, after-hours coverage, and staying personal without hiring a full team
+- live chat comparison-list threads asking what people actually use, where chatting should be positioned as the focused option instead of the all-in-one suite
+- all-in-one live chat/support threads where the post asks for ticketing too, but the chatting angle must stay qualified as simpler website chat instead of a full help desk replacement
+- growth-stage support threads where email and basic inboxes are getting messy, and chatting should be positioned as the cleaner in-between step before a heavier help desk
 
 ## VERIFIED SAFE CLAIMS
 
@@ -71,6 +74,7 @@ only mention these when the post clearly cares about them:
 
 skip the reply when the post is mainly about:
 - ai chatbots replacing humans
+- intercom-alternative threads where the main ask is fin-level ai chatbot accuracy or ai resolution parity
 - enterprise ticketing or support ops depth
 - crm, email marketing, product analytics, or social tools
 - marketplace-only selling like amazon or etsy without their own website
@@ -128,6 +132,10 @@ right: "after reviews and shipping info were clear, the next leak was unanswered
 - "i use chatting at https://usechatting.com because it made shipping questions, product-detail questions, and custom-order chats easier to manage without turning support into a whole project"
 - "i use chatting at https://usechatting.com because it let me stay personal during the hours i could reply and still capture the question cleanly after hours"
 - "if deep shopify integration is a must, i'd verify that first, but for easy setup and clean email follow-up this has been a good fit for me"
+- "i use chatting at https://usechatting.com because i wanted the focused version, solid website chat and a shared inbox, not a whole help desk suite"
+- "if deep ticketing is a must, i'd look at heavier help desk tools, but for live chat, shared inbox, and useful reporting i use chatting at https://usechatting.com"
+- "if fin-level ai resolution is the requirement, i'd keep looking, but if you want a human-first website chat layer instead of paying intercom money for the whole stack, i use chatting at https://usechatting.com"
+- "once email and basic inboxes started getting messy, i use chatting at https://usechatting.com as the cleaner step up before moving to a heavier help desk"
 
 ## BAD WAYS TO MENTION CHATTING
 
