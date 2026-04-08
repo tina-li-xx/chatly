@@ -23,6 +23,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Centralized admin error alerts now cover wrapped routes, server actions, browser exceptions, and process-level failures, with dev/build checks that block new unwrapped server entry points.
 - Inbox contact tags now add on Enter, update optimistically, and sit in a cleaner shared tags block so teammates can edit thread context faster.
 - Slack, Zapier, Shopify, and webhook settings now live in one integrations area with real connection state, live backend routes, and working Zapier triggers/actions for teams building automations around Chatting.
+- The public guides library now includes dedicated Slack, Zapier, Shopify, and webhooks setup walkthroughs so teams can get integrations live without guessing through the setup.
 - Dashboard now includes an internal publishing queue and preview workspace, and the Publishing nav only appears for the designated reviewer account.
 - Scheduled April and May blog backlog posts now cover Gorgias, customer-support software, Zendesk alternatives, low-conversion diagnosis, small ecommerce support workflow, and Shopify live-chat growth uses.
 - AI Assist is now built into the inbox with reply suggestions, summaries, rewrites, suggested tags, starter usage limits, and a full activity log.
@@ -154,6 +155,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Marketing SEO now ships a generated sitemap/robots setup, homepage-specific metadata and copy, crawlable blog/free-tools links, author profile pages, and keyword-targeted blog slugs and aliases.
 - The marketing blog now includes a Chatting-first small-business live-chat comparison post aimed at high-intent buyers evaluating chat tools.
 - The marketing blog now also includes an after-hours e-commerce lead-capture case study built around off-hours buyer questions and lightweight follow-up.
+- The public guides library now also includes dedicated setup walkthroughs for Slack, Zapier, Shopify, and webhooks.
 - The public landing now hides the metrics/testimonials proof strip, and the three feature cards no longer render empty footer dividers when no stat copy is configured.
 - The signup verification state now includes a return path back to the signup form so people can correct a mistyped email or other account details before submitting again.
 - Auth forms now pull forgot/reset/resend server actions from the dedicated password-actions module, and shared auth redirect helpers stay typed for Next route redirects during builds.

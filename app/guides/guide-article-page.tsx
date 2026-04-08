@@ -1,7 +1,7 @@
 import { BlogArticleBody } from "../blog/blog-article-body";
 import { formatBlogDate, formatReadingTime } from "@/lib/blog-utils";
 import type { BlogPostWithDetails } from "@/lib/blog-types";
-import type { GuideArticle } from "@/lib/chatting-inbox-shortcuts-guide";
+import type { GuideArticle } from "@/lib/guide-article";
 import { GuidesShell } from "./guides-shell";
 
 const GUIDE_BODY_POST_BASE = {
@@ -27,7 +27,14 @@ const GUIDE_BODY_POST_BASE = {
 function toBodyPost(guide: GuideArticle): BlogPostWithDetails {
   return {
     ...GUIDE_BODY_POST_BASE,
-    ...guide
+    ...guide,
+    relatedSlugs: [...GUIDE_BODY_POST_BASE.relatedSlugs],
+    sections: [...guide.sections],
+    author: {
+      ...GUIDE_BODY_POST_BASE.author,
+      links: [...GUIDE_BODY_POST_BASE.author.links]
+    },
+    category: { ...GUIDE_BODY_POST_BASE.category }
   };
 }
 

@@ -12,6 +12,7 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     "Slack, Zapier, Shopify, and webhooks now live together in one settings area with real saved connection state instead of placeholder UI.",
     "Zapier can now be used as both a trigger source and an action target, including live support for new conversations, resolved conversations, new contacts, tags, contact creation, contact tagging, and sending messages.",
     "Shopify now connects through a real OAuth flow so inbox teammates can pull customer order context from connected stores."
+    "The public guides library now includes dedicated setup walkthroughs for Slack, Zapier, Shopify, and webhooks so teams can get each connection live faster."
   ]),
   entry("Early April 2026", "AI Assist is now built into the inbox", "Chatting now includes AI Assist to help teams reply faster, with suggestions that stay human-controlled and grounded in the live conversation.", [
     "Teams can now generate reply suggestions, summarize longer threads, rewrite drafts, and get suggested tags directly inside the inbox.",

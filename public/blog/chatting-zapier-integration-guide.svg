@@ -1,0 +1,73 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="82" y1="50" x2="1118" y2="586" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DCEBFF"/>
+      <stop offset="0.54" stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#FFF3E6"/>
+    </linearGradient>
+    <filter id="cardShadow" x="74" y="52" width="1052" height="526" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="10"/>
+      <feGaussianBlur stdDeviation="16"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0588235 0 0 0 0 0.0901961 0 0 0 0 0.164706 0 0 0 0.08 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" rx="36" fill="url(#bg)"/>
+  <circle cx="186" cy="118" r="110" fill="#DBEAFE" fill-opacity="0.5"/>
+  <circle cx="1018" cy="520" r="124" fill="#FFEDD5" fill-opacity="0.72"/>
+
+  <g filter="url(#cardShadow)">
+    <rect x="106" y="74" width="988" height="462" rx="36" fill="#FFFFFF" fill-opacity="0.9"/>
+    <rect x="106.5" y="74.5" width="987" height="461" rx="35.5" stroke="#E2E8F0"/>
+  </g>
+
+  <text x="150" y="156" fill="#0F172A" font-size="40" font-family="Georgia, serif" font-weight="700">Zapier workflows</text>
+  <text x="150" y="190" fill="#475569" font-size="20" font-family="Arial, sans-serif">Turn Chatting events into follow-up actions without writing backend glue.</text>
+
+  <rect x="150" y="234" width="246" height="122" rx="26" fill="#EEF4FF" stroke="#D7E5FF"/>
+  <rect x="172" y="254" width="84" height="30" rx="15" fill="#FFFFFF"/>
+  <text x="191" y="275" fill="#2563EB" font-size="18" font-family="Arial, sans-serif" font-weight="700">Trigger</text>
+  <text x="178" y="314" fill="#0F172A" font-size="26" font-family="Arial, sans-serif" font-weight="700">New conversation</text>
+  <text x="178" y="341" fill="#64748B" font-size="18" font-family="Arial, sans-serif">A visitor starts chatting</text>
+
+  <rect x="476" y="234" width="246" height="122" rx="26" fill="#FFF7ED" stroke="#FED7AA"/>
+  <rect x="498" y="254" width="58" height="30" rx="15" fill="#FFFFFF"/>
+  <text x="514" y="275" fill="#F97316" font-size="18" font-family="Arial, sans-serif" font-weight="700">Zap</text>
+  <text x="504" y="314" fill="#0F172A" font-size="26" font-family="Arial, sans-serif" font-weight="700">Route the event</text>
+  <text x="504" y="341" fill="#64748B" font-size="18" font-family="Arial, sans-serif">Choose the next app step</text>
+
+  <rect x="802" y="234" width="246" height="122" rx="26" fill="#ECFDF5" stroke="#BBF7D0"/>
+  <rect x="824" y="254" width="76" height="30" rx="15" fill="#FFFFFF"/>
+  <text x="842" y="275" fill="#10B981" font-size="18" font-family="Arial, sans-serif" font-weight="700">Action</text>
+  <text x="830" y="314" fill="#0F172A" font-size="26" font-family="Arial, sans-serif" font-weight="700">Create contact</text>
+  <text x="830" y="341" fill="#64748B" font-size="18" font-family="Arial, sans-serif">Push data back into Chatting</text>
+
+  <path d="M396 295H456" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
+  <path d="M445 280L468 295L445 310" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M722 295H782" stroke="#2563EB" stroke-width="8" stroke-linecap="round"/>
+  <path d="M771 280L794 295L771 310" stroke="#2563EB" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="150" y="390" width="438" height="104" rx="24" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="180" y="428" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Available triggers</text>
+  <rect x="180" y="444" width="132" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="197" y="463" fill="#475569" font-size="15" font-family="Arial, sans-serif">New conversation</text>
+  <rect x="320" y="444" width="158" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="337" y="463" fill="#475569" font-size="15" font-family="Arial, sans-serif">Conversation resolved</text>
+  <rect x="180" y="478" width="98" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="197" y="497" fill="#475569" font-size="15" font-family="Arial, sans-serif">New contact</text>
+  <rect x="286" y="478" width="84" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="303" y="497" fill="#475569" font-size="15" font-family="Arial, sans-serif">Tag added</text>
+
+  <rect x="612" y="390" width="436" height="104" rx="24" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="642" y="428" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Available actions</text>
+  <rect x="642" y="444" width="118" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="659" y="463" fill="#475569" font-size="15" font-family="Arial, sans-serif">Create contact</text>
+  <rect x="768" y="444" width="144" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="785" y="463" fill="#475569" font-size="15" font-family="Arial, sans-serif">Add tag to contact</text>
+  <rect x="642" y="478" width="112" height="28" rx="14" fill="#FFFFFF"/>
+  <text x="659" y="497" fill="#475569" font-size="15" font-family="Arial, sans-serif">Send message</text>
+</svg>

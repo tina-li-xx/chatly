@@ -1,6 +1,7 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { formatBlogDate, formatReadingTime } from "@/lib/blog-utils";
-import type { GuideArticle } from "@/lib/chatting-inbox-shortcuts-guide";
+import type { GuideArticle } from "@/lib/guide-article";
 import { GuidesShell } from "./guides-shell";
 
 export function GuidesHomePage({
@@ -22,12 +23,12 @@ export function GuidesHomePage({
               Practical guides for teams using Chatting every day
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
-              Clear walkthroughs for the inbox, AI Assist, and the small workflow details teams usually have to figure out the hard way.
+              Clear walkthroughs for integrations, inbox workflows, AI Assist, and the operational details teams usually have to figure out the hard way.
             </p>
           </div>
 
           <Link
-            href={`/guides/${featuredGuide.slug}`}
+            href={`/guides/${featuredGuide.slug}` as Route}
             className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_24px_50px_rgba(15,23,42,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_64px_rgba(15,23,42,0.12)]"
           >
             <div className="border-b border-slate-200 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.4),transparent_30%),linear-gradient(135deg,#dbeafe_0%,#eff6ff_42%,#fff7ed_100%)] p-4">
@@ -69,7 +70,7 @@ export function GuidesHomePage({
             {guides.map((guide) => (
               <Link
                 key={guide.slug}
-                href={`/guides/${guide.slug}`}
+                href={`/guides/${guide.slug}` as Route}
                 className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_20px_40px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_24px_52px_rgba(15,23,42,0.1)]"
               >
                 <div className="border-b border-slate-200 bg-[linear-gradient(135deg,#eff6ff_0%,#ffffff_50%,#fff7ed_100%)] p-4">

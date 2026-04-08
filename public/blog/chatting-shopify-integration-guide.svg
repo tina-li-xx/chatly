@@ -1,0 +1,27 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="36" fill="url(#bg)"/>
+  <rect x="84" y="84" width="1032" height="462" rx="32" fill="white" fill-opacity="0.88"/>
+  <rect x="132" y="134" width="380" height="362" rx="28" fill="#F8FAFC"/>
+  <text x="168" y="184" fill="#0F172A" font-size="36" font-family="Arial, sans-serif" font-weight="700">Inbox context</text>
+  <rect x="168" y="220" width="308" height="94" rx="20" fill="white"/>
+  <text x="196" y="260" fill="#0F172A" font-size="24" font-family="Arial, sans-serif" font-weight="700">Repeat customer</text>
+  <text x="196" y="292" fill="#475569" font-size="20" font-family="Arial, sans-serif">5 orders · £1,280 spent</text>
+  <rect x="168" y="334" width="308" height="118" rx="20" fill="white"/>
+  <text x="196" y="376" fill="#0F172A" font-size="24" font-family="Arial, sans-serif" font-weight="700">Recent orders</text>
+  <text x="196" y="410" fill="#475569" font-size="20" font-family="Arial, sans-serif">#1048 · Delivered</text>
+  <text x="196" y="438" fill="#475569" font-size="20" font-family="Arial, sans-serif">#1039 · Refunded</text>
+  <rect x="568" y="160" width="468" height="310" rx="30" fill="#ECFDF5"/>
+  <text x="614" y="220" fill="#166534" font-size="24" font-family="Arial, sans-serif" font-weight="700">Connect store</text>
+  <rect x="614" y="254" width="376" height="64" rx="18" fill="white"/>
+  <text x="644" y="295" fill="#475569" font-size="24" font-family="Arial, sans-serif">your-store.myshopify.com</text>
+  <rect x="614" y="342" width="218" height="64" rx="20" fill="#2563EB"/>
+  <text x="654" y="383" fill="white" font-size="24" font-family="Arial, sans-serif" font-weight="700">Connect store</text>
+  <text x="614" y="438" fill="#475569" font-size="22" font-family="Arial, sans-serif">Bring order history into every reply.</text>
+  <defs>
+    <linearGradient id="bg" x1="70" y1="48" x2="1118" y2="584" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DBEAFE"/>
+      <stop offset="0.55" stop-color="#F8FAFC"/>
+      <stop offset="1" stop-color="#ECFDF5"/>
+    </linearGradient>
+  </defs>
+</svg>

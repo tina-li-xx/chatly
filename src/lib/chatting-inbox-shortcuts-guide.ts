@@ -1,18 +1,5 @@
-import type { BlogImage, BlogSection } from "@/lib/blog-types";
+import type { GuideArticle } from "@/lib/guide-article";
 import { chattingInboxShortcutsGuideSections } from "@/lib/chatting-inbox-shortcuts-guide-sections";
-
-export type GuideArticle = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  subtitle: string;
-  seoTitle: string;
-  publishedAt: string;
-  updatedAt: string;
-  readingTime: number;
-  image: BlogImage;
-  sections: BlogSection[];
-};
 
 export const chattingInboxShortcutsGuide: GuideArticle = {
   slug: "chatting-inbox-shortcuts",
