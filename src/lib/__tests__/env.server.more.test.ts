@@ -4,6 +4,7 @@ describe("env.server validation caching", () => {
     const getMissingEnvVarsForGroup = vi.fn()
       .mockReturnValueOnce([])
       .mockReturnValueOnce([])
+      .mockReturnValueOnce([])
       .mockReturnValueOnce(["STRIPE_SECRET_KEY"]);
     vi.doMock("@/lib/env", () => ({ getRuntimeEnvironment: () => "production" }));
     vi.doMock("@/lib/env-server/groups", () => ({ getMissingEnvVarsForGroup }));
@@ -14,12 +15,16 @@ describe("env.server validation caching", () => {
     expect(() => module.assertStartupProductionCoreEnvConfigured({ environment: "production" })).not.toThrow();
     expect(getMissingEnvVarsForGroup).toHaveBeenCalledTimes(1);
 
-    expect(() => module.assertStripeBillingEnvConfigured({ environment: "development" })).not.toThrow();
-    expect(() => module.assertStripeBillingEnvConfigured({ environment: "development" })).not.toThrow();
+    expect(() => module.assertIntegrationsEnvConfigured({ environment: "production" })).not.toThrow();
+    expect(() => module.assertIntegrationsEnvConfigured({ environment: "production" })).not.toThrow();
     expect(getMissingEnvVarsForGroup).toHaveBeenCalledTimes(2);
 
-    expect(() => module.assertStripeBillingEnvConfigured({ environment: "production" })).toThrow("[StripeBillingConfig]");
+    expect(() => module.assertStripeBillingEnvConfigured({ environment: "development" })).not.toThrow();
+    expect(() => module.assertStripeBillingEnvConfigured({ environment: "development" })).not.toThrow();
     expect(getMissingEnvVarsForGroup).toHaveBeenCalledTimes(3);
+
+    expect(() => module.assertStripeBillingEnvConfigured({ environment: "production" })).toThrow("[StripeBillingConfig]");
+    expect(getMissingEnvVarsForGroup).toHaveBeenCalledTimes(4);
   });
 
   it("skips R2 checks outside production and caches successful production validation", async () => {
