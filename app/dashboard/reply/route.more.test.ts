@@ -1,28 +1,13 @@
-const liveEventMocks = vi.hoisted(() => ({
-  publishConversationLive: vi.fn(),
-  publishDashboardLive: vi.fn()
-}));
-
 const mocks = vi.hoisted(() => ({
-  addTeamReply: vi.fn(),
+  deliverConversationTeamReply: vi.fn(),
   extractUploadedAttachments: vi.fn(),
-  getConversationReplyDeliveryState: vi.fn(),
-  markConversationRead: vi.fn(),
   requireJsonRouteUser: vi.fn(),
-  sendOfflineReplyTemplateEmail: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({
-  addTeamReply: mocks.addTeamReply,
-  getConversationReplyDeliveryState: mocks.getConversationReplyDeliveryState,
-  markConversationRead: mocks.markConversationRead
+vi.mock("@/lib/conversation-team-reply-delivery", () => ({
+  deliverConversationTeamReply: mocks.deliverConversationTeamReply
 }));
-vi.mock("@/lib/conversation-template-emails", () => ({ sendOfflineReplyTemplateEmail: mocks.sendOfflineReplyTemplateEmail }));
 vi.mock("@/lib/conversation-io", () => ({ extractUploadedAttachments: mocks.extractUploadedAttachments }));
-vi.mock("@/lib/live-events", () => ({
-  publishConversationLive: liveEventMocks.publishConversationLive,
-  publishDashboardLive: liveEventMocks.publishDashboardLive
-}));
 vi.mock("@/lib/route-helpers", () => ({
   jsonError: (error: string, status: number) => Response.json({ ok: false, error }, { status }),
   jsonOk: (body: Record<string, unknown>, status = 200) => Response.json({ ok: true, ...body }, { status }),
@@ -59,11 +44,13 @@ describe("dashboard reply route more", () => {
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
 
-    mocks.getConversationReplyDeliveryState
-      .mockResolvedValueOnce({ email: "visitor@example.com", visitor_is_live: false })
-      .mockResolvedValueOnce({ email: "visitor@example.com", visitor_is_live: false });
-    mocks.addTeamReply.mockResolvedValueOnce(false).mockResolvedValueOnce({ id: "msg_1", createdAt: "2026-03-27T12:00:00.000Z" });
-    mocks.sendOfflineReplyTemplateEmail.mockResolvedValueOnce("sent");
+    mocks.deliverConversationTeamReply
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        conversationId: "conv_1",
+        message: { id: "msg_1", createdAt: "2026-03-27T12:00:00.000Z" },
+        emailDelivery: "sent"
+      });
 
     const notFound = await POST(new Request("http://localhost/dashboard/reply", { method: "POST", body: formData }));
     const sent = await POST(new Request("http://localhost/dashboard/reply", { method: "POST", body: formData }));
@@ -76,8 +63,7 @@ describe("dashboard reply route more", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
-    mocks.getConversationReplyDeliveryState.mockResolvedValue({ email: null, visitor_is_live: false });
-    mocks.addTeamReply.mockRejectedValueOnce(new Error("ATTACHMENT_TOO_LARGE")).mockRejectedValueOnce(new Error("boom"));
+    mocks.deliverConversationTeamReply.mockRejectedValueOnce(new Error("ATTACHMENT_TOO_LARGE")).mockRejectedValueOnce(new Error("boom"));
 
     const tooLarge = await POST(new Request("http://localhost/dashboard/reply", { method: "POST", body: formData }));
     const generic = await POST(new Request("http://localhost/dashboard/reply", { method: "POST", body: formData }));

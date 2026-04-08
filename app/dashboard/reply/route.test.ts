@@ -1,34 +1,15 @@
-const liveEventMocks = vi.hoisted(() => ({
-  publishConversationLive: vi.fn(),
-  publishDashboardLive: vi.fn()
-}));
-
 const mocks = vi.hoisted(() => ({
-  addTeamReply: vi.fn(),
-  getConversationReplyDeliveryState: vi.fn(),
-  markConversationRead: vi.fn(),
-  sendOfflineReplyTemplateEmail: vi.fn(),
+  deliverConversationTeamReply: vi.fn(),
   extractUploadedAttachments: vi.fn(),
   requireJsonRouteUser: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({
-  addTeamReply: mocks.addTeamReply,
-  getConversationReplyDeliveryState: mocks.getConversationReplyDeliveryState,
-  markConversationRead: mocks.markConversationRead
-}));
-
-vi.mock("@/lib/conversation-template-emails", () => ({
-  sendOfflineReplyTemplateEmail: mocks.sendOfflineReplyTemplateEmail
+vi.mock("@/lib/conversation-team-reply-delivery", () => ({
+  deliverConversationTeamReply: mocks.deliverConversationTeamReply
 }));
 
 vi.mock("@/lib/conversation-io", () => ({
   extractUploadedAttachments: mocks.extractUploadedAttachments
-}));
-
-vi.mock("@/lib/live-events", () => ({
-  publishConversationLive: liveEventMocks.publishConversationLive,
-  publishDashboardLive: liveEventMocks.publishDashboardLive
 }));
 
 vi.mock("@/lib/route-helpers", () => ({
@@ -47,7 +28,7 @@ describe("dashboard reply route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123",
         workspaceRole: "admin"
@@ -72,7 +53,7 @@ describe("dashboard reply route", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_404");
     formData.set("content", "Hello");
-    mocks.getConversationReplyDeliveryState.mockResolvedValueOnce(null);
+    mocks.deliverConversationTeamReply.mockResolvedValueOnce(null);
 
     const response = await POST(
       new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
@@ -86,20 +67,28 @@ describe("dashboard reply route", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
-    mocks.getConversationReplyDeliveryState.mockResolvedValueOnce({ email: null, visitor_is_live: false });
-    mocks.addTeamReply.mockResolvedValueOnce({
-      id: "msg_1",
-      createdAt: "2026-03-27T12:00:00.000Z"
+    mocks.deliverConversationTeamReply.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      message: {
+        id: "msg_1",
+        createdAt: "2026-03-27T12:00:00.000Z"
+      },
+      emailDelivery: "skipped"
     });
 
     const response = await POST(
       new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
     );
 
-    expect(mocks.markConversationRead).toHaveBeenCalledWith("conv_1", "user_123");
-    expect(mocks.sendOfflineReplyTemplateEmail).not.toHaveBeenCalled();
-    expect(liveEventMocks.publishConversationLive).toHaveBeenCalled();
-    expect(liveEventMocks.publishDashboardLive).toHaveBeenCalledTimes(2);
+    expect(mocks.deliverConversationTeamReply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: "conv_1",
+        actorUserId: "user_123",
+        workspaceOwnerId: "owner_123",
+        authorUserId: "user_123",
+        markReadUserId: "user_123"
+      })
+    );
     expect(await response.json()).toEqual({
       ok: true,
       conversationId: "conv_1",
@@ -115,20 +104,19 @@ describe("dashboard reply route", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
-    mocks.getConversationReplyDeliveryState.mockResolvedValueOnce({
-      email: "visitor@example.com",
-      visitor_is_live: true
-    });
-    mocks.addTeamReply.mockResolvedValueOnce({
-      id: "msg_1",
-      createdAt: "2026-03-27T12:00:00.000Z"
+    mocks.deliverConversationTeamReply.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      message: {
+        id: "msg_1",
+        createdAt: "2026-03-27T12:00:00.000Z"
+      },
+      emailDelivery: "skipped"
     });
 
     const response = await POST(
       new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
     );
 
-    expect(mocks.sendOfflineReplyTemplateEmail).not.toHaveBeenCalled();
     expect(await response.json()).toEqual({
       ok: true,
       conversationId: "conv_1",
@@ -144,15 +132,14 @@ describe("dashboard reply route", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
-    mocks.getConversationReplyDeliveryState.mockResolvedValueOnce({
-      email: "visitor@example.com",
-      visitor_is_live: false
+    mocks.deliverConversationTeamReply.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      message: {
+        id: "msg_1",
+        createdAt: "2026-03-27T12:00:00.000Z"
+      },
+      emailDelivery: "failed"
     });
-    mocks.addTeamReply.mockResolvedValueOnce({
-      id: "msg_1",
-      createdAt: "2026-03-27T12:00:00.000Z"
-    });
-    mocks.sendOfflineReplyTemplateEmail.mockRejectedValueOnce(new Error("mail down"));
 
     const response = await POST(
       new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
@@ -173,15 +160,14 @@ describe("dashboard reply route", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
-    mocks.getConversationReplyDeliveryState.mockResolvedValueOnce({
-      email: "visitor@example.com",
-      visitor_is_live: false
+    mocks.deliverConversationTeamReply.mockResolvedValueOnce({
+      conversationId: "conv_1",
+      message: {
+        id: "msg_1",
+        createdAt: "2026-03-27T12:00:00.000Z"
+      },
+      emailDelivery: "queued_retry"
     });
-    mocks.addTeamReply.mockResolvedValueOnce({
-      id: "msg_1",
-      createdAt: "2026-03-27T12:00:00.000Z"
-    });
-    mocks.sendOfflineReplyTemplateEmail.mockResolvedValueOnce("queued_retry");
 
     const response = await POST(
       new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
@@ -202,8 +188,7 @@ describe("dashboard reply route", () => {
     const formData = new FormData();
     formData.set("conversationId", "conv_1");
     formData.set("content", "Hello there");
-    mocks.getConversationReplyDeliveryState.mockResolvedValueOnce({ email: null, visitor_is_live: false });
-    mocks.addTeamReply.mockRejectedValueOnce(new Error("ATTACHMENT_LIMIT"));
+    mocks.deliverConversationTeamReply.mockRejectedValueOnce(new Error("ATTACHMENT_LIMIT"));
 
     const response = await POST(
       new Request("http://localhost/dashboard/reply", { method: "POST", body: formData })
