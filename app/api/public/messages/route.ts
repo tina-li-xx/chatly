@@ -1,10 +1,12 @@
-import { createUserMessage } from "@/lib/data";
+import { createUserMessage, getConversationSummaryById } from "@/lib/data";
 import { extractUploadedAttachments, extractVisitorMetadata } from "@/lib/conversation-io";
 import { sendWelcomeTemplateEmail } from "@/lib/conversation-template-emails";
 import { publishConversationLive } from "@/lib/live-events";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
-import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";
+import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
+import { deliverZapierEvent } from "@/lib/zapier-event-delivery";
+import { buildZapierConversationCreatedPayload } from "@/lib/zapier-event-payloads";
 
 function handleOPTIONS() {
   return publicNoContentResponse();
@@ -78,8 +80,32 @@ async function handlePOST(request: Request) {
       });
     }
 
+    if (result.isNewConversation) {
+      const summary = await getConversationSummaryById(
+        result.conversationId,
+        result.siteUserId
+      );
+      await deliverZapierEvent({
+        ownerUserId: result.siteUserId,
+        eventType: "conversation.created",
+        payload: buildZapierConversationCreatedPayload({
+          conversationId: result.conversationId,
+          visitorEmail: summary?.email ?? null,
+          visitorName: result.visitorLabel,
+          pageUrl: result.pageUrl,
+          firstMessage: result.message.content,
+          tags: summary?.tags ?? [],
+          assignedTo: summary?.assignedUserId ?? null,
+          createdAt: result.message.createdAt
+        })
+      });
+    }
+
     if (!result.deferTeamNotification) {
-      await notifyIncomingVisitorMessage(result.notification);
+      await notifyIncomingVisitorMessage({
+        ...result.notification,
+        ownerUserId: result.siteUserId
+      });
     }
 
     if (result.welcomeEmailEligible) {

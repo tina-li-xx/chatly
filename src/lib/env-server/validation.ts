@@ -6,6 +6,7 @@ import { type ServerEnvSource } from "@/lib/env-server/core";
 import { buildStripeEnvSource } from "@/lib/env-server/stripe";
 
 let validatedStartupCoreEnvironment = false;
+let validatedIntegrationsEnvironment: RuntimeEnvironment | null = null;
 let validatedR2Environment: RuntimeEnvironment | null = null;
 let validatedStripeBillingEnvironment: RuntimeEnvironment | null = null;
 type StripeEnvValidationGroup = "stripe-checkout" | "stripe-billing";
@@ -19,7 +20,6 @@ function getMissingStripeEnvVars(
 ) {
   const environment = params?.environment || getRuntimeEnvironment();
   const source = buildStripeEnvSource(params?.source || process.env, environment);
-
   return getMissingEnvVarsForGroup(group, source);
 }
 
@@ -28,11 +28,9 @@ export function getMissingStartupProductionCoreEnvVars(params?: {
   source?: ServerEnvSource;
 }) {
   const environment = params?.environment || getRuntimeEnvironment();
-
   if (environment !== "production") {
     return [] as string[];
   }
-
   return getMissingEnvVarsForGroup("startup-production-core", params?.source || process.env);
 }
 
@@ -48,6 +46,17 @@ export function getMissingStripeBillingEnvVars(params?: {
   source?: ServerEnvSource;
 }) {
   return getMissingStripeEnvVars("stripe-billing", params);
+}
+
+export function getMissingIntegrationsEnvVars(params?: {
+  environment?: RuntimeEnvironment;
+  source?: ServerEnvSource;
+}) {
+  const environment = params?.environment || getRuntimeEnvironment();
+  if (environment !== "production") {
+    return [] as string[];
+  }
+  return getMissingEnvVarsForGroup("integrations", params?.source || process.env);
 }
 
 export function getMissingR2EnvVars(params?: {
@@ -76,11 +85,9 @@ export function assertStartupProductionCoreEnvConfigured(params?: {
   cache?: boolean;
 }) {
   const environment = params?.environment || getRuntimeEnvironment();
-
   if (environment !== "production") {
     return;
   }
-
   const useCache = params?.cache !== false && !params?.source;
   if (useCache && validatedStartupCoreEnvironment) {
     return;
@@ -127,6 +134,38 @@ export function assertStripeBillingEnvConfigured(params?: {
 
   if (useCache) {
     validatedStripeBillingEnvironment = environment;
+  }
+}
+
+export function assertIntegrationsEnvConfigured(params?: {
+  environment?: RuntimeEnvironment;
+  source?: ServerEnvSource;
+  cache?: boolean;
+}) {
+  const environment = params?.environment || getRuntimeEnvironment();
+
+  if (environment !== "production") {
+    return;
+  }
+
+  const useCache = params?.cache !== false && !params?.source;
+  if (useCache && validatedIntegrationsEnvironment === environment) {
+    return;
+  }
+
+  const missing = getMissingIntegrationsEnvVars({
+    environment,
+    source: params?.source
+  });
+
+  if (missing.length > 0) {
+    throw new Error(
+      `[IntegrationsConfig] Missing required integrations env vars: ${missing.join(", ")}`
+    );
+  }
+
+  if (useCache) {
+    validatedIntegrationsEnvironment = environment;
   }
 }
 

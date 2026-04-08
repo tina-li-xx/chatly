@@ -8,10 +8,10 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
-  entry("April 2026", "The homepage now explains Chatting much more clearly", "The public site now does a better job of showing what Chatting is, how it works, and why the pricing stays simple for small teams.", [
-    "The homepage now leads with a clearer buyer story, tighter product visuals, and a cleaner feature flow from the shared inbox through proactive messages, routing, contact history, FAQ suggestions, and visitor tracking.",
-    "Pricing and footer copy now explain the flat monthly plan more directly, with simpler comparisons, resources, and setup messaging across the landing page.",
-    "Homepage metadata, social previews, and structured data now describe Chatting with clearer setup, pricing, and plan details so links and search engines get a more accurate picture of the product."
+  entry("April 2026", "Integrations now connect to real external workflows", "Chatting now has a dedicated integrations area for teams that want Slack notifications, Zapier automations, Shopify context, and outbound webhooks wired to live backend connections.", [
+    "Slack, Zapier, Shopify, and webhooks now live together in one settings area with real saved connection state instead of placeholder UI.",
+    "Zapier can now be used as both a trigger source and an action target, including live support for new conversations, resolved conversations, new contacts, tags, contact creation, contact tagging, and sending messages.",
+    "Shopify now connects through a real OAuth flow so inbox teammates can pull customer order context from connected stores."
   ]),
   entry("Early April 2026", "AI Assist is now built into the inbox", "Chatting now includes AI Assist to help teams reply faster, with suggestions that stay human-controlled and grounded in the live conversation.", [
     "Teams can now generate reply suggestions, summarize longer threads, rewrite drafts, and get suggested tags directly inside the inbox.",

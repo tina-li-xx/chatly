@@ -71,6 +71,41 @@
       "when": 1775461200000,
       "tag": "0009_ai_assist_actor_indexes",
       "breakpoints": false
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1775472000000,
+      "tag": "0010_workspace_integrations",
+      "breakpoints": false
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1775558400000,
+      "tag": "0011_workspace_slack_threads",
+      "breakpoints": false
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1775559000000,
+      "tag": "0012_workspace_zapier_api",
+      "breakpoints": false
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1775559600000,
+      "tag": "0013_workspace_zapier_runtime",
+      "breakpoints": false
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1775560200000,
+      "tag": "0014_workspace_zapier_delivery_queue",
+      "breakpoints": false
     }
   ]
 }

@@ -1,9 +1,12 @@
 const mocks = vi.hoisted(() => ({
+  deliverZapierEvent: vi.fn(),
+  getConversationSummaryById: vi.fn(),
   toggleTag: vi.fn(),
   requireJsonRouteUser: vi.fn()
 }));
 
 vi.mock("@/lib/data", () => ({
+  getConversationSummaryById: mocks.getConversationSummaryById,
   toggleTag: mocks.toggleTag
 }));
 
@@ -14,14 +17,26 @@ vi.mock("@/lib/route-helpers", () => ({
     Response.json({ ok: true, ...body }, { status }),
   requireJsonRouteUser: mocks.requireJsonRouteUser
 }));
+vi.mock("@/lib/zapier-event-delivery", () => ({
+  deliverZapierEvent: mocks.deliverZapierEvent
+}));
 
 import { POST } from "./route";
 
 describe("dashboard tags route", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     mocks.requireJsonRouteUser.mockResolvedValue({
-      user: { id: "user_123", email: "hello@chatly.example", createdAt: "2026-03-27T00:00:00.000Z" }
+      user: {
+        id: "user_123",
+        email: "hello@chatting.example",
+        createdAt: "2026-03-27T00:00:00.000Z",
+        workspaceOwnerId: "owner_123"
+      }
     });
+    mocks.getConversationSummaryById
+      .mockResolvedValueOnce({ tags: [] })
+      .mockResolvedValueOnce({ tags: ["pricing"] });
   });
 
   it("rejects missing fields", async () => {
@@ -58,6 +73,12 @@ describe("dashboard tags route", () => {
     );
 
     expect(mocks.toggleTag).toHaveBeenCalledWith("conv_1", "pricing", "user_123");
+    expect(mocks.deliverZapierEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ownerUserId: "owner_123",
+        eventType: "tag.added"
+      })
+    );
     expect(await response.json()).toEqual({
       ok: true,
       conversationId: "conv_1",

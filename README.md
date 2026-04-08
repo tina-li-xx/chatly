@@ -20,6 +20,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## Recent Updates
 
 - Centralized admin error alerts now cover wrapped routes, server actions, browser exceptions, and process-level failures, with dev/build checks that block new unwrapped server entry points.
+- Slack, Zapier, Shopify, and webhook settings now live in one integrations area with real connection state, live backend routes, and working Zapier triggers/actions for teams building automations around Chatting.
 - Dashboard now includes an internal publishing queue and preview workspace, and the Publishing nav only appears for the designated reviewer account.
 - Scheduled April and May blog backlog posts now cover Gorgias, customer-support software, Zendesk alternatives, low-conversion diagnosis, small ecommerce support workflow, and Shopify live-chat growth uses.
 - AI Assist is now built into the inbox with reply suggestions, summaries, rewrites, suggested tags, starter usage limits, and a full activity log.
@@ -188,6 +189,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Dashboard settings now include a full Integrations area for Slack, Zapier, Shopify, and webhooks, with live connection flows, persisted workspace state, and dedicated modal-based setup.
 - Dashboard now includes an internal Publishing workspace with queued-post previews, and only the designated reviewer account sees the Publishing navigation entry.
 - AI Assist is now built into the inbox with reply suggestions, summaries, rewrites, suggested tags, starter usage metering, warning states, and detailed usage history.
 - Dashboard home, inbox, and thread loading now use lighter data paths so key team views open faster.

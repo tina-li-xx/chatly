@@ -1,13 +1,18 @@
 const mocks = vi.hoisted(() => ({
   createUserMessage: vi.fn(),
+  deliverZapierEvent: vi.fn(),
   extractUploadedAttachments: vi.fn(),
   extractVisitorMetadata: vi.fn(),
+  getConversationSummaryById: vi.fn(),
   notifyIncomingVisitorMessage: vi.fn(),
   publishConversationLive: vi.fn(),
   sendWelcomeTemplateEmail: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({ createUserMessage: mocks.createUserMessage }));
+vi.mock("@/lib/data", () => ({
+  createUserMessage: mocks.createUserMessage,
+  getConversationSummaryById: mocks.getConversationSummaryById
+}));
 vi.mock("@/lib/conversation-io", () => ({
   extractUploadedAttachments: mocks.extractUploadedAttachments,
   extractVisitorMetadata: mocks.extractVisitorMetadata
@@ -15,6 +20,7 @@ vi.mock("@/lib/conversation-io", () => ({
 vi.mock("@/lib/conversation-template-emails", () => ({ sendWelcomeTemplateEmail: mocks.sendWelcomeTemplateEmail }));
 vi.mock("@/lib/live-events", () => ({ publishConversationLive: mocks.publishConversationLive }));
 vi.mock("@/lib/team-notifications", () => ({ notifyIncomingVisitorMessage: mocks.notifyIncomingVisitorMessage }));
+vi.mock("@/lib/zapier-event-delivery", () => ({ deliverZapierEvent: mocks.deliverZapierEvent }));
 
 import { POST } from "./route";
 
@@ -22,6 +28,11 @@ describe("public messages route more", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.extractVisitorMetadata.mockReturnValue({ locale: "en-GB" });
+    mocks.getConversationSummaryById.mockResolvedValue({
+      email: "visitor@example.com",
+      assignedUserId: null,
+      tags: []
+    });
     mocks.notifyIncomingVisitorMessage.mockResolvedValue(undefined);
   });
 
@@ -58,6 +69,7 @@ describe("public messages route more", () => {
       attachments: [{ id: "att_1", fileName: "brief.pdf" }],
       metadata: { locale: "en-GB" }
     }));
+    expect(mocks.deliverZapierEvent).not.toHaveBeenCalled();
     expect(mocks.notifyIncomingVisitorMessage).toHaveBeenCalledWith(expect.objectContaining({ attachmentsCount: 1 }));
     expect(mocks.sendWelcomeTemplateEmail).not.toHaveBeenCalled();
     expect(response.status).toBe(200);

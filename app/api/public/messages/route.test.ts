@@ -1,14 +1,17 @@
 const mocks = vi.hoisted(() => ({
   createUserMessage: vi.fn(),
+  deliverZapierEvent: vi.fn(),
   extractUploadedAttachments: vi.fn(),
   extractVisitorMetadata: vi.fn(),
+  getConversationSummaryById: vi.fn(),
   notifyIncomingVisitorMessage: vi.fn(),
   publishConversationLive: vi.fn(),
   sendWelcomeTemplateEmail: vi.fn()
 }));
 
 vi.mock("@/lib/data", () => ({
-  createUserMessage: mocks.createUserMessage
+  createUserMessage: mocks.createUserMessage,
+  getConversationSummaryById: mocks.getConversationSummaryById
 }));
 vi.mock("@/lib/conversation-io", () => ({
   extractUploadedAttachments: mocks.extractUploadedAttachments,
@@ -23,6 +26,9 @@ vi.mock("@/lib/live-events", () => ({
 vi.mock("@/lib/team-notifications", () => ({
   notifyIncomingVisitorMessage: mocks.notifyIncomingVisitorMessage
 }));
+vi.mock("@/lib/zapier-event-delivery", () => ({
+  deliverZapierEvent: mocks.deliverZapierEvent
+}));
 
 import { OPTIONS, POST } from "./route";
 
@@ -31,12 +37,17 @@ describe("public messages route", () => {
     vi.clearAllMocks();
     mocks.extractUploadedAttachments.mockResolvedValue([]);
     mocks.extractVisitorMetadata.mockReturnValue({ pageUrl: "https://example.com/pricing" });
+    mocks.getConversationSummaryById.mockResolvedValue({
+      email: "visitor@example.com",
+      assignedUserId: null,
+      tags: []
+    });
     mocks.notifyIncomingVisitorMessage.mockResolvedValue(undefined);
     mocks.sendWelcomeTemplateEmail.mockResolvedValue(undefined);
   });
 
-  it("returns the preflight response", () => {
-    expect(OPTIONS().status).toBe(204);
+  it("returns the preflight response", async () => {
+    expect((await OPTIONS()).status).toBe(204);
   });
 
   it("requires site, session, and message content or attachments", async () => {
@@ -130,6 +141,12 @@ describe("public messages route", () => {
       })
     );
     expect(mocks.publishConversationLive).toHaveBeenCalledTimes(2);
+    expect(mocks.deliverZapierEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ownerUserId: "user_1",
+        eventType: "conversation.created"
+      })
+    );
     expect(mocks.notifyIncomingVisitorMessage).not.toHaveBeenCalled();
     expect(mocks.sendWelcomeTemplateEmail).toHaveBeenCalledWith({ conversationId: "conv_1", userId: "user_1" });
     expect(await response.json()).toEqual({

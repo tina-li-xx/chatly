@@ -1,8 +1,15 @@
 import { sendResolvedConversationTemplateEmails } from "@/lib/conversation-template-emails";
-import { getConversationSummaryById, markConversationRead, updateConversationStatus } from "@/lib/data";
+import {
+  getConversationById,
+  getConversationSummaryById,
+  markConversationRead,
+  updateConversationStatus
+} from "@/lib/data";
 import { publishConversationLive, publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
+import { deliverZapierEvent } from "@/lib/zapier-event-delivery";
+import { buildZapierConversationResolvedPayload } from "@/lib/zapier-event-payloads";
 
 async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
@@ -48,6 +55,29 @@ async function handlePOST(request: Request) {
       type: "conversation.read",
       conversationId,
       updatedAt
+    });
+
+    const conversation = await getConversationById(conversationId, auth.user.id);
+    await deliverZapierEvent({
+      ownerUserId: auth.user.workspaceOwnerId,
+      eventType: "conversation.resolved",
+      payload: buildZapierConversationResolvedPayload({
+        conversationId,
+        visitorEmail: conversation?.email ?? null,
+        resolvedBy: auth.user.email,
+        messageCount: conversation?.messages.length ?? 0,
+        durationSeconds: conversation
+          ? Math.max(
+              0,
+              Math.round(
+                (new Date(conversation.updatedAt).getTime() -
+                  new Date(conversation.createdAt).getTime()) /
+                  1000
+              )
+            )
+          : 0,
+        timestamp: updatedAt
+      })
     });
   }
 

@@ -15,7 +15,7 @@ export function getSettingsPageCopy(activeSection: SettingsSection) {
     case "savedReplies":
       return { title: "Saved replies", subtitle: "Manage reusable replies for the shared inbox" };
     case "integrations":
-      return { title: "Integrations", subtitle: "Review connected tools and upcoming sync controls" };
+      return { title: "Integrations", subtitle: "Connect Chatting to your favorite tools" };
     case "reports":
       return { title: "Reports", subtitle: "Control weekly performance emails and delivery timing" };
     case "email":

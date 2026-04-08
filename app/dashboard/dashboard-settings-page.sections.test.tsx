@@ -26,6 +26,7 @@ async function loadSettingsPage(search = "") {
   vi.doMock("./dashboard-settings-profile-section", () => ({ SettingsProfileSection: (props: unknown) => ((captures.profile = props), <div>profile</div>) }));
   vi.doMock("./dashboard-settings-notifications-section", () => ({ SettingsNotificationsSection: (props: unknown) => ((captures.notifications = props), <div>notifications</div>) }));
   vi.doMock("./dashboard-settings-ai-assist-section", () => ({ SettingsAiAssistSection: (props: unknown) => ((captures.aiAssist = props), <div>ai assist</div>) }));
+  vi.doMock("./dashboard-settings-integrations-section", () => ({ SettingsIntegrationsSection: (props: unknown) => ((captures.integrations = props), <div>integrations</div>) }));
   vi.doMock("./dashboard-settings-reports-section", () => ({ SettingsReportsSection: (props: unknown) => ((captures.reports = props), <div>reports</div>) }));
   vi.doMock("./dashboard-settings-email-billing-sections", () => ({ SettingsEmailSection: (props: unknown) => ((captures.email = props), <div>email</div>), SettingsBillingSection: (props: unknown) => ((captures.billing = props), <div>billing</div>) }));
   vi.doMock("./dashboard-settings-saved-replies-section", () => ({ SettingsSavedRepliesSection: (props: unknown) => ((captures.savedReplies = props), <div>saved replies</div>) }));
@@ -101,8 +102,10 @@ describe("dashboard settings page sections", () => {
     await runMockEffects(integrations.reactMocks.effects);
     integrations.reactMocks.beginRender();
     const integrationsHtml = renderToStaticMarkup(<integrations.DashboardSettingsPage initialData={createInitialData()} />);
-    expect(integrationsHtml).toContain("Integrations");
-    expect(integrationsHtml).toContain("Coming soon");
+    expect(integrationsHtml).toContain("integrations");
+    expect((integrations.captures.integrations as { title: string; subtitle: string; planKey: string }).title).toBe("Integrations");
+    expect((integrations.captures.integrations as { subtitle: string }).subtitle).toBe("Connect Chatting to your favorite tools");
+    expect((integrations.captures.integrations as { planKey: string }).planKey).toBe("starter");
 
     const referrals = await loadSettingsPage("section=referrals");
     referrals.reactMocks.beginRender();

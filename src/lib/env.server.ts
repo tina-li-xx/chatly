@@ -11,6 +11,7 @@ export {
   getMissingSesEnvVars
 } from "@/lib/env-server/groups";
 export {
+  getAdminAlertEmail,
   getAppDisplayName,
   getAuthSecret,
   getDatabaseConfig,
@@ -25,9 +26,11 @@ export {
   getRequiredStripeServerEnv
 } from "@/lib/env-server/stripe";
 export {
+  assertIntegrationsEnvConfigured,
   assertR2EnvConfigured,
   assertStartupProductionCoreEnvConfigured,
   assertStripeBillingEnvConfigured,
+  getMissingIntegrationsEnvVars,
   getMissingR2EnvVars,
   getMissingStartupProductionCoreEnvVars,
   getMissingStripeBillingEnvVars,

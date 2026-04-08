@@ -1,5 +1,6 @@
 export type AppEnvValidationGroup =
   | "startup-production-core"
+  | "integrations"
   | "stripe-checkout"
   | "stripe-billing"
   | "r2"
@@ -36,6 +37,10 @@ export const APP_ENV_DEFINITIONS = {
     exampleValue: "postgres://postgres:postgres@localhost:5432/chatly",
     requiredIn: ["startup-production-core"]
   },
+  INTEGRATIONS_ENCRYPTION_KEY: {
+    exampleValue: "",
+    requiredIn: ["integrations"]
+  },
   MINIMAX_API_KEY: {
     exampleValue: "",
     requiredIn: ["minimax"]
@@ -52,6 +57,10 @@ export const APP_ENV_DEFINITIONS = {
     defaultValue: "https://usechatting.com",
     exampleValue: "https://usechatting.com",
     requiredIn: ["startup-production-core", "stripe-checkout", "stripe-billing"]
+  },
+  NEXT_PUBLIC_ZAPIER_APP_URL: {
+    exampleValue: "https://zapier.com/developer/public-invite/<your-private-invite-id>",
+    requiredIn: ["integrations"]
   },
   R2_ACCESS_KEY_ID: {
     exampleValue: "",
@@ -75,6 +84,26 @@ export const APP_ENV_DEFINITIONS = {
   },
   REPLY_DOMAIN: {
     exampleValue: ""
+  },
+  SLACK_CLIENT_ID: {
+    exampleValue: "",
+    requiredIn: ["integrations"]
+  },
+  SLACK_CLIENT_SECRET: {
+    exampleValue: "",
+    requiredIn: ["integrations"]
+  },
+  SLACK_SIGNING_SECRET: {
+    exampleValue: "",
+    requiredIn: ["integrations"]
+  },
+  SHOPIFY_CLIENT_ID: {
+    exampleValue: "",
+    requiredIn: ["integrations"]
+  },
+  SHOPIFY_CLIENT_SECRET: {
+    exampleValue: "",
+    requiredIn: ["integrations"]
   },
   SES_INBOUND_SNS_TOPIC_ARN: {
     aliases: ["AWS_SES_INBOUND_SNS_TOPIC_ARN"],
@@ -103,11 +132,18 @@ export type AppEnvName = keyof typeof APP_ENV_DEFINITIONS;
 export const APP_ENV_EXAMPLE_ORDER = [
   "DATABASE_URL",
   "NEXT_PUBLIC_APP_URL",
+  "NEXT_PUBLIC_ZAPIER_APP_URL",
   "AUTH_SECRET",
+  "INTEGRATIONS_ENCRYPTION_KEY",
   "AWS_REGION",
   "AWS_ACCESS_KEY_ID",
   "AWS_SECRET_ACCESS_KEY",
   "REPLY_DOMAIN",
+  "SLACK_CLIENT_ID",
+  "SLACK_CLIENT_SECRET",
+  "SLACK_SIGNING_SECRET",
+  "SHOPIFY_CLIENT_ID",
+  "SHOPIFY_CLIENT_SECRET",
   "SES_INBOUND_SNS_TOPIC_ARN",
   "APP_NAME",
   "R2_ACCOUNT_ID",
