@@ -30,12 +30,16 @@ Use this file to keep backlog posts spaced out instead of dropping a cluster of 
 | Friday 2026-04-17 | `traffic-low-conversion` | Scheduled in code | Conversion diagnosis | Broad traffic-without-results piece that works across ecommerce, SaaS, and service sites. |
 | Friday 2026-04-24 | `small-ecommerce-customer-support-workflow` | Scheduled in code | Ecommerce support workflow | Covers what small stores really automate versus what still needs human review. |
 | Friday 2026-05-01 | `shopify-live-chat-growth-uses` | Scheduled in code | Shopify growth playbook | Reframes live chat as a conversion layer instead of just a support tool. |
+| Friday 2026-05-08 | `live-chat-worth-it-small-business` | Draft in code | Small-business decision guide | Broader "is this actually worth it?" post for teams worried about workload and slow replies. |
+| Friday 2026-05-15 | `what-is-live-chat-benefits` | Scheduled in code | Live chat explainer | Broader educational post on what live chat is, why it matters, and the main small-business benefits. |
 
 ## Open publishing slots
 | Target date | Slot type | Suggested use | Notes |
 | --- | --- | --- | --- |
 | Tuesday 2026-04-21 | Comparison | Broader category roundup | Avoid another ecommerce-specific comparison here if `chatting-vs-gorgias` just shipped. |
 | Tuesday 2026-04-28 | Comparison | Retargeting or alternatives post | Best for a bottom-funnel keyword. |
+| Tuesday 2026-05-05 | Comparison | Direct competitor or category retargeting | Pair with the May 8 decision post without crowding the same theme. |
+| Tuesday 2026-05-12 | Comparison | Support-platform or alternatives post | Keeps the Tuesday/Friday rhythm intact before the May 15 explainer. |
 
 ## How to use this
 - Keep drafts in code with their target dates already set.

@@ -1,0 +1,56 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="36" fill="#F8FAFC"/>
+  <rect x="36" y="36" width="1128" height="558" rx="30" fill="url(#bg)"/>
+  <rect x="88" y="120" width="330" height="382" rx="30" fill="#FFFFFF"/>
+  <rect x="468" y="102" width="312" height="192" rx="30" fill="#0F172A"/>
+  <rect x="468" y="330" width="312" height="172" rx="30" fill="#FFFFFF"/>
+  <rect x="830" y="120" width="282" height="382" rx="30" fill="#FFFFFF"/>
+  <circle cx="252" cy="202" r="58" fill="#DBEAFE"/>
+  <path d="M224 202h56" stroke="#2563EB" stroke-width="16" stroke-linecap="round"/>
+  <path d="M252 174v56" stroke="#2563EB" stroke-width="16" stroke-linecap="round"/>
+  <rect x="146" y="304" width="212" height="22" rx="11" fill="#CBD5E1"/>
+  <rect x="126" y="346" width="252" height="18" rx="9" fill="#E2E8F0"/>
+  <rect x="162" y="380" width="180" height="18" rx="9" fill="#E2E8F0"/>
+  <text x="624" y="168" text-anchor="middle" fill="#FFFFFF" font-family="DM Sans, Arial, sans-serif" font-size="30" font-weight="700">
+    Live chat helps
+  </text>
+  <rect x="532" y="206" width="184" height="18" rx="9" fill="#1D4ED8"/>
+  <rect x="550" y="238" width="148" height="14" rx="7" fill="#60A5FA"/>
+  <circle cx="548" cy="384" r="22" fill="#10B981"/>
+  <path d="m537 385 8 8 15-17" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="590" y="366" width="138" height="18" rx="9" fill="#0F172A"/>
+  <rect x="590" y="400" width="160" height="16" rx="8" fill="#CBD5E1"/>
+  <rect x="590" y="428" width="124" height="16" rx="8" fill="#E2E8F0"/>
+  <text x="971" y="178" text-anchor="middle" fill="#0F172A" font-family="DM Sans, Arial, sans-serif" font-size="24" font-weight="700">
+    Support
+  </text>
+  <rect x="882" y="204" width="178" height="38" rx="19" fill="#EFF6FF"/>
+  <text x="971" y="229" text-anchor="middle" fill="#2563EB" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
+    faster replies
+  </text>
+  <rect x="882" y="262" width="178" height="38" rx="19" fill="#DCFCE7"/>
+  <text x="971" y="287" text-anchor="middle" fill="#166534" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
+    more revenue
+  </text>
+  <rect x="882" y="320" width="178" height="38" rx="19" fill="#FEF3C7"/>
+  <text x="971" y="345" text-anchor="middle" fill="#92400E" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
+    lower costs
+  </text>
+  <rect x="882" y="378" width="178" height="38" rx="19" fill="#EDE9FE"/>
+  <text x="971" y="403" text-anchor="middle" fill="#6D28D9" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
+    better insight
+  </text>
+  <text x="88" y="554" fill="#0F172A" font-family="Fraunces, Georgia, serif" font-size="48" font-weight="700">
+    What is live chat?
+  </text>
+  <text x="88" y="592" fill="#334155" font-family="DM Sans, Arial, sans-serif" font-size="28">
+    12 benefits for small businesses in 2026.
+  </text>
+  <defs>
+    <linearGradient id="bg" x1="88" y1="72" x2="1110" y2="558" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0F2FE"/>
+      <stop offset="0.56" stop-color="#EFF6FF"/>
+      <stop offset="1" stop-color="#FEF3C7"/>
+    </linearGradient>
+  </defs>
+</svg>
