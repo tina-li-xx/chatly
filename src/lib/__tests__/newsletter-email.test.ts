@@ -9,7 +9,7 @@ vi.mock("@/lib/env", () => ({
   getPublicAppUrl: mocks.getPublicAppUrl
 }));
 
-vi.mock("@/lib/chatly-email-foundation", () => ({
+vi.mock("@/lib/chatting-email-foundation", () => ({
   renderChattingEmailPage: mocks.renderChattingEmailPage
 }));
 

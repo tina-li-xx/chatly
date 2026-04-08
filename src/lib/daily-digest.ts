@@ -1,4 +1,4 @@
-import { sendDailyDigestEmail } from "@/lib/chatly-notification-email-senders";
+import { sendDailyDigestEmail } from "@/lib/chatting-notification-email-senders";
 import { getAnalyticsDatasetForOwnerUserId } from "@/lib/data/analytics";
 import { mapSummary, queryConversationSummaries } from "@/lib/data/shared";
 import {

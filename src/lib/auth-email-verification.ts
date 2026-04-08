@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { sendEmailVerificationEmail } from "@/lib/chatly-transactional-email-senders";
+import { sendEmailVerificationEmail } from "@/lib/chatting-transactional-email-senders";
 import { getPublicAppUrl } from "@/lib/env";
 import { getAuthSecret } from "@/lib/env.server";
 import {

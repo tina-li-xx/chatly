@@ -34,7 +34,7 @@ describe("public site-config route", () => {
       ],
       showBranding: true,
       brandingLabel: "Powered by Chatting",
-      brandingUrl: "https://chatly.example"
+      brandingUrl: "https://chatting.example"
     });
 
     const response = await GET(
@@ -79,7 +79,7 @@ describe("public site-config route", () => {
         ],
         showBranding: true,
         brandingLabel: "Powered by Chatting",
-        brandingUrl: "https://chatly.example"
+        brandingUrl: "https://chatting.example"
       }
     });
   });

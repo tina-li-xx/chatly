@@ -1,4 +1,4 @@
-import { joinEmailText, renderChattingEmailPage, renderLabelText, renderPanel, renderParagraph, renderSmallText, renderStack, renderTextBlock } from "@/lib/chatly-email-foundation";
+import { joinEmailText, renderChattingEmailPage, renderLabelText, renderPanel, renderParagraph, renderSmallText, renderStack, renderTextBlock } from "@/lib/chatting-email-foundation";
 import { escapeHtml } from "@/lib/utils";
 import type { WeeklyPerformanceEmailInput, WeeklyPerformanceMetric, WeeklyPerformanceTeamPerformance } from "@/lib/weekly-performance-types";
 

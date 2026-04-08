@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   sendDailyDigestEmail: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-notification-email-senders", () => ({ sendDailyDigestEmail: mocks.sendDailyDigestEmail }));
+vi.mock("@/lib/chatting-notification-email-senders", () => ({ sendDailyDigestEmail: mocks.sendDailyDigestEmail }));
 vi.mock("@/lib/data/analytics", () => ({ getAnalyticsDatasetForOwnerUserId: mocks.getAnalyticsDatasetForOwnerUserId }));
 vi.mock("@/lib/data/shared", () => ({ mapSummary: mocks.mapSummary, queryConversationSummaries: mocks.queryConversationSummaries }));
 vi.mock("@/lib/env", () => ({ getPublicAppUrl: mocks.getPublicAppUrl }));

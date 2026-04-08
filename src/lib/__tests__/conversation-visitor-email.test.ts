@@ -4,7 +4,7 @@ import { buildDashboardEmailTemplatePreviewContext } from "@/lib/email-templates
 
 describe("visitor conversation email renderer", () => {
   const previewContext = buildDashboardEmailTemplatePreviewContext({
-    profileEmail: "sarah@chatly.example",
+    profileEmail: "sarah@chatting.example",
     profileName: "Sarah Chen"
   });
 
@@ -17,8 +17,8 @@ describe("visitor conversation email renderer", () => {
       previewContext,
       {
         templateKey: "offline_reply",
-        appUrl: "https://chatly.example",
-        conversationUrl: "https://chatly.example/conversation/token",
+        appUrl: "https://chatting.example",
+        conversationUrl: "https://chatting.example/conversation/token",
         replyToEmail: "reply@acme.example",
         teamAvatarUrl: null,
         showViralFooter: true
@@ -28,7 +28,7 @@ describe("visitor conversation email renderer", () => {
     expect(rendered.subject).toBe("Chatting Team replied to your message");
     expect(rendered.bodyText).toContain("Alex: Hi there");
     expect(rendered.bodyText).toContain("Reply to This Email: mailto:reply@acme.example");
-    expect(rendered.bodyText).toContain("Continue on the web: https://chatly.example/conversation/token");
+    expect(rendered.bodyText).toContain("Continue on the web: https://chatting.example/conversation/token");
     expect(rendered.bodyText).toContain("utm_source=visitor_email");
     expect(rendered.bodyText).not.toContain("We replied to your message.\n\nWe replied to your message.");
     expect(rendered.bodyText).not.toContain("Or just reply to this email and it goes straight to us.");
@@ -54,17 +54,17 @@ describe("visitor conversation email renderer", () => {
       previewContext,
       {
         templateKey: "satisfaction_survey",
-        appUrl: "https://chatly.example",
-        conversationUrl: "https://chatly.example/conversation/token",
+        appUrl: "https://chatting.example",
+        conversationUrl: "https://chatting.example/conversation/token",
         replyToEmail: "reply@acme.example",
         teamAvatarUrl: null,
         showViralFooter: true,
-        feedbackLinks: buildConversationFeedbackLinks("https://chatly.example", "conv_123")
+        feedbackLinks: buildConversationFeedbackLinks("https://chatting.example", "conv_123")
       }
     );
 
-    expect(rendered.bodyText).toContain("1 star: https://chatly.example/feedback?conversationId=conv_123&rating=1");
-    expect(rendered.bodyText).toContain("5 stars: https://chatly.example/feedback?conversationId=conv_123&rating=5");
+    expect(rendered.bodyText).toContain("1 star: https://chatting.example/feedback?conversationId=conv_123&rating=1");
+    expect(rendered.bodyText).toContain("5 stars: https://chatting.example/feedback?conversationId=conv_123&rating=5");
     expect(rendered.bodyText).not.toContain("Try Chatting Free");
     expect(rendered.bodyHtml).not.toContain("Powered by <strong");
     expect(rendered.bodyHtml).toContain(">5<");

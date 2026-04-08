@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   invalidateAuthEmailTokens: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-transactional-email-senders", () => ({
+vi.mock("@/lib/chatting-transactional-email-senders", () => ({
   sendPasswordResetEmail: mocks.sendPasswordResetEmail
 }));
 
@@ -32,29 +32,29 @@ describe("auth password reset", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.AUTH_SECRET = "test-secret";
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
   });
 
   it("creates and emails a password reset token for known users", async () => {
     mocks.findAuthUserByEmail.mockResolvedValueOnce({
       id: "user_1",
-      email: "hello@chatly.example"
+      email: "hello@chatting.example"
     });
 
-    await requestPasswordReset("hello@chatly.example");
+    await requestPasswordReset("hello@chatting.example");
 
     expect(mocks.invalidateAuthEmailTokens).toHaveBeenCalledWith("user_1", "password_reset");
     expect(mocks.insertAuthEmailToken).toHaveBeenCalledTimes(1);
     expect(mocks.sendPasswordResetEmail).toHaveBeenCalledWith({
-      to: "hello@chatly.example",
-      resetUrl: expect.stringContaining("https://chatly.example/login?mode=reset&token=")
+      to: "hello@chatting.example",
+      resetUrl: expect.stringContaining("https://chatting.example/login?mode=reset&token=")
     });
   });
 
   it("silently skips unknown emails", async () => {
     mocks.findAuthUserByEmail.mockResolvedValueOnce(null);
 
-    await expect(requestPasswordReset("missing@chatly.example")).resolves.toBe(false);
+    await expect(requestPasswordReset("missing@chatting.example")).resolves.toBe(false);
     expect(mocks.sendPasswordResetEmail).not.toHaveBeenCalled();
   });
 

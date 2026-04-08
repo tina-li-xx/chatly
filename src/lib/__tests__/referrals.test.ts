@@ -21,7 +21,7 @@ vi.mock("@/lib/repositories/billing-repository", () => ({
   listBillingInvoiceRows: referralMocks.listBillingInvoiceRows
 }));
 vi.mock("@/lib/env", () => ({
-  getPublicAppUrl: () => "https://chatly.example"
+  getPublicAppUrl: () => "https://chatting.example"
 }));
 
 describe("referrals", () => {
@@ -86,7 +86,7 @@ describe("referrals", () => {
         program_id: "program_customer",
         owner_user_id: "user_123",
         referred_user_id: "user_456",
-        referred_email: "new@chatly.example",
+        referred_email: "new@chatting.example",
         code: "REF-ABC123",
         program_type: "customer",
         program_label: "Customer referrals",
@@ -126,7 +126,7 @@ describe("referrals", () => {
     const module = await import("@/lib/referrals");
     const summary = await module.getDashboardReferralSummary("user_123");
 
-    expect(summary.programs[0]?.shareUrl).toBe("https://chatly.example/signup?ref=REF-ABC123");
+    expect(summary.programs[0]?.shareUrl).toBe("https://chatting.example/signup?ref=REF-ABC123");
     expect(summary.attributedSignups[0]?.status).toBe("converted");
     expect(summary.attributedSignups[0]?.code).toBe("REF-ABC123");
     expect(summary.attributedSignups[0]?.workspaceName).toBe("Acme Support");
@@ -139,7 +139,7 @@ describe("referrals", () => {
       program_id: "program_mutual",
       owner_user_id: "user_referrer",
       referred_user_id: "user_referred",
-      referred_email: "new@chatly.example",
+      referred_email: "new@chatting.example",
       code: "GIVE-ABC123",
       program_type: "mutual",
       program_label: "Give $10, get $10",

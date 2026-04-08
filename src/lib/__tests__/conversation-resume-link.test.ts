@@ -44,13 +44,13 @@ describe("conversation resume link", () => {
   });
 
   it("builds a hosted conversation link", () => {
-    const href = buildConversationResumeLink("https://chatly.example/", {
+    const href = buildConversationResumeLink("https://chatting.example/", {
       siteId: "site_1",
       sessionId: "session_1",
       conversationId: "conv_1"
     });
 
-    expect(href).toMatch(/^https:\/\/chatly\.example\/conversation\/.+\..+$/);
+    expect(href).toMatch(/^https:\/\/chatting\.example\/conversation\/.+\..+$/);
   });
 
   it("round-trips a preview token", () => {
@@ -68,12 +68,12 @@ describe("conversation resume link", () => {
   });
 
   it("builds a hosted preview link", () => {
-    const href = buildConversationPreviewLink("https://chatly.example/", {
+    const href = buildConversationPreviewLink("https://chatting.example/", {
       teamName: "Acme Support",
       agentName: "Tina",
       companyName: "Acme"
     });
 
-    expect(href).toMatch(/^https:\/\/chatly\.example\/conversation\/.+\..+$/);
+    expect(href).toMatch(/^https:\/\/chatting\.example\/conversation\/.+\..+$/);
   });
 });

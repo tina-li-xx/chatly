@@ -25,7 +25,7 @@ import { POST } from "./route";
 describe("dashboard email route", () => {
   beforeEach(() => {
     mocks.requireJsonRouteUser.mockResolvedValue({
-      user: { id: "user_123", email: "hello@chatly.example", createdAt: "2026-03-27T00:00:00.000Z" }
+      user: { id: "user_123", email: "hello@chatting.example", createdAt: "2026-03-27T00:00:00.000Z" }
     });
   });
 

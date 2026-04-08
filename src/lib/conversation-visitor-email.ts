@@ -11,7 +11,7 @@ import {
   renderParagraph,
   renderSmallText,
   renderStack
-} from "@/lib/chatly-email-foundation";
+} from "@/lib/chatting-email-foundation";
 import {
   renderDashboardEmailTemplateFragment,
   resolveDashboardEmailTemplateValue,

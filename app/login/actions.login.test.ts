@@ -29,18 +29,18 @@ describe("login actions", () => {
       fields: { email: "", password: "", websiteUrl: "", referralCode: "" }
     });
 
-    expect(await loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example" }))).toEqual({
+    expect(await loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example" }))).toEqual({
       ok: false,
       error: "Password is required.",
       nextPath: null,
-      fields: { email: "hello@chatly.example", password: "", websiteUrl: "", referralCode: "" }
+      fields: { email: "hello@chatting.example", password: "", websiteUrl: "", referralCode: "" }
     });
   });
 
   it("returns an auth mismatch error for unknown users", async () => {
     authMocks.signInUser.mockResolvedValueOnce(null);
 
-    const result = await loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123" }));
+    const result = await loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123" }));
     expect(result.error).toBe("That email and password combination didn't match.");
     expect(authMocks.setUserSession).not.toHaveBeenCalled();
   });
@@ -48,19 +48,19 @@ describe("login actions", () => {
   it("blocks unverified users from signing in", async () => {
     authMocks.signInUser.mockRejectedValueOnce(new Error("EMAIL_NOT_VERIFIED"));
 
-    const result = await loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123" }));
+    const result = await loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123" }));
     expect(result.error).toBe("Verify your email before signing in. Check your inbox for the verification link.");
     expect(authMocks.setUserSession).not.toHaveBeenCalled();
   });
 
   it("creates a session on successful login", async () => {
-    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatly.example" });
+    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatting.example" });
     dataMocks.getPostAuthPath.mockResolvedValueOnce("/dashboard");
 
     const result = await loginAction(
       INITIAL_STATE,
       authForm({
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         password: "password123",
         timezone: "Europe/London"
       })
@@ -76,56 +76,56 @@ describe("login actions", () => {
   });
 
   it("routes incomplete owners without a saved domain back into customize", async () => {
-    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatly.example" });
+    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatting.example" });
     authMocks.resumeOwnerOnboardingForUser.mockRejectedValueOnce(new Error("MISSING_DOMAIN"));
 
-    const result = await loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123" }));
+    const result = await loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123" }));
     expect(result).toMatchObject({ ok: true, nextPath: "/onboarding?step=customize" });
     expect(dataMocks.getPostAuthPath).not.toHaveBeenCalled();
     expect(authMocks.setUserSession).toHaveBeenCalledWith("user_123", null);
   });
 
   it("returns users to safe saved internal urls after successful login", async () => {
-    authMocks.signInUser.mockResolvedValue({ id: "user_123", email: "hello@chatly.example" });
+    authMocks.signInUser.mockResolvedValue({ id: "user_123", email: "hello@chatting.example" });
     dataMocks.getPostAuthPath.mockResolvedValue("/dashboard");
 
     await expect(
-      loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123", redirectTo: "/dashboard/inbox?id=conv_123" }))
+      loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123", redirectTo: "/dashboard/inbox?id=conv_123" }))
     ).resolves.toMatchObject({ nextPath: "/dashboard/inbox?id=conv_123" });
 
     await expect(
-      loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123", redirectTo: "/feedback?conversationId=conv_123&rating=5" }))
+      loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123", redirectTo: "/feedback?conversationId=conv_123&rating=5" }))
     ).resolves.toMatchObject({ nextPath: "/feedback?conversationId=conv_123&rating=5" });
   });
 
   it("keeps onboarding redirects ahead of saved urls and rejects unsafe targets", async () => {
-    authMocks.signInUser.mockResolvedValue({ id: "user_123", email: "hello@chatly.example" });
+    authMocks.signInUser.mockResolvedValue({ id: "user_123", email: "hello@chatting.example" });
     dataMocks.getPostAuthPath
       .mockResolvedValueOnce("/onboarding?step=install")
       .mockResolvedValueOnce("/dashboard");
 
     await expect(
-      loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123", redirectTo: "/dashboard/inbox?id=conv_123" }))
+      loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123", redirectTo: "/dashboard/inbox?id=conv_123" }))
     ).resolves.toMatchObject({ nextPath: "/onboarding?step=install" });
 
     await expect(
-      loginAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123", redirectTo: "https://evil.example/phish" }))
+      loginAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123", redirectTo: "https://evil.example/phish" }))
     ).resolves.toMatchObject({ nextPath: "/dashboard" });
   });
 
   it("accepts workspace invites during login", async () => {
-    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatly.example" });
+    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatting.example" });
     workspaceMocks.acceptTeamInvite.mockResolvedValueOnce({ ownerUserId: "owner_999", alreadyAccepted: false });
 
     const result = await loginAction(
       INITIAL_STATE,
-      authForm({ email: "hello@chatly.example", password: "password123", inviteId: "invite_123" })
+      authForm({ email: "hello@chatting.example", password: "password123", inviteId: "invite_123" })
     );
 
     expect(workspaceMocks.acceptTeamInvite).toHaveBeenCalledWith({
       inviteId: "invite_123",
       userId: "user_123",
-      email: "hello@chatly.example"
+      email: "hello@chatting.example"
     });
     expect(authMocks.setUserSession).toHaveBeenCalledWith("user_123", "owner_999");
     expect(authMocks.resumeOwnerOnboardingForUser).not.toHaveBeenCalled();
@@ -133,12 +133,12 @@ describe("login actions", () => {
   });
 
   it("maps invite-specific login errors cleanly", async () => {
-    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "wrong@chatly.example" });
+    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "wrong@chatting.example" });
     workspaceMocks.acceptTeamInvite.mockRejectedValueOnce(new Error("INVITE_EMAIL_MISMATCH"));
 
     const result = await loginAction(
       INITIAL_STATE,
-      authForm({ email: "wrong@chatly.example", password: "password123", inviteId: "invite_123" })
+      authForm({ email: "wrong@chatting.example", password: "password123", inviteId: "invite_123" })
     );
 
     expect(result.error).toBe("Sign in with the email address that received this invite.");

@@ -37,7 +37,7 @@ describe("dashboard visitor-note route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123"
       }
@@ -170,7 +170,7 @@ describe("dashboard visitor-note route", () => {
       note: "@Tina can you confirm this pricing edge case?",
       updatedAt: "2026-03-30T15:42:00.000Z",
       mentionerUserId: "user_123",
-      mentionerEmail: "hello@chatly.example",
+      mentionerEmail: "hello@chatting.example",
       workspaceOwnerId: "owner_123",
       mentionResolution: expect.objectContaining({
         mentions: expect.arrayContaining([

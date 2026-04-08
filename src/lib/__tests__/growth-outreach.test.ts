@@ -42,7 +42,7 @@ describe("growth outreach orchestration", () => {
     mocks.querySites.mockResolvedValueOnce({ rows: [{ id: "site_1", userId: "user_1", name: "Acme", widgetLastSeenUrl: "/pricing" }] });
     mocks.findAuthUserById.mockResolvedValueOnce({ created_at: "2026-03-28T00:00:00.000Z" });
     mocks.findNotificationSettingsRow.mockResolvedValueOnce({
-      email: "owner@chatly.example",
+      email: "owner@chatting.example",
       notification_email: null,
       email_notifications: true
     });
@@ -61,14 +61,14 @@ describe("growth outreach orchestration", () => {
     await maybeSendSiteLifecycleEmails("site_1");
 
     expect(mocks.sendActivationReminderEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "owner@chatly.example", mode: "missed" })
+      expect.objectContaining({ to: "owner@chatting.example", mode: "missed" })
     );
     expect(mocks.upsertGrowthEmailNudgeRow).toHaveBeenCalledWith("user_1", "activation-missed-first-day");
   });
 
   it("sends the team expansion email when Starter adds more seats", async () => {
     mocks.findNotificationSettingsRow.mockResolvedValueOnce({
-      email: "owner@chatly.example",
+      email: "owner@chatting.example",
       notification_email: null,
       email_notifications: true
     });
@@ -82,7 +82,7 @@ describe("growth outreach orchestration", () => {
     await maybeSendTeamExpansionEmail("user_1");
 
     expect(mocks.sendExpansionReminderEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "owner@chatly.example", mode: "team" })
+      expect.objectContaining({ to: "owner@chatting.example", mode: "team" })
     );
     expect(mocks.upsertGrowthEmailNudgeRow).toHaveBeenCalledWith("user_1", "expansion-team");
   });

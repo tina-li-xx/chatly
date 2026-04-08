@@ -10,14 +10,14 @@ describe("team notification email upgrade prompt", () => {
       conversationCount: 30,
       conversationLimit: 50,
       remainingConversations: 20,
-      billingUrl: "https://chatly.example/dashboard/settings?section=billing",
+      billingUrl: "https://chatting.example/dashboard/settings?section=billing",
       limitReached: false
     });
 
     expect(text).toContain("Starter usage alert");
     expect(text).toContain("You're at 30 of 50 conversations this month");
     expect(text).toContain("Only 20 conversations remain");
-    expect(text).toContain("Upgrade to Growth: https://chatly.example/dashboard/settings?section=billing");
+    expect(text).toContain("Upgrade to Growth: https://chatting.example/dashboard/settings?section=billing");
   });
 
   it("switches to the cap-reached copy once the limit is full", () => {
@@ -25,7 +25,7 @@ describe("team notification email upgrade prompt", () => {
       conversationCount: 50,
       conversationLimit: 50,
       remainingConversations: 0,
-      billingUrl: "https://chatly.example/dashboard/settings?section=billing",
+      billingUrl: "https://chatting.example/dashboard/settings?section=billing",
       limitReached: true
     });
 
@@ -41,7 +41,7 @@ describe("team notification email upgrade prompt", () => {
       conversationCount: 30,
       conversationLimit: 50,
       remainingConversations: 20,
-      billingUrl: "https://chatly.example/dashboard/settings?section=billing",
+      billingUrl: "https://chatting.example/dashboard/settings?section=billing",
       limitReached: false
     });
 

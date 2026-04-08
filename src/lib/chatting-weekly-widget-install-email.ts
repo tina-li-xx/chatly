@@ -6,7 +6,7 @@ import {
   renderSmallText,
   renderStack,
   renderTextBlock
-} from "@/lib/chatly-email-foundation";
+} from "@/lib/chatting-email-foundation";
 
 type RenderedEmail = { subject: string; bodyText: string; bodyHtml: string };
 

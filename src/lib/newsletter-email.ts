@@ -1,5 +1,5 @@
 import { getPublicAppUrl } from "@/lib/env";
-import { renderChattingEmailPage } from "@/lib/chatly-email-foundation";
+import { renderChattingEmailPage } from "@/lib/chatting-email-foundation";
 import { resolvePrimaryBrandHelloMailFrom } from "@/lib/mail-from-addresses";
 import { sendRenderedEmail } from "@/lib/rendered-email-delivery";
 

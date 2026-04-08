@@ -17,7 +17,7 @@ const workspaceMocks = vi.hoisted(() => ({ acceptTeamInvite: vi.fn() }));
 
 vi.mock("@/lib/auth", () => authMocks);
 vi.mock("@/lib/auth-email-verification", () => verificationMocks);
-vi.mock("@/lib/chatly-transactional-email-senders", () => emailMocks);
+vi.mock("@/lib/chatting-transactional-email-senders", () => emailMocks);
 vi.mock("@/lib/data", () => dataMocks);
 vi.mock("@/lib/user-timezone-preference", () => timeZoneMocks);
 vi.mock("@/lib/workspace-access", () => workspaceMocks);
@@ -43,7 +43,7 @@ describe("login actions edge cases", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.NODE_ENV = "test";
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
     dataMocks.getPostAuthPath.mockResolvedValue("/onboarding?step=customize");
   });
 

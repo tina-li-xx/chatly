@@ -4,7 +4,7 @@ import {
   renderSmallText,
   renderStack,
   renderTextBlock
-} from "@/lib/chatly-email-foundation";
+} from "@/lib/chatting-email-foundation";
 import { escapeHtml } from "@/lib/utils";
 
 type RenderedEmail = {

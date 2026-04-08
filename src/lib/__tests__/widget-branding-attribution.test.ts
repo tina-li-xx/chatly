@@ -3,7 +3,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/env", () => ({
-  getPublicAppUrl: () => "https://chatly.example"
+  getPublicAppUrl: () => "https://chatting.example"
 }));
 
 vi.mock("@/lib/referrals", () => ({
@@ -37,7 +37,7 @@ describe("widget branding attribution", () => {
     const url = await getWidgetBrandingAttributionUrl("user_123", "site_123");
 
     expect(url).toBe(
-      "https://chatly.example/signup?ref=REF-ABC123&utm_source=widget_branding&utm_medium=powered_by&utm_campaign=site_123"
+      "https://chatting.example/signup?ref=REF-ABC123&utm_source=widget_branding&utm_medium=powered_by&utm_campaign=site_123"
     );
   });
 
@@ -48,7 +48,7 @@ describe("widget branding attribution", () => {
     const url = await getWidgetBrandingAttributionUrl("user_123", "site_456");
 
     expect(url).toBe(
-      "https://chatly.example/signup?utm_source=widget_branding&utm_medium=powered_by&utm_campaign=site_456"
+      "https://chatting.example/signup?utm_source=widget_branding&utm_medium=powered_by&utm_campaign=site_456"
     );
   });
 });

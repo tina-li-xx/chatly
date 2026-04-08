@@ -1,13 +1,13 @@
-import { renderAccountWelcomeEmail, renderEmailVerificationEmail, renderTeamInvitationEmail } from "@/lib/chatly-transactional-emails";
+import { renderAccountWelcomeEmail, renderEmailVerificationEmail, renderTeamInvitationEmail } from "@/lib/chatting-transactional-emails";
 import {
   renderDailyDigestEmail,
   renderMentionNotificationEmail,
   renderNewMessageNotificationEmail,
   renderWeeklyPerformanceEmail
-} from "@/lib/chatly-notification-emails";
-import { renderProductUpdateEmail, renderTrialExpiredEmail, renderTrialEndingReminderEmail } from "@/lib/chatly-marketing-emails";
+} from "@/lib/chatting-notification-emails";
+import { renderProductUpdateEmail, renderTrialExpiredEmail, renderTrialEndingReminderEmail } from "@/lib/chatting-marketing-emails";
 
-describe("chatly email design system", () => {
+describe("chatting email design system", () => {
   function expectTableFirstSharedLayout(html: string) {
     expect(html).toContain('role="presentation" width="100%"');
     expect(html.match(/<div style=/g)?.length ?? 0).toBe(1);
@@ -16,17 +16,17 @@ describe("chatly email design system", () => {
   it("renders transactional emails with the shared shell", () => {
     const welcome = renderAccountWelcomeEmail({
       firstName: "Alex",
-      dashboardUrl: "https://chatly.example/dashboard"
+      dashboardUrl: "https://chatting.example/dashboard"
     });
     const verification = renderEmailVerificationEmail({
-      verifyUrl: "https://chatly.example/verify?token=abc"
+      verifyUrl: "https://chatting.example/verify?token=abc"
     });
     const invite = renderTeamInvitationEmail({
       inviterName: "Sarah Chen",
       teamName: "Acme Support",
       teamWebsite: "acme.example",
       memberCount: 3,
-      inviteUrl: "https://chatly.example/signup?invite=123"
+      inviteUrl: "https://chatting.example/signup?invite=123"
     });
 
     expect(welcome.subject).toBe("Welcome to Chatting — let's get you set up");
@@ -46,7 +46,7 @@ describe("chatly email design system", () => {
       teamName: "Chatting",
       teamWebsite: "https://usechatting.com",
       memberCount: 3,
-      inviteUrl: "https://chatly.example/signup?invite=123"
+      inviteUrl: "https://chatting.example/signup?invite=123"
     });
 
     expect(invite.subject).toBe("Tina Bauer invited you to join the Chatting team");
@@ -61,8 +61,8 @@ describe("chatly email design system", () => {
       visitorEmail: "alex@example.com",
       currentPage: "/pricing",
       messagePreview: "Do you support annual billing?",
-      replyNowUrl: "mailto:reply@chatly.example",
-      inboxUrl: "https://chatly.example/dashboard?id=conv_1"
+      replyNowUrl: "mailto:reply@chatting.example",
+      inboxUrl: "https://chatting.example/dashboard?id=conv_1"
     });
     const digest = renderDailyDigestEmail({
       date: "March 29, 2026",
@@ -75,15 +75,15 @@ describe("chatly email design system", () => {
       openConversations: [
         { title: "Visitor on /pricing", preview: "Does the Growth plan include...", meta: "2h ago" }
       ],
-      inboxUrl: "https://chatly.example/dashboard"
+      inboxUrl: "https://chatting.example/dashboard"
     });
     const weekly = renderWeeklyPerformanceEmail({
       teamName: "Acme Support",
       dateRange: "Mar 22 to Mar 28",
       previewText: "47 conversations, 1.4 min avg response time",
-      reportUrl: "https://chatly.example/dashboard/analytics?range=last_week",
-      settingsUrl: "https://chatly.example/dashboard/settings?section=reports",
-      widgetUrl: "https://chatly.example/dashboard/widget",
+      reportUrl: "https://chatting.example/dashboard/analytics?range=last_week",
+      settingsUrl: "https://chatting.example/dashboard/settings?section=reports",
+      widgetUrl: "https://chatting.example/dashboard/widget",
       quietWeek: false,
       metrics: [
         { label: "Conversations", value: "47", trendLabel: "↑ 12% vs last week", trendTone: "positive", trendDirection: "up" },
@@ -104,7 +104,7 @@ describe("chatly email design system", () => {
       peakLabel: "Tue 2pm-3pm (12 conversations)",
       topPages: [{ label: "/pricing", count: 18, widthPercent: 100 }, { label: "/features", count: 11, widthPercent: 61 }],
       insight: "Response time improved 18% week over week, which usually shows up fastest in visitor confidence.",
-      tip: { text: "Save a few quick replies for common questions to keep first-response time down.", href: "https://chatly.example/dashboard/settings?section=savedReplies", label: "Create saved replies" },
+      tip: { text: "Save a few quick replies for common questions to keep first-response time down.", href: "https://chatting.example/dashboard/settings?section=savedReplies", label: "Create saved replies" },
       teamPerformance: [
         {
           userId: "user_1",
@@ -134,7 +134,7 @@ describe("chatly email design system", () => {
       visitorName: "Alex",
       note: "@Tina can you confirm whether this customer qualifies for annual billing?",
       noteMeta: "Pricing conversation • 3 minutes ago",
-      conversationUrl: "https://chatly.example/dashboard/inbox?id=conv_1"
+      conversationUrl: "https://chatting.example/dashboard/inbox?id=conv_1"
     });
 
     expect(message.subject).toBe("New message from Alex");
@@ -143,7 +143,7 @@ describe("chatly email design system", () => {
     expect(digest.bodyHtml).toContain("Open conversations");
     expect(digest.bodyHtml).toContain('height="108"');
     expectTableFirstSharedLayout(digest.bodyHtml);
-    expect(weekly.bodyText).toContain("View Full Analytics → https://chatly.example/dashboard/analytics?range=last_week");
+    expect(weekly.bodyText).toContain("View Full Analytics → https://chatting.example/dashboard/analytics?range=last_week");
     expect(weekly.bodyText).toContain("Team performance:");
     expect(weekly.bodyHtml).toContain("Your stats");
     expect(weekly.bodyHtml).toContain("Team performance");
@@ -162,20 +162,20 @@ describe("chatly email design system", () => {
         { value: "1.8m", label: "avg resp" },
         { value: "89%", label: "resolved" }
       ],
-      upgradeUrl: "https://chatly.example/dashboard/settings?section=billing",
-      plansUrl: "https://chatly.example/pricing"
+      upgradeUrl: "https://chatting.example/dashboard/settings?section=billing",
+      plansUrl: "https://chatting.example/pricing"
     });
     const productUpdate = renderProductUpdateEmail({
       featureName: "Smarter visitor routing",
       featureDescription: "Send high-intent conversations to the right teammate faster.",
       monthLabel: "March 2026",
-      tryItUrl: "https://chatly.example/dashboard",
-      changelogUrl: "https://chatly.example/changelog",
+      tryItUrl: "https://chatting.example/dashboard",
+      changelogUrl: "https://chatting.example/changelog",
       additionalUpdates: ["Refined inbox filters", "Faster transcript exports"]
     });
     const expired = renderTrialExpiredEmail({
       firstName: "Alex",
-      reactivateUrl: "https://chatly.example/dashboard/settings?section=billing"
+      reactivateUrl: "https://chatting.example/dashboard/settings?section=billing"
     });
 
     expect(trialEnding.subject).toBe("Your trial ends in 3 days");

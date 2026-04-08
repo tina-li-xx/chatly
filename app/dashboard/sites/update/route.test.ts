@@ -28,7 +28,7 @@ describe("dashboard sites update route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.requireJsonRouteUser.mockResolvedValue({
-      user: { id: "user_123", email: "hello@chatly.example", createdAt: "2026-03-27T00:00:00.000Z" }
+      user: { id: "user_123", email: "hello@chatting.example", createdAt: "2026-03-27T00:00:00.000Z" }
     });
     mocks.findBillingAccountRow.mockResolvedValue({
       plan_key: "growth"

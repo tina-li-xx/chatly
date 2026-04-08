@@ -1,6 +1,6 @@
-import { joinEmailText, renderChattingEmailPage, renderLabelText, renderPanel, renderSmallText, renderStack, renderTextBlock } from "@/lib/chatly-email-foundation";
+import { joinEmailText, renderChattingEmailPage, renderLabelText, renderPanel, renderSmallText, renderStack, renderTextBlock } from "@/lib/chatting-email-foundation";
 import { escapeHtml } from "@/lib/utils";
-export { renderWeeklyPerformanceEmail } from "@/lib/chatly-weekly-performance-email";
+export { renderWeeklyPerformanceEmail } from "@/lib/chatting-weekly-performance-email";
 type RenderedEmail = { subject: string; bodyText: string; bodyHtml: string };
 
 export function renderNewMessageNotificationEmail(input: {

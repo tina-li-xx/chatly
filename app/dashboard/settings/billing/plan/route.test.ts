@@ -29,7 +29,7 @@ describe("billing plan route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123",
         workspaceRole: "admin"
@@ -70,7 +70,7 @@ describe("billing plan route", () => {
       ok: true,
       redirectUrl: "https://checkout.stripe.com/session"
     });
-    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatly.example", {
+    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatting.example", {
       planKey: "growth",
       billingInterval: "monthly",
       seatQuantity: 3
@@ -81,7 +81,7 @@ describe("billing plan route", () => {
     mocks.requireJsonRouteUser.mockResolvedValueOnce({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123",
         workspaceRole: "member"
@@ -113,7 +113,7 @@ describe("billing plan route", () => {
       ok: true,
       redirectUrl: "https://checkout.stripe.com/growth"
     });
-    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatly.example", {
+    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatting.example", {
       planKey: "growth",
       billingInterval: "annual",
       seatQuantity: 3
@@ -134,7 +134,7 @@ describe("billing plan route", () => {
       ok: true,
       redirectUrl: "https://checkout.stripe.com/custom-seats"
     });
-    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatly.example", {
+    expect(mocks.createDashboardBillingCheckoutSession).toHaveBeenCalledWith("user_123", "hello@chatting.example", {
       planKey: "growth",
       billingInterval: "monthly",
       seatQuantity: 10
@@ -175,7 +175,7 @@ describe("billing plan route", () => {
       ok: true,
       redirectUrl: "https://billing.stripe.com/manage"
     });
-    expect(mocks.createDashboardBillingPortalSession).toHaveBeenCalledWith("user_123", "hello@chatly.example");
+    expect(mocks.createDashboardBillingPortalSession).toHaveBeenCalledWith("user_123", "hello@chatting.example");
   });
 
   it("blocks automatic checkout for 50-plus teams", async () => {

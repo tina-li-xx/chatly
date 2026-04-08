@@ -28,7 +28,7 @@ describe("email templates hotspots", () => {
       profileName: "Taylor Reed"
     });
     const fragment = renderDashboardEmailTemplateFragment(
-      "![](https://chatly.example/image.png)\n[Docs](https://chatly.example/docs)\n```const ok = true```",
+      "![](https://chatting.example/image.png)\n[Docs](https://chatting.example/docs)\n```const ok = true```",
       context,
       { highlightVariables: false }
     );
@@ -36,7 +36,7 @@ describe("email templates hotspots", () => {
     expect(context.companyName).toBe("Rocket Labs");
     expect(fragment.html).toContain("<figure");
     expect(fragment.html).not.toContain("<figcaption");
-    expect(fragment.html).toContain('href="https://chatly.example/docs"');
+    expect(fragment.html).toContain('href="https://chatting.example/docs"');
     expect(fragment.html).toContain("<pre");
   });
 });

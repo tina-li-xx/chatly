@@ -3,7 +3,7 @@ import type { GrowthOutreachPlanKey } from "@/lib/growth-outreach-rules";
 import {
   joinEmailText,
   renderChattingEmailPage
-} from "@/lib/chatly-email-foundation";
+} from "@/lib/chatting-email-foundation";
 import { getPublicAppUrl } from "@/lib/env";
 import { resolvePrimaryBrandHelloMailFrom } from "@/lib/mail-from-addresses";
 import { sendRenderedEmail } from "@/lib/rendered-email-delivery";

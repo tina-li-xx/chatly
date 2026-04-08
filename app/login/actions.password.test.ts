@@ -15,21 +15,21 @@ describe("password and verification actions", () => {
   });
 
   it("returns a generic success message for password reset requests", async () => {
-    const result = await forgotPasswordAction(authForm({ email: "hello@chatly.example" }));
+    const result = await forgotPasswordAction(authForm({ email: "hello@chatting.example" }));
 
-    expect(passwordResetMocks.requestPasswordReset).toHaveBeenCalledWith("hello@chatly.example");
+    expect(passwordResetMocks.requestPasswordReset).toHaveBeenCalledWith("hello@chatting.example");
     expect(result).toEqual({
       ok: true,
       error: null,
-      message: "We sent a password reset link to hello@chatly.example.",
+      message: "We sent a password reset link to hello@chatting.example.",
       nextPath: null
     });
   });
 
   it("resends verification links with a generic success message", async () => {
-    const result = await resendVerificationAction(authForm({ email: "hello@chatly.example" }));
+    const result = await resendVerificationAction(authForm({ email: "hello@chatting.example" }));
 
-    expect(verificationMocks.requestEmailVerification).toHaveBeenCalledWith("hello@chatly.example");
+    expect(verificationMocks.requestEmailVerification).toHaveBeenCalledWith("hello@chatting.example");
     expect(result).toEqual({
       ok: true,
       error: null,

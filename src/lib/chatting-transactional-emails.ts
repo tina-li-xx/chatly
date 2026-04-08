@@ -4,7 +4,7 @@ import {
   renderParagraph,
   renderSmallText,
   renderStack
-} from "@/lib/chatly-email-foundation";
+} from "@/lib/chatting-email-foundation";
 import { initialsFromLabel } from "@/lib/user-display";
 import { escapeHtml } from "@/lib/utils";
 

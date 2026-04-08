@@ -11,7 +11,7 @@ describe("dashboard team page", () => {
           {
             id: "member_1",
             name: "Tina Bauer",
-            email: "tina@chatly.example",
+            email: "tina@chatting.example",
             initials: "TB",
             role: "owner",
             status: "online",

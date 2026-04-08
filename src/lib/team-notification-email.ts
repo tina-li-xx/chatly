@@ -4,7 +4,7 @@ import {
   renderChattingEmailPage,
   renderParagraph,
   renderSmallText
-} from "./chatly-email-foundation";
+} from "./chatting-email-foundation";
 import { escapeHtml } from "./utils";
 
 export type TeamNotificationUpgradePrompt = {

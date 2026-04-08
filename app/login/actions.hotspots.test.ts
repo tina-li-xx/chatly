@@ -17,7 +17,7 @@ vi.mock("@/lib/auth-password-reset", () => ({
   requestPasswordReset: vi.fn(),
   resetPasswordWithToken: vi.fn()
 }));
-vi.mock("@/lib/chatly-transactional-email-senders", () => ({
+vi.mock("@/lib/chatting-transactional-email-senders", () => ({
   sendAccountWelcomeEmail: vi.fn()
 }));
 vi.mock("@/lib/data", () => ({

@@ -27,7 +27,7 @@ import { getDefaultDashboardEmailTemplates } from "@/lib/email-templates";
 describe("conversation template emails more", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
     delete process.env.REPLY_DOMAIN;
     mocks.getDashboardEmailTemplateSettings.mockResolvedValue({
       profile: { firstName: "Sarah", lastName: "Chen", email: "sarah@acme.example", avatarDataUrl: null },

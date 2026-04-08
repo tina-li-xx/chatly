@@ -2,7 +2,7 @@ import {
   resolveAiAssistWarningState,
   warningEmailKeyForState
 } from "@/lib/ai-assist-warning";
-import { sendAiAssistWarningEmail } from "@/lib/chatly-notification-email-senders";
+import { sendAiAssistWarningEmail } from "@/lib/chatting-notification-email-senders";
 import { getPublicAppUrl } from "@/lib/env";
 import {
   claimAiAssistWarningDelivery,
@@ -20,7 +20,7 @@ export async function maybeSendAiAssistWarningEmails(input: {
 }) {
   const state = resolveAiAssistWarningState(input.used, input.limit);
   const warningKey = warningEmailKeyForState(state);
-  if (!warningKey || input.limit == null) {
+  if (!state || !warningKey || input.limit == null) {
     return;
   }
 

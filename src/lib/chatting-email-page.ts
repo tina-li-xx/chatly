@@ -7,7 +7,7 @@ import {
   renderChattingEmailShell,
   renderDivider,
   renderEmailSection
-} from "@/lib/chatly-email-core";
+} from "@/lib/chatting-email-core";
 import {
   renderAlignedBlock,
   renderHeadingBlock,
@@ -15,8 +15,8 @@ import {
   renderPanel,
   renderParagraph,
   renderStack
-} from "@/lib/chatly-email-content";
-import { FONT_STACK } from "@/lib/chatly-email-tokens";
+} from "@/lib/chatting-email-content";
+import { FONT_STACK } from "@/lib/chatting-email-tokens";
 import { initialsFromLabel } from "@/lib/user-display";
 import { escapeHtml } from "@/lib/utils";
 

@@ -6,7 +6,7 @@ import { buildDashboardEmailTemplatePreviewContext } from "@/lib/email-templates
 
 describe("conversation transcript email renderer", () => {
   const previewContext = buildDashboardEmailTemplatePreviewContext({
-    profileEmail: "sarah@chatly.example",
+    profileEmail: "sarah@chatting.example",
     profileName: "Sarah Chen"
   });
 
@@ -18,8 +18,8 @@ describe("conversation transcript email renderer", () => {
       },
       previewContext,
       {
-        appUrl: "https://chatly.example",
-        conversationUrl: "https://chatly.example/conversation/token",
+        appUrl: "https://chatting.example",
+        conversationUrl: "https://chatting.example/conversation/token",
         replyToEmail: "reply@acme.example",
         messages: buildConversationTranscriptPreviewMessages(),
         teamAvatarUrl: null,
@@ -30,7 +30,7 @@ describe("conversation transcript email renderer", () => {
     expect(rendered.subject).toBe("Your conversation with Chatting Team");
     expect(rendered.bodyText).toContain("March 15, 2026 • 3 messages");
     expect(rendered.bodyText).toContain("Reply to This Email: mailto:reply@acme.example");
-    expect(rendered.bodyText).toContain("Continue on the web: https://chatly.example/conversation/token");
+    expect(rendered.bodyText).toContain("Continue on the web: https://chatting.example/conversation/token");
     expect(rendered.bodyText).toContain("Try Chatting Free →");
     expect(rendered.bodyHtml).toContain("background:#F1F5F9");
     expect(rendered.bodyHtml).toContain("Georgia,'Times New Roman',serif");
@@ -51,8 +51,8 @@ describe("conversation transcript email renderer", () => {
       },
       previewContext,
       {
-        appUrl: "https://chatly.example",
-        conversationUrl: "https://chatly.example/conversation/token",
+        appUrl: "https://chatting.example",
+        conversationUrl: "https://chatting.example/conversation/token",
         replyToEmail: "reply@acme.example",
         messages: buildConversationTranscriptPreviewMessages(),
         teamAvatarUrl: null,
@@ -74,16 +74,16 @@ describe("conversation transcript email renderer", () => {
       },
       previewContext,
       {
-        appUrl: "https://chatly.example",
-        conversationUrl: "https://chatly.example/conversation/token",
+        appUrl: "https://chatting.example",
+        conversationUrl: "https://chatting.example/conversation/token",
         replyToEmail: "reply@acme.example",
         messages: buildConversationTranscriptPreviewMessages(),
-        teamAvatarUrl: "https://cdn.chatly.example/team-avatar.png",
+        teamAvatarUrl: "https://cdn.chatting.example/team-avatar.png",
         showViralFooter: false
       }
     );
 
-    expect(rendered.bodyHtml).not.toContain("cdn.chatly.example/team-avatar.png");
+    expect(rendered.bodyHtml).not.toContain("cdn.chatting.example/team-avatar.png");
     expect(rendered.bodyHtml).toContain(">CT</td>");
   });
 });

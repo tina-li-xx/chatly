@@ -14,7 +14,7 @@ describe("stripe helpers", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_PRICE_GROWTH_MONTHLY = "price_growth_monthly";
     process.env.STRIPE_PRICE_GROWTH_ANNUAL = "price_growth_annual";
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_123";
 
     let stripeModule = await import("@/lib/stripe");
@@ -32,7 +32,7 @@ describe("stripe helpers", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_PRICE_GROWTH_MONTHLY = "price_growth_monthly";
     process.env.STRIPE_PRICE_GROWTH_ANNUAL = "price_growth_annual";
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
     delete process.env.STRIPE_WEBHOOK_SECRET;
 
     const stripeModule = await import("@/lib/stripe");
@@ -41,10 +41,10 @@ describe("stripe helpers", () => {
   });
 
   it("returns normalized stripe app urls", async () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example///";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example///";
     const stripeModule = await import("@/lib/stripe");
 
-    expect(stripeModule.getStripeAppUrl()).toBe("https://chatly.example");
+    expect(stripeModule.getStripeAppUrl()).toBe("https://chatting.example");
   });
 
   it("throws a stripe-specific error when required env is missing", async () => {
@@ -58,7 +58,7 @@ describe("stripe helpers", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test_123";
     process.env.STRIPE_PRICE_GROWTH_MONTHLY = "price_growth_monthly";
     process.env.STRIPE_PRICE_GROWTH_ANNUAL = "price_growth_annual";
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
 
     const stripeModule = await import("@/lib/stripe");
     expect(stripeModule.getStripe()).toBe(stripeModule.getStripe());

@@ -1,4 +1,4 @@
-import { sendMentionNotificationEmail } from "@/lib/chatly-notification-email-senders";
+import { sendMentionNotificationEmail } from "@/lib/chatting-notification-email-senders";
 import { getConversationSummaryById } from "@/lib/data/conversations";
 import { getPublicAppUrl } from "@/lib/env";
 import {

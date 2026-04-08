@@ -1,4 +1,4 @@
-import { renderAlignedBlock, renderEmailButton } from "@/lib/chatly-email-foundation";
+import { renderAlignedBlock, renderEmailButton } from "@/lib/chatting-email-foundation";
 import { normalizeDashboardEmailTemplateContent } from "@/lib/email-template-content";
 import { VARIABLE_TOKEN_MAP } from "@/lib/email-template-variables";
 import {

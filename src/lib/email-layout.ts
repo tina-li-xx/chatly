@@ -7,8 +7,8 @@ import {
   renderLabelText,
   renderParagraph,
   renderStack
-} from "@/lib/chatly-email-foundation";
-import { renderPanel } from "@/lib/chatly-email-content";
+} from "@/lib/chatting-email-foundation";
+import { renderPanel } from "@/lib/chatting-email-content";
 
 export type StyledEmailSection =
   | { type: "plain"; html: string; text?: string; tone?: "default" | "soft" }

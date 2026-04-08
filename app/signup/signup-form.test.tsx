@@ -61,7 +61,7 @@ describe("signup form", () => {
   it("renders invite signup without workspace setup fields", async () => {
     const html = await renderSignupForm({
       invite: "invite_123",
-      email: "teammate@chatly.example"
+      email: "teammate@chatting.example"
     });
 
     expect(html).toContain("Join the workspace");

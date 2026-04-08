@@ -2,7 +2,7 @@ import {
   renderProductUpdateEmail,
   renderTrialEndingReminderEmail,
   renderTrialExpiredEmail
-} from "@/lib/chatly-marketing-emails";
+} from "@/lib/chatting-marketing-emails";
 import { getPublicAppUrl } from "@/lib/env";
 import {
   resolvePrimaryBrandHelloMailFrom,

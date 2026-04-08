@@ -18,7 +18,7 @@ describe("user display helpers", () => {
 
   it("builds initials from labels", () => {
     expect(initialsFromLabel("Sarah Chen")).toBe("SC");
-    expect(initialsFromLabel("chatly")).toBe("C");
+    expect(initialsFromLabel("chatting")).toBe("C");
     expect(initialsFromLabel("   ")).toBe("??");
   });
 });

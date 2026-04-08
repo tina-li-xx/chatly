@@ -1,7 +1,7 @@
 import {
   sendWeeklyPerformanceEmail,
   sendWeeklyWidgetInstallEmail
-} from "@/lib/chatly-notification-email-senders";
+} from "@/lib/chatting-notification-email-senders";
 import { getPublicAppUrl } from "@/lib/env";
 import { optionalText } from "@/lib/utils";
 import {

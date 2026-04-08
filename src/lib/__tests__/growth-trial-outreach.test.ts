@@ -24,7 +24,7 @@ vi.mock("@/lib/growth-outreach-shared", () => ({
   getGrowthDeliverySettings: mocks.getGrowthDeliverySettings,
   maybeSendGrowthEmail: mocks.maybeSendGrowthEmail
 }));
-vi.mock("@/lib/chatly-marketing-email-senders", () => ({
+vi.mock("@/lib/chatting-marketing-email-senders", () => ({
   sendTrialEndingReminderEmail: mocks.sendTrialEndingReminderEmail,
   sendTrialExpiredEmail: mocks.sendTrialExpiredEmail
 }));

@@ -3,7 +3,7 @@ import {
   renderEmailVerificationEmail,
   renderPasswordResetEmail,
   renderTeamInvitationEmail
-} from "@/lib/chatly-transactional-emails";
+} from "@/lib/chatting-transactional-emails";
 import {
   resolvePrimaryBrandHelloMailFrom,
   resolvePrimaryBrandNoReplyMailFrom,

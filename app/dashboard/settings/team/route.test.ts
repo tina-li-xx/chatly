@@ -28,7 +28,7 @@ describe("dashboard team route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123",
         workspaceRole: "admin"
@@ -44,7 +44,7 @@ describe("dashboard team route", () => {
         method: "POST",
         body: JSON.stringify({
           action: "invite",
-          email: "new@chatly.example",
+          email: "new@chatting.example",
           role: "admin",
           message: "Welcome"
         })
@@ -53,7 +53,7 @@ describe("dashboard team route", () => {
 
     expect(mocks.createTeamInvite).toHaveBeenCalledWith({
       ownerUserId: "owner_123",
-      email: "new@chatly.example",
+      email: "new@chatting.example",
       role: "admin",
       message: "Welcome"
     });
@@ -108,7 +108,7 @@ describe("dashboard team route", () => {
     mocks.requireJsonRouteUser.mockResolvedValueOnce({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123",
         workspaceRole: "member"
@@ -118,7 +118,7 @@ describe("dashboard team route", () => {
     const response = await POST(
       new Request("http://localhost/dashboard/settings/team", {
         method: "POST",
-        body: JSON.stringify({ action: "invite", email: "new@chatly.example" })
+        body: JSON.stringify({ action: "invite", email: "new@chatting.example" })
       })
     );
 

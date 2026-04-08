@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   sendSesEmail: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-notification-emails", () => ({
+vi.mock("@/lib/chatting-notification-emails", () => ({
   renderNewMessageNotificationEmail: mocks.renderNewMessageNotificationEmail
 }));
 vi.mock("@/lib/conversation-feedback", () => ({

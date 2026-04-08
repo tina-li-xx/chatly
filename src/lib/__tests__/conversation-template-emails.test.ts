@@ -33,8 +33,8 @@ describe("conversation template emails", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
-    process.env.REPLY_DOMAIN = "reply.chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
+    process.env.REPLY_DOMAIN = "reply.chatting.example";
 
     mocks.getDashboardEmailTemplateSettings.mockResolvedValue({
       profile: {
@@ -110,13 +110,13 @@ describe("conversation template emails", () => {
     expect(transcriptEmail).toMatchObject({
       from: "Acme Support via Chatting <noreply@mail.usechatting.com>",
       to: "alex@example.com",
-      replyTo: "reply+conv_1@reply.chatly.example",
+      replyTo: "reply+conv_1@reply.chatting.example",
       subject: "Your conversation with Acme Support"
     });
     expect(transcriptEmail.bodyText).toContain("Thanks for chatting with us!");
     expect(transcriptEmail.bodyText).toContain("March 28, 2026 • 2 messages");
-    expect(transcriptEmail.bodyText).toContain("Reply to This Email: mailto:reply+conv_1@reply.chatly.example");
-    expect(transcriptEmail.bodyText).toContain("Continue on the web: https://chatly.example/conversation/");
+    expect(transcriptEmail.bodyText).toContain("Reply to This Email: mailto:reply+conv_1@reply.chatting.example");
+    expect(transcriptEmail.bodyText).toContain("Continue on the web: https://chatting.example/conversation/");
     expect(transcriptEmail.bodyText).toContain("Try Chatting Free →");
     expect(transcriptEmail.bodyText).toContain("utm_content=variant_a&ref=acme-support");
     expect(transcriptEmail.emailCategory).toBe("optional");
@@ -146,7 +146,7 @@ describe("conversation template emails", () => {
       ([input]) => input.subject === "Your conversation with Acme Support"
     )?.[0];
 
-    expect(transcriptEmail.bodyText).toContain("Reply to This Email: mailto:reply+conv_1@reply.chatly.example");
+    expect(transcriptEmail.bodyText).toContain("Reply to This Email: mailto:reply+conv_1@reply.chatting.example");
     expect(transcriptEmail.bodyText).not.toContain("Chat with us on Chatting");
     expect(transcriptEmail.bodyHtml).not.toContain("utm_campaign=viral_footer");
     expect(transcriptEmail.footerTeamName).toBe("Acme Support");

@@ -47,7 +47,7 @@ describe("dashboard home", () => {
 
     const html = renderToStaticMarkup(
       await DashboardHome({
-        userEmail: "tina@chatly.example",
+        userEmail: "tina@chatting.example",
         userId: "user_123",
         workspaceOwnerId: "owner_123"
       })
@@ -100,7 +100,7 @@ describe("dashboard home", () => {
 
     const html = renderToStaticMarkup(
       await DashboardHome({
-        userEmail: "tina@chatly.example",
+        userEmail: "tina@chatting.example",
         userId: "user_123",
         workspaceOwnerId: "owner_123"
       })
@@ -123,7 +123,7 @@ describe("dashboard home", () => {
 
     const html = renderToStaticMarkup(
       await DashboardHome({
-        userEmail: "tina@chatly.example",
+        userEmail: "tina@chatting.example",
         userId: "user_123",
         workspaceOwnerId: "owner_123"
       })

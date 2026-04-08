@@ -2,7 +2,7 @@ import { getPublicAppUrl } from "@/lib/env";
 import {
   sendTrialEndingReminderEmail,
   sendTrialExpiredEmail
-} from "@/lib/chatly-marketing-email-senders";
+} from "@/lib/chatting-marketing-email-senders";
 import { maybeSendGrowthEmail, getGrowthDeliverySettings } from "@/lib/growth-outreach-shared";
 import {
   countActiveTeamMembershipRows

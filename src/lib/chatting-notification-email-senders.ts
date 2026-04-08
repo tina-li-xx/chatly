@@ -1,10 +1,10 @@
-import { renderAiAssistWarningEmail } from "@/lib/chatly-ai-assist-warning-email";
+import { renderAiAssistWarningEmail } from "@/lib/chatting-ai-assist-warning-email";
 import {
   renderDailyDigestEmail,
   renderMentionNotificationEmail,
   renderWeeklyPerformanceEmail
-} from "@/lib/chatly-notification-emails";
-import { renderWeeklyWidgetInstallEmail } from "@/lib/chatly-weekly-widget-install-email";
+} from "@/lib/chatting-notification-emails";
+import { renderWeeklyWidgetInstallEmail } from "@/lib/chatting-weekly-widget-install-email";
 import {
   resolveDailyDigestMailFrom,
   resolveImmediateTeamNotificationMailFrom,

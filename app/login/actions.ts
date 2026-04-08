@@ -8,7 +8,7 @@ import {
   signUpInvitedUser,
   signUpUser
 } from "@/lib/auth";
-import { sendAccountWelcomeEmail } from "@/lib/chatly-transactional-email-senders";
+import { sendAccountWelcomeEmail } from "@/lib/chatting-transactional-email-senders";
 import { onboardingPathForStep } from "@/lib/data";
 import { getPublicAppUrl } from "@/lib/env";
 import { persistPreferredTimeZoneForUser } from "@/lib/user-timezone-preference";

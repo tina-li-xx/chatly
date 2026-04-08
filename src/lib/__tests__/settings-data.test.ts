@@ -33,7 +33,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/auth", () => ({ changeUserPassword: mocks.changeUserPassword }));
 vi.mock("@/lib/billing-seats", () => ({ seatCountFromActiveMemberships: mocks.seatCountFromActiveMemberships }));
-vi.mock("@/lib/chatly-transactional-email-senders", () => ({ sendTeamInvitationEmail: vi.fn() }));
+vi.mock("@/lib/chatting-transactional-email-senders", () => ({ sendTeamInvitationEmail: vi.fn() }));
 vi.mock("@/lib/data/billing", () => ({ getDashboardBillingSummary: mocks.getDashboardBillingSummary }));
 vi.mock("@/lib/data/contacts", () => ({
   getDashboardContactSettings: mocks.getDashboardContactSettings,

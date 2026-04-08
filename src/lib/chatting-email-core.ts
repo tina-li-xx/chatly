@@ -1,4 +1,4 @@
-import { FONT_STACK } from "@/lib/chatly-email-tokens";
+import { FONT_STACK } from "@/lib/chatting-email-tokens";
 import { escapeHtml } from "@/lib/utils";
 
 export type Align = "left" | "center" | "right";

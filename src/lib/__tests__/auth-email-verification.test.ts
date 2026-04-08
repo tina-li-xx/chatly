@@ -9,11 +9,11 @@ const mocks = vi.hoisted(() => ({
   sendEmailVerificationEmail: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-transactional-email-senders", () => ({
+vi.mock("@/lib/chatting-transactional-email-senders", () => ({
   sendEmailVerificationEmail: mocks.sendEmailVerificationEmail
 }));
 vi.mock("@/lib/env", () => ({
-  getPublicAppUrl: () => "https://chatly.example"
+  getPublicAppUrl: () => "https://chatting.example"
 }));
 vi.mock("@/lib/env.server", () => ({
   getAuthSecret: () => "test-auth-secret"
@@ -50,7 +50,7 @@ describe("auth email verification", () => {
   it("issues verification tokens for unverified users", async () => {
     mocks.findAuthUserById.mockResolvedValueOnce({
       id: "user_123",
-      email: "hello@chatly.example",
+      email: "hello@chatting.example",
       email_verified_at: null
     });
 
@@ -59,25 +59,25 @@ describe("auth email verification", () => {
     expect(mocks.invalidateAuthEmailTokens).toHaveBeenCalledWith("user_123", "email_verification");
     expect(mocks.insertAuthEmailToken).toHaveBeenCalledWith(expect.objectContaining({
       userId: "user_123",
-      email: "hello@chatly.example",
+      email: "hello@chatting.example",
       type: "email_verification",
       expiresAt: "2026-04-02T12:00:00.000Z"
     }));
     expect(mocks.sendEmailVerificationEmail).toHaveBeenCalledWith(expect.objectContaining({
-      to: "hello@chatly.example",
-      verifyUrl: expect.stringContaining("https://chatly.example/verify?token=")
+      to: "hello@chatting.example",
+      verifyUrl: expect.stringContaining("https://chatting.example/verify?token=")
     }));
   });
 
   it("skips resend delivery for missing or already verified accounts", async () => {
     mocks.findAuthUserByEmail.mockResolvedValueOnce(null).mockResolvedValueOnce({
       id: "user_verified",
-      email: "verified@chatly.example",
+      email: "verified@chatting.example",
       email_verified_at: "2026-03-31T10:00:00.000Z"
     });
 
-    await expect(requestEmailVerification("missing@chatly.example")).resolves.toBe(false);
-    await expect(requestEmailVerification("verified@chatly.example")).resolves.toBe(false);
+    await expect(requestEmailVerification("missing@chatting.example")).resolves.toBe(false);
+    await expect(requestEmailVerification("verified@chatting.example")).resolves.toBe(false);
 
     expect(mocks.sendEmailVerificationEmail).not.toHaveBeenCalled();
     expect(mocks.insertAuthEmailToken).not.toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe("auth email verification", () => {
     mocks.findActiveAuthEmailToken.mockResolvedValueOnce({
       id: "token_123",
       user_id: "user_123",
-      email: "hello@chatly.example",
+      email: "hello@chatting.example",
       type: "email_verification",
       token_hash: "hash",
       expires_at: "2026-04-02T12:00:00.000Z",

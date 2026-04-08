@@ -1,6 +1,6 @@
 import { createHash, randomBytes, scrypt as nodeScrypt } from "node:crypto";
 import { promisify } from "node:util";
-import { sendPasswordResetEmail } from "@/lib/chatly-transactional-email-senders";
+import { sendPasswordResetEmail } from "@/lib/chatting-transactional-email-senders";
 import { getPublicAppUrl } from "@/lib/env";
 import { getAuthSecret } from "@/lib/env.server";
 import {

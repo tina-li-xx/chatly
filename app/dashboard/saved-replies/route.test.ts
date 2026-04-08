@@ -28,7 +28,7 @@ describe("dashboard saved replies route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         workspaceRole: "admin",
         workspaceOwnerId: "owner_123"
       }
@@ -128,7 +128,7 @@ describe("dashboard saved replies route", () => {
 
   it("forbids members and maps validation errors", async () => {
     mocks.requireJsonRouteUser.mockResolvedValueOnce({
-      user: { id: "user_456", email: "member@chatly.example", workspaceRole: "member" }
+      user: { id: "user_456", email: "member@chatting.example", workspaceRole: "member" }
     });
     const forbidden = await POST(
       new Request("http://localhost/dashboard/saved-replies", {

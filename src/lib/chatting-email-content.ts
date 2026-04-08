@@ -1,5 +1,5 @@
-import { FONT_STACK, SERIF_STACK } from "@/lib/chatly-email-tokens";
-import type { Align, ChattingEmailMetric } from "@/lib/chatly-email-core";
+import { FONT_STACK, SERIF_STACK } from "@/lib/chatting-email-tokens";
+import type { Align, ChattingEmailMetric } from "@/lib/chatting-email-core";
 import { escapeHtml } from "@/lib/utils";
 
 function joinStyle(values: Array<string | null | undefined>) {

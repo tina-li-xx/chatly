@@ -12,7 +12,7 @@ vi.mock("@/lib/repositories/billing-repository", () => ({
   listBillingInvoiceRows: affiliateMocks.listBillingInvoiceRows
 }));
 vi.mock("@/lib/env", () => ({
-  getPublicAppUrl: () => "https://chatly.example"
+  getPublicAppUrl: () => "https://chatting.example"
 }));
 
 describe("affiliate referrals", () => {
@@ -45,7 +45,7 @@ describe("affiliate referrals", () => {
     const module = await import("@/lib/referrals");
     await module.applyReferralCodeForSignup({
       userId: "user_referred",
-      email: "creator@chatly.example",
+      email: "creator@chatting.example",
       referralCode: "aff-abc123"
     });
 

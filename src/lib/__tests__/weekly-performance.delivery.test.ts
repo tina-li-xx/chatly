@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   sendWeeklyWidgetInstallEmail: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-notification-email-senders", () => ({
+vi.mock("@/lib/chatting-notification-email-senders", () => ({
   sendWeeklyPerformanceEmail: mocks.sendWeeklyPerformanceEmail,
   sendWeeklyWidgetInstallEmail: mocks.sendWeeklyWidgetInstallEmail
 }));

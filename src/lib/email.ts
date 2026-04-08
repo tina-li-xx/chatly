@@ -4,8 +4,8 @@ import {
   renderParagraph,
   renderStack,
   renderTextBlock
-} from "@/lib/chatly-email-foundation";
-import { renderNewMessageNotificationEmail } from "@/lib/chatly-notification-emails";
+} from "@/lib/chatting-email-foundation";
+import { renderNewMessageNotificationEmail } from "@/lib/chatting-notification-emails";
 import { buildConversationFeedbackLinks } from "@/lib/conversation-feedback";
 import {
   renderConversationFeedbackScale,
@@ -20,7 +20,7 @@ import {
   resolvePrimaryBrandHelloMailFrom
 } from "@/lib/mail-from-addresses";
 import { sendSesEmail } from "@/lib/ses-email";
-import { COMPANY_LEGAL_LINES, FONT_STACK } from "@/lib/chatly-email-tokens";
+import { COMPANY_LEGAL_LINES, FONT_STACK } from "@/lib/chatting-email-tokens";
 import { escapeHtml } from "@/lib/utils";
 
 type SendRichEmailInput = {

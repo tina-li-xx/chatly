@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   sendDailyDigestEmail: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-notification-email-senders", () => ({
+vi.mock("@/lib/chatting-notification-email-senders", () => ({
   sendDailyDigestEmail: mocks.sendDailyDigestEmail
 }));
 vi.mock("@/lib/data/analytics", () => ({

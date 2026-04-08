@@ -56,7 +56,7 @@ async function renderAuthForms(
           return [
             {
               title: "Reset email sent",
-              body: "We sent a password reset link to hello@chatly.example."
+              body: "We sent a password reset link to hello@chatting.example."
             },
             vi.fn()
           ];
@@ -120,11 +120,11 @@ describe("auth forms", () => {
   it("renders invite-specific sign-in copy", async () => {
     const html = await renderAuthForms("signin", {
       inviteId: "invite_123",
-      inviteEmail: "teammate@chatly.example"
+      inviteEmail: "teammate@chatting.example"
     });
 
     expect(html).toContain("Join your team&#x27;s workspace");
     expect(html).toContain("Sign in to accept your invite");
-    expect(html).toContain("Use teammate@chatly.example to join this workspace.");
+    expect(html).toContain("Use teammate@chatting.example to join this workspace.");
   });
 });

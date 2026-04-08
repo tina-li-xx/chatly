@@ -29,7 +29,7 @@ describe("dashboard verify-installation route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "user_123",
         workspaceRole: "owner"
@@ -53,7 +53,7 @@ describe("dashboard verify-installation route", () => {
     mocks.getSiteByPublicId.mockResolvedValueOnce({
       id: "site_db",
       userId: "other_user",
-      domain: "https://chatly.example"
+      domain: "https://chatting.example"
     });
 
     const response = await POST(
@@ -71,7 +71,7 @@ describe("dashboard verify-installation route", () => {
     mocks.getSiteByPublicId.mockResolvedValueOnce({
       id: "site_db",
       userId: "user_123",
-      domain: "https://chatly.example"
+      domain: "https://chatting.example"
     });
     mocks.verifySiteWidgetSnippet.mockResolvedValueOnce({
       ok: false,
@@ -92,7 +92,7 @@ describe("dashboard verify-installation route", () => {
       site: {
         id: "site_db",
         userId: "user_123",
-        domain: "https://chatly.example"
+        domain: "https://chatting.example"
       }
     });
   });
@@ -101,11 +101,11 @@ describe("dashboard verify-installation route", () => {
     mocks.getSiteByPublicId.mockResolvedValueOnce({
       id: "site_db",
       userId: "user_123",
-      domain: "https://chatly.example"
+      domain: "https://chatting.example"
     });
     mocks.verifySiteWidgetSnippet.mockResolvedValueOnce({
       ok: true,
-      url: "https://chatly.example"
+      url: "https://chatting.example"
     });
     mocks.markSiteWidgetInstallVerified.mockResolvedValueOnce({
       id: "site_db",
@@ -119,11 +119,11 @@ describe("dashboard verify-installation route", () => {
       })
     );
 
-    expect(mocks.markSiteWidgetInstallVerified).toHaveBeenCalledWith("site_db", "user_123", "https://chatly.example");
+    expect(mocks.markSiteWidgetInstallVerified).toHaveBeenCalledWith("site_db", "user_123", "https://chatting.example");
     expect(await response.json()).toEqual({
       ok: true,
       detected: true,
-      checkedUrl: "https://chatly.example",
+      checkedUrl: "https://chatting.example",
       site: {
         id: "site_db",
         widgetInstallVerifiedAt: "2026-03-27T12:00:00.000Z"

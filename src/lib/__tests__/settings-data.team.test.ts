@@ -15,7 +15,7 @@ vi.mock("node:crypto", async () => {
   const actual = await vi.importActual<typeof import("node:crypto")>("node:crypto");
   return { ...actual, randomUUID: () => "invite_123" };
 });
-vi.mock("@/lib/chatly-transactional-email-senders", () => ({ sendTeamInvitationEmail: mocks.sendTeamInvitationEmail }));
+vi.mock("@/lib/chatting-transactional-email-senders", () => ({ sendTeamInvitationEmail: mocks.sendTeamInvitationEmail }));
 vi.mock("@/lib/env", () => ({ getPublicAppUrl: () => "https://app.example" }));
 vi.mock("@/lib/growth-outreach", () => ({ maybeSendTeamExpansionEmail: mocks.maybeSendTeamExpansionEmail }));
 vi.mock("@/lib/repositories/settings-repository", () => ({

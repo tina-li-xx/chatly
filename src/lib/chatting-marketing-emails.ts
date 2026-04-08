@@ -7,7 +7,7 @@ import {
   renderSmallText,
   renderStack,
   renderTitleText
-} from "@/lib/chatly-email-foundation";
+} from "@/lib/chatting-email-foundation";
 import { formatBillingPriceLabel, getBillingPlanDefinition } from "@/lib/billing-plans";
 import { escapeHtml } from "@/lib/utils";
 

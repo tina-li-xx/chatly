@@ -25,13 +25,13 @@ describe("signup actions", () => {
   it("maps setup failures into readable signup errors", async () => {
     authMocks.signUpUser.mockRejectedValueOnce(new Error("EMAIL_TAKEN"));
     await expect(
-      signupAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123", websiteUrl: "https://chatly.example" }))
+      signupAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123", websiteUrl: "https://chatting.example" }))
     ).resolves.toMatchObject({ error: "That email already has an account." });
     expect(consoleErrorSpy).not.toHaveBeenCalled();
 
     authMocks.signUpUser.mockRejectedValueOnce(new Error("MISSING_DOMAIN"));
     await expect(
-      signupAction(INITIAL_STATE, authForm({ email: "hello@chatly.example", password: "password123" }))
+      signupAction(INITIAL_STATE, authForm({ email: "hello@chatting.example", password: "password123" }))
     ).resolves.toMatchObject({ error: "Website URL is required." });
     expect(consoleErrorSpy).not.toHaveBeenCalled();
 
@@ -40,9 +40,9 @@ describe("signup actions", () => {
       signupAction(
         INITIAL_STATE,
         authForm({
-          email: "hello@chatly.example",
+          email: "hello@chatting.example",
           password: "password123",
-          websiteUrl: "https://chatly.example",
+          websiteUrl: "https://chatting.example",
           referralCode: "BAD-CODE"
         })
       )
@@ -54,21 +54,21 @@ describe("signup actions", () => {
 
     const result = await signupAction(
       INITIAL_STATE,
-      authForm({ email: "hello@chatly.example", password: "password123", websiteUrl: "https://chatly.example" })
+      authForm({ email: "hello@chatting.example", password: "password123", websiteUrl: "https://chatting.example" })
     );
 
     expect(result.error).toBe("We couldn't create your account right now. Please try again in a moment.");
   });
 
   it("keeps owner signup on the page instead of starting an app session", async () => {
-    authMocks.signUpUser.mockResolvedValueOnce({ id: "user_signup", email: "new@chatly.example" });
+    authMocks.signUpUser.mockResolvedValueOnce({ id: "user_signup", email: "new@chatting.example" });
 
     const result = await signupAction(
       INITIAL_STATE,
       authForm({
-        email: "new@chatly.example",
+        email: "new@chatting.example",
         password: "password123",
-        websiteUrl: "https://chatly.example",
+        websiteUrl: "https://chatting.example",
         referralCode: "AFF-ABC123",
         timezone: "Europe/London"
       })
@@ -79,16 +79,16 @@ describe("signup actions", () => {
       error: null,
       nextPath: null,
       fields: {
-        email: "new@chatly.example",
+        email: "new@chatting.example",
         password: "password123",
-        websiteUrl: "https://chatly.example",
+        websiteUrl: "https://chatting.example",
         referralCode: "AFF-ABC123"
       }
     });
     expect(authMocks.signUpUser).toHaveBeenCalledWith({
-      email: "new@chatly.example",
+      email: "new@chatting.example",
       password: "password123",
-      websiteUrl: "https://chatly.example",
+      websiteUrl: "https://chatting.example",
       referralCode: "AFF-ABC123"
     });
     expect(authMocks.setUserSession).not.toHaveBeenCalled();
@@ -99,22 +99,22 @@ describe("signup actions", () => {
     expect(dataMocks.getPostAuthPath).not.toHaveBeenCalled();
     expect(verificationMocks.requestEmailVerificationForUserId).toHaveBeenCalledWith("user_signup");
     expect(emailMocks.sendAccountWelcomeEmail).toHaveBeenCalledWith({
-      to: "new@chatly.example",
+      to: "new@chatting.example",
       firstName: "new",
-      dashboardUrl: "https://chatly.example/dashboard"
+      dashboardUrl: "https://chatting.example/dashboard"
     });
   });
 
   it("creates invited teammate accounts without onboarding a new workspace", async () => {
     authMocks.signUpInvitedUser.mockResolvedValueOnce({
       id: "user_member",
-      email: "teammate@chatly.example",
+      email: "teammate@chatting.example",
       workspaceOwnerId: "owner_123"
     });
 
     const result = await signupAction(
       INITIAL_STATE,
-      authForm({ email: "teammate@chatly.example", password: "password123", inviteId: "invite_123" })
+      authForm({ email: "teammate@chatting.example", password: "password123", inviteId: "invite_123" })
     );
 
     expect(result).toEqual({
@@ -122,7 +122,7 @@ describe("signup actions", () => {
       error: null,
       nextPath: "/dashboard",
       fields: {
-        email: "teammate@chatly.example",
+        email: "teammate@chatting.example",
         password: "password123",
         websiteUrl: "",
         referralCode: ""
@@ -130,7 +130,7 @@ describe("signup actions", () => {
     });
     expect(authMocks.signUpInvitedUser).toHaveBeenCalledWith({
       inviteId: "invite_123",
-      email: "teammate@chatly.example",
+      email: "teammate@chatting.example",
       password: "password123"
     });
     expect(authMocks.setUserSession).toHaveBeenCalledWith("user_member", "owner_123");

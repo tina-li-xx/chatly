@@ -1,4 +1,4 @@
-import { renderLabelText, renderPanel, renderStack } from "@/lib/chatly-email-foundation";
+import { renderLabelText, renderPanel, renderStack } from "@/lib/chatting-email-foundation";
 import { escapeHtml } from "@/lib/utils";
 
 export function renderTranscriptRecapPanel(transcript: string) {

@@ -11,11 +11,11 @@ describe("dashboard widget snippet", () => {
   });
 
   it("builds the widget snippet from the configured app url", async () => {
-    process.env.NEXT_PUBLIC_APP_URL = "https://chatly.example";
+    process.env.NEXT_PUBLIC_APP_URL = "https://chatting.example";
     const { getWidgetSnippet } = await import("@/lib/dashboard");
 
     const snippet = getWidgetSnippet({ id: "site_123" } as never);
-    expect(snippet).toContain('src="https://chatly.example/widget.js"');
+    expect(snippet).toContain('src="https://chatting.example/widget.js"');
     expect(snippet).toContain('data-site-id="site_123"');
   });
 });

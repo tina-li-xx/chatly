@@ -29,7 +29,7 @@ describe("dashboard team-photo route", () => {
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
-        email: "hello@chatly.example",
+        email: "hello@chatting.example",
         createdAt: "2026-03-27T00:00:00.000Z",
         workspaceOwnerId: "owner_123",
         workspaceRole: "admin"
@@ -94,7 +94,7 @@ describe("dashboard team-photo route", () => {
     formData.set("file", new File(["png"], "photo.png", { type: "image/png" }));
     mocks.updateSiteTeamPhoto.mockResolvedValueOnce({
       id: "site_1",
-      widgetTeamPhotoUrl: "https://cdn.chatly.example/photo.png"
+      widgetTeamPhotoUrl: "https://cdn.chatting.example/photo.png"
     });
 
     const response = await POST(
@@ -116,7 +116,7 @@ describe("dashboard team-photo route", () => {
       ok: true,
       site: {
         id: "site_1",
-        widgetTeamPhotoUrl: "https://cdn.chatly.example/photo.png"
+        widgetTeamPhotoUrl: "https://cdn.chatting.example/photo.png"
       }
     });
   });

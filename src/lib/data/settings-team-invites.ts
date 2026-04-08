@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { sendTeamInvitationEmail } from "@/lib/chatly-transactional-email-senders";
+import { sendTeamInvitationEmail } from "@/lib/chatting-transactional-email-senders";
 import type { DashboardTeamInvite } from "@/lib/data/settings-types";
 import { getPublicAppUrl } from "@/lib/env";
 import { maybeSendTeamExpansionEmail } from "@/lib/growth-outreach";

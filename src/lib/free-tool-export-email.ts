@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
-import { renderChattingEmailPage, renderParagraph, renderSmallText, renderStack } from "@/lib/chatly-email-foundation";
+import { renderChattingEmailPage, renderParagraph, renderSmallText, renderStack } from "@/lib/chatting-email-foundation";
 import type { EmailAttachment } from "@/lib/email-mime";
 import { getFreeToolBySlug } from "@/lib/free-tools-data";
 import { formatPercentage, formatWholeCurrency, formatWholeNumber } from "@/lib/live-chat-roi";

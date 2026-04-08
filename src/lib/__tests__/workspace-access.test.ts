@@ -36,7 +36,7 @@ describe("workspace access", () => {
     workspaceRepoMocks.findWorkspaceAccessRow.mockResolvedValueOnce({
       owner_user_id: "owner_123",
       role: "admin",
-      owner_email: "owner@chatly.example",
+      owner_email: "owner@chatting.example",
       owner_created_at: "2026-03-27T00:00:00.000Z",
       team_name: "Acme Support",
       team_domain: "acme.example"
@@ -45,7 +45,7 @@ describe("workspace access", () => {
     await expect(getWorkspaceAccess("member_123")).resolves.toEqual({
       ownerUserId: "owner_123",
       role: "admin",
-      ownerEmail: "owner@chatly.example",
+      ownerEmail: "owner@chatting.example",
       ownerCreatedAt: "2026-03-27T00:00:00.000Z",
       teamName: "Acme Support",
       teamDomain: "acme.example"
@@ -56,7 +56,7 @@ describe("workspace access", () => {
     workspaceRepoMocks.findWorkspaceAccessRow.mockResolvedValueOnce({
       owner_user_id: "owner_123",
       role: "admin",
-      owner_email: "owner@chatly.example",
+      owner_email: "owner@chatting.example",
       owner_created_at: "2026-03-27T00:00:00.000Z",
       team_name: "Acme Support",
       team_domain: "acme.example"
@@ -65,7 +65,7 @@ describe("workspace access", () => {
       {
         owner_user_id: "owner_123",
         role: "admin",
-        owner_email: "owner@chatly.example",
+        owner_email: "owner@chatting.example",
         owner_created_at: "2026-03-27T00:00:00.000Z",
         team_name: "Acme Support",
         team_domain: "acme.example"
@@ -73,7 +73,7 @@ describe("workspace access", () => {
       {
         owner_user_id: "owner_999",
         role: "member",
-        owner_email: "other@chatly.example",
+        owner_email: "other@chatting.example",
         owner_created_at: "2026-03-26T00:00:00.000Z",
         team_name: "Beta Team",
         team_domain: null
@@ -90,7 +90,7 @@ describe("workspace access", () => {
     workspaceRepoMocks.findTeamInviteAccessRow.mockResolvedValueOnce({
       id: "invite_123",
       owner_user_id: "owner_123",
-      email: "teammate@chatly.example",
+      email: "teammate@chatting.example",
       role: "member",
       status: "pending",
       message: "Join us",
@@ -100,7 +100,7 @@ describe("workspace access", () => {
       accepted_by_user_id: null,
       team_name: "Acme Support",
       team_domain: "acme.example",
-      owner_email: "owner@chatly.example",
+      owner_email: "owner@chatting.example",
       owner_first_name: "Avery",
       owner_last_name: "Stone"
     });
@@ -115,7 +115,7 @@ describe("workspace access", () => {
     workspaceRepoMocks.findTeamInviteAccessRow.mockResolvedValueOnce({
       id: "invite_123",
       owner_user_id: "owner_123",
-      email: "teammate@chatly.example",
+      email: "teammate@chatting.example",
       role: "member",
       status: "pending",
       message: "",
@@ -125,12 +125,12 @@ describe("workspace access", () => {
       accepted_by_user_id: null,
       team_name: "Acme Support",
       team_domain: null,
-      owner_email: "owner@chatly.example",
+      owner_email: "owner@chatting.example",
       owner_first_name: null,
       owner_last_name: null
     });
 
-    await expect(validateTeamInvite("invite_123", "other@chatly.example")).rejects.toThrow(
+    await expect(validateTeamInvite("invite_123", "other@chatting.example")).rejects.toThrow(
       "INVITE_EMAIL_MISMATCH"
     );
   });
@@ -139,7 +139,7 @@ describe("workspace access", () => {
     workspaceRepoMocks.findTeamInviteAccessRow.mockResolvedValueOnce({
       id: "invite_123",
       owner_user_id: "owner_123",
-      email: "teammate@chatly.example",
+      email: "teammate@chatting.example",
       role: "admin",
       status: "pending",
       message: "Join us",
@@ -149,7 +149,7 @@ describe("workspace access", () => {
       accepted_by_user_id: null,
       team_name: "Acme Support",
       team_domain: "acme.example",
-      owner_email: "owner@chatly.example",
+      owner_email: "owner@chatting.example",
       owner_first_name: "Avery",
       owner_last_name: "Stone"
     });
@@ -157,7 +157,7 @@ describe("workspace access", () => {
     const result = await acceptTeamInvite({
       inviteId: "invite_123",
       userId: "member_123",
-      email: "teammate@chatly.example"
+      email: "teammate@chatting.example"
     });
 
     expect(result).toEqual({

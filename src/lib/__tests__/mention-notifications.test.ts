@@ -5,7 +5,7 @@ const mocks = vi.hoisted(() => ({
   sendMentionNotificationEmail: vi.fn()
 }));
 
-vi.mock("@/lib/chatly-notification-email-senders", () => ({
+vi.mock("@/lib/chatting-notification-email-senders", () => ({
   sendMentionNotificationEmail: mocks.sendMentionNotificationEmail
 }));
 vi.mock("@/lib/data/conversations", () => ({

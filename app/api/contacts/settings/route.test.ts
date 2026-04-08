@@ -53,7 +53,7 @@ describe("contact settings route", () => {
     });
 
     const response = await PATCH(
-      new Request("https://chatly.test/api/contacts/settings", {
+      new Request("https://chatting.test/api/contacts/settings", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({

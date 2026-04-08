@@ -28,7 +28,7 @@ describe("contact detail route", () => {
     const response = Response.json({ ok: false }, { status: 401 });
     mocks.requireJsonRouteUser.mockResolvedValueOnce({ response });
 
-    await expect(GET(new Request("https://chatly.test/api/contacts/contact_1"), {
+    await expect(GET(new Request("https://chatting.test/api/contacts/contact_1"), {
       params: Promise.resolve({ id: "contact_1" })
     })).resolves.toBe(response);
   });
@@ -75,7 +75,7 @@ describe("contact detail route", () => {
       }
     });
 
-    const response = await GET(new Request("https://chatly.test/api/contacts/contact_1"), {
+    const response = await GET(new Request("https://chatting.test/api/contacts/contact_1"), {
       params: Promise.resolve({ id: "contact_1" })
     });
 
@@ -103,7 +103,7 @@ describe("contact detail route", () => {
       }
     });
 
-    const response = await GET(new Request("https://chatly.test/api/contacts/contact_1?includeSettings=1"), {
+    const response = await GET(new Request("https://chatting.test/api/contacts/contact_1?includeSettings=1"), {
       params: Promise.resolve({ id: "contact_1" })
     });
 
