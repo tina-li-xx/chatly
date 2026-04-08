@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   sendTeamNewMessageEmail: vi.fn(),
   getPublicAppUrl: vi.fn(() => "https://usechatting.com"),
   maybeSendAnalyticsExpansionEmail: vi.fn(),
+  maybeSendSlackConversationNotification: vi.fn(),
   publishDashboardLive: vi.fn(),
   findBillingAccountRow: vi.fn(),
   findBillingUsageRow: vi.fn()
@@ -34,6 +35,10 @@ vi.mock("@/lib/env", () => ({
 
 vi.mock("@/lib/growth-outreach", () => ({
   maybeSendAnalyticsExpansionEmail: mocks.maybeSendAnalyticsExpansionEmail
+}));
+
+vi.mock("@/lib/slack-conversation-notifications", () => ({
+  maybeSendSlackConversationNotification: mocks.maybeSendSlackConversationNotification
 }));
 
 vi.mock("@/lib/live-events", () => ({
@@ -81,6 +86,7 @@ describe("team notifications", () => {
     mocks.sendTeamNewMessageEmail.mockResolvedValue(undefined);
     mocks.sendStarterUpgradePromptEmail.mockResolvedValue(undefined);
     mocks.maybeSendAnalyticsExpansionEmail.mockResolvedValue(undefined);
+    mocks.maybeSendSlackConversationNotification.mockResolvedValue(undefined);
   });
 
   it("sends the dedicated starter upgrade email at the 30-conversation trigger even if message emails are off", async () => {
@@ -92,6 +98,7 @@ describe("team notifications", () => {
     await notifyIncomingVisitorMessage(baseInput);
 
     expect(mocks.sendTeamNewMessageEmail).not.toHaveBeenCalled();
+    expect(mocks.maybeSendSlackConversationNotification).toHaveBeenCalledWith(baseInput);
     expect(mocks.sendStarterUpgradePromptEmail).toHaveBeenCalledWith({
       to: "team@usechatting.com",
       prompt: {
@@ -114,6 +121,7 @@ describe("team notifications", () => {
     await notifyIncomingVisitorMessage(baseInput);
 
     expect(mocks.sendTeamNewMessageEmail).toHaveBeenCalledTimes(1);
+    expect(mocks.maybeSendSlackConversationNotification).toHaveBeenCalledTimes(1);
     expect(mocks.sendStarterUpgradePromptEmail).not.toHaveBeenCalled();
   });
 

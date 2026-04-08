@@ -7,8 +7,10 @@ import { getStarterConversationUsage, shouldSendStarterUpgradeEmail } from "@/li
 import { maybeSendAnalyticsExpansionEmail } from "@/lib/growth-outreach";
 import { publishDashboardLive } from "@/lib/live-events";
 import { findBillingAccountRow, findBillingUsageRow } from "@/lib/repositories/billing-repository";
+import { maybeSendSlackConversationNotification } from "@/lib/slack-conversation-notifications";
 
 export type IncomingVisitorMessageNotificationInput = {
+  ownerUserId?: string;
   userId: string;
   conversationId: string;
   createdAt: string;
@@ -64,6 +66,8 @@ export async function notifyIncomingVisitorMessage(
         attachmentsCount: input.attachmentsCount
       });
     }
+
+    await maybeSendSlackConversationNotification(input);
 
     if (
       input.isNewConversation &&
