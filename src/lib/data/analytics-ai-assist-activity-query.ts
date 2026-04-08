@@ -5,6 +5,8 @@ import {
 } from "@/lib/data/analytics-ai-assist-activity-filters";
 import type { DashboardAiAssistFeature } from "@/lib/data/settings-ai-assist-usage";
 
+export type { AnalyticsAiAssistActivityFilters };
+
 export type AnalyticsAiAssistActivityCursor = {
   createdAt: string;
   id: string;

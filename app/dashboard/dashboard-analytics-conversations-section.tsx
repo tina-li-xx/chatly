@@ -28,7 +28,7 @@ export function DashboardAnalyticsConversationsSection({
   responseAverage: number | null;
   replyAverage: number | null;
   resolutionAverage: number | null;
-  heatMap: HeatMapCell[];
+  heatMap: HeatMapCell[][];
   topPages: Array<{ page: string; count: number }>;
   averageRating: number | null;
   ratingBreakdown: RatingBreakdown[];

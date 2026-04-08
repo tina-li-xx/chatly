@@ -32,7 +32,10 @@ export type AnalyticsAiAssistActivityPageData =
     hasAnyActivity: boolean;
   };
 
-export type { AnalyticsAiAssistActivityCursor };
+export type {
+  AnalyticsAiAssistActivityCursor,
+  AnalyticsAiAssistActivityPageSlice
+};
 
 export async function getAnalyticsAiAssistActivityPageData(
   userId: string,
