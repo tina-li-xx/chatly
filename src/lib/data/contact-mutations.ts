@@ -1,14 +1,14 @@
-import type { ContactDetail } from "@/lib/contact-types";
 import {
   recordContactDeletedEvent,
-  recordContactDiffEvents,
-  recordContactExportEvent
+  recordContactDiffEvents
 } from "@/lib/contact-events";
 import { gravatarUrlForEmail } from "@/lib/contact-avatar";
 import { encodeContactId } from "@/lib/contact-utils";
 import { deleteDashboardContactRow } from "@/lib/repositories/contacts-repository";
 import { optionalText } from "@/lib/utils";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
+import { deliverZapierEvent } from "@/lib/zapier-event-delivery";
+import { buildZapierContactCreatedPayload } from "@/lib/zapier-event-payloads";
 import { hasAccessibleSite } from "@/lib/data/contact-access";
 import { mergeDistinctValues } from "@/lib/data/contact-normalizers";
 import { resolveUpdatedContactNotes } from "@/lib/data/contact-note-updates";
@@ -84,6 +84,7 @@ export async function createDashboardContact(input: {
   userId: string;
   siteId: string;
   email: string;
+  source?: string;
   name?: string | null;
   phone?: string | null;
   company?: string | null;
@@ -96,6 +97,9 @@ export async function createDashboardContact(input: {
   if (!(await hasAccessibleSite(input.userId, input.siteId))) {
     throw new Error("CONTACT_SITE_FORBIDDEN");
   }
+
+  const contactId = encodeContactId(input.siteId, input.email);
+  const existing = await getDashboardContact(input.userId, contactId);
 
   await identifyDashboardContact({
     siteId: input.siteId,
@@ -110,7 +114,23 @@ export async function createDashboardContact(input: {
     customFields: input.customFields
   });
 
-  return getDashboardContact(input.userId, encodeContactId(input.siteId, input.email));
+  const next = await getDashboardContact(input.userId, contactId);
+  if (next && !existing) {
+    await deliverZapierEvent({
+      ownerUserId: (await getWorkspaceAccess(input.userId)).ownerUserId,
+      eventType: "contact.created",
+      payload: buildZapierContactCreatedPayload({
+        contactId: next.id,
+        email: next.email,
+        name: next.name,
+        company: next.company,
+        source: input.source ?? "dashboard",
+        timestamp: next.firstSeenAt
+      })
+    });
+  }
+
+  return next;
 }
 
 export async function deleteDashboardContact(userId: string, contactId: string) {
@@ -125,60 +145,4 @@ export async function deleteDashboardContact(userId: string, contactId: string) 
     actorUserId: userId
   });
   return true;
-}
-
-export async function bulkUpdateDashboardContacts(input: {
-  userId: string;
-  contactIds: string[];
-  status?: string | null;
-  addTag?: string | null;
-  deleteContacts?: boolean;
-  exportContacts?: boolean;
-  exportFieldKeys?: string[];
-}) {
-  const updated: ContactDetail[] = [];
-
-  if (input.exportContacts) {
-    const contacts = (await Promise.all(
-      input.contactIds.map((contactId) => getDashboardContact(input.userId, contactId))
-    )).filter((contact): contact is ContactDetail => Boolean(contact));
-    if (!contacts.length) {
-      return contacts;
-    }
-
-    const workspace = await getWorkspaceAccess(input.userId);
-    await recordContactExportEvent({
-      ownerUserId: workspace.ownerUserId,
-      actorUserId: input.userId,
-      contactIds: contacts.map((contact) => contact.id),
-      fieldKeys: input.exportFieldKeys ?? [],
-      siteIds: contacts.map((contact) => contact.siteId)
-    });
-
-    return contacts;
-  }
-
-  for (const contactId of input.contactIds) {
-    if (input.deleteContacts) {
-      await deleteDashboardContact(input.userId, contactId);
-      continue;
-    }
-
-    const contact = await getDashboardContact(input.userId, contactId);
-    if (!contact) {
-      continue;
-    }
-
-    const next = await updateDashboardContact({
-      userId: input.userId,
-      contactId,
-      status: optionalText(input.status) ?? contact.status,
-      tags: input.addTag ? mergeDistinctValues([...contact.tags, input.addTag]) : contact.tags
-    });
-    if (next) {
-      updated.push(next);
-    }
-  }
-
-  return updated;
 }
