@@ -69,7 +69,7 @@ describe("dashboard growth activation health", () => {
     expect(replyRisk).toMatchObject({
       action: { label: "Open inbox", href: "/dashboard/inbox" },
     });
-    expect(replyRisk.metrics[1]).toMatchObject({ value: "120m", tone: "warning" });
+    expect(replyRisk.metrics[1]).toMatchObject({ value: "2h", tone: "warning" });
 
     const loginRisk = buildHealth(8, 8, 0, 90, 0, "2026-03-28T12:00:00.000Z");
     expect(loginRisk).toMatchObject({

@@ -24,7 +24,7 @@ describe("dashboard growth activation health edge cases", () => {
       status: "strong",
       metrics: [
         { detail: "Flat vs last week", tone: "positive" },
-        { value: "8.0m", tone: "positive" },
+        { value: "8m", tone: "positive" },
         { tone: "positive" }
       ]
     });
@@ -42,7 +42,7 @@ describe("dashboard growth activation health edge cases", () => {
       status: "at-risk",
       metrics: [
         { detail: "-60% vs last week", tone: "warning" },
-        { value: "42m", tone: "warning" },
+        { value: "41m 40s", tone: "warning" },
         { detail: "Last login 9 days ago", tone: "warning" }
       ]
     });
@@ -50,7 +50,7 @@ describe("dashboard growth activation health edge cases", () => {
     expect(buildHealth(10, 2, 10, 15000, 0, "2026-03-01T12:00:00.000Z")).toMatchObject({
       metrics: [
         { tone: "warning" },
-        { value: "250m", tone: "warning" },
+        { value: "4h 10m", tone: "warning" },
         { detail: "Last login 28 days ago", tone: "warning" }
       ]
     });

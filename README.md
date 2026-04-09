@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Growth health regression coverage now matches the shared compact response-time formatter, keeping dashboard score-card tests aligned with labels like `2h` and `4h 10m`.
 - Billing lifecycle jobs now normalize repository timestamps before growth-trial reminders run, preventing `Date`-shaped billing values from crashing scheduled lifecycle emails.
 - Dashboard response-time metrics now use readable mixed units like `1m 12s`, `1h 1m`, and `1d 7h` instead of long raw minute counts.
 - Email verification now uses the same shared auth screen styling as sign-in, and signup confirmation lets people fix a mistyped email through one inline `Edit it` action.
@@ -206,6 +207,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Dashboard growth-health coverage now follows the same shared response-time formatter used by the live score cards.
 - Response-time metrics across dashboard home, billing, and health summaries now render in readable mixed units so long waits are easier to scan at a glance.
 - Inbox tag editing now feels faster, with Enter-to-add contact tags, optimistic updates in the sidebar and contact drawer, and a cleaner shared tags presentation in thread detail.
 - Dashboard settings now include a full Integrations area for Slack, Zapier, Shopify, and webhooks, with live connection flows, persisted workspace state, and dedicated modal-based setup.
