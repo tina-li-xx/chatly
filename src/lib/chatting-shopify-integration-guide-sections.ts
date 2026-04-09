@@ -7,7 +7,7 @@ export const chattingShopifyIntegrationGuideSections = [
   ]),
   section("before-you-start", "What you need first", [
     list([
-      "Your Shopify store domain in the form your-store.myshopify.com",
+      "Your Shopify store domain in the form `your-store.myshopify.com`",
       "Permission to approve the app inside Shopify",
       "A use case for seeing customer and order context inside the inbox"
     ]),
@@ -15,8 +15,8 @@ export const chattingShopifyIntegrationGuideSections = [
   ]),
   section("setup", "How to connect Shopify", [
     list([
-      "Open Settings → Integrations → Shopify in Chatting",
-      "Enter the store slug or full myshopify domain",
+      "Open `Settings → Integrations → Shopify` in Chatting",
+      "Enter the store slug or full `myshopify` domain",
       "Start the Shopify authorization flow",
       "Approve access in Shopify and return to Chatting"
     ], true),
@@ -34,7 +34,7 @@ export const chattingShopifyIntegrationGuideSections = [
     faq([
       {
         question: "Do we need to enter the full Shopify URL?",
-        answer: "You can enter the slug only. Chatting will normalize it into the full your-store.myshopify.com format before starting the connection."
+        answer: "You can enter the slug only. Chatting will normalize it into the full `your-store.myshopify.com` format before starting the connection."
       },
       {
         question: "Will every conversation show Shopify data?",

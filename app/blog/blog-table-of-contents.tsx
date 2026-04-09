@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { renderBlogRichText } from "./blog-rich-text";
 
 export function BlogTableOfContents({
   items
@@ -40,7 +41,7 @@ export function BlogTableOfContents({
               activeId === item.id ? "font-medium text-blue-600" : "text-slate-500 hover:text-slate-900"
             }`}
           >
-            {item.title}
+            {renderBlogRichText(item.title)}
           </a>
         ))}
       </nav>

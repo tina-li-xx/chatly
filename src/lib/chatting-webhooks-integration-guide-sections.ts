@@ -7,13 +7,13 @@ export const chattingWebhooksIntegrationGuideSections = [
   ]),
   section("events", "Which events Chatting can send", [
     list([
-      "conversation.created",
-      "conversation.resolved",
-      "conversation.assigned",
-      "message.received",
-      "contact.created",
-      "contact.updated",
-      "tag.added"
+      "`conversation.created`",
+      "`conversation.resolved`",
+      "`conversation.assigned`",
+      "`message.received`",
+      "`contact.created`",
+      "`contact.updated`",
+      "`tag.added`"
     ]),
     paragraph("Choose only the events your endpoint actually needs. That keeps the payload stream cleaner and makes webhook debugging much easier.")
   ]),
@@ -29,7 +29,7 @@ export const chattingWebhooksIntegrationGuideSections = [
   ]),
   section("signing", "How to verify signatures", [
     paragraph("If you save a secret, Chatting signs payloads so your backend can verify the request before processing it."),
-    paragraph("Use the X-Chatting-Signature header and compare it against a signature you compute with the same secret on your side."),
+    paragraph("Use the `X-Chatting-Signature` header and compare it against a signature you compute with the same secret on your side."),
     code("POST /webhooks/chatting\nX-Chatting-Signature: <computed-signature>\nContent-Type: application/json", "http")
   ]),
   section("testing", "How to test and debug", [

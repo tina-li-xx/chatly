@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Blog and Guides now share one cleaner public nav, and code snippets across articles render with proper inline code and copy-friendly snippet styling.
 - Zapier now has a dedicated API reference plus a starter-Zaps guide, so teams can connect Chatting faster and copy proven workflows without guessing through setup.
 - Live events unit coverage now stubs the Redis bridge directly so local publish/subscribe tests stay deterministic without weakening runtime Redis requirements.
 - Growth health regression coverage now matches the shared compact response-time formatter, keeping dashboard score-card tests aligned with labels like `2h` and `4h 10m`.
@@ -154,6 +155,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## 🚀 Key Modules
 
 ### Public Site & Auth
+- Blog and Guides now share one public content shell, and guide/article code snippets render with cleaner inline-code and block-snippet styling.
 - Email verification screens now stay inside the shared auth shell, and signup confirmation offers an inline `Edit it` action so people can correct the email address they just used without leaving the flow.
 - Logout and auth redirects now resolve from the configured public app URL so container runtime hosts do not leak into browser redirects.
 - The marketing blog backlog now includes scheduled comparison, conversion, ecommerce workflow, decision-guide, and explainer posts that unlock from their target publish dates across April and May.

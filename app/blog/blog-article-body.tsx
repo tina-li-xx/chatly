@@ -2,6 +2,8 @@ import type { BlogCalloutTone, BlogPostWithDetails, BlogSectionBlock } from "@/l
 import { BlogInlineCta } from "./blog-email-capture";
 import { BlogInlineRelatedLinks } from "./blog-inline-related-links";
 import { BlogComparisonTable } from "./blog-comparison-table";
+import { BlogCodeSnippet } from "./blog-code-snippet";
+import { renderBlogRichText } from "./blog-rich-text";
 
 const calloutStyles: Record<BlogCalloutTone, string> = {
   tip: "border-blue-600 bg-blue-50 text-slate-700",
@@ -24,7 +26,7 @@ function getChecklistItem(item: string) {
 
 function BlogBlock({ block }: { block: BlogSectionBlock }) {
   if (block.type === "paragraph") {
-    return <p>{block.text}</p>;
+    return <p>{renderBlogRichText(block.text)}</p>;
   }
 
   if (block.type === "list") {
@@ -46,7 +48,7 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
               >
                 {item.icon}
               </span>
-              <span>{item.text}</span>
+              <span>{renderBlogRichText(item.text)}</span>
             </li>
           ))}
         </ul>
@@ -57,7 +59,7 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
     return (
       <ListTag>
         {block.items.map((item) => (
-          <li key={item}>{item}</li>
+          <li key={item}>{renderBlogRichText(item)}</li>
         ))}
       </ListTag>
     );
@@ -66,14 +68,14 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
   if (block.type === "callout") {
     return (
       <aside className={`rounded-r-xl border-l-4 px-6 py-5 ${calloutStyles[block.tone]}`}>
-        <p className="text-sm font-semibold uppercase tracking-[0.12em] text-current">{block.title}</p>
-        <p className="mt-2 text-[15px] leading-7">{block.text}</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.12em] text-current">{renderBlogRichText(block.title)}</p>
+        <p className="mt-2 text-[15px] leading-7">{renderBlogRichText(block.text)}</p>
       </aside>
     );
   }
 
   if (block.type === "quote") {
-    return <blockquote>{block.text}</blockquote>;
+    return <blockquote>{renderBlogRichText(block.text)}</blockquote>;
   }
 
   if (block.type === "faq") {
@@ -81,8 +83,8 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
       <section className="space-y-6">
         {block.items.map((item) => (
           <div key={item.question} className="rounded-[20px] border border-slate-200 bg-white px-6 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-            <h3 className="text-xl font-semibold text-slate-900">{item.question}</h3>
-            <p className="mt-3 text-[15px] leading-7 text-slate-600">{item.answer}</p>
+            <h3 className="text-xl font-semibold text-slate-900">{renderBlogRichText(item.question)}</h3>
+            <p className="mt-3 text-[15px] leading-7 text-slate-600">{renderBlogRichText(item.answer)}</p>
           </div>
         ))}
       </section>
@@ -92,13 +94,13 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
   if (block.type === "cta") {
     return (
       <section className="rounded-[28px] bg-blue-50 px-8 py-10 text-center">
-        <h3 className="display-font text-3xl text-slate-900">{block.title}</h3>
-        {block.text ? <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-slate-600">{block.text}</p> : null}
+        <h3 className="display-font text-3xl text-slate-900">{renderBlogRichText(block.title)}</h3>
+        {block.text ? <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-slate-600">{renderBlogRichText(block.text)}</p> : null}
         <a
           href={block.href}
           className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-700"
         >
-          {block.buttonLabel}
+          {renderBlogRichText(block.buttonLabel)}
           <span aria-hidden="true">→</span>
         </a>
       </section>
@@ -106,31 +108,17 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
   }
 
   if (block.type === "code") {
-    return (
-      <pre>
-        <code>{block.code}</code>
-      </pre>
-    );
+    return <BlogCodeSnippet code={block.code} label={block.language || undefined} />;
   }
 
   if (block.type === "template") {
-    return (
-      <section className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
-        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-100 px-4 py-3">
-          <p className="text-sm font-medium text-slate-700">Template: {block.title}</p>
-          <span className="text-xs font-semibold text-blue-600">Copy</span>
-        </div>
-        <pre className="m-0 overflow-x-auto bg-transparent px-5 py-5 text-sm leading-7 text-slate-700">
-          <code>{block.lines.join("\n")}</code>
-        </pre>
-      </section>
-    );
+    return <BlogCodeSnippet code={block.lines.join("\n")} label={`Template: ${block.title}`} />;
   }
 
   if (block.type === "chat-example") {
     return (
       <section className="rounded-[20px] bg-slate-50 px-6 py-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{block.label}</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{renderBlogRichText(block.label)}</p>
         <div className="mt-4 space-y-4">
           {block.messages.map((message) => (
             <div
@@ -141,7 +129,7 @@ function BlogBlock({ block }: { block: BlogSectionBlock }) {
                   : "ml-auto rounded-br-md bg-blue-600 text-white"
               }`}
             >
-              {message.text}
+              {renderBlogRichText(message.text)}
             </div>
           ))}
         </div>
@@ -167,7 +155,7 @@ export function BlogArticleBody({
       {post.sections.map((section, index) => {
         return (
           <section key={section.id} id={section.id} className="scroll-mt-28">
-            <h2>{section.title}</h2>
+            <h2>{renderBlogRichText(section.title)}</h2>
             {section.blocks.map((block, blockIndex) => (
               <BlogBlock key={`${section.id}-${block.type}-${blockIndex}`} block={block} />
             ))}
