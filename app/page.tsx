@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
-import { buildDefaultSocialMetadata, HOME_PAGE_OG_DESCRIPTION, HOME_PAGE_SEO_DESCRIPTION, SITE_SEO_TITLE } from "@/lib/site-seo";
+import { buildDefaultSocialMetadata, getDefaultOgImageUrl, HOME_PAGE_OG_DESCRIPTION, HOME_PAGE_SEO_DESCRIPTION, SITE_SEO_TITLE } from "@/lib/site-seo";
 import { LandingBottomSections } from "./landing-page-bottom";
 import { LandingHeader } from "./landing-page-primitives";
 import { LandingTopSections } from "./landing-page-top";
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
       "See who's on your site. Answer their questions. Close the deal. Simple pricing, no per-seat games.",
     images: [
       {
-        url: buildAbsoluteUrl("/api/og?template=a"),
+        url: getDefaultOgImageUrl(),
         alt: "Chatting — Live chat for small teams"
       }
     ]

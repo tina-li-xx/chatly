@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Homepage and author-page social previews now use a versioned OG image URL and updated hero-card copy so LinkedIn and similar networks refresh to the current Chatting preview instead of holding onto stale blank cards.
 - Chatting now has a first-party iOS SDK with Swift Package Manager and CocoaPods distribution, so teams can add visitor chat to native apps with live conversation sync, email capture, and a lightweight SwiftUI wrapper.
 - The Zapier setup modal now shows direct docs links, available triggers/actions, and starter workflow recipes in one scrollable setup view.
 - Locked integrations now open the Growth confirmation modal in place, so teams can review billing before unlocking Zapier, Slack, Shopify, or webhooks.
@@ -158,6 +159,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## 🚀 Key Modules
 
 ### Public Site & Auth
+- Shared social preview metadata now points at a versioned OG image URL, and the default homepage OG card copy now matches the current Chatting positioning so cached blank previews can refresh cleanly on LinkedIn and similar platforms.
 - Blog and Guides now share one public content shell, and guide/article code snippets render with cleaner inline-code and block-snippet styling.
 - Email verification screens now stay inside the shared auth shell, and signup confirmation offers an inline `Edit it` action so people can correct the email address they just used without leaving the flow.
 - Logout and auth redirects now resolve from the configured public app URL so container runtime hosts do not leak into browser redirects.

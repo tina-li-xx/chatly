@@ -21,7 +21,7 @@ describe("landing page metadata", () => {
   it("includes explicit social image metadata", () => {
     expect(metadata.openGraph?.images).toEqual([
       {
-        url: "http://localhost:3983/api/og?template=a",
+        url: "http://localhost:3983/api/og?template=a&v=2026-04-09",
         width: 1200,
         height: 630,
         alt: "Chatting — Live chat for small teams. $20/month. No per-seat pricing."
@@ -32,7 +32,7 @@ describe("landing page metadata", () => {
     );
     expect(metadata.twitter?.images).toEqual([
       {
-        url: "http://localhost:3983/api/og?template=a",
+        url: "http://localhost:3983/api/og?template=a&v=2026-04-09",
         alt: "Chatting — Live chat for small teams"
       }
     ]);

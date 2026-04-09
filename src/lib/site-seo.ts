@@ -9,6 +9,7 @@ export const HOME_PAGE_SEO_DESCRIPTION =
 export const HOME_PAGE_OG_DESCRIPTION =
   "See who's on your site. Answer their questions. Close the deal. Simple pricing, no per-seat games. Start free.";
 export const DEFAULT_OG_IMAGE_ALT = "Chatting — Live chat for small teams. $20/month. No per-seat pricing.";
+export const DEFAULT_OG_IMAGE_VERSION = "2026-04-09";
 const DEFAULT_OG_IMAGE_WIDTH = 1200;
 const DEFAULT_OG_IMAGE_HEIGHT = 630;
 export const NO_INDEX_METADATA: Pick<Metadata, "robots"> = {
@@ -32,7 +33,7 @@ export function getSiteBaseUrl() {
 }
 
 export function getDefaultOgImageUrl() {
-  return `${getSiteBaseUrl()}/api/og?template=a`;
+  return `${getSiteBaseUrl()}/api/og?template=a&v=${DEFAULT_OG_IMAGE_VERSION}`;
 }
 
 export function buildDefaultSocialMetadata({

@@ -8,6 +8,10 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  entry("April 2026", "Shared links now show the current Chatting preview card", "Links to Chatting pages now do a better job of showing the right preview image and positioning when shared in places like LinkedIn.", [
+    "Homepage and author-page social metadata now point at a refreshed preview-image URL so networks can pick up the current card instead of holding onto a stale blank image.",
+    "The default homepage social card now uses clearer headline and subtitle copy that matches Chatting's current positioning for small teams."
+  ]),
   entry("April 2026", "Chatting now has a native iOS SDK", "Teams can now bring Chatting into native iPhone and iPad apps with a first-party SDK that supports the same visitor conversation flow already used on the web.", [
     "The new iOS SDK supports visitor session storage, conversation creation and resume, live conversation refresh, typing updates, email capture, and contact identify flows.",
     "Teams can ship the SDK either through Swift Package Manager or CocoaPods, depending on how their app is already managed.",

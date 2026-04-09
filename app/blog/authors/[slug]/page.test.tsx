@@ -55,13 +55,13 @@ describe("blog author route", () => {
     expect(String(metadata.alternates?.canonical)).toContain("/blog/authors/tina");
     expect(metadata.openGraph?.images).toEqual([
       {
-        url: "http://localhost:3983/api/og?template=a",
+        url: "http://localhost:3983/api/og?template=a&v=2026-04-09",
         width: 1200,
         height: 630,
         alt: "Chatting — Live chat for small teams. $20/month. No per-seat pricing."
       }
     ]);
-    expect(metadata.twitter?.images).toEqual(["http://localhost:3983/api/og?template=a"]);
+    expect(metadata.twitter?.images).toEqual(["http://localhost:3983/api/og?template=a&v=2026-04-09"]);
   });
 
   it("renders the author page and delegates missing authors to notFound", async () => {

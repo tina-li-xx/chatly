@@ -175,8 +175,8 @@ async function handleGET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const template = readParam(searchParams, "template", "default", 12) as TemplateName;
-    const title = readParam(searchParams, "title", "Talk to your visitors.\nNot at them.", 120);
-    const subtitle = readParam(searchParams, "subtitle", "Live chat for small teams who care.", 160);
+    const title = readParam(searchParams, "title", "Live chat for small teams.", 120);
+    const subtitle = readParam(searchParams, "subtitle", "See who's on your site. Answer their questions. Close the deal.", 160);
     const category = readParam(searchParams, "category", "LIVE CHAT", 40);
     const competitor = readParam(searchParams, "competitor", "INTERCOM", 40);
 
