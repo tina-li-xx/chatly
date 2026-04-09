@@ -29,7 +29,8 @@ export function SlackIntegrationCard({
   busy,
   onConnect,
   onSettings,
-  onDisconnect
+  onDisconnect,
+  onUpgrade
 }: {
   unlocked: boolean;
   slack: SlackIntegrationState;
@@ -37,9 +38,10 @@ export function SlackIntegrationCard({
   onConnect: () => void;
   onSettings: () => void;
   onDisconnect: () => void;
+  onUpgrade: () => void;
 }) {
   if (!unlocked) {
-    return renderLockedCard(SLACK_CARD);
+    return renderLockedCard(SLACK_CARD, onUpgrade);
   }
 
   const tone: CardTone =
@@ -94,16 +96,18 @@ export function ShopifyIntegrationCard({
   shopify,
   busy,
   onConnect,
-  onDisconnect
+  onDisconnect,
+  onUpgrade
 }: {
   unlocked: boolean;
   shopify: ShopifyIntegrationState;
   busy: boolean;
   onConnect: () => void;
   onDisconnect: () => void;
+  onUpgrade: () => void;
 }) {
   if (!unlocked) {
-    return renderLockedCard(SHOPIFY_CARD);
+    return renderLockedCard(SHOPIFY_CARD, onUpgrade);
   }
 
   const tone: CardTone = shopify.status === "error" ? "error" : "default";

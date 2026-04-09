@@ -2,11 +2,15 @@
 
 import { Button, ButtonLink } from "../components/ui/Button";
 
-export function UpgradeButton() {
+export function UpgradeButton({
+  onClick
+}: {
+  onClick: () => void;
+}) {
   return (
-    <ButtonLink href="/dashboard/settings?section=billing" variant="secondary" size="md">
+    <Button type="button" variant="secondary" size="md" onClick={onClick}>
       Upgrade to Growth
-    </ButtonLink>
+    </Button>
   );
 }
 

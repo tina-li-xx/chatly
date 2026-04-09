@@ -109,6 +109,10 @@ export function renderSettingsPageSection(input: RenderSettingsPageSectionInput)
         title={input.pageCopy.title}
         subtitle={input.pageCopy.subtitle}
         planKey={input.billing.planKey}
+        billing={input.billing}
+        billingPlanPending={input.billingPlanPending}
+        selectedInterval={input.selectedBillingInterval}
+        onChangePlan={input.onChangePlan}
       />
     );
   }

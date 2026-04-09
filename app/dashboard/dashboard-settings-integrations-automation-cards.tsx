@@ -20,16 +20,18 @@ export function ZapierIntegrationCard({
   zapier,
   busy,
   onConnect,
-  onDisconnect
+  onDisconnect,
+  onUpgrade
 }: {
   unlocked: boolean;
   zapier: ZapierIntegrationState;
   busy: boolean;
   onConnect: () => void;
   onDisconnect: () => void;
+  onUpgrade: () => void;
 }) {
   if (!unlocked) {
-    return renderLockedCard(ZAPIER_CARD);
+    return renderLockedCard(ZAPIER_CARD, onUpgrade);
   }
 
   const detail = zapier.connected
@@ -64,13 +66,15 @@ export function ZapierIntegrationCard({
 
 export function WebhooksIntegrationCard({
   unlocked,
-  activeCount
+  activeCount,
+  onUpgrade
 }: {
   unlocked: boolean;
   activeCount: number;
+  onUpgrade: () => void;
 }) {
   if (!unlocked) {
-    return renderLockedCard(WEBHOOKS_CARD);
+    return renderLockedCard(WEBHOOKS_CARD, onUpgrade);
   }
 
   return (

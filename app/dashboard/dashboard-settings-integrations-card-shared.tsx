@@ -23,7 +23,7 @@ export const SLACK_CARD: CardMeta = {
 export const ZAPIER_CARD: CardMeta = {
   kind: "zapier",
   title: "Zapier",
-  description: "Connect to 5,000+ apps"
+  description: "Connect to 5,000+ apps for Slack alerts, Sheets logging, and follow-up workflows"
 };
 
 export const WEBHOOKS_CARD: CardMeta = {
@@ -42,13 +42,13 @@ export function renderStatusBadge(tone: BadgeTone, label: string) {
   return <IntegrationStatusBadge tone={tone} label={label} />;
 }
 
-export function renderLockedCard(meta: CardMeta) {
+export function renderLockedCard(meta: CardMeta, onUpgrade: () => void) {
   return (
     <SettingsIntegrationsCard
       {...meta}
       tone="locked"
       badge={renderStatusBadge("locked", "Growth")}
-      actions={<UpgradeButton />}
+      actions={<UpgradeButton onClick={onUpgrade} />}
     />
   );
 }

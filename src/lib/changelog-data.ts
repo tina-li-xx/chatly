@@ -14,7 +14,8 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     "Shopify now connects through a real OAuth flow so inbox teammates can pull customer order context from connected stores.",
     "The public guides library now includes dedicated setup walkthroughs for Slack, Zapier, Shopify, and webhooks so teams can get each connection live faster.",
     "Zapier setup docs now include a dedicated API reference plus a starter-workflow guide, so teams can connect Chatting faster and copy proven first-use automations without guessing through setup.",
-    "Starter Zap examples now cover Slack alerts, Google Sheets contact logging, lead imports with tagging, and automatic first replies inside Chatting."
+    "Starter Zap examples now cover Slack alerts, Google Sheets contact logging, lead imports with tagging, and automatic first replies inside Chatting.",
+    "Locked integration cards now open the Growth confirmation modal in place, so teams can review member count and billing before unlocking Zapier, Slack, Shopify, or webhooks."
   ]),
   entry("Early April 2026", "AI Assist is now built into the inbox", "Chatting now includes AI Assist to help teams reply faster, with suggestions that stay human-controlled and grounded in the live conversation.", [
     "Teams can now generate reply suggestions, summarize longer threads, rewrite drafts, and get suggested tags directly inside the inbox.",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { BillingPlanKey } from "@/lib/billing-plans";
+import type { BillingInterval, BillingPlanKey, DashboardBillingSummary } from "@/lib/data/billing-types";
 import { isPaidPlan } from "@/lib/billing-plans";
 import { useToast } from "../ui/toast-provider";
 import {
@@ -10,6 +10,7 @@ import {
   WebhooksIntegrationCard,
   ZapierIntegrationCard
 } from "./dashboard-settings-integrations-cards";
+import { type BillingPlanIntent, DashboardSettingsBillingPlanModal } from "./dashboard-settings-billing-modals";
 import { SettingsSectionHeader } from "./dashboard-settings-shared";
 import { SettingsIntegrationsConfirmModal } from "./dashboard-settings-integrations-confirm-modal";
 import { IntegrationsSkeletonGrid } from "./dashboard-settings-integrations-primitives";
@@ -19,24 +20,28 @@ import { SettingsIntegrationsZapierModal } from "./dashboard-settings-integratio
 import { useDashboardIntegrationsOAuthPopup } from "./use-dashboard-integrations-oauth-popup";
 import { useDashboardIntegrationsState } from "./use-dashboard-integrations-state";
 
-type ModalState =
-  | "slack-connect"
-  | "slack-settings"
-  | "zapier"
-  | "shopify"
-  | "disconnect-slack"
-  | "disconnect-zapier"
-  | "disconnect-shopify"
-  | null;
+type ModalState = "slack-connect" | "slack-settings" | "zapier" | "shopify" | "disconnect-slack" | "disconnect-zapier" | "disconnect-shopify" | null;
 
 export function SettingsIntegrationsSection({
   title,
   subtitle,
-  planKey
+  planKey,
+  billing,
+  billingPlanPending,
+  selectedInterval,
+  onChangePlan
 }: {
   title: string;
   subtitle: string;
   planKey: BillingPlanKey;
+  billing: DashboardBillingSummary;
+  billingPlanPending: string | null;
+  selectedInterval: BillingInterval;
+  onChangePlan: (
+    planKey: BillingPlanKey,
+    billingInterval: BillingInterval,
+    seatQuantity?: number
+  ) => Promise<void>;
 }) {
   const integrationsUnlocked = isPaidPlan(planKey);
   const { showToast } = useToast();
@@ -55,6 +60,7 @@ export function SettingsIntegrationsSection({
     setShopifyError
   } = useDashboardIntegrationsState();
   const [modal, setModal] = useState<ModalState>(null);
+  const [planIntent, setPlanIntent] = useState<BillingPlanIntent>(null);
   const [pendingSlackWorkspace, setPendingSlackWorkspace] = useState<string | null>(null);
   const [zapierBusy, setZapierBusy] = useState(false);
   const { activeRequest, openAuthPopup } = useDashboardIntegrationsOAuthPopup({
@@ -125,6 +131,15 @@ export function SettingsIntegrationsSection({
     });
   }
 
+  function openUpgradeModal() {
+    setPlanIntent({
+      planKey: "growth",
+      billingInterval: selectedInterval,
+      mode: "upgrade",
+      seatQuantity: Math.max(1, billing.usedSeats || 1)
+    });
+  }
+
   async function openZapierModal() {
     setZapierBusy(true);
     try {
@@ -144,10 +159,10 @@ export function SettingsIntegrationsSection({
       <SettingsSectionHeader title={title} subtitle={subtitle} />
 
       <div className="grid max-w-[700px] gap-5 md:grid-cols-2">
-        <SlackIntegrationCard unlocked={integrationsUnlocked} slack={state.slack} busy={slackBusy} onConnect={() => startSlackAuth(state.slack.status === "reconnect" ? "reconnect" : "connect")} onSettings={() => setModal("slack-settings")} onDisconnect={() => setModal("disconnect-slack")} />
-        <ZapierIntegrationCard unlocked={integrationsUnlocked} zapier={state.zapier} busy={zapierBusy} onConnect={() => void openZapierModal()} onDisconnect={() => setModal("disconnect-zapier")} />
-        <WebhooksIntegrationCard unlocked={integrationsUnlocked} activeCount={state.webhooks.length} />
-        <ShopifyIntegrationCard unlocked={integrationsUnlocked} shopify={state.shopify} busy={shopifyBusy} onConnect={() => setModal("shopify")} onDisconnect={() => setModal("disconnect-shopify")} />
+        <SlackIntegrationCard unlocked={integrationsUnlocked} slack={state.slack} busy={slackBusy} onConnect={() => startSlackAuth(state.slack.status === "reconnect" ? "reconnect" : "connect")} onSettings={() => setModal("slack-settings")} onDisconnect={() => setModal("disconnect-slack")} onUpgrade={openUpgradeModal} />
+        <ZapierIntegrationCard unlocked={integrationsUnlocked} zapier={state.zapier} busy={zapierBusy} onConnect={() => void openZapierModal()} onDisconnect={() => setModal("disconnect-zapier")} onUpgrade={openUpgradeModal} />
+        <WebhooksIntegrationCard unlocked={integrationsUnlocked} activeCount={state.webhooks.length} onUpgrade={openUpgradeModal} />
+        <ShopifyIntegrationCard unlocked={integrationsUnlocked} shopify={state.shopify} busy={shopifyBusy} onConnect={() => setModal("shopify")} onDisconnect={() => setModal("disconnect-shopify")} onUpgrade={openUpgradeModal} />
       </div>
 
       {modal === "slack-connect" ? <SettingsIntegrationsSlackModal mode="connect" initialState={state.slack} workspaceName={pendingSlackWorkspace ?? undefined} onClose={() => { setPendingSlackWorkspace(null); setModal(null); }} onSave={async (nextState) => { try { await saveSlack(nextState); setPendingSlackWorkspace(null); setModal(null); showToast("success", "Slack connected", `Posting to ${nextState.channelName}.`); } catch { showToast("error", "Slack settings couldn't be saved", "Please try again in a moment."); } }} /> : null}
@@ -157,6 +172,18 @@ export function SettingsIntegrationsSection({
       {modal === "disconnect-slack" ? <SettingsIntegrationsConfirmModal title="Disconnect Slack?" description="You'll stop receiving notifications in Slack and won't be able to reply from there." confirmLabel="Yes, disconnect" note="You can reconnect anytime." onClose={() => setModal(null)} onConfirm={async () => { try { await disconnectSlack(); setModal(null); showToast("success", "Slack disconnected"); } catch { showToast("error", "Slack couldn't be disconnected", "Please try again in a moment."); } }} /> : null}
       {modal === "disconnect-zapier" ? <SettingsIntegrationsConfirmModal title="Disconnect Zapier?" description="You'll stop using Chatting as a Zapier app until you reconnect it." confirmLabel="Yes, disconnect" note="You can reconnect anytime." onClose={() => setModal(null)} onConfirm={async () => { try { await disconnectZapier(); setModal(null); showToast("success", "Zapier disconnected"); } catch { showToast("error", "Zapier couldn't be disconnected", "Please try again in a moment."); } }} /> : null}
       {modal === "disconnect-shopify" ? <SettingsIntegrationsConfirmModal title="Disconnect Shopify?" description="You'll stop seeing Shopify order history and customer context in the inbox." confirmLabel="Yes, disconnect" note="You can reconnect anytime." onClose={() => setModal(null)} onConfirm={async () => { try { await disconnectShopify(); setModal(null); showToast("success", "Shopify disconnected"); } catch { showToast("error", "Shopify couldn't be disconnected", "Please try again in a moment."); } }} /> : null}
+      <DashboardSettingsBillingPlanModal
+        billing={billing}
+        intent={planIntent}
+        pending={Boolean(billingPlanPending)}
+        onClose={() => setPlanIntent(null)}
+        onConfirm={() => {
+          if (!planIntent) {
+            return;
+          }
+          void onChangePlan(planIntent.planKey, planIntent.billingInterval, planIntent.seatQuantity);
+        }}
+      />
     </div>
   );
 }
