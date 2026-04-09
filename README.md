@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- The Zapier setup modal now shows direct docs links, available triggers/actions, and starter workflow recipes in one scrollable setup view.
 - Locked integrations now open the Growth confirmation modal in place, so teams can review billing before unlocking Zapier, Slack, Shopify, or webhooks.
 - Blog and Guides now share one cleaner public nav, and code snippets across articles render with proper inline code and copy-friendly snippet styling.
 - Zapier now has a dedicated API reference plus a starter-Zaps guide, so teams can connect Chatting faster and copy proven workflows without guessing through setup.
@@ -216,6 +217,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Live-event unit coverage now isolates Redis bridge bootstrapping while production dashboard updates still run through the strict Redis-backed bridge.
 - Dashboard growth-health coverage now follows the same shared response-time formatter used by the live score cards.
 - Locked integrations now route through the shared Growth confirmation modal from settings instead of sending teams out to billing immediately.
+- The Zapier integrations modal now includes direct guide links, the trigger/action list, starter workflow recipes, and a scrollable layout for taller setup content.
 - Response-time metrics across dashboard home, billing, and health summaries now render in readable mixed units so long waits are easier to scan at a glance.
 - Inbox tag editing now feels faster, with Enter-to-add contact tags, optimistic updates in the sidebar and contact drawer, and a cleaner shared tags presentation in thread detail.
 - Dashboard settings now include a full Integrations area for Slack, Zapier, Shopify, and webhooks, with live connection flows, persisted workspace state, and dedicated modal-based setup.
