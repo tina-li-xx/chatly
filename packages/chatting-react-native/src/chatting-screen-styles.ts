@@ -1,0 +1,33 @@
+import { StyleSheet } from "react-native";
+
+export const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: "#F8FAFC" },
+  header: { padding: 16, borderBottomWidth: 1, borderBottomColor: "#E2E8F0", backgroundColor: "#FFFFFF" },
+  title: { fontSize: 18, fontWeight: "700", color: "#0F172A" },
+  subtitle: { marginTop: 4, fontSize: 14, color: "#475569" },
+  scroll: { flex: 1 },
+  content: { padding: 16, gap: 12 },
+  banner: { padding: 12, borderRadius: 16, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0" },
+  bannerText: { color: "#334155", fontSize: 14, lineHeight: 20 },
+  error: { color: "#B91C1C" },
+  row: { flexDirection: "row", alignItems: "flex-end" },
+  spacer: { flex: 1, minWidth: 40 },
+  bubble: { maxWidth: "78%", borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10 },
+  userBubble: { backgroundColor: "#2563EB" },
+  teamBubble: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0" },
+  typingBubble: { opacity: 0.8 },
+  userText: { color: "#FFFFFF", fontSize: 15, lineHeight: 22 },
+  teamText: { color: "#0F172A", fontSize: 15, lineHeight: 22 },
+  meta: { marginTop: 4, fontSize: 12, color: "#94A3B8" },
+  faqCard: { padding: 12, borderRadius: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E2E8F0", gap: 4 },
+  faqTitle: { fontSize: 14, fontWeight: "700", color: "#0F172A" },
+  faqText: { fontSize: 13, lineHeight: 19, color: "#475569" },
+  footer: { gap: 12, padding: 16, borderTopWidth: 1, borderTopColor: "#E2E8F0", backgroundColor: "#FFFFFF" },
+  input: { borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, backgroundColor: "#FFFFFF", color: "#0F172A" },
+  composer: { minHeight: 44, maxHeight: 120, textAlignVertical: "top" },
+  actions: { flexDirection: "row", gap: 12 },
+  button: { flex: 1, borderRadius: 14, paddingVertical: 12, alignItems: "center", justifyContent: "center", backgroundColor: "#2563EB" },
+  secondaryButton: { backgroundColor: "#EFF6FF" },
+  buttonText: { color: "#FFFFFF", fontWeight: "700" },
+  secondaryButtonText: { color: "#2563EB", fontWeight: "700" }
+});
