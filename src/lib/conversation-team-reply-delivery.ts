@@ -1,5 +1,5 @@
 import { sendOfflineReplyTemplateEmail } from "@/lib/conversation-template-emails";
-import { sendConversationMobilePushNotifications } from "@/lib/expo-push";
+import { sendConversationMobilePushNotifications } from "@/lib/mobile-push-delivery";
 import {
   getConversationReplyDeliveryState,
   markConversationRead

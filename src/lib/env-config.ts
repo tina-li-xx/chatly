@@ -1,4 +1,5 @@
 export type AppEnvValidationGroup =
+  | "apple-push"
   | "startup-production-core"
   | "integrations"
   | "redis-live"
@@ -19,6 +20,18 @@ export const APP_ENV_DEFINITIONS = {
   APP_NAME: {
     defaultValue: "Chatting",
     exampleValue: "Chatting"
+  },
+  APPLE_KEY_ID: {
+    exampleValue: "",
+    requiredIn: ["apple-push"]
+  },
+  APPLE_PUSH_KEY_P8: {
+    exampleValue: "",
+    requiredIn: ["apple-push"]
+  },
+  APPLE_TEAM_ID: {
+    exampleValue: "",
+    requiredIn: ["apple-push"]
   },
   AUTH_SECRET: {
     exampleValue: "change-me",
@@ -135,6 +148,9 @@ export const APP_ENV_DEFINITIONS = {
 export type AppEnvName = keyof typeof APP_ENV_DEFINITIONS;
 
 export const APP_ENV_EXAMPLE_ORDER = [
+  "APPLE_TEAM_ID",
+  "APPLE_KEY_ID",
+  "APPLE_PUSH_KEY_P8",
   "DATABASE_URL",
   "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_ZAPIER_APP_URL",

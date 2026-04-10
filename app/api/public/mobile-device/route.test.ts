@@ -66,10 +66,62 @@ describe("public mobile device route", () => {
       sessionId: "session_1",
       conversationId: "conv_1",
       pushToken: "ExponentPushToken[token]",
+      provider: "expo",
       platform: "ios",
-      appId: "my.expo.app"
+      appId: "my.expo.app",
+      bundleId: null,
+      environment: null
     });
     expect(await response.json()).toEqual({ ok: true });
+  });
+
+  it("requires bundle metadata for APNs registrations", async () => {
+    const response = await POST(
+      new Request("http://localhost/api/public/mobile-device", {
+        method: "POST",
+        body: JSON.stringify({
+          siteId: "site_1",
+          sessionId: "session_1",
+          pushToken: "apns-token",
+          provider: "apns"
+        })
+      })
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "APNs registrations require bundleId and environment." });
+  });
+
+  it("registers APNs tokens with bundle metadata", async () => {
+    mocks.getSiteByPublicId.mockResolvedValueOnce({ id: "site_1" });
+    mocks.registerPublicMobilePushDevice.mockResolvedValueOnce({ ok: true });
+
+    await POST(
+      new Request("http://localhost/api/public/mobile-device", {
+        method: "POST",
+        body: JSON.stringify({
+          siteId: "site_1",
+          sessionId: "session_1",
+          pushToken: "apns-token",
+          provider: "apns",
+          platform: "ios",
+          bundleId: "com.usechatting.app",
+          environment: "production"
+        })
+      })
+    );
+
+    expect(mocks.registerPublicMobilePushDevice).toHaveBeenCalledWith({
+      siteId: "site_1",
+      sessionId: "session_1",
+      conversationId: null,
+      pushToken: "apns-token",
+      provider: "apns",
+      platform: "ios",
+      appId: null,
+      bundleId: "com.usechatting.app",
+      environment: "production"
+    });
   });
 
   it("unregisters a push token", async () => {

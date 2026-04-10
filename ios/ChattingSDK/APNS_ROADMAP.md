@@ -1,12 +1,28 @@
 # Chatting iOS Push Delivery Roadmap
 
+This roadmap is now mostly implemented in the codebase. Keep it as a follow-up checklist for deeper APNs polish, not as a statement that native iOS push is still missing entirely.
+
+This file is maintainer-facing. It is for people working on Chatting itself, not for app developers integrating the SDK into their own iOS app. Integrators should use `ios/ChattingSDK/README.md` and the public iOS SDK guide instead.
+
+## Chatting Operator Checklist
+
+If you run Chatting itself, your operational setup is only:
+
+- set `APPLE_TEAM_ID` in the Chatting deployment
+- set `APPLE_KEY_ID` in the Chatting deployment
+- set `APPLE_PUSH_KEY_P8` in the Chatting deployment
+
+Anything about Xcode capabilities, notification permission prompts, APNs device tokens, or `registerPushToken(...)` belongs in the integrator-facing SDK docs, not in your Chatting operator checklist.
+
 ## Goal
 
 Ship iOS push notifications and reliable conversation refresh when the host app returns from the background, using the existing public Chatting conversation APIs plus a new APNs delivery path.
 
 ## What We Are Solving
 
-The current iOS SDK supports:
+This roadmap was written for the missing pieces that had to be added around native iOS push and lifecycle refresh. Those core pieces now exist. Keep the list below as the scope this roadmap was meant to cover.
+
+The iOS SDK now supports:
 
 - session storage
 - site config and site status reads
@@ -14,9 +30,6 @@ The current iOS SDK supports:
 - identify and email capture
 - typing updates
 - live SSE updates while the app is active
-
-It does not support:
-
 - push notifications for new team replies
 - background delivery while the app is suspended
 - device token registration
@@ -85,10 +98,8 @@ Add required server env values for APNs:
 - `APPLE_TEAM_ID`
 - `APPLE_KEY_ID`
 - `APPLE_PUSH_KEY_P8`
-- `APPLE_PUSH_BUNDLE_ID`
-- `APPLE_PUSH_USE_SANDBOX`
 
-If multi-app support is needed later, move bundle ID and push topic to per-site or per-sdk config. For v1, one configured topic is enough.
+Bundle ID and environment are supplied by the integrating app when it registers its APNs token. If multi-app support needs deeper per-customer isolation later, move APNs credentials out of global env vars and into per-site or per-sdk config.
 
 ### 3. Add APNs delivery service
 

@@ -7,6 +7,7 @@ import { type ServerEnvSource } from "@/lib/env-server/core";
 import { buildStripeEnvSource } from "@/lib/env-server/stripe";
 
 const validationState = {
+  applePush: null as RuntimeEnvironment | null,
   startup: null as RuntimeEnvironment | null,
   integrations: null as RuntimeEnvironment | null,
   redisLive: null as RuntimeEnvironment | null,
@@ -77,6 +78,10 @@ export function getMissingStartupProductionCoreEnvVars(params?: EnvValidationPar
   return getMissingProductionEnvVars("startup-production-core", params);
 }
 
+export function getMissingApplePushEnvVars(params?: EnvValidationParams) {
+  return getMissingEnvVarsForGroup("apple-push", params?.source || process.env);
+}
+
 export function getMissingStripeCheckoutEnvVars(params?: EnvValidationParams) {
   return getMissingStripeEnvVars("stripe-checkout", params);
 }
@@ -106,6 +111,13 @@ export function isStripeConfigured(
   return getMissingStripeCheckoutEnvVars({ source, environment }).length === 0;
 }
 
+export function isApplePushConfigured(
+  source: ServerEnvSource = process.env,
+  environment: RuntimeEnvironment = getRuntimeEnvironment()
+) {
+  return getMissingApplePushEnvVars({ source, environment }).length === 0;
+}
+
 export function isStripeBillingReady(
   source: ServerEnvSource = process.env,
   environment: RuntimeEnvironment = getRuntimeEnvironment()
@@ -120,6 +132,15 @@ export function assertStartupProductionCoreEnvConfigured(params?: CachedEnvValid
     getMissingStartupProductionCoreEnvVars,
     params,
     { productionOnly: true }
+  );
+}
+
+export function assertApplePushEnvConfigured(params?: CachedEnvValidationParams) {
+  assertCachedEnv(
+    "applePush",
+    "[ApplePushConfig] Missing required Apple push env vars: ",
+    getMissingApplePushEnvVars,
+    params
   );
 }
 

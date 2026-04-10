@@ -5,9 +5,11 @@ export type MobilePushRegistrationRow = {
   site_id: string;
   conversation_id: string | null;
   session_id: string;
-  provider: "expo";
+  provider: "expo" | "apns";
   platform: string | null;
   app_id: string | null;
+  bundle_id: string | null;
+  environment: "sandbox" | "production" | null;
   push_token: string;
   disabled_at: string | null;
   last_seen_at: string;
@@ -20,17 +22,19 @@ export async function upsertMobilePushRegistrationRow(input: {
   siteId: string;
   sessionId: string;
   conversationId: string | null;
-  provider: "expo";
+  provider: "expo" | "apns";
   platform: string | null;
   appId: string | null;
+  bundleId: string | null;
+  environment: "sandbox" | "production" | null;
   pushToken: string;
 }) {
   const result = await query<MobilePushRegistrationRow>(
     `
       INSERT INTO mobile_push_registrations (
-        id, site_id, session_id, conversation_id, provider, platform, app_id, push_token, last_seen_at, updated_at
+        id, site_id, session_id, conversation_id, provider, platform, app_id, bundle_id, environment, push_token, last_seen_at, updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
       ON CONFLICT (push_token)
       DO UPDATE SET
         site_id = EXCLUDED.site_id,
@@ -39,6 +43,8 @@ export async function upsertMobilePushRegistrationRow(input: {
         provider = EXCLUDED.provider,
         platform = COALESCE(EXCLUDED.platform, mobile_push_registrations.platform),
         app_id = COALESCE(EXCLUDED.app_id, mobile_push_registrations.app_id),
+        bundle_id = COALESCE(EXCLUDED.bundle_id, mobile_push_registrations.bundle_id),
+        environment = COALESCE(EXCLUDED.environment, mobile_push_registrations.environment),
         disabled_at = NULL,
         last_seen_at = NOW(),
         updated_at = NOW()
@@ -52,6 +58,8 @@ export async function upsertMobilePushRegistrationRow(input: {
       input.provider,
       input.platform,
       input.appId,
+      input.bundleId,
+      input.environment,
       input.pushToken
     ]
   );
@@ -98,13 +106,13 @@ export async function bindMobilePushRegistrationsToConversationRow(input: {
   );
 }
 
-export async function listConversationMobilePushTokensRow(input: {
+export async function listConversationMobilePushRegistrationsRow(input: {
   ownerUserId: string;
   conversationId: string;
 }) {
-  const result = await query<{ push_token: string }>(
+  const result = await query<Pick<MobilePushRegistrationRow, "provider" | "push_token" | "bundle_id" | "environment">>(
     `
-      SELECT DISTINCT mpr.push_token
+      SELECT DISTINCT mpr.provider, mpr.push_token, mpr.bundle_id, mpr.environment
       FROM mobile_push_registrations mpr
       INNER JOIN conversations c
         ON c.id = mpr.conversation_id
@@ -112,14 +120,18 @@ export async function listConversationMobilePushTokensRow(input: {
         ON s.id = c.site_id
       WHERE c.id = $1
         AND s.user_id = $2
-        AND mpr.provider = 'expo'
         AND mpr.disabled_at IS NULL
-      ORDER BY mpr.push_token ASC
+      ORDER BY mpr.provider ASC, mpr.push_token ASC
     `,
     [input.conversationId, input.ownerUserId]
   );
 
-  return result.rows.map((row) => row.push_token);
+  return result.rows.map((row) => ({
+    provider: row.provider,
+    pushToken: row.push_token,
+    bundleId: row.bundle_id,
+    environment: row.environment
+  }));
 }
 
 export async function disableMobilePushTokensRow(pushTokens: string[]) {

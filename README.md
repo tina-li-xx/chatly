@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Mobile push delivery now supports native iOS APNs alongside Expo, so team replies can reach backgrounded iPhone apps after those apps register a device token.
 - The Reddit reply generator now treats links and direct service mentions as conditional, so prompt guidance is safer in subreddits where automod may remove obvious promo patterns.
 - Repo guidance now requires `npm run build` after any user-requested test run, so verification reports always include both test and build status.
 - JetBrains `.idea/` project files are now ignored in git so local workspace metadata stays out of the shared worktree.
@@ -223,6 +224,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Widget & Public APIs
 
+- Public mobile-device registration and team-reply delivery now support native iOS APNs alongside Expo for mobile push notifications.
 - The iOS SDK README and demo scaffold now show the recommended support-sheet integration pattern with explicit `baseURL`, `siteId`, and identify/email examples.
 - Chatting now also ships a published React Native and Expo package with session storage, live conversation sync, push registration helpers, and a drop-in support screen.
 - Live dashboard and public conversation updates now fan out through a shared Redis bridge instead of a single-process listener map.

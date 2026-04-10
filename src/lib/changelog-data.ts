@@ -8,6 +8,11 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  entry("April 2026", "Native iOS apps can now receive push-backed team replies", "Chatting can now send team replies back into native iPhone and iPad apps after the app has been backgrounded, so mobile conversations can continue without relying on the app staying open.", [
+    "Native iOS apps can now register APNs device tokens against visitor sessions and conversations through Chatting.",
+    "Team replies can now trigger APNs notifications for those mobile conversations, alongside the existing Expo push flow.",
+    "Opening the app after a push can now bring people back into the same conversation instead of making mobile chat feel like a disconnected side flow."
+  ]),
   entry("April 2026", "Chatting now has a React Native and Expo package", "Teams can now add Chatting to Expo and React Native apps with a published package instead of building their own mobile chat client from scratch.", [
     "The new package includes session storage, live conversation sync, and a drop-in support screen for mobile apps.",
     "Expo apps can register push tokens through the package so team replies can bring people back into the conversation after the app is backgrounded.",

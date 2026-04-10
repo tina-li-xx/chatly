@@ -1,19 +1,15 @@
-import { disableMobilePushTokensRow, listConversationMobilePushTokensRow } from "@/lib/repositories/mobile-push-repository";
+import { disableMobilePushTokensRow } from "@/lib/repositories/mobile-push-repository";
 import { previewIncomingMessage } from "@/lib/notification-utils";
 
 const EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 
-export async function sendConversationMobilePushNotifications(input: {
-  ownerUserId: string;
+export async function sendExpoPushNotifications(input: {
+  pushTokens: string[];
   conversationId: string;
   content: string;
   attachmentsCount: number;
 }) {
-  const pushTokens = await listConversationMobilePushTokensRow({
-    ownerUserId: input.ownerUserId,
-    conversationId: input.conversationId
-  });
-  if (!pushTokens.length) {
+  if (!input.pushTokens.length) {
     return { sent: 0, disabled: 0 };
   }
 
@@ -24,7 +20,7 @@ export async function sendConversationMobilePushNotifications(input: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(
-      pushTokens.map((pushToken) => ({
+      input.pushTokens.map((pushToken) => ({
         to: pushToken,
         sound: "default",
         title: "Support replied",
@@ -45,7 +41,7 @@ export async function sendConversationMobilePushNotifications(input: {
   const payload = (await response.json()) as {
     data?: Array<{ status?: string; details?: { error?: string } }>;
   };
-  const invalidTokens = pushTokens.filter((pushToken, index) => {
+  const invalidTokens = input.pushTokens.filter((pushToken, index) => {
     const details = payload.data?.[index]?.details;
     return payload.data?.[index]?.status === "error" && details?.error === "DeviceNotRegistered";
   });
@@ -55,7 +51,7 @@ export async function sendConversationMobilePushNotifications(input: {
   }
 
   return {
-    sent: pushTokens.length - invalidTokens.length,
+    sent: input.pushTokens.length - invalidTokens.length,
     disabled: invalidTokens.length
   };
 }

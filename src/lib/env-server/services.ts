@@ -27,6 +27,12 @@ type MiniMaxConfig = {
   baseUrl: string;
 };
 
+type ApplePushConfig = {
+  teamId: string;
+  keyId: string;
+  privateKey: string;
+};
+
 const DEFAULT_ADMIN_ALERT_EMAIL = "tina@usechatting.com";
 
 export function getAuthSecret(params?: {
@@ -59,6 +65,14 @@ export function getDatabaseConfig(params?: {
 
 export function getRedisUrl(source: ServerEnvSource = process.env) {
   return getRequiredServerEnv("REDIS_URL", { source, errorCode: "REDIS_URL_NOT_CONFIGURED" });
+}
+
+export function getApplePushConfig(source: ServerEnvSource = process.env): ApplePushConfig {
+  return {
+    teamId: getRequiredServerEnv("APPLE_TEAM_ID", { source, errorCode: "APPLE_TEAM_ID_NOT_CONFIGURED" }),
+    keyId: getRequiredServerEnv("APPLE_KEY_ID", { source, errorCode: "APPLE_KEY_ID_NOT_CONFIGURED" }),
+    privateKey: getRequiredServerEnv("APPLE_PUSH_KEY_P8", { source, errorCode: "APPLE_PUSH_KEY_P8_NOT_CONFIGURED" })
+  };
 }
 
 export function getAppDisplayName(source: ServerEnvSource = process.env) {

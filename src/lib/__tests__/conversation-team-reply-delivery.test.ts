@@ -31,7 +31,7 @@ vi.mock("@/lib/conversation-template-emails", () => ({
   sendOfflineReplyTemplateEmail: mocks.sendOfflineReplyTemplateEmail
 }));
 
-vi.mock("@/lib/expo-push", () => ({
+vi.mock("@/lib/mobile-push-delivery", () => ({
   sendConversationMobilePushNotifications: mocks.sendConversationMobilePushNotifications
 }));
 

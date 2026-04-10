@@ -97,6 +97,8 @@ export const mobilePushRegistrations = pgTable("mobile_push_registrations", {
     provider: text("provider").notNull().default("expo"),
     platform: text("platform"),
     appId: text("app_id"),
+    bundleId: text("bundle_id"),
+    environment: text("environment"),
     pushToken: text("push_token").notNull(),
     disabledAt: timestamp("disabled_at", { withTimezone: true, mode: "date" }),
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
@@ -104,7 +106,8 @@ export const mobilePushRegistrations = pgTable("mobile_push_registrations", {
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
   }, (table) => ({
     mobilePushRegistrationsConversationIdFkey: foreignKey({ name: "mobile_push_registrations_conversation_id_fkey", columns: [table.conversationId], foreignColumns: [conversations.id] }).onDelete("set null"),
-    mobilePushRegistrationsProviderCheck: check("mobile_push_registrations_provider_check", sql.raw("(provider = ANY (ARRAY['expo'::text]))")),
+    mobilePushRegistrationsProviderCheck: check("mobile_push_registrations_provider_check", sql.raw("(provider = ANY (ARRAY['expo'::text, 'apns'::text]))")),
+    mobilePushRegistrationsEnvironmentCheck: check("mobile_push_registrations_environment_check", sql.raw("(environment IS NULL OR environment = ANY (ARRAY['sandbox'::text, 'production'::text]))")),
     mobilePushRegistrationsSiteIdFkey: foreignKey({ name: "mobile_push_registrations_site_id_fkey", columns: [table.siteId], foreignColumns: [sites.id] }).onDelete("cascade"),
     mobilePushRegistrationsPushTokenKey: uniqueIndex("mobile_push_registrations_push_token_key").on(table.pushToken),
     idxMobilePushRegistrationsConversation: index("idx_mobile_push_registrations_conversation").on(table.conversationId, desc(table.updatedAt)),

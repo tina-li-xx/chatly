@@ -12,13 +12,22 @@ async function handlePOST(request: Request) {
     const siteId = String(body.siteId ?? "").trim();
     const sessionId = String(body.sessionId ?? "").trim();
     const pushToken = String(body.pushToken ?? "").trim();
+    const provider = body.provider === "apns" ? "apns" : body.provider === "expo" || body.provider == null ? "expo" : null;
     const conversationId =
       typeof body.conversationId === "string" && body.conversationId.trim()
         ? body.conversationId.trim()
         : null;
+    const environment = body.environment === "sandbox" || body.environment === "production" ? body.environment : null;
+    const bundleId = typeof body.bundleId === "string" ? body.bundleId.trim() : null;
 
     if (!siteId || !sessionId || !pushToken) {
       return publicJsonResponse({ error: "siteId, sessionId, and pushToken are required." }, { status: 400 });
+    }
+    if (!provider) {
+      return publicJsonResponse({ error: "provider must be expo or apns." }, { status: 400 });
+    }
+    if (provider === "apns" && (!bundleId || !environment)) {
+      return publicJsonResponse({ error: "APNs registrations require bundleId and environment." }, { status: 400 });
     }
     if (!(await getSiteByPublicId(siteId))) {
       return publicJsonResponse({ error: "Site not found." }, { status: 404 });
@@ -29,8 +38,11 @@ async function handlePOST(request: Request) {
       sessionId,
       conversationId,
       pushToken,
+      provider,
       platform: typeof body.platform === "string" ? body.platform : null,
-      appId: typeof body.appId === "string" ? body.appId : null
+      appId: typeof body.appId === "string" ? body.appId : null,
+      bundleId,
+      environment
     });
 
     if (!result.ok) {

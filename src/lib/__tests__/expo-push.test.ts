@@ -1,22 +1,16 @@
 const mocks = vi.hoisted(() => ({
-  listConversationMobilePushTokensRow: vi.fn(),
   disableMobilePushTokensRow: vi.fn()
 }));
 
 vi.mock("@/lib/repositories/mobile-push-repository", () => ({
-  listConversationMobilePushTokensRow: mocks.listConversationMobilePushTokensRow,
   disableMobilePushTokensRow: mocks.disableMobilePushTokensRow
 }));
 
-import { sendConversationMobilePushNotifications } from "@/lib/expo-push";
+import { sendExpoPushNotifications } from "@/lib/expo-push";
 
 describe("expo push delivery", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.listConversationMobilePushTokensRow.mockResolvedValue([
-      "ExponentPushToken[first]",
-      "ExponentPushToken[second]"
-    ]);
   });
 
   it("sends push payloads and disables invalid device tokens", async () => {
@@ -29,8 +23,8 @@ describe("expo push delivery", () => {
       )
     );
 
-    const result = await sendConversationMobilePushNotifications({
-      ownerUserId: "owner_1",
+    const result = await sendExpoPushNotifications({
+      pushTokens: ["ExponentPushToken[first]", "ExponentPushToken[second]"],
       conversationId: "conv_1",
       content: "We can help with billing.",
       attachmentsCount: 0
@@ -46,11 +40,9 @@ describe("expo push delivery", () => {
   });
 
   it("skips delivery when no tokens are registered", async () => {
-    mocks.listConversationMobilePushTokensRow.mockResolvedValueOnce([]);
-
     await expect(
-      sendConversationMobilePushNotifications({
-        ownerUserId: "owner_1",
+      sendExpoPushNotifications({
+        pushTokens: [],
         conversationId: "conv_1",
         content: "Hello",
         attachmentsCount: 0
