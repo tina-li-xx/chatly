@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Repo guidance now requires `npm run build` after any user-requested test run, so verification reports always include both test and build status.
 - JetBrains `.idea/` project files are now ignored in git so local workspace metadata stays out of the shared worktree.
 - Email-template preview tests now use the hosted `https://usechatting.com` origin so dashboard preview coverage matches the current public app URL.
 - Growth billing now expands Stripe price tiers during validation, so tiered Growth price checks inspect the full Stripe price shape before checkout flows use it.
@@ -319,6 +320,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Contributor Docs
 
+- Repo agent instructions now require a follow-up `npm run build` after any user-requested test run so verification stays consistent across tasks.
 - Added a guide writing standard for public docs so future guide pages follow the same setup-first structure, verification flow, and copy rules.
 - Digital marketing docs now include stronger source-abstraction rules for Chatting SEO prompts so forum-sourced article ideas get rewritten around the real buyer problem instead of the literal source framing.
 - Blog contributor tooling now generates the published blog-post registry from `src/lib/blog-post-*.ts` files during `dev` and `build`, keeping route and sitemap registration in sync without hand-editing imports.

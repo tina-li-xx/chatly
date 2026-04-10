@@ -180,6 +180,7 @@ Chatting's philosophy is "Conversational, Not Corporate" — every interface sho
 ### Testing
 
 - **User-Gated Test Runs**: Do not run tests unless the user explicitly requests a test run in the current task/thread.
+- **Build After Tests (Required)**: Whenever the user asks for tests and tests are run, always run `npm run build` after the test run before reporting final verification status.
 - **Full Comprehensive Testing**: Every new feature or significant bug fix must be accompanied by full, comprehensive tests that cover the entire data lifecycle, including frontend state management, API request/response payloads, WebSocket events, and database persistence.
 - **Comprehensive Coverage**: Every feature or change must include both frontend and backend tests where applicable.
 - **Test Types**: Work must be verified with both Unit Tests (for individual logic) and Integration Tests (for component interactions, including real-time messaging flows).
@@ -207,11 +208,12 @@ Chatting's philosophy is "Conversational, Not Corporate" — every interface sho
 4. Do a final cleanup pass before stopping: remove duplicate logic, dead code, and unnecessary branches; extract shared helpers where they clearly reduce repetition; keep behavior unchanged.
 5. Add/update both unit and integration tests for affected behavior.
 6. Ask the user before running any tests in this thread.
-7. Share a change summary with:
+7. If tests are run, always follow them with `npm run build` before final verification.
+8. Share a change summary with:
    - Files changed and why
    - Files intentionally untouched
    - Potential concerns and follow-up checks
-8. Do not run `git add`/`git commit`/`git push` unless explicitly requested.
+9. Do not run `git add`/`git commit`/`git push` unless explicitly requested.
 
 #### Workflow B: Bugfix / Regression
 
@@ -250,6 +252,7 @@ Chatting's philosophy is "Conversational, Not Corporate" — every interface sho
 - Run coverage: `npm test -- --coverage`
 - Run one test file: `npm test path/to/file.test.ts`
 - Run one test by name: `npm test path/to/file.test.ts -t "test name"`
+- After any test run: `npm run build`
 
 #### Database / Migrations
 - Check migration status: `npx knex migrate:status`
