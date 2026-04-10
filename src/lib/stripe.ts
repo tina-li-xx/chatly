@@ -102,7 +102,9 @@ export async function assertStripeGrowthPriceConfigured(planKey: BillingPlanKey,
   }
 
   try {
-    const price = await getStripe().prices.retrieve(priceId);
+    const price = await getStripe().prices.retrieve(priceId, {
+      expand: ["tiers"]
+    });
     if (!matchesExpectedGrowthPrice(price, interval)) {
       throw new Error("STRIPE_PRICE_CONFIG_INVALID");
     }
