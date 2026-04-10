@@ -8,18 +8,10 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
-  entry("April 2026", "Guides now read more like setup docs and less like blog filler", "The public guide library now does a better job of walking teams through setup step by step instead of making them guess where the real instructions start.", [
-    "Slack, Shopify, Zapier, webhooks, inbox shortcuts, and mobile setup guides now follow a clearer structure with prerequisites, setup steps, verification, and FAQs.",
-    "The public footer now labels the guides destination correctly instead of calling it Help Center."
-  ]),
   entry("April 2026", "Chatting now has a React Native and Expo package", "Teams can now add Chatting to Expo and React Native apps with a published package instead of building their own mobile chat client from scratch.", [
     "The new package includes session storage, live conversation sync, and a drop-in support screen for mobile apps.",
     "Expo apps can register push tokens through the package so team replies can bring people back into the conversation after the app is backgrounded.",
     "The public guides library now includes a matching Expo and React Native setup guide with the exact install, client setup, and push registration flow."
-  ]),
-  entry("April 2026", "Shared links now show the current Chatting preview card", "Links to Chatting pages now do a better job of showing the right preview image and positioning when shared in places like LinkedIn.", [
-    "Homepage and author-page social metadata now point at a refreshed preview-image URL so networks can pick up the current card instead of holding onto a stale blank image.",
-    "The default homepage social card now uses clearer headline and subtitle copy that matches Chatting's current positioning for small teams."
   ]),
   entry("April 2026", "Chatting now has a native iOS SDK", "Teams can now bring Chatting into native iPhone and iPad apps with a first-party SDK that supports the same visitor conversation flow already used on the web.", [
     "The new iOS SDK supports visitor session storage, conversation creation and resume, live conversation refresh, typing updates, email capture, and contact identify flows.",
