@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- The iOS SDK docs and demo scaffold now show the real app-level support-sheet integration pattern, including required config values and signed-in identify flows.
 - Chatting now has a published React Native and Expo package, so mobile teams can add an in-app support screen, live conversation updates, and Expo push registration without building their own client layer first.
 - Live dashboard and public conversation updates now fan out through a shared Redis bridge, so realtime events stay in sync across multiple app instances instead of depending on one process-local listener map.
 - Mobile chat apps can now register push devices against public conversations, and the shared public API CORS helpers now support the register/unregister flow cleanly with `DELETE`.
@@ -211,6 +212,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Widget & Public APIs
 
+- The iOS SDK README and demo scaffold now show the recommended support-sheet integration pattern with explicit `baseURL`, `siteId`, and identify/email examples.
 - Chatting now also ships a published React Native and Expo package with session storage, live conversation sync, push registration helpers, and a drop-in support screen.
 - Live dashboard and public conversation updates now fan out through a shared Redis bridge instead of a single-process listener map.
 - Public mobile device registration, Expo push-backed team reply delivery, and shared `DELETE`-capable CORS helpers now support mobile register and unregister flows.

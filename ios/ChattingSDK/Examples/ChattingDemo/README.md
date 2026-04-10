@@ -4,6 +4,6 @@ Use these files inside a blank SwiftUI iOS app target to smoke-test the package 
 
 Before running:
 
-- replace `https://usechatting.com` with your Chatting deployment URL
-- replace `replace-with-your-site-id` with a real public `siteId`
+- use `https://usechatting.com` as `baseURL`
+- replace `replace-with-your-site-id` with your real site/workspace ID from Chatting
 - keep the demo in the foreground for live SSE updates in this v1
