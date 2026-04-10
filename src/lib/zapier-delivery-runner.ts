@@ -13,6 +13,7 @@ import {
   ZAPIER_DELIVERY_BATCH_SIZE,
   ZAPIER_DELIVERY_MAX_ATTEMPTS
 } from "@/lib/zapier-delivery-shared";
+import { withRetryableDatabaseConnectionRetry } from "@/lib/retryable-database-errors";
 
 async function recordAttempt(input: {
   id: string;
@@ -25,25 +26,27 @@ async function recordAttempt(input: {
   lastResponseCode: number;
   lastResponseBody: string | null;
 }) {
-  await Promise.all([
-    recordWorkspaceZapierWebhookDelivery({
-      id: input.webhookId,
-      ownerUserId: input.ownerUserId,
-      lastTriggeredAt: input.lastAttemptAt,
-      lastResponseCode: input.lastResponseCode,
-      lastResponseBody: input.lastResponseBody
-    }),
-    updateWorkspaceZapierDeliveryRow({
-      id: input.id,
-      ownerUserId: input.ownerUserId,
-      attemptCount: input.attemptCount,
-      nextAttemptAt: input.nextAttemptAt ?? null,
-      deliveredAt: input.deliveredAt ?? null,
-      lastAttemptAt: input.lastAttemptAt,
-      lastResponseCode: input.lastResponseCode,
-      lastResponseBody: input.lastResponseBody
-    })
-  ]);
+  await withRetryableDatabaseConnectionRetry(() =>
+    Promise.all([
+      recordWorkspaceZapierWebhookDelivery({
+        id: input.webhookId,
+        ownerUserId: input.ownerUserId,
+        lastTriggeredAt: input.lastAttemptAt,
+        lastResponseCode: input.lastResponseCode,
+        lastResponseBody: input.lastResponseBody
+      }),
+      updateWorkspaceZapierDeliveryRow({
+        id: input.id,
+        ownerUserId: input.ownerUserId,
+        attemptCount: input.attemptCount,
+        nextAttemptAt: input.nextAttemptAt ?? null,
+        deliveredAt: input.deliveredAt ?? null,
+        lastAttemptAt: input.lastAttemptAt,
+        lastResponseCode: input.lastResponseCode,
+        lastResponseBody: input.lastResponseBody
+      })
+    ])
+  );
 }
 
 async function processDelivery(row: Awaited<ReturnType<typeof listDueWorkspaceZapierDeliveryRows>>[number]) {
@@ -93,8 +96,8 @@ async function processDelivery(row: Awaited<ReturnType<typeof listDueWorkspaceZa
 
 export async function runScheduledZapierDeliveries() {
   while (true) {
-    const rows = await listDueWorkspaceZapierDeliveryRows(
-      ZAPIER_DELIVERY_BATCH_SIZE
+    const rows = await withRetryableDatabaseConnectionRetry(
+      () => listDueWorkspaceZapierDeliveryRows(ZAPIER_DELIVERY_BATCH_SIZE)
     );
 
     if (rows.length === 0) {

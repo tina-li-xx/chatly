@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Scheduled Zapier deliveries now retry database reads and delivery-state writes after transient Postgres auth timeouts instead of aborting the whole run on the first connection failure.
 - Unreadable encrypted integration credentials now fail closed to `null` instead of escaping as parse errors, so broken saved credential blobs no longer crash the shared parser path.
 - The public guide library now follows a clearer step-by-step docs structure, and the landing footer resources link now labels `/guides` correctly instead of calling it Help Center.
 - The public guides library now includes dedicated iOS SDK and Expo/React Native setup walkthroughs with install steps, client setup, and verification sections.
@@ -276,6 +277,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Scheduled Zapier delivery jobs now retry due-delivery reads and delivery-state writes after transient Postgres auth timeouts.
 - Unreadable encrypted integration credentials now resolve to `null` instead of escaping as parser errors during integration setup and reads.
 - Scheduled digests, weekly reports, and growth reminder jobs now recover from transient database auth timeouts more safely, reuse shared report snapshots inside a run, and clean up delivery claims after send failures so teams are less likely to miss routine email updates.
 - Billing repositories now normalize trial, invoice, and payment-method timestamps to ISO strings before lifecycle and reminder services consume them.
