@@ -27,7 +27,7 @@ export function SettingsCard({
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h3 className="text-base font-medium text-slate-900">{title}</h3>
-            {description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}
+            {description ? <p className="mt-1 text-sm text-slate-600">{description}</p> : null}
           </div>
           {actions}
         </div>
@@ -50,7 +50,7 @@ export function SettingsSectionHeader({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-        {subtitle ? <p className="mt-1 text-sm text-slate-500">{subtitle}</p> : null}
+        {subtitle ? <p className="mt-1 text-sm text-slate-600">{subtitle}</p> : null}
       </div>
       {actions ? <div className="flex items-center gap-3 sm:pt-1">{actions}</div> : null}
     </div>
@@ -100,7 +100,7 @@ export function ToggleRow(props: {
     <div className="flex items-start justify-between gap-4 rounded-lg bg-slate-50 px-4 py-4">
       <div>
         <p className="text-sm font-medium text-slate-700">{props.label}</p>
-        <p className="mt-1 text-[13px] text-slate-500">{props.description}</p>
+        <p className="mt-1 text-[13px] text-slate-600">{props.description}</p>
       </div>
       <ToggleSwitch checked={props.checked} onChange={props.onChange} label={props.label} disabled={props.disabled} />
     </div>
@@ -133,7 +133,7 @@ export function SettingsDesktopNavItem({
   const Icon = icon;
   const iconClassName = classNames("mt-0.5", active ? "text-blue-600" : "text-slate-500");
   const titleClassName = classNames("block text-sm font-medium", active ? "text-blue-600" : "text-slate-700");
-  const descriptionClassName = classNames("mt-0.5 block text-xs leading-5", active ? "text-blue-500" : "text-slate-400");
+  const descriptionClassName = classNames("mt-0.5 block text-xs leading-5", active ? "text-blue-500" : "text-slate-500");
   const content = (
     <>
       <span className={iconClassName}>

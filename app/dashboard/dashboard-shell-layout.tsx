@@ -115,7 +115,7 @@ export function DashboardHeader({
                 </span>
               ) : null}
             </div>
-            {headerText.subtitle ? <p className="mt-1 text-base font-normal text-slate-500">{headerText.subtitle}</p> : null}
+            {headerText.subtitle ? <p className="mt-1 text-base font-normal text-slate-600">{headerText.subtitle}</p> : null}
           </div>
 
           <HeaderActions unreadCount={unreadCount} initials={initials} firstName={firstName} />

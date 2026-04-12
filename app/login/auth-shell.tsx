@@ -36,14 +36,14 @@ export function AuthPageShell({
 
         <div className="relative max-w-xl">
           <h2 className="display-font text-4xl leading-[1.06] text-white xl:text-5xl">{heroTitle}</h2>
-          <p className="mt-6 max-w-md text-lg leading-8 text-white/80">{heroDescription}</p>
+          <p className="mt-6 max-w-md text-lg leading-8 text-white/90">{heroDescription}</p>
         </div>
 
         <div className="relative grid grid-cols-3 gap-8">
           {stats.map((item) => (
             <div key={item.label}>
               <div className="display-font text-3xl leading-none text-white xl:text-4xl">{item.value}</div>
-              <p className="mt-3 text-sm text-white/70">{item.label}</p>
+              <p className="mt-3 text-sm text-white/80">{item.label}</p>
             </div>
           ))}
         </div>
@@ -81,7 +81,7 @@ export function AuthFormIntro({
   return (
     <div className="text-center">
       <h1 className="display-font text-4xl text-slate-900">{title}</h1>
-      <p className="mt-4 text-[15px] text-slate-500">
+      <p className="mt-4 text-[15px] text-slate-600">
         {caption}
         {actionLabel && onAction ? (
           <>

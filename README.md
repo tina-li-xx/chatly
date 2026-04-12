@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Shared auth, dashboard, and settings support copy now renders one shade darker in the shared shells so secondary text is easier to read at a glance.
 - Shared Chatting links now serve their branded social preview image again, so X/Twitter and similar crawlers can render the intended OG card instead of falling back to a text-only preview.
 - The iOS SDK now supports APNs token registration, attachment uploads, and automatic conversation refresh when a native app becomes active again.
 - Mobile push delivery now supports native iOS APNs alongside Expo, so team replies can reach backgrounded iPhone apps after those apps register a device token.
@@ -176,6 +177,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## 🚀 Key Modules
 
 ### Public Site & Auth
+- Shared auth-shell captions and supporting hero copy now use slightly darker secondary text for better legibility.
 - Shared social preview links now resolve through the live `/api/og` route again, so Chatting landing-page shares can return the intended branded image on X/Twitter and similar crawlers instead of a text-only card.
 - The public guide library now uses a more direct installation-doc structure across shortcuts, Slack, Shopify, webhooks, and Zapier pages, and the landing footer now labels the `/guides` destination correctly.
 - The public guides library now includes dedicated iOS SDK and Expo/React Native setup guides alongside the existing integrations walkthroughs.
@@ -244,6 +246,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Shared dashboard headers, settings cards, toggles, and nav descriptions now use slightly darker secondary text so lower-emphasis copy reads more clearly.
 - Email-template preview tests now use the hosted `https://usechatting.com` origin to match the current dashboard preview environment.
 - Live-event unit coverage now isolates Redis bridge bootstrapping while production dashboard updates still run through the strict Redis-backed bridge.
 - Dashboard growth-health coverage now follows the same shared response-time formatter used by the live score cards.
