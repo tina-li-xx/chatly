@@ -48,11 +48,11 @@ describe("dashboard settings billing modal edge states", () => {
     );
 
     expect(html).toContain("Change to Growth");
-    expect(html).toContain("Stripe will calculate proration");
     expect(html).toContain("Teams with 50 or more members need a custom quote before billing can continue.");
     expect(html).toContain("Email Tina directly");
     expect(html).toContain("Email Tina for a quote");
     expect(html).toContain("mailto:tina@usechatting.com");
+    expect(html).not.toContain("Stripe processing fee");
   });
 
   it("renders the downgrade flow without an access-until callout when no renewal date exists", () => {

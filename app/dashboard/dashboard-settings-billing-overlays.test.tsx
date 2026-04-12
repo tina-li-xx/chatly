@@ -108,8 +108,10 @@ describe("dashboard billing history and modals", () => {
     expect(downgradeHtml).toContain("Proactive chat on high-intent pages");
     expect(downgradeHtml).toContain("Open Stripe to cancel");
     expect(upgradeHtml).toContain("Upgrade to Growth");
-    expect(upgradeHtml).toContain("Trial starts now");
-    expect(upgradeHtml).toContain("10 members");
+    expect(upgradeHtml).toContain("Stripe processing fee");
+    expect(upgradeHtml).toContain("US$15.25");
+    expect(upgradeHtml).toContain("Checkout total");
+    expect(upgradeHtml).toContain("US$515.25");
     expect(upgradeHtml).toContain("Confirm Growth");
   });
 

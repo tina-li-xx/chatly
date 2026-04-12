@@ -143,8 +143,20 @@ describe("stripe billing", () => {
     expect(stripeMocks.checkoutCreate.mock.calls[0]?.[0]).toMatchObject({
       customer: "cus_new",
       success_url: "https://app.example/dashboard/settings?section=billing&billing=checkout-success",
-      metadata: { userId: "user_1", planKey: "growth", billingInterval: "annual", seatQuantity: "4" }
+      metadata: { userId: "user_1", planKey: "growth", billingInterval: "annual", seatQuantity: "4" },
+      line_items: [
+        { price: "price_growth_annual", quantity: 4 },
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { name: "Stripe processing fee" },
+            unit_amount: 748
+          },
+          quantity: 1
+        }
+      ]
     });
+    expect(stripeMocks.checkoutCreate.mock.calls[0]?.[0]?.subscription_data).not.toHaveProperty("trial_period_days");
   });
 
   it("creates portal sessions for the existing customer", async () => {

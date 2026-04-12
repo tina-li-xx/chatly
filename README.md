@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Growth upgrades now show the full checkout amount up front, including the Stripe processing fee, and confirming the upgrade starts the paid plan instead of another trial.
 - Shared auth, dashboard, and settings support copy now renders one shade darker in the shared shells so secondary text is easier to read at a glance.
 - Shared Chatting links now serve their branded social preview image again, so X/Twitter and similar crawlers can render the intended OG card instead of falling back to a text-only preview.
 - The iOS SDK now supports APNs token registration, attachment uploads, and automatic conversation refresh when a native app becomes active again.
@@ -296,6 +297,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Starter-to-Growth upgrades now show the plan subtotal, Stripe processing fee, checkout total, and due-today amount before redirecting to Stripe, and confirming the upgrade starts the paid plan immediately instead of beginning another Growth trial.
 - Growth billing now expands Stripe price tiers during validation so tiered Growth price checks run against the full Stripe payload.
 - Scheduled Zapier delivery jobs now retry due-delivery reads and delivery-state writes after transient Postgres auth timeouts.
 - Unreadable encrypted integration credentials now resolve to `null` instead of escaping as parser errors during integration setup and reads.

@@ -7,12 +7,13 @@ import {
   type BillingInterval,
   type BillingPlanKey
 } from "@/lib/billing-plans";
+import { getCheckoutChargeTotalCents, getStripeProcessingFeeCents } from "@/lib/billing-checkout-fees";
 import type { DashboardBillingSummary } from "@/lib/data/billing-types";
 import { FormButton, FormButtonLink } from "../ui/form-controls";
 import { DashboardModal } from "./dashboard-modal";
 import { billingLostFeatures } from "./dashboard-billing-utils";
 import { formatMoney } from "./dashboard-settings-shared";
-import { CalendarIcon, CheckIcon, WarningIcon, XIcon } from "./dashboard-ui";
+import { CalendarIcon, WarningIcon, XIcon } from "./dashboard-ui";
 
 export type BillingPlanIntent = {
   planKey: BillingPlanKey;
@@ -55,6 +56,8 @@ export function DashboardSettingsBillingPlanModal({
   const seatCount = resolveSeatCount(intent, billing);
   const displayPrice = getBillingPreviewDisplayPrice(intent.planKey, intent.billingInterval, seatCount);
   const subtotal = getBillingTotalCents(intent.planKey, intent.billingInterval, seatCount);
+  const processingFeeCents = subtotal === null ? null : getStripeProcessingFeeCents(subtotal);
+  const checkoutTotalCents = subtotal === null ? null : getCheckoutChargeTotalCents(subtotal);
   if (intent.mode === "downgrade") {
     return (
       <DashboardModal title="Cancel paid plan" description="Changes are confirmed in Stripe so invoices and proration stay in sync." onClose={onClose}>
@@ -98,32 +101,6 @@ export function DashboardSettingsBillingPlanModal({
   return (
     <DashboardModal title={intent.mode === "upgrade" ? `Upgrade to ${plan.name}` : `Change to ${plan.name}`} description="Review the member count and billing summary before continuing." onClose={onClose}>
       <div className="space-y-5 px-6 py-6">
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-4">
-          <p className="text-lg font-semibold text-slate-900">{plan.name}</p>
-          <p className="mt-1 text-sm text-slate-600">
-            {displayPrice.amount}
-            {displayPrice.cadence || ""} · {seatCount} member{seatCount === 1 ? "" : "s"}
-          </p>
-          <div className="mt-4 space-y-2">
-            {plan.marketingFeatures.slice(0, 4).map((feature) => (
-              <div key={feature} className="flex items-center gap-2 text-sm text-slate-700">
-                <CheckIcon className="h-4 w-4 text-green-500" />
-                <span>{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
-          <div className="flex items-start gap-3">
-            <WarningIcon className="mt-0.5 h-4 w-4 text-amber-600" />
-            <div>
-              <p className="text-sm font-semibold text-amber-800">
-                {intent.mode === "upgrade" ? "Trial starts now" : "Stripe will calculate proration"}
-              </p>
-              <p className="mt-1 text-sm text-amber-700">{intent.mode === "upgrade" ? `Your ${plan.trialDays}-day trial starts immediately.` : "Any credits for unused time, immediate charges, and the next invoice total will be confirmed in Stripe before you approve the change."}</p>
-            </div>
-          </div>
-        </div>
         <div className="rounded-xl border border-slate-200 px-4 py-4">
           <div className="flex items-center justify-between text-sm text-slate-600">
             <span>{plan.name} price</span>
@@ -153,16 +130,33 @@ export function DashboardSettingsBillingPlanModal({
                 <span>Plan subtotal</span>
                 <span>{formatMoney(subtotal, "USD")}</span>
               </div>
-              <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
-                <span>{intent.mode === "upgrade" ? "Trial credit" : "Proration"}</span>
-                <span>{intent.mode === "upgrade" ? formatMoney(subtotal, "USD") : "Calculated in Stripe"}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm font-medium text-slate-900">
-                <span>Due today</span>
-                <span>
-                  {intent.mode === "upgrade" ? "$0.00" : "Calculated in Stripe"}
-                </span>
-              </div>
+              {intent.mode === "upgrade" ? (
+                <>
+                  <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
+                    <span>Stripe processing fee</span>
+                    <span>{formatMoney(processingFeeCents ?? 0, "USD")}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
+                    <span>Checkout total</span>
+                    <span>{formatMoney(checkoutTotalCents ?? 0, "USD")}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm font-medium text-slate-900">
+                    <span>Due today</span>
+                    <span>{formatMoney(checkoutTotalCents ?? 0, "USD")}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
+                    <span>Proration</span>
+                    <span>Calculated in Stripe</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm font-medium text-slate-900">
+                    <span>Due today</span>
+                    <span>Calculated in Stripe</span>
+                  </div>
+                </>
+              )}
               {intent.mode === "switch" ? (
                 <p className="mt-2 text-sm text-slate-500">
                   Stripe will calculate any credits, charges, and renewal timing before you confirm the plan change.

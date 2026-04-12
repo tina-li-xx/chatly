@@ -1,11 +1,11 @@
 import type Stripe from "stripe";
 import {
-  BILLING_TRIAL_DAYS,
   type BillingInterval,
   type BillingPlanKey,
   isPaidPlan,
   normalizeBillingPlanKey
 } from "@/lib/billing-plans";
+import { getStripeProcessingFeeCents } from "@/lib/billing-checkout-fees";
 import { ensureOwnerGrowthTrialBillingAccount } from "@/lib/billing-default-account";
 import { isLocalGrowthTrialActive } from "@/lib/billing-trial-state";
 import {
@@ -26,6 +26,7 @@ import {
   isStripeConfigured
 } from "@/lib/stripe";
 import { isGrowthContactSalesTeamSize } from "@/lib/pricing";
+import { getBillingTotalCents } from "./billing-plans";
 
 function toIsoFromUnix(value: number | null | undefined) {
   return typeof value === "number" ? new Date(value * 1000).toISOString() : null;
@@ -232,16 +233,32 @@ export async function createStripeCheckoutSession(
   const appUrl = getStripeAppUrl();
   const seatQuantity = Math.max(1, Math.floor(input.seatQuantity || 1));
   const priceId = await assertStripeGrowthPriceConfigured(input.planKey, input.billingInterval);
+  const subtotalCents = getBillingTotalCents(input.planKey, input.billingInterval, seatQuantity);
+  const processingFeeCents = subtotalCents === null ? 0 : getStripeProcessingFeeCents(subtotalCents);
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      price: priceId,
+      quantity: seatQuantity
+    }
+  ];
+
+  if (processingFeeCents > 0) {
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: "Stripe processing fee"
+        },
+        unit_amount: processingFeeCents
+      },
+      quantity: 1
+    });
+  }
 
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
-    line_items: [
-      {
-        price: priceId,
-        quantity: seatQuantity
-      }
-    ],
+    line_items: lineItems,
     success_url: `${appUrl}/dashboard/settings?section=billing&billing=checkout-success`,
     cancel_url: `${appUrl}/dashboard/settings?section=billing&billing=checkout-cancelled`,
     allow_promotion_codes: true,
@@ -253,7 +270,6 @@ export async function createStripeCheckoutSession(
       seatQuantity: String(seatQuantity)
     },
     subscription_data: {
-      trial_period_days: BILLING_TRIAL_DAYS,
       metadata: {
         userId,
         planKey: input.planKey,
