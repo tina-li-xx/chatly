@@ -2,7 +2,6 @@ export {
   findTeamInviteAccessRow,
   findWorkspaceAccessRow,
   listWorkspaceAccessRows,
-  workspaceAccessClause,
   type TeamInviteAccessRow,
   type WorkspaceAccessRole,
   type WorkspaceAccessRow

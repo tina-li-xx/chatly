@@ -11,7 +11,7 @@ import {
 import {
   findAccessibleDashboardContactRow
 } from "@/lib/repositories/contacts-repository";
-import { workspaceAccessClause } from "@/lib/repositories/workspace-repository";
+import { workspaceAccessClause } from "@/lib/repositories/workspace-access-repository";
 import { decodeContactId, parseContactSettingsJson } from "@/lib/contact-utils";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
 

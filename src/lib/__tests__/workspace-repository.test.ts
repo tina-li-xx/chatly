@@ -14,9 +14,12 @@ import {
   hasOwnedWorkspaceRecord,
   listActiveTeamMemberRows,
   listWorkspaceAccessRows,
-  upsertActiveTeamMembership,
-  workspaceAccessClause
+  upsertActiveTeamMembership
 } from "@/lib/repositories/workspace-repository";
+import {
+  conversationAccessClause,
+  workspaceAccessClause
+} from "@/lib/repositories/workspace-access-repository";
 
 describe("workspace repository", () => {
   beforeEach(() => {
@@ -27,6 +30,12 @@ describe("workspace repository", () => {
     expect(workspaceAccessClause("s.user_id", "$2", "$3")).toContain("s.user_id = $2");
     expect(workspaceAccessClause("s.user_id", "$2", "$3")).toContain("FROM team_memberships tm");
     expect(workspaceAccessClause("s.user_id", "$2", "$3")).toContain("tm.status = 'active'");
+    expect(conversationAccessClause("s.user_id", "c.assigned_user_id", "$2", "$3")).toContain(
+      "c.assigned_user_id = $3"
+    );
+    expect(conversationAccessClause("s.user_id", "c.assigned_user_id", "$2", "$3")).toContain(
+      "tm.role = 'admin'"
+    );
   });
 
   it("returns workspace and invite access rows with null fallbacks", async () => {

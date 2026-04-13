@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { workspaceAccessClause } from "@/lib/repositories/workspace-repository";
+import { workspaceAccessClause } from "@/lib/repositories/workspace-access-repository";
 
 export type VisitorPresenceRow = {
   site_id: string;

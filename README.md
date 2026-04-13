@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Workspace-access SQL helpers now import from their source repository instead of the mixed workspace barrel, avoiding Next server-route build failures around missing static re-exports.
 - The repo now includes reusable App Store screenshot source files, render scripts, and finished iPhone submission assets for future mobile releases.
 - Wrapped server routes now log request-scoped start, response, and failure entries, so route error alerts are easier to trace back to the exact request that triggered them.
 - Existing invited teammates now go straight to sign in with the invited email prefilled, and valid invite sign-ins auto-verify the invited account instead of stalling on a separate verification step.
@@ -185,6 +186,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Platform & Runtime
 
+- Workspace access SQL helpers now resolve from their source repository instead of the mixed workspace barrel, so Next server and app-route builds no longer trip over missing static helper exports.
 - Wrapped server routes now emit request-scoped start, response, and failure logs, so alerting and timing are traceable back to one request id instead of a loose console trail.
 - Dashboard and public multipart routes now share a smaller route-form-data helper, and attachment extraction now accepts the narrower `getAll(...)` shape those server handlers actually use.
 

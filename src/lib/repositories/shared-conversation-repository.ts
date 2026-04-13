@@ -1,7 +1,7 @@
 import { query } from "@/lib/db";
+import { conversationAccessClause } from "@/lib/repositories/workspace-access-repository";
 import type { Sender } from "@/lib/types";
 import { optionalText } from "@/lib/utils";
-import { conversationAccessClause } from "@/lib/repositories/workspace-repository";
 import {
   CONVERSATION_SUMMARY_FROM,
   CONVERSATION_SUMMARY_GROUP_BY,

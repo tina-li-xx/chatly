@@ -1,5 +1,5 @@
 import { query } from "@/lib/db";
-import { workspaceAccessClause } from "@/lib/repositories/workspace-repository";
+import { workspaceAccessClause } from "@/lib/repositories/workspace-access-repository";
 import type { UserSettingsRow } from "@/lib/repositories/settings-repository";
 
 export type DashboardShellRow = Pick<
