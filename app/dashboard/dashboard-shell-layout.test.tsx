@@ -107,6 +107,16 @@ describe("dashboard shell layout", () => {
         firstName="Tina"
       />
     );
+    const homeHeaderHtml = renderToStaticMarkup(
+      <DashboardHeader
+        headerText={{ title: "Good morning, Tina" }}
+        showUnreadBadge={false}
+        unreadCount={0}
+        initials="TB"
+        firstName="Tina"
+        showProfileShortcut={false}
+      />
+    );
     const withoutBadgeHtml = renderToStaticMarkup(
       <DashboardHeader
         headerText={{ title: "Analytics" }}
@@ -120,6 +130,8 @@ describe("dashboard shell layout", () => {
     expect(headerHtml).toContain("Inbox");
     expect(headerHtml).toContain("Stay on top of replies.");
     expect(headerHtml).toContain("4 unread");
+    expect(headerHtml).toContain("Tina");
+    expect(homeHeaderHtml).not.toContain("Tina</span>");
     expect(withoutBadgeHtml).not.toContain("unread");
   });
 

@@ -49,7 +49,9 @@ export function DashboardShell({
   const pathname = usePathname();
   const router = useRouter();
   const { displayName, firstName, initials } = getDashboardIdentity(userEmail);
+  const isHomeRoute = pathname === "/dashboard";
   const isInboxRoute = pathname === "/dashboard/inbox";
+  const showAiAssistWarning = pathname === "/dashboard/inbox" || pathname === "/dashboard/settings";
   const [hour, setHour] = useState<number | null>(null);
   const { unreadCount: liveUnreadCount, setUnreadCount } = useDashboardLiveUnreadCount(unreadCount, !isInboxRoute);
 
@@ -177,11 +179,14 @@ export function DashboardShell({
                 unreadCount={liveUnreadCount}
                 initials={initials}
                 firstName={firstName}
+                showProfileShortcut={!isHomeRoute}
               />
-              <DashboardAiAssistWarningBanner
-                warning={aiAssistWarning}
-                canManageBilling={canManageBilling}
-              />
+              {showAiAssistWarning ? (
+                <DashboardAiAssistWarningBanner
+                  warning={aiAssistWarning}
+                  canManageBilling={canManageBilling}
+                />
+              ) : null}
               <DashboardMain isInboxRoute={isInboxRoute}>
                 {children}
               </DashboardMain>

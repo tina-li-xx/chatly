@@ -62,11 +62,13 @@ export function dashboardGreeting(hour: number | null) {
 function HeaderActions({
   unreadCount,
   initials,
-  firstName
+  firstName,
+  showProfileShortcut
 }: {
   unreadCount: number;
   initials: string;
   firstName: string;
+  showProfileShortcut: boolean;
 }) {
   return (
     <div className="flex items-center gap-4">
@@ -79,12 +81,14 @@ function HeaderActions({
         <GearIcon className="h-5 w-5" />
       </DashboardLink>
 
-      <DashboardLink href="/dashboard/settings" className="flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-[13px] font-medium text-blue-700">
-          {initials}
-        </span>
-        <span className="hidden text-sm font-normal text-slate-600 sm:block">{firstName}</span>
-      </DashboardLink>
+      {showProfileShortcut ? (
+        <DashboardLink href="/dashboard/settings" className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-[13px] font-medium text-blue-700">
+            {initials}
+          </span>
+          <span className="hidden text-sm font-normal text-slate-600 sm:block">{firstName}</span>
+        </DashboardLink>
+      ) : null}
     </div>
   );
 }
@@ -94,13 +98,15 @@ export function DashboardHeader({
   showUnreadBadge,
   unreadCount,
   initials,
-  firstName
+  firstName,
+  showProfileShortcut = true
 }: {
   headerText: HeaderText;
   showUnreadBadge: boolean;
   unreadCount: number;
   initials: string;
   firstName: string;
+  showProfileShortcut?: boolean;
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -118,7 +124,12 @@ export function DashboardHeader({
             {headerText.subtitle ? <p className="mt-1 text-base font-normal text-slate-600">{headerText.subtitle}</p> : null}
           </div>
 
-          <HeaderActions unreadCount={unreadCount} initials={initials} firstName={firstName} />
+          <HeaderActions
+            unreadCount={unreadCount}
+            initials={initials}
+            firstName={firstName}
+            showProfileShortcut={showProfileShortcut}
+          />
         </div>
       </div>
     </header>
