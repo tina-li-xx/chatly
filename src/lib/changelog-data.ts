@@ -8,11 +8,6 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
-  entry("April 2026", "Published blog updates now show up faster", "New articles and comparisons now appear on the public blog and sitemap right after they go live, so teams can share fresh content without waiting for a delayed refresh.", [
-    "Publishing a blog draft now refreshes the public blog index, the live article page, and the author page immediately.",
-    "The public sitemap now picks up newly published articles right away, making fresh releases easier to crawl and share.",
-    "Blog publishing is also more reliable during deploys, so new public content is less likely to get stuck behind a failed site build."
-  ]),
   entry("April 2026", "Chatting now has a native mobile inbox for iPhone", "Teams can now stay on top of customer conversations away from their desk with a dedicated iPhone app built for quick replies, assignment handoffs, and mobile notifications.", [
     "Teammates can sign in on iPhone, open the inbox, read assigned conversations, send replies, and resolve chats from a mobile-first inbox.",
     "Push notifications now bring teams back into new conversations and assignment handoffs faster, with in-app notification controls and settings.",
