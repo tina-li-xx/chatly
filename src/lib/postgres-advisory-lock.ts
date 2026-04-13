@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getPool } from "@/lib/db";
+import { isIgnorableDatabaseConnectionCleanupError } from "@/lib/retryable-database-errors";
 
 export type PostgresAdvisoryLockKey = readonly [number, number];
 
@@ -44,7 +45,11 @@ export async function withPostgresAdvisoryLock<T>(
           }
         } catch (error) {
           destroyClient = true;
-          throw error;
+          // Advisory locks are session-scoped, so a dropped connection has
+          // already released the lock before this cleanup query runs.
+          if (!isIgnorableDatabaseConnectionCleanupError(error)) {
+            throw error;
+          }
         }
       }
     }

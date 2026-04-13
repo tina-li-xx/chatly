@@ -6,6 +6,7 @@ describe("startup orchestrator", () => {
     const assertRedisLiveEnvConfigured = vi.fn();
     const assertStartupProductionCoreEnvConfigured = vi.fn();
     const warmLiveEventBridge = vi.fn().mockResolvedValue(undefined);
+    const chattingSeoAutopilotStart = vi.fn();
     const dailyDigestStart = vi.fn();
     const schedulerStart = vi.fn();
     const zapierDeliveryStart = vi.fn();
@@ -22,6 +23,11 @@ describe("startup orchestrator", () => {
     vi.doMock("@/lib/runtime/daily-digest-scheduler", () => ({
       dailyDigestScheduler: {
         start: dailyDigestStart
+      }
+    }));
+    vi.doMock("@/lib/runtime/chatting-seo-autopilot-scheduler", () => ({
+      chattingSeoAutopilotScheduler: {
+        start: chattingSeoAutopilotStart
       }
     }));
     vi.doMock("@/lib/runtime/growth-lifecycle-scheduler", () => ({
@@ -48,6 +54,7 @@ describe("startup orchestrator", () => {
     expect(assertStartupProductionCoreEnvConfigured).toHaveBeenCalledTimes(1);
     expect(warmLiveEventBridge).toHaveBeenCalledTimes(1);
     expect(dailyDigestStart).toHaveBeenCalledTimes(1);
+    expect(chattingSeoAutopilotStart).toHaveBeenCalledTimes(1);
     expect(schedulerStart).toHaveBeenCalledTimes(1);
     expect(zapierDeliveryStart).toHaveBeenCalledTimes(1);
     expect(weeklyPerformanceStart).toHaveBeenCalledTimes(1);

@@ -114,4 +114,31 @@ describe("withPostgresAdvisoryLock", () => {
     ).rejects.toThrow("unlock failed");
     expect(release).toHaveBeenCalledWith(true);
   });
+
+  it("returns success when the task finishes and the client disconnects before unlock", async () => {
+    vi.resetModules();
+
+    const query = vi
+      .fn()
+      .mockResolvedValueOnce({ rows: [{ locked: true }] })
+      .mockRejectedValueOnce(
+        new Error("Client has encountered a connection error and is not queryable")
+      );
+    const release = vi.fn();
+    const connect = vi.fn().mockResolvedValue({ query, release });
+    const getPool = vi.fn().mockResolvedValue({ connect });
+    const task = vi.fn().mockResolvedValue("done");
+
+    vi.doMock("@/lib/db", () => ({
+      getPool
+    }));
+
+    const { withPostgresAdvisoryLock } = await import(
+      "@/lib/postgres-advisory-lock"
+    );
+    const result = await withPostgresAdvisoryLock([4301, 5], task);
+
+    expect(result).toEqual({ acquired: true, value: "done" });
+    expect(release).toHaveBeenCalledWith(true);
+  });
 });

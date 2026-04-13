@@ -9,6 +9,7 @@ export async function startNodeRuntimeServices() {
     },
     { warmLiveEventBridge },
     { dailyDigestScheduler },
+    { chattingSeoAutopilotScheduler },
     { growthLifecycleScheduler },
     { zapierDeliveryScheduler },
     { weeklyPerformanceScheduler }
@@ -16,6 +17,7 @@ export async function startNodeRuntimeServices() {
     import("@/lib/env.server"),
     import("@/lib/live-events"),
     import("@/lib/runtime/daily-digest-scheduler"),
+    import("@/lib/runtime/chatting-seo-autopilot-scheduler"),
     import("@/lib/runtime/growth-lifecycle-scheduler"),
     import("@/lib/runtime/zapier-delivery-scheduler"),
     import("@/lib/runtime/weekly-performance-scheduler")
@@ -26,6 +28,7 @@ export async function startNodeRuntimeServices() {
   assertRedisLiveEnvConfigured();
   await warmLiveEventBridge();
   dailyDigestScheduler.start();
+  chattingSeoAutopilotScheduler.start();
   growthLifecycleScheduler.start();
   zapierDeliveryScheduler.start();
   weeklyPerformanceScheduler.start();

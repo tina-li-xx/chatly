@@ -45,5 +45,12 @@ export const schedulerConfigs = {
     intervalMs: 15 * 1000,
     jobKey: "scheduler.zapier_delivery",
     lockKey: [4301, 5]
+  },
+  chattingSeoAutopilot: {
+    failureMessage: "chatting seo autopilot scheduler failed",
+    globalStoreKey: "__chattingSeoAutopilotScheduler__",
+    intervalMs: 60 * 60 * 1000,
+    jobKey: "scheduler.chatting_seo_autopilot",
+    lockKey: [4301, 6]
   }
 } satisfies Record<string, WindowedSchedulerConfig>;
