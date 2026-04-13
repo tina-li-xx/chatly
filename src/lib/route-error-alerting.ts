@@ -2,6 +2,12 @@ import "server-only";
 
 import { AsyncLocalStorage } from "node:async_hooks";
 import { notifyHttpErrorResponse } from "@/lib/error-alerts/reporters";
+import {
+  getRouteRequestId,
+  logRouteFailure,
+  logRouteResponse,
+  logRouteStart
+} from "@/lib/route-request-logging";
 
 type RouteAlertContext = {
   routeId: string;
@@ -58,25 +64,31 @@ export function withRouteErrorAlerting<TArgs extends unknown[]>(
   return (async (...args: TArgs) => {
     return routeAlertContextStore.run({ routeId }, async () => {
       const request = extractRequest(args);
+      const requestId = getRouteRequestId(request);
+      const startedAt = Date.now();
+
+      logRouteStart(requestId, routeId, request);
 
       try {
         const response = await handler(...args);
+        let responseBody: unknown = null;
 
         if (response instanceof Response && response.status >= 400) {
+          responseBody = await readResponseBody(response);
           swallowAlertFailure(
-            readResponseBody(response).then((responseBody) =>
-              notifyHttpErrorResponse({
-                status: response.status,
-                responseBody,
-                request,
-                source: routeId
-              })
-            )
+            notifyHttpErrorResponse({
+              status: response.status,
+              responseBody,
+              request,
+              source: routeId
+            })
           );
         }
 
+        logRouteResponse(requestId, routeId, request, response, Date.now() - startedAt, responseBody);
         return response;
       } catch (error) {
+        logRouteFailure(requestId, routeId, request, Date.now() - startedAt, error);
         swallowAlertFailure(
           notifyHttpErrorResponse({
             status: 500,

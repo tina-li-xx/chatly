@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Wrapped server routes now log request-scoped start, response, and failure entries, so route error alerts are easier to trace back to the exact request that triggered them.
 - Existing invited teammates now go straight to sign in with the invited email prefilled, and valid invite sign-ins auto-verify the invited account instead of stalling on a separate verification step.
 - Non-admin teammates now only see conversations assigned to them, and member inbox views stay focused on open and resolved assigned work instead of misleading all-chat filters.
 - Chatting now has a native iPhone team app with a mobile inbox, assignment handoff, settings, and push notifications for new conversations.
@@ -183,6 +184,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Platform & Runtime
 
+- Wrapped server routes now emit request-scoped start, response, and failure logs, so alerting and timing are traceable back to one request id instead of a loose console trail.
 - Dashboard and public multipart routes now share a smaller route-form-data helper, and attachment extraction now accepts the narrower `getAll(...)` shape those server handlers actually use.
 
 ### Mobile App & Delivery

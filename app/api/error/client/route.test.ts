@@ -1,9 +1,11 @@
 const mocks = vi.hoisted(() => ({
-  notifyClientErrorAlert: vi.fn().mockResolvedValue(undefined)
+  notifyClientErrorAlert: vi.fn().mockResolvedValue(undefined),
+  notifyHttpErrorResponse: vi.fn().mockResolvedValue(undefined)
 }));
 
 vi.mock("@/lib/error-alerts/reporters", () => ({
-  notifyClientErrorAlert: mocks.notifyClientErrorAlert
+  notifyClientErrorAlert: mocks.notifyClientErrorAlert,
+  notifyHttpErrorResponse: mocks.notifyHttpErrorResponse
 }));
 
 import { POST } from "./route";
@@ -52,5 +54,11 @@ describe("client error route", () => {
 
     expect(response.status).toBe(400);
     expect(mocks.notifyClientErrorAlert).not.toHaveBeenCalled();
+    expect(mocks.notifyHttpErrorResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 400,
+        source: "app/api/error/client/route.ts:POST"
+      })
+    );
   });
 });
