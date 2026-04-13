@@ -20,6 +20,7 @@ type RedisLiveEnvelope<T> = {
 const DASHBOARD_CHANNEL_PREFIX = "chatting:live:dashboard:";
 const CONVERSATION_CHANNEL_PREFIX = "chatting:live:conversation:";
 const CHANNEL_PATTERNS = [`${DASHBOARD_CHANNEL_PREFIX}*`, `${CONVERSATION_CHANNEL_PREFIX}*`] as const;
+const RETRYABLE_REDIS_CONNECTION_CODES = ["ECONNRESET", "EPIPE", "ETIMEDOUT"] as const;
 const instanceId = crypto.randomUUID();
 const NOOP_DISPATCHERS: RedisLiveDispatchers = {
   dashboard: () => undefined,
@@ -36,9 +37,42 @@ function readRedisUrl() {
   return getRedisUrl().trim();
 }
 
+function isRetryableRedisConnectionError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const { code } = error as { code?: unknown };
+  if (
+    typeof code === "string" &&
+    RETRYABLE_REDIS_CONNECTION_CODES.includes(
+      code as (typeof RETRYABLE_REDIS_CONNECTION_CODES)[number]
+    )
+  ) {
+    return true;
+  }
+
+  return error.message.includes("ECONNRESET");
+}
+
 function createRedisClient(redisUrl: string, label: "publisher" | "subscriber") {
   const client = new Redis(redisUrl);
+  let reportedTransientDisconnect = false;
+
+  client.on("ready", () => {
+    reportedTransientDisconnect = false;
+  });
   client.on("error", (error) => {
+    if (isRetryableRedisConnectionError(error)) {
+      if (reportedTransientDisconnect) {
+        return;
+      }
+
+      reportedTransientDisconnect = true;
+      console.warn(`redis live ${label} reconnecting after transient connection reset`, error);
+      return;
+    }
+
     console.error(`redis live ${label} failed`, error);
   });
   return client;

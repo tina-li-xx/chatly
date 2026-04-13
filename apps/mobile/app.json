@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Chatting",
+    "slug": "chatting-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "chatting",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.usechatting.app",
+      "buildNumber": "2",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.usechatting.app",
+      "googleServicesFile": "./google-services.json",
+      "usesCleartextTraffic": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Chatting needs camera access so you can attach photos in replies.",
+          "photosPermission": "Chatting needs photo library access so you can attach images in replies."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9080683f-e9e9-4168-aee2-9ee0e73d481a"
+      }
+    }
+  }
+}

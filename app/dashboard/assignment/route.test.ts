@@ -3,6 +3,7 @@ const liveEventMocks = vi.hoisted(() => ({
 }));
 
 const mocks = vi.hoisted(() => ({
+  sendTeamMobilePushNotifications: vi.fn(),
   getConversationSummaryById: vi.fn(),
   updateConversationAssignment: vi.fn(),
   requireJsonRouteUser: vi.fn()
@@ -17,6 +18,10 @@ vi.mock("@/lib/live-events", () => ({
   publishDashboardLive: liveEventMocks.publishDashboardLive
 }));
 
+vi.mock("@/lib/team-mobile-push", () => ({
+  sendTeamMobilePushNotifications: mocks.sendTeamMobilePushNotifications
+}));
+
 vi.mock("@/lib/route-helpers", () => ({
   jsonError: (error: string, status: number) =>
     Response.json({ ok: false, error }, { status }),
@@ -29,6 +34,7 @@ import { POST } from "./route";
 
 describe("dashboard assignment route", () => {
   beforeEach(() => {
+    mocks.sendTeamMobilePushNotifications.mockResolvedValue({ sent: 1, disabled: 0 });
     mocks.requireJsonRouteUser.mockResolvedValue({
       user: {
         id: "user_123",
@@ -112,6 +118,14 @@ describe("dashboard assignment route", () => {
         updatedAt: "2026-03-27T12:00:00.000Z"
       })
     );
+    expect(mocks.sendTeamMobilePushNotifications).toHaveBeenCalledWith({
+      body: "hello@chatting.example assigned you a chat with a visitor.",
+      userId: "member_1",
+      conversationId: "conv_1",
+      notificationType: "assigned",
+      senderName: "hello@chatting.example",
+      title: "Conversation assigned"
+    });
     expect(await response.json()).toEqual({
       ok: true,
       conversationId: "conv_1",

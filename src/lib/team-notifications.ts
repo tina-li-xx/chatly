@@ -8,6 +8,7 @@ import { maybeSendAnalyticsExpansionEmail } from "@/lib/growth-outreach";
 import { publishDashboardLive } from "@/lib/live-events";
 import { findBillingAccountRow, findBillingUsageRow } from "@/lib/repositories/billing-repository";
 import { maybeSendSlackConversationNotification } from "@/lib/slack-conversation-notifications";
+import { sendTeamMobilePushNotifications } from "@/lib/team-mobile-push";
 
 export type IncomingVisitorMessageNotificationInput = {
   ownerUserId?: string;
@@ -68,6 +69,16 @@ export async function notifyIncomingVisitorMessage(
     }
 
     await maybeSendSlackConversationNotification(input);
+    await sendTeamMobilePushNotifications({
+      body: input.preview,
+      userId: input.userId,
+      conversationId: input.conversationId,
+      notificationType: input.isNewConversation ? "new_conversation" : "new_message",
+      senderName: input.visitorLabel,
+      title: input.isNewConversation
+        ? "New conversation"
+        : `New message from ${input.visitorLabel || input.siteName}`
+    });
 
     if (
       input.isNewConversation &&

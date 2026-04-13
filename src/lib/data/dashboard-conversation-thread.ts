@@ -15,7 +15,7 @@ export async function getDashboardConversationThreadById(
   userId: string
 ): Promise<ConversationThread | null> {
   const workspace = await getWorkspaceAccess(userId);
-  const [summaryResult, messages] = await Promise.all([
+  const [summaryResult, messages, visitorActivity] = await Promise.all([
     queryConversationSummaries(
       "c.id = $1 AND s.user_id = $2",
       [conversationId, workspace.ownerUserId],
@@ -26,7 +26,8 @@ export async function getDashboardConversationThreadById(
       conversationId,
       (attachmentId) =>
         `/api/files/${attachmentId}?conversationId=${encodeURIComponent(conversationId)}`
-    )
+    ),
+    getConversationVisitorActivity(conversationId, userId)
   ]);
 
   if (!summaryResult.rowCount) {
@@ -36,7 +37,7 @@ export async function getDashboardConversationThreadById(
   return {
     ...mapSummary(summaryResult.rows[0]),
     messages,
-    visitorActivity: null
+    visitorActivity
   };
 }
 

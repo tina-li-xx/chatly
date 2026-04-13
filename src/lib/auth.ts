@@ -5,9 +5,9 @@ import { redirect } from "next/navigation";
 import {
   AUTH_SESSION_COOKIE_NAME,
   buildLoginPath,
-  readAuthRequestPathHeader,
-  readAuthSessionCookieValue
+  readAuthRequestPathHeader
 } from "@/lib/auth-redirect";
+import { getCurrentAuthSessionToken } from "@/lib/current-auth-session";
 import { hashSessionToken } from "@/lib/auth-session-token";
 import { isProductionRuntime } from "@/lib/env";
 import { deleteAuthSessionByTokenHash, findCurrentUserByTokenHash, insertAuthSession } from "@/lib/repositories/auth-repository";
@@ -24,10 +24,9 @@ export { resumeOwnerOnboardingForUser } from "./auth-owner-onboarding";
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
-export async function setUserSession(userId: string, activeWorkspaceOwnerId?: string | null) {
+async function issueSessionToken(userId: string, activeWorkspaceOwnerId?: string | null) {
   const sessionId = randomBytes(16).toString("hex");
   const token = randomBytes(32).toString("hex");
-  const cookieStore = await cookies();
 
   await insertAuthSession({
     sessionId,
@@ -35,6 +34,17 @@ export async function setUserSession(userId: string, activeWorkspaceOwnerId?: st
     tokenHash: hashSessionToken(token),
     activeWorkspaceOwnerId: activeWorkspaceOwnerId ?? null
   });
+
+  return token;
+}
+
+export async function issueUserSessionToken(userId: string, activeWorkspaceOwnerId?: string | null) {
+  return issueSessionToken(userId, activeWorkspaceOwnerId);
+}
+
+export async function setUserSession(userId: string, activeWorkspaceOwnerId?: string | null) {
+  const cookieStore = await cookies();
+  const token = await issueSessionToken(userId, activeWorkspaceOwnerId);
 
   cookieStore.set(AUTH_SESSION_COOKIE_NAME, token, {
     httpOnly: true,
@@ -47,7 +57,7 @@ export async function setUserSession(userId: string, activeWorkspaceOwnerId?: st
 
 export async function clearUserSession() {
   const cookieStore = await cookies();
-  const token = readAuthSessionCookieValue(cookieStore);
+  const token = await getCurrentAuthSessionToken();
 
   if (token) {
     await deleteAuthSessionByTokenHash(hashSessionToken(token));
@@ -57,7 +67,7 @@ export async function clearUserSession() {
 }
 
 export const getCurrentUser = cache(async function getCurrentUser() {
-  const token = readAuthSessionCookieValue(await cookies());
+  const token = await getCurrentAuthSessionToken();
   if (!token) {
     return null;
   }

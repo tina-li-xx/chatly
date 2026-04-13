@@ -63,7 +63,7 @@ import {
   signUpInvitedUser,
   signUpUser
 } from "../auth";
-
+import { hashSessionToken } from "../auth-session-token";
 describe("auth session helpers", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,7 +96,6 @@ describe("auth session helpers", () => {
     expect(result).toBeNull();
     expect(deleteCookie).not.toHaveBeenCalled();
   });
-
   it("includes workspace ownership metadata on active sessions", async () => {
     mocks.cookies.mockResolvedValue({
       get: vi.fn().mockReturnValue({ value: "active-token" }),
@@ -116,7 +115,28 @@ describe("auth session helpers", () => {
       workspaceRole: "owner"
     });
   });
+  it("prefers bearer auth headers over the cookie session token", async () => {
+    mocks.headers.mockResolvedValueOnce(
+      new Headers({
+        authorization: "Bearer mobile-token"
+      })
+    );
+    mocks.cookies.mockResolvedValue({
+      get: vi.fn().mockReturnValue({ value: "cookie-token" }),
+      delete: vi.fn()
+    });
+    mocks.findCurrentUserByTokenHash.mockResolvedValueOnce({
+      id: "user_123",
+      email: "owner@acme.com",
+      created_at: "2026-03-29T00:00:00.000Z"
+    });
 
+    await getCurrentUser();
+
+    expect(mocks.findCurrentUserByTokenHash).toHaveBeenCalledWith(
+      hashSessionToken("mobile-token")
+    );
+  });
   it("still clears the auth cookie in the explicit logout path", async () => {
     const deleteCookie = vi.fn();
     mocks.cookies.mockResolvedValue({
@@ -129,7 +149,25 @@ describe("auth session helpers", () => {
     expect(mocks.deleteAuthSessionByTokenHash).toHaveBeenCalledTimes(1);
     expect(deleteCookie).toHaveBeenCalledWith("chatting_session");
   });
+  it("can revoke a bearer-token session without relying on a cookie token", async () => {
+    const deleteCookie = vi.fn();
+    mocks.headers.mockResolvedValueOnce(
+      new Headers({
+        authorization: "Bearer mobile-token"
+      })
+    );
+    mocks.cookies.mockResolvedValue({
+      get: vi.fn().mockReturnValue(undefined),
+      delete: deleteCookie
+    });
 
+    await clearUserSession();
+
+    expect(mocks.deleteAuthSessionByTokenHash).toHaveBeenCalledWith(
+      hashSessionToken("mobile-token")
+    );
+    expect(deleteCookie).toHaveBeenCalledWith("chatting_session");
+  });
   it("starts resumable onboarding for new workspace owners", async () => {
     await signUpUser({
       email: "owner@acme.com",
@@ -143,7 +181,6 @@ describe("auth session helpers", () => {
     expect(insertedUser.ownerOnboardingSiteDomain).toBe("https://acme.com");
     expect(mocks.resumeOwnerOnboardingForUser).toHaveBeenCalledWith(insertedUser.userId);
   });
-
   it("skips owner billing setup for invited teammate signups", async () => {
     await signUpInvitedUser({
       inviteId: "invite_123",

@@ -117,6 +117,7 @@ describe("auth more", () => {
     expect(mocks.updateAuthUserPassword).toHaveBeenCalledWith("user_1", expect.any(String));
 
     mocks.cookies.mockResolvedValueOnce({ get: vi.fn().mockReturnValue(undefined), delete: vi.fn() });
+    mocks.headers.mockResolvedValueOnce(new Headers());
     mocks.headers.mockResolvedValueOnce(
       new Headers({ "x-chatting-request-path": "/dashboard/inbox?id=conversation_1" })
     );

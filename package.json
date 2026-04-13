@@ -2,6 +2,10 @@
   "name": "Chatting",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "verify:error-alert-coverage": "node ./scripts/verify-error-alert-coverage.mjs",
     "predev": "npm run verify:error-alert-coverage && node ./scripts/generate-blog-registry.mjs",
@@ -15,6 +19,9 @@
     "migrate": "npm run db:migrate",
     "postbuild": "node ./scripts/verify-server-trace.mjs",
     "start": "next start",
+    "mobile:start": "npm --workspace @usechatting/mobile run start",
+    "mobile:ios": "npm --workspace @usechatting/mobile run ios",
+    "mobile:android": "npm --workspace @usechatting/mobile run android",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -24,6 +31,7 @@
     "@aws-sdk/client-ses": "^3.1019.0",
     "dotenv": "^17.4.0",
     "drizzle-orm": "^0.45.2",
+    "google-auth-library": "^10.6.2",
     "ioredis": "^5.10.1",
     "mailparser": "^3.9.6",
     "next": "latest",

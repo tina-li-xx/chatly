@@ -47,3 +47,24 @@ export const authSessions = pgTable("auth_sessions", {
     authSessionsTokenHashKey: uniqueIndex("auth_sessions_token_hash_key").on(table.tokenHash),
     idxAuthSessionsTokenHash: index("idx_auth_sessions_token_hash").on(table.tokenHash),
   }));
+
+export const teamMobileDevices = pgTable("team_mobile_devices", {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    provider: text("provider").notNull().default("expo"),
+    pushToken: text("push_token").notNull(),
+    platform: text("platform"),
+    appId: text("app_id"),
+    bundleId: text("bundle_id"),
+    environment: text("environment"),
+    disabledAt: timestamp("disabled_at", { withTimezone: true, mode: "date" }),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  }, (table) => ({
+    teamMobileDevicesUserIdFkey: foreignKey({ name: "team_mobile_devices_user_id_fkey", columns: [table.userId], foreignColumns: [users.id] }).onDelete("cascade"),
+    teamMobileDevicesProviderCheck: check("team_mobile_devices_provider_check", sql.raw("(provider = ANY (ARRAY['expo'::text, 'apns'::text, 'fcm'::text]))")),
+    teamMobileDevicesEnvironmentCheck: check("team_mobile_devices_environment_check", sql.raw("(environment IS NULL OR environment = ANY (ARRAY['sandbox'::text, 'production'::text]))")),
+    teamMobileDevicesPushTokenKey: uniqueIndex("team_mobile_devices_push_token_key").on(table.pushToken),
+    idxTeamMobileDevicesUser: index("idx_team_mobile_devices_user").on(table.userId, table.disabledAt, table.updatedAt),
+  }));

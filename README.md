@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Chatting now has a native iPhone team app with a mobile inbox, assignment handoff, settings, and push notifications for new conversations.
 - Dashboard and public multipart routes now share one form-data parsing helper, so uploads and route validation stay aligned without duplicated request parsing code.
 - Growth upgrades now show the full checkout amount up front, including the Stripe processing fee, and confirming the upgrade starts the paid plan instead of another trial.
 - Shared auth, dashboard, and settings support copy now renders one shade darker in the shared shells so secondary text is easier to read at a glance.
@@ -181,6 +182,12 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ### Platform & Runtime
 
 - Dashboard and public multipart routes now share a smaller route-form-data helper, and attachment extraction now accepts the narrower `getAll(...)` shape those server handlers actually use.
+
+### Mobile App & Delivery
+
+- Chatting now ships an Expo-based iPhone app with email/password sign-in, a dedicated inbox and thread flow, mobile settings, role-aware inbox filtering, assignment actions, and push-permission onboarding.
+- Mobile API routes now cover session bootstrap, availability, password recovery, profile edits, device registration, and notification preferences for the native app.
+- Team mobile delivery now supports Expo, APNs, and FCM transports, and new conversations plus assignment handoffs can trigger native push notifications back into the mobile inbox.
 
 ### Public Site & Auth
 - Shared auth-shell captions and supporting hero copy now use slightly darker secondary text for better legibility.

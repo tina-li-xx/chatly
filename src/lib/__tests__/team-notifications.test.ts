@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   maybeSendAnalyticsExpansionEmail: vi.fn(),
   maybeSendSlackConversationNotification: vi.fn(),
   publishDashboardLive: vi.fn(),
+  sendTeamMobilePushNotifications: vi.fn(),
   findBillingAccountRow: vi.fn(),
   findBillingUsageRow: vi.fn()
 }));
@@ -43,6 +44,10 @@ vi.mock("@/lib/slack-conversation-notifications", () => ({
 
 vi.mock("@/lib/live-events", () => ({
   publishDashboardLive: mocks.publishDashboardLive
+}));
+
+vi.mock("@/lib/team-mobile-push", () => ({
+  sendTeamMobilePushNotifications: mocks.sendTeamMobilePushNotifications
 }));
 
 vi.mock("@/lib/repositories/billing-repository", () => ({
@@ -87,6 +92,7 @@ describe("team notifications", () => {
     mocks.sendStarterUpgradePromptEmail.mockResolvedValue(undefined);
     mocks.maybeSendAnalyticsExpansionEmail.mockResolvedValue(undefined);
     mocks.maybeSendSlackConversationNotification.mockResolvedValue(undefined);
+    mocks.sendTeamMobilePushNotifications.mockResolvedValue({ sent: 1, disabled: 0 });
   });
 
   it("sends the dedicated starter upgrade email at the 30-conversation trigger even if message emails are off", async () => {
@@ -99,6 +105,14 @@ describe("team notifications", () => {
 
     expect(mocks.sendTeamNewMessageEmail).not.toHaveBeenCalled();
     expect(mocks.maybeSendSlackConversationNotification).toHaveBeenCalledWith(baseInput);
+    expect(mocks.sendTeamMobilePushNotifications).toHaveBeenCalledWith({
+      body: "Need help with pricing",
+      userId: "user_123",
+      conversationId: "conv_123",
+      notificationType: "new_conversation",
+      senderName: "alex@example.com",
+      title: "New conversation"
+    });
     expect(mocks.sendStarterUpgradePromptEmail).toHaveBeenCalledWith({
       to: "team@usechatting.com",
       prompt: {
@@ -151,6 +165,15 @@ describe("team notifications", () => {
         billingUrl: "https://usechatting.com/dashboard/settings?section=billing",
         limitReached: true
       }
+    });
+    expect(mocks.sendTeamMobilePushNotifications).toHaveBeenCalledTimes(1);
+    expect(mocks.sendTeamMobilePushNotifications).toHaveBeenCalledWith({
+      body: "Need help with pricing",
+      userId: "user_123",
+      conversationId: "conv_123",
+      notificationType: "new_conversation",
+      senderName: "alex@example.com",
+      title: "New conversation"
     });
   });
 });

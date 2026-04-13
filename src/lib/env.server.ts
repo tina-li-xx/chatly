@@ -16,6 +16,7 @@ export {
   getAppDisplayName,
   getAuthSecret,
   getDatabaseConfig,
+  getFcmPushConfig,
   getMiniMaxConfig,
   getRedisUrl,
   getReplyDomain,

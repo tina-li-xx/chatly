@@ -12,3 +12,5 @@ export * from "./schema/messaging";
 export * from "./schema/content";
 export * from "./schema/marketing";
 export * from "./schema/visitors";
+export * from "./schema/seo";
+export * from "./schema/seo-keyword-research";

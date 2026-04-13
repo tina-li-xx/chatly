@@ -93,4 +93,53 @@ describe("live events redis bridge", () => {
       })
     );
   });
+
+  it("deduplicates transient subscriber reset logs until redis is ready again", async () => {
+    const psubscribeMock = vi.fn().mockResolvedValue(undefined);
+    const redisInstances: Array<{
+      handlers: Map<string, Array<(...args: unknown[]) => void>>;
+    }> = [];
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    class MockRedis {
+      handlers = new Map<string, Array<(...args: unknown[]) => void>>();
+      psubscribe = psubscribeMock;
+
+      constructor() {
+        redisInstances.push(this);
+      }
+
+      on(event: string, handler: (...args: unknown[]) => void) {
+        const current = this.handlers.get(event) ?? [];
+        current.push(handler);
+        this.handlers.set(event, current);
+        return this;
+      }
+    }
+
+    vi.doMock("ioredis", () => ({ default: MockRedis }));
+    vi.doMock("@/lib/env.server", () => ({ getRedisUrl: () => "redis://chatting.test:6379" }));
+
+    const module = await import("@/lib/live-events");
+    module.subscribeConversationLive("conv_1", vi.fn());
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const subscriber = redisInstances[0];
+    const errorHandler = subscriber?.handlers.get("error")?.[0];
+    const readyHandler = subscriber?.handlers.get("ready")?.[0];
+    const resetError = Object.assign(new Error("read ECONNRESET"), {
+      code: "ECONNRESET"
+    });
+
+    errorHandler?.(resetError);
+    errorHandler?.(resetError);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    readyHandler?.();
+    errorHandler?.(resetError);
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+  });
 });

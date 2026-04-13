@@ -1,18 +1,11 @@
-import { cookies } from "next/headers";
-import { readAuthSessionCookieValue } from "@/lib/auth-redirect";
-import { hashSessionToken } from "@/lib/auth-session-token";
+import { getCurrentAuthSessionTokenHash } from "@/lib/current-auth-session";
 import {
   findAuthSessionWorkspaceOwnerByTokenHash,
   updateAuthSessionActiveWorkspaceByTokenHash
 } from "@/lib/repositories/auth-repository";
 
 async function getCurrentSessionTokenHash() {
-  try {
-    const token = readAuthSessionCookieValue(await cookies());
-    return token ? hashSessionToken(token) : null;
-  } catch {
-    return null;
-  }
+  return getCurrentAuthSessionTokenHash();
 }
 
 export async function getCurrentSessionActiveWorkspaceOwnerId() {

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "166523647849",
+    "project_id": "fifth-totality-470602-r8",
+    "storage_bucket": "fifth-totality-470602-r8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166523647849:android:0b02540e0f856f30c1aff8",
+        "android_client_info": {
+          "package_name": "com.usechatting.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "166523647849-acv2v5pkp125l8t2cbjq3241ev0bhuj6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDs4a8cWFmo8qh2-3Z_chU1Mp-2LTQvKIY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "166523647849-acv2v5pkp125l8t2cbjq3241ev0bhuj6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

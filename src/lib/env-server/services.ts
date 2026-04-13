@@ -33,6 +33,11 @@ type ApplePushConfig = {
   privateKey: string;
 };
 
+type FcmPushConfig = {
+  projectId: string | null;
+  impersonatedServiceAccount: string | null;
+};
+
 const DEFAULT_ADMIN_ALERT_EMAIL = "tina@usechatting.com";
 
 export function getAuthSecret(params?: {
@@ -72,6 +77,13 @@ export function getApplePushConfig(source: ServerEnvSource = process.env): Apple
     teamId: getRequiredServerEnv("APPLE_TEAM_ID", { source, errorCode: "APPLE_TEAM_ID_NOT_CONFIGURED" }),
     keyId: getRequiredServerEnv("APPLE_KEY_ID", { source, errorCode: "APPLE_KEY_ID_NOT_CONFIGURED" }),
     privateKey: getRequiredServerEnv("APPLE_PUSH_KEY_P8", { source, errorCode: "APPLE_PUSH_KEY_P8_NOT_CONFIGURED" })
+  };
+}
+
+export function getFcmPushConfig(source: ServerEnvSource = process.env): FcmPushConfig {
+  return {
+    projectId: getOptionalServerEnv("FCM_PROJECT_ID", source),
+    impersonatedServiceAccount: getOptionalServerEnv("FCM_IMPERSONATED_SERVICE_ACCOUNT", source)
   };
 }
 

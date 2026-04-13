@@ -1,0 +1,21 @@
+{
+  "name": "@usechatting/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.js",
+  "scripts": {
+    "start": "EXPO_PUBLIC_CHATTING_API_URL=http://10.0.2.2:3983 expo start --port 8089",
+    "ios": "EXPO_PUBLIC_CHATTING_API_URL=http://127.0.0.1:3983 expo start --port 8089 --ios",
+    "android": "EXPO_PUBLIC_CHATTING_API_URL=http://10.0.2.2:3983 expo start --port 8089 --android"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~54.0.0",
+    "expo-constants": "~18.0.13",
+    "expo-device": "~8.0.10",
+    "expo-image-picker": "^55.0.18",
+    "expo-notifications": "~0.32.16",
+    "react": "19.2.4",
+    "react-native": "0.81.5"
+  }
+}
