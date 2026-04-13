@@ -4,31 +4,64 @@ import { BlogAuthorCard, BlogRelatedPosts } from "../blog/blog-article-extras";
 import { BlogCategoryBadge } from "../blog/blog-primitives";
 import type { BlogPostWithDetails } from "@/lib/blog-types";
 import { formatBlogDate, formatReadingTime } from "@/lib/blog-utils";
+import { DashboardPublishingApprovalButtons } from "./dashboard-publishing-approval-buttons";
+import { formatPublishingStatusLabel } from "./dashboard-publishing-formatting";
 
 export function DashboardPublishingPreviewPage({
   post,
-  relatedPosts
+  relatedPosts,
+  draft
 }: {
   post: BlogPostWithDetails;
   relatedPosts: BlogPostWithDetails[];
+  draft?: { id: string; workflowStatus: string; publicationStatus: string } | null;
 }) {
+  const isDraftPreview = draft?.publicationStatus === "draft";
+
   return (
     <div className="space-y-6">
       <section className="rounded-xl border border-slate-200 bg-white p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Link href="/dashboard/publishing" className="inline-flex text-sm font-medium text-blue-600 transition hover:text-blue-700">
-              ← Back to publishing queue
+            <Link
+              href={isDraftPreview ? "/dashboard/publishing?section=drafts" : "/dashboard/publishing?section=queue"}
+              className="inline-flex text-sm font-medium text-blue-600 transition hover:text-blue-700"
+            >
+              {isDraftPreview ? "← Back to drafts" : "← Back to queue"}
             </Link>
-            <h2 className="mt-3 text-2xl font-semibold text-slate-900">Preview queued article</h2>
+            <h2 className="mt-3 text-2xl font-semibold text-slate-900">
+              {isDraftPreview ? "Preview article draft" : "Preview queued article"}
+            </h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">
-              This internal preview shows the draft as it stands in code without making it public.
+              {isDraftPreview
+                ? "This internal preview shows the current draft exactly as it stands before scheduling or publishing."
+                : "This internal preview shows the queued article exactly as it stands before it goes live."}
             </p>
           </div>
-          <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
-            {post.publicationStatus ?? "draft"}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-500">
+              <span>Workflow</span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 font-semibold uppercase tracking-[0.16em] text-slate-600">
+                {formatPublishingStatusLabel(draft?.workflowStatus || "draft")}
+              </span>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-500">
+              <span>Publication</span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 font-semibold uppercase tracking-[0.16em] text-slate-600">
+                {formatPublishingStatusLabel(draft?.publicationStatus || post.publicationStatus || "draft")}
+              </span>
+            </div>
+          </div>
         </div>
+        {draft ? (
+          <div className="mt-5">
+            <DashboardPublishingApprovalButtons
+              draftId={draft.id}
+              workflowStatus={draft.workflowStatus}
+              publicationStatus={draft.publicationStatus}
+            />
+          </div>
+        ) : null}
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 sm:p-8">

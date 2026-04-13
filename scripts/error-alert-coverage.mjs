@@ -4,6 +4,7 @@ import { basename, join, relative } from "node:path";
 const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
 const SERVER_ACTION_WRAPPERS = [
   "withServerActionErrorAlerting",
+  "wrapDashboardPublishingAction",
   "wrapAuthAction",
   "wrapPasswordAction"
 ];
