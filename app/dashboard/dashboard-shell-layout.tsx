@@ -42,9 +42,9 @@ export function routeHeaderText(pathname: string, firstName: string, greeting: s
     "/dashboard/inbox": { title: "Inbox", subtitle: "Jump into live conversations, clear unread threads, and keep replies moving." },
     "/dashboard/visitors": { title: "People", subtitle: "See who is live right now and keep customer context close when conversations pick back up." },
     "/dashboard/analytics": { title: "Analytics", subtitle: "Keep an eye on conversation volume, response speed, and the signals that matter most." },
+    "/dashboard/switchboard": { title: "Switchboard", subtitle: "Founder-only customer, billing, and activity visibility across the whole SaaS." },
     "/dashboard/widget": { title: "Widget", subtitle: "Review your install snippet and the branding details that shape the chat experience." },
     "/dashboard/help-center": { title: "Help center", subtitle: "Publish simple self-serve answers your team can link while conversations are live." },
-    "/dashboard/publishing": { title: "Publishing", subtitle: "Keep draft and scheduled blog posts visible without making them public too early." },
     "/dashboard/team": { title: "Team", subtitle: "Track the workspace owner, send invites, and manage pending inbox access." },
     "/dashboard/settings": { title: "Settings", subtitle: "Manage your account, notifications, email, and billing details." }
   };

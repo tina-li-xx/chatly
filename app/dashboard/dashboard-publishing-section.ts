@@ -1,4 +1,8 @@
 import type { Route } from "next";
+import {
+  buildSwitchboardSectionHref,
+  getSwitchboardSectionForPublishing
+} from "./dashboard-switchboard-section";
 import type { PublishingSection } from "./dashboard-publishing-types";
 
 const VALID_PUBLISHING_SECTIONS = new Set<PublishingSection>(["overview", "strategy", "plans", "drafts", "queue"]);
@@ -9,5 +13,5 @@ export function resolvePublishingSection(value: string | null | undefined): Publ
 }
 
 export function buildPublishingSectionHref(section: PublishingSection) {
-  return `/dashboard/publishing?section=${section}` as Route;
+  return buildSwitchboardSectionHref(getSwitchboardSectionForPublishing(section)) as Route;
 }

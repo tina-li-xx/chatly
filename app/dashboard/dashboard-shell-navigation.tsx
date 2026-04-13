@@ -3,15 +3,18 @@
 import { createContext, useContext, type ComponentProps, type ComponentType, type MouseEvent, type SVGProps } from "react";
 import type { Route } from "next";
 import Link from "next/link";
-import { canAccessDashboardPublishing } from "@/lib/dashboard-publishing-access";
+import {
+  canAccessFounderSwitchboard,
+  FOUNDER_SWITCHBOARD_ROUTE
+} from "@/lib/founder-switchboard-access";
 import {
   BarChartIcon,
-  CalendarIcon,
   GearIcon,
   HouseIcon,
   InboxIcon,
   PaintbrushIcon,
   PeopleIcon,
+  SlidersIcon,
   UsersIcon
 } from "./dashboard-ui";
 import { HelpCenterIcon } from "./dashboard-help-center-icon";
@@ -47,20 +50,31 @@ export const PRIMARY_NAV: readonly NavItem[] = [
 export const SETTINGS_NAV: readonly NavItem[] = [
   { label: "Widget", href: "/dashboard/widget", icon: PaintbrushIcon },
   { label: "Help center", href: "/dashboard/help-center", icon: HelpCenterIcon },
-  { label: "Publishing", href: "/dashboard/publishing", icon: CalendarIcon },
   { label: "Team", href: "/dashboard/team", icon: UsersIcon },
   { label: "Settings", href: "/dashboard/settings", icon: GearIcon }
 ] as const;
 
 export function getDashboardSettingsNav(userEmail: string) {
-  return canAccessDashboardPublishing(userEmail)
-    ? SETTINGS_NAV
-    : SETTINGS_NAV.filter((item) => item.href !== "/dashboard/publishing");
+  const items = [...SETTINGS_NAV];
+
+  if (canAccessFounderSwitchboard(userEmail)) {
+    items.unshift({
+      label: "Switchboard",
+      href: FOUNDER_SWITCHBOARD_ROUTE as Route,
+      icon: SlidersIcon
+    });
+  }
+
+  return items;
 }
 
 export function isActivePath(pathname: string, href: string) {
   if (href === "/dashboard") {
     return pathname === href;
+  }
+
+  if (href === FOUNDER_SWITCHBOARD_ROUTE && pathname.startsWith("/dashboard/publishing/")) {
+    return true;
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);

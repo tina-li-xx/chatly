@@ -29,15 +29,27 @@ import {
 describe("dashboard shell navigation", () => {
   it("keeps the primary and settings nav definitions stable", () => {
     expect(PRIMARY_NAV.map((item) => item.label)).toEqual(["Home", "Inbox", "People", "Analytics"]);
-    expect(SETTINGS_NAV.map((item) => item.label)).toEqual(["Widget", "Help center", "Publishing", "Team", "Settings"]);
-    expect(getDashboardSettingsNav("tina@usechatting.com").map((item) => item.label)).toContain("Publishing");
-    expect(getDashboardSettingsNav("alex@example.com").map((item) => item.label)).not.toContain("Publishing");
+    expect(SETTINGS_NAV.map((item) => item.label)).toEqual(["Widget", "Help center", "Team", "Settings"]);
+    expect(getDashboardSettingsNav("tina@usechatting.com").map((item) => item.label)).toEqual([
+      "Switchboard",
+      "Widget",
+      "Help center",
+      "Team",
+      "Settings"
+    ]);
+    expect(getDashboardSettingsNav("alex@example.com").map((item) => item.label)).toEqual([
+      "Widget",
+      "Help center",
+      "Team",
+      "Settings"
+    ]);
   });
 
   it("matches active paths correctly", () => {
     expect(isActivePath("/dashboard", "/dashboard")).toBe(true);
     expect(isActivePath("/dashboard/inbox", "/dashboard/inbox")).toBe(true);
     expect(isActivePath("/dashboard/inbox/thread", "/dashboard/inbox")).toBe(true);
+    expect(isActivePath("/dashboard/publishing/traffic-low-conversion", "/dashboard/switchboard")).toBe(true);
     expect(isActivePath("/dashboard/analytics", "/dashboard/inbox")).toBe(false);
   });
 

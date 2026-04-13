@@ -6,6 +6,7 @@ import type { BlogPostWithDetails } from "@/lib/blog-types";
 import { formatBlogDate, formatReadingTime } from "@/lib/blog-utils";
 import { DashboardPublishingApprovalButtons } from "./dashboard-publishing-approval-buttons";
 import { formatPublishingStatusLabel } from "./dashboard-publishing-formatting";
+import { buildPublishingSectionHref } from "./dashboard-publishing-section";
 
 export function DashboardPublishingPreviewPage({
   post,
@@ -24,7 +25,7 @@ export function DashboardPublishingPreviewPage({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Link
-              href={isDraftPreview ? "/dashboard/publishing?section=drafts" : "/dashboard/publishing?section=queue"}
+              href={buildPublishingSectionHref(isDraftPreview ? "drafts" : "queue")}
               className="inline-flex text-sm font-medium text-blue-600 transition hover:text-blue-700"
             >
               {isDraftPreview ? "← Back to drafts" : "← Back to queue"}

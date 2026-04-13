@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Founder switchboard now combines SaaS CRM visibility and internal publishing controls under one hidden dashboard entry point, and legacy publishing links redirect into the matching switchboard section.
 - Dashboard tables now share one header-label style token across billing history, publishing queue, analytics, referrals, and team views for more consistent internal UI.
 - Publishing a generated blog draft now refreshes the public blog, author page, post page, and sitemap immediately, and production builds no longer stall on workspace-backed blog draft lookups.
 - Workspace-access SQL helpers now import from their source repository instead of the mixed workspace barrel, avoiding Next server-route build failures around missing static re-exports.
@@ -283,7 +284,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Response-time metrics across dashboard home, billing, and health summaries now render in readable mixed units so long waits are easier to scan at a glance.
 - Inbox tag editing now feels faster, with Enter-to-add contact tags, optimistic updates in the sidebar and contact drawer, and a cleaner shared tags presentation in thread detail.
 - Dashboard settings now include a full Integrations area for Slack, Zapier, Shopify, and webhooks, with live connection flows, persisted workspace state, and dedicated modal-based setup.
-- Dashboard now includes an internal Publishing workspace with queued-post previews, and only the designated reviewer account sees the Publishing navigation entry.
+- Founder-only switchboard now combines SaaS CRM rollups, attention/activity views, and the internal publishing workspace under one hidden dashboard entry point, while legacy publishing URLs redirect into matching switchboard sections.
 - Dashboard settings, widget setup, billing upgrades, and inbox replies now emit shared funnel and activation events, and settings/profile navigation stays in-app for faster transitions.
 - AI Assist is now built into the inbox with reply suggestions, summaries, rewrites, suggested tags, starter usage metering, warning states, and detailed usage history.
 - Dashboard home, inbox, and thread loading now use lighter data paths so key team views open faster.

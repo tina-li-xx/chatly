@@ -78,7 +78,7 @@ async function loadDashboardShell(options?: {
     PRIMARY_NAV: [{ href: "/dashboard" }, { href: "/dashboard/inbox" }],
     getDashboardSettingsNav: (userEmail: string) =>
       userEmail === "tina@usechatting.com"
-        ? [{ href: "/dashboard/settings" }, { href: "/dashboard/publishing" }]
+        ? [{ href: "/dashboard/settings" }, { href: "/dashboard/switchboard" }]
         : [{ href: "/dashboard/settings" }]
   }));
   vi.doMock("@/lib/utils", () => ({
@@ -165,7 +165,7 @@ describe("dashboard shell", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows the shared AI Assist warning on settings and hides it on publishing", async () => {
+  it("shows the shared AI Assist warning on settings and hides it on switchboard", async () => {
     vi.stubGlobal("window", { location: { pathname: "/dashboard/settings", search: "", hash: "" } });
     const settingsShell = await loadDashboardShell({ pathname: "/dashboard/settings" });
     settingsShell.reactMocks.beginRender();
@@ -173,8 +173,8 @@ describe("dashboard shell", () => {
     await runMockEffects(settingsShell.reactMocks.effects);
     expect(settingsShell.captures.aiAssistWarning).toEqual(expect.objectContaining({ warning: { state: "limited" } }));
 
-    vi.stubGlobal("window", { location: { pathname: "/dashboard/publishing", search: "", hash: "" } });
-    const { DashboardShell, captures, reactMocks } = await loadDashboardShell({ pathname: "/dashboard/publishing" });
+    vi.stubGlobal("window", { location: { pathname: "/dashboard/switchboard", search: "", hash: "" } });
+    const { DashboardShell, captures, reactMocks } = await loadDashboardShell({ pathname: "/dashboard/switchboard" });
     reactMocks.beginRender();
     renderShell(DashboardShell, { aiAssistWarning: { state: "limited" } as never });
     await runMockEffects(reactMocks.effects);

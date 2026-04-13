@@ -7,6 +7,7 @@ import {
   publishPublishingDraftNowAction
 } from "./dashboard-publishing-approval-actions";
 import { DashboardPublishingActionButton } from "./dashboard-publishing-action-button";
+import { buildPublishingSectionHref } from "./dashboard-publishing-section";
 
 function shouldShowApprove(workflowStatus: string, publicationStatus: string) {
   return publicationStatus === "draft" && (workflowStatus === "draft" || workflowStatus === "ready_for_review");
@@ -67,7 +68,7 @@ export function DashboardPublishingApprovalButtons({
           action={() => publishPublishingDraftNowAction(draftId)}
           idleLabel="Publish now"
           pendingLabel="Publishing..."
-          redirectOnSuccess="/dashboard/publishing?section=queue"
+          redirectOnSuccess={buildPublishingSectionHref("queue")}
           showToastOnRedirect
           variant="primary"
         />

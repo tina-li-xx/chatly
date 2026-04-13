@@ -49,7 +49,7 @@ describe("dashboard shell layout", () => {
     });
     expect(routeHeaderText("/dashboard/analytics", "Tina", "Hello").title).toBe("Analytics");
     expect(routeHeaderText("/dashboard/help-center", "Tina", "Hello").title).toBe("Help center");
-    expect(routeHeaderText("/dashboard/publishing", "Tina", "Hello").title).toBe("Publishing");
+    expect(routeHeaderText("/dashboard/switchboard", "Tina", "Hello").title).toBe("Switchboard");
     expect(routeHeaderText("/dashboard/publishing/traffic-low-conversion", "Tina", "Hello").title).toBe("Publishing preview");
     expect(routeHeaderText("/dashboard/unknown", "Tina", "Hello").title).toBe("Dashboard");
     expect(dashboardGreeting(null)).toBe("Hello");
@@ -86,14 +86,14 @@ describe("dashboard shell layout", () => {
     expect(mobileHtml).toContain("Log out");
     expect(mobileHtml).toContain("Inbox");
     expect(mobileHtml).toContain("Help center");
-    expect(mobileHtml).toContain("Publishing");
+    expect(mobileHtml).toContain("Switchboard");
     expect(mobileHtml).toContain(">3<");
     expect(sidebarHtml).toContain("People");
     expect(sidebarHtml).toContain("tina@usechatting.com");
     expect(sidebarHtml).toContain("Chatting");
-    expect(sidebarHtml).toContain("Publishing");
-    expect(restrictedMobileHtml).not.toContain("Publishing");
-    expect(restrictedSidebarHtml).not.toContain("Publishing");
+    expect(sidebarHtml).toContain("Switchboard");
+    expect(restrictedMobileHtml).not.toContain("Switchboard");
+    expect(restrictedSidebarHtml).not.toContain("Switchboard");
     expect(sidebarHtml).not.toContain("Teams");
   });
 

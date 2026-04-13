@@ -42,6 +42,7 @@ describe("dashboard publishing preview page", () => {
 
     expect(html).toContain("Preview article draft");
     expect(html).toContain("Back to drafts");
+    expect(html).toContain('href="/dashboard/switchboard?section=publishing-drafts"');
     expect(html).toContain("Workflow");
     expect(html).toContain("Publication");
     expect(html).toContain("Ready For Review");
