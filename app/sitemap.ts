@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
-import { getAllBlogAuthors, getAllBlogPosts } from "@/lib/blog-data";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
 import { freeToolCategories, getAllFreeTools } from "@/lib/free-tools-data";
 import { getAllGuides } from "@/lib/guides-data";
+import { getPublicBlogAuthors, getPublicBlogPosts } from "@/lib/public-blog-data";
 
 export const revalidate = 60;
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: buildAbsoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
     { url: buildAbsoluteUrl("/blog"), changeFrequency: "weekly", priority: 0.9 },
@@ -17,14 +17,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: buildAbsoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3 }
   ];
 
-  const blogRoutes: MetadataRoute.Sitemap = getAllBlogPosts().map((post) => ({
+  const blogRoutes: MetadataRoute.Sitemap = (await getPublicBlogPosts()).map((post) => ({
     url: buildAbsoluteUrl(`/blog/${post.slug}`),
     lastModified: post.updatedAt,
     changeFrequency: "monthly",
     priority: 0.8
   }));
 
-  const blogAuthorRoutes: MetadataRoute.Sitemap = getAllBlogAuthors().map((author) => ({
+  const blogAuthorRoutes: MetadataRoute.Sitemap = (await getPublicBlogAuthors()).map((author) => ({
     url: buildAbsoluteUrl(`/blog/authors/${author.slug}`),
     changeFrequency: "monthly",
     priority: 0.6

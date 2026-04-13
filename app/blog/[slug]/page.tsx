@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllBlogPosts, getBlogPostBySlug, getRelatedBlogPosts } from "@/lib/blog-data";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
+import { getPublicBlogPostBySlug, getPublicBlogPosts, getPublicRelatedBlogPosts } from "@/lib/public-blog-data";
 import { BlogArticlePage } from "../blog-article-page";
 
 type BlogArticleRouteProps = {
@@ -12,12 +12,12 @@ export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return getAllBlogPosts().map((post) => ({ slug: post.slug }));
+  return (await getPublicBlogPosts()).map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: BlogArticleRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPublicBlogPostBySlug(slug);
 
   if (!post) {
     return {};
@@ -58,11 +58,11 @@ export async function generateMetadata({ params }: BlogArticleRouteProps): Promi
 
 export default async function BlogArticleRoute({ params }: BlogArticleRouteProps) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getPublicBlogPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  return <BlogArticlePage post={post} relatedPosts={getRelatedBlogPosts(post)} />;
+  return <BlogArticlePage post={post} relatedPosts={await getPublicRelatedBlogPosts(post)} />;
 }

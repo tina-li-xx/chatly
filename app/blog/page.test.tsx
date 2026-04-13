@@ -2,14 +2,16 @@ import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const mocks = vi.hoisted(() => ({
-  getBlogPostsByCategory: vi.fn(),
-  getFeaturedBlogPost: vi.fn()
+  getPublicBlogPostsByCategory: vi.fn(),
+  getPublicFeaturedBlogPost: vi.fn()
 }));
 
 vi.mock("@/lib/blog-data", () => ({
-  getBlogPostsByCategory: mocks.getBlogPostsByCategory,
-  getFeaturedBlogPost: mocks.getFeaturedBlogPost,
   isBlogCategorySlug: (value: string) => value === "sales" || value === "all"
+}));
+vi.mock("@/lib/public-blog-data", () => ({
+  getPublicBlogPostsByCategory: mocks.getPublicBlogPostsByCategory,
+  getPublicFeaturedBlogPost: mocks.getPublicFeaturedBlogPost
 }));
 
 vi.mock("./blog-home-page", () => ({
@@ -38,11 +40,11 @@ describe("blog index page route", () => {
   });
 
   it("uses the selected category posts and swaps the featured story when needed", async () => {
-    mocks.getFeaturedBlogPost.mockReturnValue({
+    mocks.getPublicFeaturedBlogPost.mockResolvedValue({
       slug: "featured",
       category: { slug: "support" }
     });
-    mocks.getBlogPostsByCategory.mockImplementation((category: string) =>
+    mocks.getPublicBlogPostsByCategory.mockImplementation(async (category: string) =>
       category === "sales" ? [{ slug: "sales-post" }] : [{ slug: "all-post" }]
     );
 
@@ -54,15 +56,15 @@ describe("blog index page route", () => {
 
     expect(html).toContain("sales");
     expect(html).toContain("sales-post");
-    expect(mocks.getBlogPostsByCategory).toHaveBeenCalledWith("sales");
+    expect(mocks.getPublicBlogPostsByCategory).toHaveBeenCalledWith("sales");
   });
 
   it("falls back to all posts for invalid categories and keeps the featured post", async () => {
-    mocks.getFeaturedBlogPost.mockReturnValue({
+    mocks.getPublicFeaturedBlogPost.mockResolvedValue({
       slug: "featured",
       category: { slug: "all" }
     });
-    mocks.getBlogPostsByCategory.mockImplementation((category: string) =>
+    mocks.getPublicBlogPostsByCategory.mockImplementation(async (category: string) =>
       category === "all" ? [{ slug: "all-post" }] : []
     );
 

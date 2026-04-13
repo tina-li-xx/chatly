@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 const mocks = vi.hoisted(() => ({
-  getAllBlogAuthors: vi.fn(),
-  getBlogAuthorBySlug: vi.fn(),
-  getBlogPostsByAuthor: vi.fn(),
+  getPublicBlogAuthors: vi.fn(),
+  getPublicBlogAuthorBySlug: vi.fn(),
+  getPublicBlogPostsByAuthor: vi.fn(),
   notFound: vi.fn()
 }));
 
@@ -12,10 +12,10 @@ vi.mock("next/navigation", () => ({
   notFound: mocks.notFound
 }));
 
-vi.mock("@/lib/blog-data", () => ({
-  getAllBlogAuthors: mocks.getAllBlogAuthors,
-  getBlogAuthorBySlug: mocks.getBlogAuthorBySlug,
-  getBlogPostsByAuthor: mocks.getBlogPostsByAuthor
+vi.mock("@/lib/public-blog-data", () => ({
+  getPublicBlogAuthors: mocks.getPublicBlogAuthors,
+  getPublicBlogAuthorBySlug: mocks.getPublicBlogAuthorBySlug,
+  getPublicBlogPostsByAuthor: mocks.getPublicBlogPostsByAuthor
 }));
 
 vi.mock("@/lib/env", () => ({
@@ -35,13 +35,13 @@ describe("blog author route", () => {
   });
 
   it("builds static params from every blog author with posts", async () => {
-    mocks.getAllBlogAuthors.mockReturnValue([{ slug: "tina" }]);
+    mocks.getPublicBlogAuthors.mockResolvedValue([{ slug: "tina" }]);
 
     await expect(generateStaticParams()).resolves.toEqual([{ slug: "tina" }]);
   });
 
   it("returns author metadata when the slug exists", async () => {
-    mocks.getBlogAuthorBySlug.mockReturnValue({
+    mocks.getPublicBlogAuthorBySlug.mockResolvedValue({
       slug: "tina",
       name: "Tina",
       bio: "Growth and operations at Chatting."
@@ -65,8 +65,8 @@ describe("blog author route", () => {
   });
 
   it("renders the author page and delegates missing authors to notFound", async () => {
-    mocks.getBlogAuthorBySlug
-      .mockReturnValueOnce({
+    mocks.getPublicBlogAuthorBySlug
+      .mockResolvedValueOnce({
         slug: "tina",
         name: "Tina",
         role: "Growth & Operations at Chatting",
@@ -74,8 +74,8 @@ describe("blog author route", () => {
         initials: "T",
         links: []
       })
-      .mockReturnValueOnce(null);
-    mocks.getBlogPostsByAuthor.mockReturnValue([
+      .mockResolvedValueOnce(null);
+    mocks.getPublicBlogPostsByAuthor.mockResolvedValue([
       {
         slug: "shopify-live-chat",
         title: "Shopify live chat",

@@ -93,14 +93,7 @@ function getPublishedAuthors(now = new Date()) {
 }
 
 function withDetails(post: BlogPost): BlogPostWithDetails {
-  const author = authors.find((entry) => entry.slug === post.authorSlug);
-  const category = blogCategories.find((entry) => entry.slug === post.categorySlug);
-
-  if (!author || !category) {
-    throw new Error(`BLOG_DATA_INVALID:${post.slug}`);
-  }
-
-  return { ...post, author, category };
+  return hydrateBlogPost(post);
 }
 
 export function getAllBlogPosts() {
@@ -122,6 +115,25 @@ export function getAllBlogAuthors() {
 
 export function getBlogAuthorBySlug(slug: string) {
   return getPublishedAuthors().find((author) => author.slug === slug) || null;
+}
+
+export function getAnyBlogAuthorBySlug(slug: string) {
+  return authors.find((author) => author.slug === slug) || null;
+}
+
+export function getBlogCategoryBySlug(slug: string) {
+  return blogCategories.find((category) => category.slug === slug) || null;
+}
+
+export function hydrateBlogPost(post: BlogPost): BlogPostWithDetails {
+  const author = getAnyBlogAuthorBySlug(post.authorSlug);
+  const category = getBlogCategoryBySlug(post.categorySlug);
+
+  if (!author || !category) {
+    throw new Error(`BLOG_DATA_INVALID:${post.slug}`);
+  }
+
+  return { ...post, author, category };
 }
 
 export function getFeaturedBlogPost() {

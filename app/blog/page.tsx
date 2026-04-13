@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { getBlogPostsByCategory, getFeaturedBlogPost, isBlogCategorySlug } from "@/lib/blog-data";
+import { isBlogCategorySlug } from "@/lib/blog-data";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
+import { getPublicBlogPostsByCategory, getPublicFeaturedBlogPost } from "@/lib/public-blog-data";
 import { BlogHomePage } from "./blog-home-page";
 
 type BlogIndexPageProps = {
@@ -24,10 +25,10 @@ export default async function BlogIndexPage({ searchParams }: BlogIndexPageProps
     ? resolvedParams.category[0]
     : resolvedParams.category;
   const selectedCategory = categoryParam && isBlogCategorySlug(categoryParam) ? categoryParam : "all";
-  const featuredPost = getFeaturedBlogPost();
-  const posts = getBlogPostsByCategory(selectedCategory).length
-    ? getBlogPostsByCategory(selectedCategory)
-    : getBlogPostsByCategory("all");
+  const featuredPost = await getPublicFeaturedBlogPost();
+  const categoryPosts = await getPublicBlogPostsByCategory(selectedCategory);
+  const allPosts = selectedCategory === "all" ? categoryPosts : await getPublicBlogPostsByCategory("all");
+  const posts = categoryPosts.length ? categoryPosts : allPosts;
 
   const homeFeaturedPost =
     selectedCategory === "all" || featuredPost.category.slug === selectedCategory ? featuredPost : posts[0];

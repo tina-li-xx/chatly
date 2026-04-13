@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllBlogAuthors, getBlogAuthorBySlug, getBlogPostsByAuthor } from "@/lib/blog-data";
 import { buildAbsoluteUrl } from "@/lib/blog-utils";
+import {
+  getPublicBlogAuthorBySlug,
+  getPublicBlogAuthors,
+  getPublicBlogPostsByAuthor
+} from "@/lib/public-blog-data";
 import { buildDefaultSocialMetadata } from "@/lib/site-seo";
 import { BlogPostCard } from "../../blog-home-sections";
 import { BlogAuthorAvatar } from "../../blog-primitives";
@@ -16,12 +20,12 @@ export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return getAllBlogAuthors().map((author) => ({ slug: author.slug }));
+  return (await getPublicBlogAuthors()).map((author) => ({ slug: author.slug }));
 }
 
 export async function generateMetadata({ params }: BlogAuthorRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const author = getBlogAuthorBySlug(slug);
+  const author = await getPublicBlogAuthorBySlug(slug);
 
   if (!author) {
     return {};
@@ -44,13 +48,13 @@ export async function generateMetadata({ params }: BlogAuthorRouteProps): Promis
 
 export default async function BlogAuthorRoute({ params }: BlogAuthorRouteProps) {
   const { slug } = await params;
-  const author = getBlogAuthorBySlug(slug);
+  const author = await getPublicBlogAuthorBySlug(slug);
 
   if (!author) {
     return notFound();
   }
 
-  const posts = getBlogPostsByAuthor(author.slug);
+  const posts = await getPublicBlogPostsByAuthor(author.slug);
 
   return (
     <BlogShell>
