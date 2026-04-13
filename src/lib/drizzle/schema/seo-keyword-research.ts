@@ -1,0 +1,110 @@
+import { sql } from "drizzle-orm";
+import { boolean, check, foreignKey, index, integer, jsonb, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { users } from "./core";
+
+export const seoKeywordResearchRuns = pgTable("seo_keyword_research_runs", {
+  id: text("id").primaryKey(),
+  ownerUserId: text("owner_user_id").notNull(),
+  actorUserId: text("actor_user_id"),
+  sourceProfileSlug: text("source_profile_slug").notNull().default("chatting-default"),
+  status: text("status").notNull().default("draft"),
+  providerChain: text("provider_chain").notNull().default(""),
+  seedQueriesJson: jsonb("seed_queries_json").notNull().default(sql.raw("'[]'::jsonb")),
+  summaryJson: jsonb("summary_json").notNull().default(sql.raw("'{}'::jsonb")),
+  harvestedKeywordCount: integer("harvested_keyword_count").notNull().default(0),
+  generatedAt: timestamp("generated_at", { withTimezone: true, mode: "date" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow()
+}, (table) => ({
+  seoKeywordResearchRunsActorUserIdFkey: foreignKey({ name: "seo_keyword_research_runs_actor_user_id_fkey", columns: [table.actorUserId], foreignColumns: [users.id] }).onDelete("set null"),
+  seoKeywordResearchRunsHarvestedKeywordCountCheck: check("seo_keyword_research_runs_harvested_keyword_count_check", sql.raw("(harvested_keyword_count >= 0)")),
+  seoKeywordResearchRunsOwnerCreatedAtIdx: index("seo_keyword_research_runs_owner_created_at_idx").on(table.ownerUserId, table.createdAt),
+  seoKeywordResearchRunsOwnerStatusUpdatedAtIdx: index("seo_keyword_research_runs_owner_status_updated_at_idx").on(table.ownerUserId, table.status, table.updatedAt),
+  seoKeywordResearchRunsOwnerUserIdFkey: foreignKey({ name: "seo_keyword_research_runs_owner_user_id_fkey", columns: [table.ownerUserId], foreignColumns: [users.id] }).onDelete("cascade"),
+  seoKeywordResearchRunsStatusCheck: check("seo_keyword_research_runs_status_check", sql.raw("(status = ANY (ARRAY['draft'::text, 'generating'::text, 'ready'::text, 'failed'::text, 'archived'::text]))"))
+}));
+
+export const seoKeywordCorpus = pgTable("seo_keyword_corpus", {
+  id: text("id").primaryKey(),
+  ownerUserId: text("owner_user_id").notNull(),
+  latestRunId: text("latest_run_id"),
+  normalizedKeyword: text("normalized_keyword").notNull(),
+  keyword: text("keyword").notNull(),
+  suggestedTitle: text("suggested_title").notNull().default(""),
+  sourceQuery: text("source_query").notNull().default(""),
+  sourceTitle: text("source_title").notNull().default(""),
+  themeSlug: text("theme_slug").notNull().default(""),
+  associatedCompetitorSlug: text("associated_competitor_slug").notNull().default(""),
+  intent: text("intent").notNull().default("informational"),
+  difficulty: text("difficulty").notNull().default("medium"),
+  audienceLabel: text("audience_label").notNull().default(""),
+  rationale: text("rationale").notNull().default(""),
+  opportunityScore: integer("opportunity_score").notNull().default(0),
+  evidenceCount: integer("evidence_count").notNull().default(0),
+  appearanceCount: integer("appearance_count").notNull().default(0),
+  missingCycleCount: integer("missing_cycle_count").notNull().default(0),
+  chattingRank: integer("chatting_rank"),
+  competitorHits: integer("competitor_hits").notNull().default(0),
+  persistenceScore: integer("persistence_score").notNull().default(0),
+  competitorDensityScore: integer("competitor_density_score").notNull().default(0),
+  chattingGapScore: integer("chatting_gap_score").notNull().default(0),
+  smallTeamRelevanceScore: integer("small_team_relevance_score").notNull().default(0),
+  commercialIntentScore: integer("commercial_intent_score").notNull().default(0),
+  stabilityScore: integer("stability_score").notNull().default(0),
+  providersJson: jsonb("providers_json").notNull().default(sql.raw("'[]'::jsonb")),
+  resultDomainsJson: jsonb("result_domains_json").notNull().default(sql.raw("'[]'::jsonb")),
+  serpResultsJson: jsonb("serp_results_json").notNull().default(sql.raw("'[]'::jsonb")),
+  metadataJson: jsonb("metadata_json").notNull().default(sql.raw("'{}'::jsonb")),
+  firstSeenAt: timestamp("first_seen_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  staleAt: timestamp("stale_at", { withTimezone: true, mode: "date" }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow()
+}, (table) => ({
+  seoKeywordCorpusAppearanceCountCheck: check("seo_keyword_corpus_appearance_count_check", sql.raw("(appearance_count >= 0)")),
+  seoKeywordCorpusChattingRankCheck: check("seo_keyword_corpus_chatting_rank_check", sql.raw("(chatting_rank IS NULL OR chatting_rank > 0)")),
+  seoKeywordCorpusCommercialIntentScoreCheck: check("seo_keyword_corpus_commercial_intent_score_check", sql.raw("(commercial_intent_score >= 0 AND commercial_intent_score <= 100)")),
+  seoKeywordCorpusCompetitorHitsCheck: check("seo_keyword_corpus_competitor_hits_check", sql.raw("(competitor_hits >= 0)")),
+  seoKeywordCorpusCompetitorDensityScoreCheck: check("seo_keyword_corpus_competitor_density_score_check", sql.raw("(competitor_density_score >= 0 AND competitor_density_score <= 100)")),
+  seoKeywordCorpusDifficultyCheck: check("seo_keyword_corpus_difficulty_check", sql.raw("(difficulty = ANY (ARRAY['low'::text, 'medium'::text, 'high'::text]))")),
+  seoKeywordCorpusEvidenceCountCheck: check("seo_keyword_corpus_evidence_count_check", sql.raw("(evidence_count >= 0)")),
+  seoKeywordCorpusIntentCheck: check("seo_keyword_corpus_intent_check", sql.raw("(intent = ANY (ARRAY['commercial'::text, 'informational'::text, 'comparison'::text]))")),
+  seoKeywordCorpusLatestRunIdFkey: foreignKey({ name: "seo_keyword_corpus_latest_run_id_fkey", columns: [table.latestRunId], foreignColumns: [seoKeywordResearchRuns.id] }).onDelete("set null"),
+  seoKeywordCorpusMissingCycleCountCheck: check("seo_keyword_corpus_missing_cycle_count_check", sql.raw("(missing_cycle_count >= 0)")),
+  seoKeywordCorpusOpportunityScoreCheck: check("seo_keyword_corpus_opportunity_score_check", sql.raw("(opportunity_score >= 0 AND opportunity_score <= 100)")),
+  seoKeywordCorpusPersistenceScoreCheck: check("seo_keyword_corpus_persistence_score_check", sql.raw("(persistence_score >= 0 AND persistence_score <= 100)")),
+  seoKeywordCorpusOwnerKeywordKey: uniqueIndex("seo_keyword_corpus_owner_keyword_key").on(table.ownerUserId, table.normalizedKeyword),
+  seoKeywordCorpusOwnerScoreLastSeenIdx: index("seo_keyword_corpus_owner_score_last_seen_idx").on(table.ownerUserId, table.opportunityScore, table.lastSeenAt),
+  seoKeywordCorpusOwnerUpdatedAtIdx: index("seo_keyword_corpus_owner_updated_at_idx").on(table.ownerUserId, table.updatedAt),
+  seoKeywordCorpusOwnerUserIdFkey: foreignKey({ name: "seo_keyword_corpus_owner_user_id_fkey", columns: [table.ownerUserId], foreignColumns: [users.id] }).onDelete("cascade"),
+  seoKeywordCorpusSmallTeamRelevanceScoreCheck: check("seo_keyword_corpus_small_team_relevance_score_check", sql.raw("(small_team_relevance_score >= 0 AND small_team_relevance_score <= 100)")),
+  seoKeywordCorpusStabilityScoreCheck: check("seo_keyword_corpus_stability_score_check", sql.raw("(stability_score >= 0 AND stability_score <= 100)")),
+  seoKeywordCorpusChattingGapScoreCheck: check("seo_keyword_corpus_chatting_gap_score_check", sql.raw("(chatting_gap_score >= 0 AND chatting_gap_score <= 100)"))
+}));
+
+export const seoKeywordSerpSnapshots = pgTable("seo_keyword_serp_snapshots", {
+  id: text("id").primaryKey(),
+  ownerUserId: text("owner_user_id").notNull(),
+  runId: text("run_id").notNull(),
+  keywordCorpusId: text("keyword_corpus_id"),
+  normalizedKeyword: text("normalized_keyword").notNull(),
+  sourceQuery: text("source_query").notNull().default(""),
+  provider: text("provider").notNull().default(""),
+  rank: integer("rank").notNull(),
+  resultUrl: text("result_url").notNull().default(""),
+  resultDomain: text("result_domain").notNull().default(""),
+  resultTitle: text("result_title").notNull().default(""),
+  resultSnippet: text("result_snippet").notNull().default(""),
+  matchedCompetitorSlug: text("matched_competitor_slug").notNull().default(""),
+  isChatting: boolean("is_chatting").notNull().default(false),
+  contentPattern: text("content_pattern").notNull().default("article"),
+  capturedAt: timestamp("captured_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: "date" }).notNull().defaultNow()
+}, (table) => ({
+  seoKeywordSerpSnapshotsKeywordCorpusIdFkey: foreignKey({ name: "seo_keyword_serp_snapshots_keyword_corpus_id_fkey", columns: [table.keywordCorpusId], foreignColumns: [seoKeywordCorpus.id] }).onDelete("set null"),
+  seoKeywordSerpSnapshotsOwnerUserIdFkey: foreignKey({ name: "seo_keyword_serp_snapshots_owner_user_id_fkey", columns: [table.ownerUserId], foreignColumns: [users.id] }).onDelete("cascade"),
+  seoKeywordSerpSnapshotsRankCheck: check("seo_keyword_serp_snapshots_rank_check", sql.raw("(rank > 0)")),
+  seoKeywordSerpSnapshotsRunIdFkey: foreignKey({ name: "seo_keyword_serp_snapshots_run_id_fkey", columns: [table.runId], foreignColumns: [seoKeywordResearchRuns.id] }).onDelete("cascade"),
+  seoKeywordSerpSnapshotsOwnerKeywordCapturedIdx: index("seo_keyword_serp_snapshots_owner_keyword_captured_idx").on(table.ownerUserId, table.normalizedKeyword, table.capturedAt),
+  seoKeywordSerpSnapshotsOwnerRunRankIdx: index("seo_keyword_serp_snapshots_owner_run_rank_idx").on(table.ownerUserId, table.runId, table.rank)
+}));

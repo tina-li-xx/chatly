@@ -120,6 +120,55 @@
       "when": 1775776800000,
       "tag": "0016_mobile_push_apns",
       "breakpoints": false
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1775815200000,
+      "tag": "0017_team_mobile_devices",
+      "breakpoints": false
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1775844000000,
+      "tag": "0018_team_mobile_device_providers",
+      "breakpoints": false
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1775923200000,
+      "tag": "0019_mobile_user_preferences",
+      "breakpoints": false
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1776009600000,
+      "tag": "0020_mobile_notification_preferences_v2",
+      "breakpoints": false
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1776013200000,
+      "tag": "0021_seo_planning_pipeline",
+      "breakpoints": false
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1776060000000,
+      "tag": "0022_seo_keyword_corpus",
+      "breakpoints": false
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1776096000000,
+      "tag": "0023_seo_keyword_history",
+      "breakpoints": false
     }
   ]
 }

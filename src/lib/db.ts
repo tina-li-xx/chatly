@@ -25,16 +25,26 @@ declare global {
   var __chattingDb: ChatlyDb | undefined;
 }
 
-const SCHEMA_VERSION = "2026-04-09-mobile-push-registrations";
+const SCHEMA_VERSION = "2026-04-13-seo-keyword-history-v2";
 const SCHEMA_LOCK_KEY = [20260401, 1] as const;
+
+function attachPoolErrorHandler(pool: Pool) {
+  pool.on("error", (error) => {
+    console.error("postgres pool idle client failed", error);
+  });
+
+  return pool;
+}
 
 async function createPool() {
   const config = getDatabaseConfig();
   const { Pool } = await import("pg");
 
-  return new Pool({
-    connectionString: config.connectionString
-  });
+  return attachPoolErrorHandler(
+    new Pool({
+      connectionString: config.connectionString
+    })
+  );
 }
 
 async function runMigrationsWithLock(pool: Pool) {
