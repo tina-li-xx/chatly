@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Dashboard tables now share one header-label style token across billing history, publishing queue, analytics, referrals, and team views for more consistent internal UI.
 - Publishing a generated blog draft now refreshes the public blog, author page, post page, and sitemap immediately, and production builds no longer stall on workspace-backed blog draft lookups.
 - Workspace-access SQL helpers now import from their source repository instead of the mixed workspace barrel, avoiding Next server-route build failures around missing static re-exports.
 - The repo now includes reusable App Store screenshot source files, render scripts, and finished iPhone submission assets for future mobile releases.
@@ -271,6 +272,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Dashboard tables now share a single header-label style token across billing history, publishing queue, analytics, referrals, and team views so internal reporting surfaces stay visually aligned.
 - Non-admin teammates now only see conversations assigned to them, and member inbox tabs stay focused on open and resolved assigned work instead of implying access to the whole shared queue.
 - Shared dashboard headers, settings cards, toggles, and nav descriptions now use slightly darker secondary text so lower-emphasis copy reads more clearly.
 - Email-template preview tests now use the hosted `https://usechatting.com` origin to match the current dashboard preview environment.

@@ -8,6 +8,7 @@ import {
   referralStatusMeta,
   referralWorkspaceLabel
 } from "./dashboard-settings-referrals-helpers";
+import { DASHBOARD_TABLE_LABEL_CLASS } from "./dashboard-table-styles";
 import { UsersIcon } from "./dashboard-ui";
 
 function StatusBadge({ status }: { status: DashboardReferralAttribution["status"] }) {
@@ -30,7 +31,8 @@ function DesktopTable({ signups }: { signups: DashboardReferralAttribution[] }) 
               <th
                 key={label}
                 className={classNames(
-                  "px-5 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.08em] text-slate-500",
+                  "px-5 py-3.5 text-left",
+                  DASHBOARD_TABLE_LABEL_CLASS,
                   label === "Status" && "text-center",
                   label === "Date" && "text-right"
                 )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { classNames } from "@/lib/utils";
+import { DASHBOARD_TABLE_LABEL_CLASS } from "./dashboard-table-styles";
 import { formatDurationShort, formatPercent } from "./dashboard-analytics-core";
 import type { RatingBreakdown, TagBreakdown, TeamRow } from "./dashboard-analytics-types";
 import { StarIcon } from "./dashboard-ui";
@@ -55,7 +56,7 @@ export function TeamPerformanceTable({
                 (label) => (
                   <th
                     key={label}
-                    className="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.08em] text-slate-500"
+                    className={classNames("px-4 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}
                   >
                     {label}
                   </th>

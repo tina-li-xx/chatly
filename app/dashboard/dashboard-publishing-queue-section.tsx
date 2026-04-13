@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { formatBlogDate } from "@/lib/blog-utils";
 import type { BlogPostWithDetails } from "@/lib/blog-types";
+import { classNames } from "@/lib/utils";
 import { BlogCategoryBadge } from "../blog/blog-primitives";
 import { SettingsCard, SettingsSectionHeader } from "./dashboard-settings-shared";
+import { DASHBOARD_TABLE_LABEL_CLASS } from "./dashboard-table-styles";
 
 function queueStatus(post: BlogPostWithDetails): "draft" | "scheduled" {
   return post.publicationStatus === "scheduled" ? "scheduled" : "draft";
@@ -60,7 +62,7 @@ export function DashboardPublishingQueueSection({
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-left">
-              <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <thead className={classNames("bg-slate-50", DASHBOARD_TABLE_LABEL_CLASS)}>
                 <tr>
                   <th className="px-6 py-4">Post</th>
                   <th className="px-6 py-4">Status</th>

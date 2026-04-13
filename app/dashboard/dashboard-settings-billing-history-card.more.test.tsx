@@ -24,7 +24,10 @@ async function loadCard() {
     formatMoney: (amountCents: number) => `$${amountCents / 100}`
   }));
   vi.doMock("@/lib/billing-plans", () => ({ getBillingPlanDefinition: () => ({ name: "Growth" }) }));
-  vi.doMock("@/lib/utils", () => ({ formatDateTime: (value: string) => `date:${value}` }));
+  vi.doMock("@/lib/utils", () => ({
+    classNames: (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" "),
+    formatDateTime: (value: string) => `date:${value}`
+  }));
   vi.doMock("./dashboard-billing-utils", () => ({
     billingPeriodLabel: () => "monthly",
     invoiceStatusMeta: (status: string) => ({ label: status, className: `status-${status}` })

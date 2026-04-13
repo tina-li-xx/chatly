@@ -4,9 +4,10 @@ import { useMemo, useState } from "react";
 import { getBillingPlanDefinition } from "@/lib/billing-plans";
 import type { DashboardBillingInvoice } from "@/lib/data/billing-types";
 import { FormButton } from "../ui/form-controls";
-import { formatDateTime } from "@/lib/utils";
+import { classNames, formatDateTime } from "@/lib/utils";
 import { billingPeriodLabel, invoiceStatusMeta, type BillingHistorySortKey } from "./dashboard-billing-utils";
 import { formatMoney, SettingsCard } from "./dashboard-settings-shared";
+import { DASHBOARD_TABLE_LABEL_CLASS, DASHBOARD_TABLE_SORT_BUTTON_CLASS } from "./dashboard-table-styles";
 import { ChevronDownIcon, CreditCardIcon, DownloadIcon, ExternalLinkIcon } from "./dashboard-ui";
 
 function invoiceSortValue(invoice: DashboardBillingInvoice, sortKey: BillingHistorySortKey) {
@@ -67,14 +68,14 @@ export function DashboardSettingsBillingHistoryCard({ invoices }: { invoices: Da
                     ["amount", "Amount"],
                     ["status", "Status"]
                   ].map(([value, label]) => (
-                    <th key={value} className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      <FormButton type="button" onClick={() => toggleSort(value as BillingHistorySortKey)} variant="secondary" size="md" className="h-auto gap-1 rounded-none border-0 bg-transparent px-0 py-0 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 hover:border-0 hover:bg-transparent hover:text-slate-700">
+                    <th key={value} className={classNames("px-5 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}>
+                      <FormButton type="button" onClick={() => toggleSort(value as BillingHistorySortKey)} variant="secondary" size="md" className={DASHBOARD_TABLE_SORT_BUTTON_CLASS}>
                         {label}
                         <ChevronDownIcon className={`h-3.5 w-3.5 transition ${sortKey === value && sortDirection === "asc" ? "rotate-180" : ""}`} />
                       </FormButton>
                     </th>
                   ))}
-                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Actions</th>
+                  <th className={classNames("px-5 py-3 text-right", DASHBOARD_TABLE_LABEL_CLASS)}>Actions</th>
                 </tr>
               </thead>
               <tbody>

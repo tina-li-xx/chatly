@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { DashboardTeamInvite, DashboardTeamMember } from "@/lib/data/settings-types";
 import { displayNameFromEmail, initialsFromLabel } from "@/lib/user-display";
 import { classNames, formatRelativeTime } from "@/lib/utils";
+import { DASHBOARD_TABLE_LABEL_CLASS } from "./dashboard-table-styles";
 import { DotsVerticalIcon, PlusIcon, XIcon } from "./dashboard-ui";
 import {
   DASHBOARD_ICON_BUTTON_CLASS,
@@ -237,11 +238,11 @@ export function DashboardTeamPage({
             <table className="min-w-full">
               <thead className="bg-slate-50">
                 <tr className="border-b border-slate-200">
-                  <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.08em] text-slate-500">Workspace access</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.08em] text-slate-500">Role</th>
-                  <th className="px-5 py-3 text-center text-xs font-medium uppercase tracking-[0.08em] text-slate-500">Status</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium uppercase tracking-[0.08em] text-slate-500">Updated</th>
-                  <th className="px-5 py-3 text-right text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+                  <th className={classNames("px-5 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}>Workspace access</th>
+                  <th className={classNames("px-5 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}>Role</th>
+                  <th className={classNames("px-5 py-3 text-center", DASHBOARD_TABLE_LABEL_CLASS)}>Status</th>
+                  <th className={classNames("px-5 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}>Updated</th>
+                  <th className={classNames("px-5 py-3 text-right", DASHBOARD_TABLE_LABEL_CLASS)}>
                     {canManageTeam ? "Actions" : ""}
                   </th>
                 </tr>

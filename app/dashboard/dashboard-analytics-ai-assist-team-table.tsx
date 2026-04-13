@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { DashboardAiAssistTeamMemberUsage } from "@/lib/data/settings-ai-assist-usage";
+import { classNames } from "@/lib/utils";
+import { DASHBOARD_TABLE_LABEL_CLASS } from "./dashboard-table-styles";
 import { ChevronDownIcon } from "./dashboard-ui";
 
 type SortKey = "requests" | "used" | "acceptanceRate" | "summaries";
@@ -38,7 +40,7 @@ export function DashboardAnalyticsAiAssistTeamTable({
         <table className="min-w-full">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
+              <th className={classNames("px-4 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}>
                 Name
               </th>
               {[
@@ -49,7 +51,7 @@ export function DashboardAnalyticsAiAssistTeamTable({
               ].map(([label, value]) => (
                 <th
                   key={value}
-                  className="px-4 py-3 text-left text-xs font-medium uppercase tracking-[0.08em] text-slate-500"
+                  className={classNames("px-4 py-3 text-left", DASHBOARD_TABLE_LABEL_CLASS)}
                 >
                   <button
                     type="button"
