@@ -1,5 +1,6 @@
 import { deliverConversationTeamReply } from "@/lib/conversation-team-reply-delivery";
 import { extractUploadedAttachments } from "@/lib/conversation-io";
+import { asRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
@@ -10,10 +11,11 @@ async function handlePOST(request: Request) {
   }
   const { user } = auth;
 
-  const formData = await request.formData();
+  const rawFormData = await request.formData();
+  const formData = asRouteFormData(rawFormData)!;
   const conversationId = String(formData.get("conversationId") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
-  const attachments = await extractUploadedAttachments(formData);
+  const attachments = await extractUploadedAttachments(rawFormData);
 
   if (!content && !attachments.length) {
     return jsonError("empty-reply", 400);

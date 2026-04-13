@@ -1,5 +1,6 @@
 import { updateSiteWidgetSettings, updateSiteWidgetTitle } from "@/lib/data";
 import { getBillingPlanFeatures, normalizeBillingPlanKey } from "@/lib/billing-plans";
+import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { findBillingAccountRow } from "@/lib/repositories/billing-repository";
 import { createDefaultOperatingHours, normalizeSiteDomain } from "@/lib/widget-settings";
@@ -12,7 +13,7 @@ async function handlePOST(request: Request) {
   }
   const { user } = auth;
 
-  const formData = await request.formData();
+  const formData = await readRouteFormData(request);
   const siteId = String(formData.get("siteId") ?? "").trim();
   const widgetTitle = String(formData.get("widgetTitle") ?? "").trim();
   const settingsRaw = String(formData.get("settings") ?? "").trim();

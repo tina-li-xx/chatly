@@ -1,4 +1,5 @@
 import { getConversationSummaryById, toggleTag } from "@/lib/data";
+import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import { deliverZapierEvent } from "@/lib/zapier-event-delivery";
@@ -11,7 +12,7 @@ async function handlePOST(request: Request) {
   }
   const { user } = auth;
 
-  const formData = await request.formData();
+  const formData = await readRouteFormData(request);
   const conversationId = String(formData.get("conversationId") ?? "").trim();
   const tag = String(formData.get("tag") ?? "").trim();
 

@@ -1,5 +1,6 @@
 import { removeSiteTeamPhoto, updateSiteTeamPhoto } from "@/lib/data";
 import { getTeamPhotoConstraints } from "@/lib/r2";
+import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
@@ -28,7 +29,7 @@ async function handlePOST(request: Request) {
   }
 
   try {
-    const formData = await request.formData();
+    const formData = await readRouteFormData(request);
     const siteId = String(formData.get("siteId") ?? "").trim();
     const file = formData.get("file");
 

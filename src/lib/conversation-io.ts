@@ -8,8 +8,12 @@ import {
 export const MAX_ATTACHMENT_COUNT = 3;
 export const MAX_ATTACHMENT_SIZE_BYTES = 4 * 1024 * 1024;
 
+type AttachmentFormData = {
+  getAll(name: string): unknown[];
+};
+
 export async function extractUploadedAttachments(
-  formData: FormData,
+  formData: AttachmentFormData,
   fieldName = "attachments"
 ): Promise<UploadedAttachmentInput[]> {
   const files = formData

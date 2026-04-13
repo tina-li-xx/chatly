@@ -9,6 +9,7 @@ import { publishConversationLive } from "@/lib/live-events";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
+import { asRouteFormData } from "@/lib/route-form-data";
 import { deliverZapierEvent } from "@/lib/zapier-event-delivery";
 import { buildZapierConversationCreatedPayload } from "@/lib/zapier-event-payloads";
 
@@ -21,7 +22,8 @@ async function handlePOST(request: Request) {
     const contentType = request.headers.get("content-type") || "";
     const isMultipart = contentType.includes("multipart/form-data");
     const body = isMultipart ? null : await request.json();
-    const formData = isMultipart ? await request.formData() : null;
+    const rawFormData = isMultipart ? await request.formData() : null;
+    const formData = asRouteFormData(rawFormData);
     const siteId = String((formData?.get("siteId") ?? body?.siteId) ?? "").trim();
     const sessionId = String((formData?.get("sessionId") ?? body?.sessionId) ?? "").trim();
     const content = String((formData?.get("content") ?? body?.content) ?? "").trim();
@@ -29,7 +31,7 @@ async function handlePOST(request: Request) {
     const emailValue = formData?.get("email") ?? body?.email;
     const conversationId = conversationIdValue ? String(conversationIdValue) : null;
     const email = emailValue ? String(emailValue) : null;
-    const attachments = formData ? await extractUploadedAttachments(formData) : [];
+    const attachments = rawFormData ? await extractUploadedAttachments(rawFormData) : [];
 
     if (!siteId || !sessionId || (!content && !attachments.length)) {
       return publicJsonResponse(

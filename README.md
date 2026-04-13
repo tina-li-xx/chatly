@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Dashboard and public multipart routes now share one form-data parsing helper, so uploads and route validation stay aligned without duplicated request parsing code.
 - Growth upgrades now show the full checkout amount up front, including the Stripe processing fee, and confirming the upgrade starts the paid plan instead of another trial.
 - Shared auth, dashboard, and settings support copy now renders one shade darker in the shared shells so secondary text is easier to read at a glance.
 - Shared Chatting links now serve their branded social preview image again, so X/Twitter and similar crawlers can render the intended OG card instead of falling back to a text-only preview.
@@ -176,6 +177,10 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Added repo guidance, product notes, and design system references for contributors.
 
 ## 🚀 Key Modules
+
+### Platform & Runtime
+
+- Dashboard and public multipart routes now share a smaller route-form-data helper, and attachment extraction now accepts the narrower `getAll(...)` shape those server handlers actually use.
 
 ### Public Site & Auth
 - Shared auth-shell captions and supporting hero copy now use slightly darker secondary text for better legibility.

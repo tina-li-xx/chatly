@@ -6,6 +6,7 @@ import {
   updateConversationStatus
 } from "@/lib/data";
 import { publishConversationLive, publishDashboardLive } from "@/lib/live-events";
+import { readOptionalRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import { deliverZapierEvent } from "@/lib/zapier-event-delivery";
@@ -17,7 +18,7 @@ async function handlePOST(request: Request) {
     return auth.response;
   }
 
-  const formData = await request.formData().catch(() => null);
+  const formData = await readOptionalRouteFormData(request);
   const conversationId = String(formData?.get("conversationId") ?? "").trim();
   const status = String(formData?.get("status") ?? "").trim();
 
