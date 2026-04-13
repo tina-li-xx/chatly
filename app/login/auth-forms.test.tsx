@@ -81,8 +81,9 @@ describe("auth forms", () => {
     expect(html).toContain("Sign in");
     expect(html).toContain("Create one");
     expect(html).toContain("Forgot password?");
-    expect(html).toContain("2,400+");
-    expect(html).toContain("1.2m");
+    expect(html).not.toContain("2,400+");
+    expect(html).not.toContain("1.2m");
+    expect(html).not.toContain("4.8/5");
   });
 
   it("renders the forgot-password state", async () => {

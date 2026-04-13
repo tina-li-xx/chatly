@@ -1,5 +1,7 @@
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { findExistingUserIdByEmail } from "@/lib/repositories/auth-repository";
 import { AuthPageShell, AuthFormIntro } from "../login/auth-shell";
 import { FormButtonLink } from "../ui/form-controls";
 import { acceptTeamInvite, getTeamInvitePreview, switchCurrentWorkspace } from "@/lib/workspace-access";
@@ -28,7 +30,7 @@ function inviteStateCopy(state: Awaited<ReturnType<typeof getTeamInvitePreview>>
     return "We couldn't find that invite.";
   }
 
-  return "Choose how you'd like to continue.";
+  return null;
 }
 
 type InviteLinkQuery = {
@@ -36,8 +38,16 @@ type InviteLinkQuery = {
   email?: string;
 };
 
-function buildInviteAuthHref(pathname: "/login" | "/signup", query: InviteLinkQuery | null) {
-  return query ? { pathname, query } : pathname;
+function buildInviteAuthHref(pathname: "/login" | "/signup", query: InviteLinkQuery | null): Route {
+  if (!query) {
+    return pathname as Route;
+  }
+
+  const params = new URLSearchParams({
+    invite: query.invite,
+    ...(query.email ? { email: query.email } : {})
+  });
+  return `${pathname}?${params.toString()}` as Route;
 }
 
 export default async function InvitePage({ searchParams }: InvitePageProps) {
@@ -56,7 +66,17 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
         inviterName: "Chatting",
         state: "missing" as const
       };
+  const inviteLinkQuery = inviteId
+    ? {
+        invite: inviteId,
+        ...(invite.email ? { email: invite.email } : {})
+      }
+    : null;
   const user = await getCurrentUser();
+  const inviteHasExistingAccount =
+    invite.state === "pending" && invite.email
+      ? Boolean(await findExistingUserIdByEmail(invite.email.trim().toLowerCase()))
+      : false;
   let autoAcceptError: string | null = null;
 
   if (user && invite.state === "pending" && invite.email.toLowerCase() === user.email.toLowerCase()) {
@@ -76,6 +96,10 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
     }
   }
 
+  if (!user && invite.state === "pending" && inviteHasExistingAccount) {
+    redirect(buildInviteAuthHref("/login", inviteLinkQuery));
+  }
+
   if (user && invite.state === "accepted" && invite.email.toLowerCase() === user.email.toLowerCase()) {
     if (invite.ownerUserId) {
       try {
@@ -90,21 +114,12 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
     redirect("/dashboard");
   }
 
-  const inviteLinkQuery = inviteId
-    ? {
-        invite: inviteId,
-        ...(invite.email ? { email: invite.email } : {})
-      }
-    : null;
-
   return (
     <AuthPageShell
       heroTitle="Join your team on Chatting"
-      heroDescription="Accept your workspace access and jump straight into the shared inbox."
       stats={[
         { value: invite.role === "admin" ? "Admin" : "Member", label: "Access" },
-        { value: invite.teamName, label: "Workspace" },
-        { value: invite.teamDomain || "Inbox", label: "Team site" }
+        { value: invite.teamName, label: "Workspace" }
       ]}
     >
       <div className="space-y-6">
@@ -113,10 +128,14 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
           caption={`${invite.inviterName} invited ${invite.email || "you"} to this workspace.`}
         />
 
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-700">
-          <p className="font-medium text-slate-900">{inviteStateCopy(invite.state)}</p>
-          {invite.message ? <p className="mt-2 text-slate-600">"{invite.message}"</p> : null}
-        </div>
+        {inviteStateCopy(invite.state) || invite.message ? (
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-700">
+            {inviteStateCopy(invite.state) ? (
+              <p className="font-medium text-slate-900">{inviteStateCopy(invite.state)}</p>
+            ) : null}
+            {invite.message ? <p className={inviteStateCopy(invite.state) ? "mt-2 text-slate-600" : "text-slate-600"}>"{invite.message}"</p> : null}
+          </div>
+        ) : null}
 
         {autoAcceptError ? (
           <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
@@ -131,21 +150,30 @@ export default async function InvitePage({ searchParams }: InvitePageProps) {
         ) : null}
 
         {invite.state === "pending" ? (
-          <div className="flex flex-col gap-3">
-            <FormButtonLink
-              href={buildInviteAuthHref("/signup", inviteLinkQuery)}
-              fullWidth
-            >
-              Create account
-            </FormButtonLink>
+          inviteHasExistingAccount ? (
             <FormButtonLink
               href={buildInviteAuthHref("/login", inviteLinkQuery)}
-              variant="secondary"
               fullWidth
             >
               Sign in
             </FormButtonLink>
-          </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <FormButtonLink
+                href={buildInviteAuthHref("/signup", inviteLinkQuery)}
+                fullWidth
+              >
+                Create account
+              </FormButtonLink>
+              <FormButtonLink
+                href={buildInviteAuthHref("/login", inviteLinkQuery)}
+                variant="secondary"
+                fullWidth
+              >
+                Sign in
+              </FormButtonLink>
+            </div>
+          )
         ) : (
           <FormButtonLink
             href={

@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Existing invited teammates now go straight to sign in with the invited email prefilled, and valid invite sign-ins auto-verify the invited account instead of stalling on a separate verification step.
 - Non-admin teammates now only see conversations assigned to them, and member inbox views stay focused on open and resolved assigned work instead of misleading all-chat filters.
 - Chatting now has a native iPhone team app with a mobile inbox, assignment handoff, settings, and push notifications for new conversations.
 - Dashboard and public multipart routes now share one form-data parsing helper, so uploads and route validation stay aligned without duplicated request parsing code.
@@ -191,6 +192,8 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Team mobile delivery now supports Expo, APNs, and FCM transports, and new conversations plus assignment handoffs can trigger native push notifications back into the mobile inbox.
 
 ### Public Site & Auth
+
+- Existing invited teammates now bypass the old choice screen, land directly on sign in with the invited email prefilled, and can finish a valid invite sign-in without getting stuck behind a separate verification step.
 - Shared auth-shell captions and supporting hero copy now use slightly darker secondary text for better legibility.
 - Shared social preview links now resolve through the live `/api/og` route again, so Chatting landing-page shares can return the intended branded image on X/Twitter and similar crawlers instead of a text-only card.
 - The public guide library now uses a more direct installation-doc structure across shortcuts, Slack, Shopify, webhooks, and Zapier pages, and the landing footer now labels the `/guides` destination correctly.

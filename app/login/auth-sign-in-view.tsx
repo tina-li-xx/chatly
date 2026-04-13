@@ -27,6 +27,8 @@ export function SignInAuthView({
   redirectTo,
   submitAction
 }: LoginViewProps) {
+  const initialEmail = email || inviteEmail;
+
   return (
     <div>
       <AuthFormIntro
@@ -52,7 +54,7 @@ export function SignInAuthView({
           type="email"
           required
           autoComplete="email"
-          defaultValue={email}
+          defaultValue={initialEmail}
           placeholder="you@company.com"
         />
 

@@ -16,8 +16,7 @@ import {
   type AuthFormsProps,
   type AuthMode,
   DEFAULT_SUCCESS_COPY,
-  INITIAL_AUTH_STATE,
-  SIGNIN_STATS
+  INITIAL_AUTH_STATE
 } from "./auth-forms-config";
 import { submitPasswordFlow } from "./auth-form-submit";
 import type { PasswordActionState } from "./action-types";
@@ -143,7 +142,6 @@ export function AuthForms({
           ? "Sign in with the invited email to accept your workspace access and jump into the inbox."
           : "Connect with your visitors in real-time. Turn conversations into customers."
       }
-      stats={SIGNIN_STATS}
     >
       {mode === "signin" ? (
         <SignInAuthView

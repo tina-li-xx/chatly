@@ -29,6 +29,10 @@ const workspaceMocks = vi.hoisted(() => ({
   acceptTeamInvite: vi.fn()
 }));
 
+const inviteLoginMocks = vi.hoisted(() => ({
+  signInWithInviteAwareVerification: vi.fn()
+}));
+
 const timeZoneMocks = vi.hoisted(() => ({
   persistPreferredTimeZoneForUser: vi.fn()
 }));
@@ -40,6 +44,7 @@ vi.mock("@/lib/chatting-transactional-email-senders", () => emailMocks);
 vi.mock("@/lib/data", () => dataMocks);
 vi.mock("@/lib/user-timezone-preference", () => timeZoneMocks);
 vi.mock("@/lib/workspace-access", () => workspaceMocks);
+vi.mock("./login-with-invite", () => inviteLoginMocks);
 
 import { loginAction, signupAction, type AuthActionState } from "./actions";
 import { forgotPasswordAction, resendVerificationAction, resetPasswordAction } from "./password-actions";
@@ -55,6 +60,7 @@ export {
   dataMocks,
   emailMocks,
   callForgotPasswordAction as forgotPasswordAction,
+  inviteLoginMocks,
   callLoginAction as loginAction,
   passwordResetMocks,
   callResendVerificationAction as resendVerificationAction,

@@ -3,6 +3,7 @@ import {
   authMocks,
   dataMocks,
   INITIAL_STATE,
+  inviteLoginMocks,
   loginAction,
   resetActionMocks,
   timeZoneMocks,
@@ -114,7 +115,10 @@ describe("login actions", () => {
   });
 
   it("accepts workspace invites during login", async () => {
-    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "hello@chatting.example" });
+    inviteLoginMocks.signInWithInviteAwareVerification.mockResolvedValueOnce({
+      id: "user_123",
+      email: "hello@chatting.example"
+    });
     workspaceMocks.acceptTeamInvite.mockResolvedValueOnce({ ownerUserId: "owner_999", alreadyAccepted: false });
 
     const result = await loginAction(
@@ -127,14 +131,20 @@ describe("login actions", () => {
       userId: "user_123",
       email: "hello@chatting.example"
     });
+    expect(inviteLoginMocks.signInWithInviteAwareVerification).toHaveBeenCalledWith({
+      email: "hello@chatting.example",
+      password: "password123",
+      inviteId: "invite_123"
+    });
     expect(authMocks.setUserSession).toHaveBeenCalledWith("user_123", "owner_999");
     expect(authMocks.resumeOwnerOnboardingForUser).not.toHaveBeenCalled();
     expect(result.nextPath).toBe("/dashboard");
   });
 
   it("maps invite-specific login errors cleanly", async () => {
-    authMocks.signInUser.mockResolvedValueOnce({ id: "user_123", email: "wrong@chatting.example" });
-    workspaceMocks.acceptTeamInvite.mockRejectedValueOnce(new Error("INVITE_EMAIL_MISMATCH"));
+    inviteLoginMocks.signInWithInviteAwareVerification.mockRejectedValueOnce(
+      new Error("INVITE_EMAIL_MISMATCH")
+    );
 
     const result = await loginAction(
       INITIAL_STATE,

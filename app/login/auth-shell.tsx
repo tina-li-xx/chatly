@@ -16,10 +16,12 @@ export function AuthPageShell({
   children
 }: {
   heroTitle: string;
-  heroDescription: string;
-  stats: AuthStat[];
+  heroDescription?: string;
+  stats?: AuthStat[];
   children: ReactNode;
 }) {
+  const statsGridClass = stats?.length === 2 ? "grid-cols-2" : "grid-cols-3";
+
   return (
     <main className="min-h-screen bg-white lg:grid lg:grid-cols-[minmax(560px,1fr)_minmax(520px,0.92fr)]">
       <section className="relative hidden overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_20%),radial-gradient(circle_at_bottom_right,rgba(96,165,250,0.14),transparent_22%),linear-gradient(180deg,#4F46E5_0%,#4C4AF0_48%,#4338CA_100%)] p-10 text-white lg:flex lg:min-h-screen lg:flex-col lg:justify-between xl:p-12">
@@ -36,17 +38,21 @@ export function AuthPageShell({
 
         <div className="relative max-w-xl">
           <h2 className="display-font text-4xl leading-[1.06] text-white xl:text-5xl">{heroTitle}</h2>
-          <p className="mt-6 max-w-md text-lg leading-8 text-white/90">{heroDescription}</p>
+          {heroDescription ? (
+            <p className="mt-6 max-w-md text-lg leading-8 text-white/90">{heroDescription}</p>
+          ) : null}
         </div>
 
-        <div className="relative grid grid-cols-3 gap-8">
-          {stats.map((item) => (
-            <div key={item.label}>
-              <div className="display-font text-3xl leading-none text-white xl:text-4xl">{item.value}</div>
-              <p className="mt-3 text-sm text-white/80">{item.label}</p>
-            </div>
-          ))}
-        </div>
+        {stats?.length ? (
+          <div className={`relative grid ${statsGridClass} gap-8`}>
+            {stats.map((item) => (
+              <div key={item.label}>
+                <div className="display-font text-3xl leading-none text-white xl:text-4xl">{item.value}</div>
+                <p className="mt-3 text-sm text-white/80">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className="flex min-h-screen flex-col bg-white px-6 py-8 sm:px-10 lg:px-14 xl:px-20">

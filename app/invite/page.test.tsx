@@ -2,12 +2,16 @@ const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
   getCurrentUser: vi.fn(),
   getTeamInvitePreview: vi.fn(),
+  findExistingUserIdByEmail: vi.fn(),
   acceptTeamInvite: vi.fn(),
   switchCurrentWorkspace: vi.fn()
 }));
 
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/auth", () => ({ getCurrentUser: mocks.getCurrentUser }));
+vi.mock("@/lib/repositories/auth-repository", () => ({
+  findExistingUserIdByEmail: mocks.findExistingUserIdByEmail
+}));
 vi.mock("@/lib/workspace-access", () => ({
   acceptTeamInvite: mocks.acceptTeamInvite,
   getTeamInvitePreview: mocks.getTeamInvitePreview,
@@ -44,6 +48,7 @@ describe("invite page", () => {
     });
     mocks.getCurrentUser.mockResolvedValue(null);
     mocks.getTeamInvitePreview.mockResolvedValue(pendingInvite());
+    mocks.findExistingUserIdByEmail.mockResolvedValue(null);
     mocks.acceptTeamInvite.mockResolvedValue({ ownerUserId: "owner_1", alreadyAccepted: false });
   });
 
@@ -52,7 +57,6 @@ describe("invite page", () => {
       searchParams: Promise.resolve({ invite: "invite_1", email: "alex@example.com" })
     }));
 
-    expect(html).toContain("Choose how you&#x27;d like to continue.");
     expect(html).toContain("/signup?invite=invite_1&amp;email=alex%40example.com");
     expect(html).toContain("/login?invite=invite_1&amp;email=alex%40example.com");
   });

@@ -15,6 +15,7 @@ import { persistPreferredTimeZoneForUser } from "@/lib/user-timezone-preference"
 import { acceptTeamInvite } from "@/lib/workspace-access";
 import { resolveExpectedAuthActionError, wrapAuthAction } from "./action-error-alerting";
 import type { AuthActionState } from "./action-types";
+import { signInWithInviteAwareVerification } from "./login-with-invite";
 import { getOwnerPostAuthPath } from "./post-auth-path";
 
 export type { AuthActionState, PasswordActionState } from "./action-types";
@@ -90,7 +91,7 @@ async function handleLoginAction(
   if (!password) return { ok: false, error: "Password is required.", nextPath: null, fields };
 
   try {
-    const user = await signInUser(email, password);
+    const user = inviteId ? await signInWithInviteAwareVerification({ email, password, inviteId }) : await signInUser(email, password);
     if (!user) {
       return {
         ok: false,
