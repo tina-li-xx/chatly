@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- The repo now includes reusable App Store screenshot source files, render scripts, and finished iPhone submission assets for future mobile releases.
 - Wrapped server routes now log request-scoped start, response, and failure entries, so route error alerts are easier to trace back to the exact request that triggered them.
 - Existing invited teammates now go straight to sign in with the invited email prefilled, and valid invite sign-ins auto-verify the invited account instead of stalling on a separate verification step.
 - Non-admin teammates now only see conversations assigned to them, and member inbox views stay focused on open and resolved assigned work instead of misleading all-chat filters.
@@ -189,6 +190,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Mobile App & Delivery
 
+- The repo now includes reusable App Store screenshot source files, render scripts, and finished iPhone submission assets for future mobile releases.
 - Chatting now ships an Expo-based iPhone app with email/password sign-in, a dedicated inbox and thread flow, mobile settings, role-aware inbox filtering, assignment actions, and push-permission onboarding.
 - Mobile API routes now cover session bootstrap, availability, password recovery, profile edits, device registration, and notification preferences for the native app.
 - Team mobile delivery now supports Expo, APNs, and FCM transports, and new conversations plus assignment handoffs can trigger native push notifications back into the mobile inbox.
