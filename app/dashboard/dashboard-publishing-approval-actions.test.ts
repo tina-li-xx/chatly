@@ -4,9 +4,11 @@ const mocks = vi.hoisted(() => ({
   getDashboardPublishingQueuedPosts: vi.fn(),
   findSeoGeneratedDraftRow: vi.fn(),
   updateSeoGeneratedDraftRow: vi.fn(),
-  updateSeoPlanItemTargetPublishAt: vi.fn()
+  updateSeoPlanItemTargetPublishAt: vi.fn(),
+  revalidatePath: vi.fn()
 }));
 
+vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("@/lib/auth", () => ({ requireUser: mocks.requireUser }));
 vi.mock("@/lib/dashboard-publishing-access", () => ({ canAccessDashboardPublishing: mocks.canAccessDashboardPublishing }));
 vi.mock("@/lib/dashboard-publishing-posts", () => ({ getDashboardPublishingQueuedPosts: mocks.getDashboardPublishingQueuedPosts }));

@@ -27,7 +27,11 @@ function requirePublicBlogPost(post: BlogPostWithDetails | undefined) {
   return post;
 }
 
-const getGeneratedPublishedPosts = cache(async () => {
+function isNextProductionBuildPhase(phase = process.env.NEXT_PHASE) {
+  return phase === "phase-production-build";
+}
+
+const getGeneratedPublishedPostsFromWorkspace = cache(async () => {
   const workspace = await getChattingPublishingWorkspace();
   if (!workspace) {
     return [] as BlogPostWithDetails[];
@@ -43,6 +47,14 @@ const getGeneratedPublishedPosts = cache(async () => {
     return [] as BlogPostWithDetails[];
   }
 });
+
+async function getGeneratedPublishedPosts() {
+  if (isNextProductionBuildPhase()) {
+    return [] as BlogPostWithDetails[];
+  }
+
+  return getGeneratedPublishedPostsFromWorkspace();
+}
 
 export async function getPublicBlogPosts() {
   return dedupePosts([...(await getGeneratedPublishedPosts()), ...getAllBlogPosts()]).sort(byNewest);

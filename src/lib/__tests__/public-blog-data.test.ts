@@ -30,9 +30,12 @@ import {
   getPublicBlogPosts
 } from "@/lib/public-blog-data";
 
+const ORIGINAL_NEXT_PHASE = process.env.NEXT_PHASE;
+
 describe("public blog data", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    delete process.env.NEXT_PHASE;
     mocks.getAllBlogPosts.mockReturnValue([
       {
         slug: "static-post",
@@ -57,10 +60,28 @@ describe("public blog data", () => {
     });
   });
 
+  afterAll(() => {
+    if (ORIGINAL_NEXT_PHASE === undefined) {
+      delete process.env.NEXT_PHASE;
+    } else {
+      process.env.NEXT_PHASE = ORIGINAL_NEXT_PHASE;
+    }
+  });
+
   it("merges generated published posts into the public blog list", async () => {
     const posts = await getPublicBlogPosts();
 
     expect(posts.map((post) => post.slug)).toEqual(["generated-post", "static-post"]);
+  });
+
+  it("skips generated draft lookups during the next production build phase", async () => {
+    process.env.NEXT_PHASE = "phase-production-build";
+
+    await expect(getPublicBlogPosts()).resolves.toMatchObject([
+      expect.objectContaining({ slug: "static-post" })
+    ]);
+    expect(mocks.getChattingPublishingWorkspace).not.toHaveBeenCalled();
+    expect(mocks.listSeoGeneratedDraftRows).not.toHaveBeenCalled();
   });
 
   it("resolves generated slugs and authors from the merged public blog view", async () => {

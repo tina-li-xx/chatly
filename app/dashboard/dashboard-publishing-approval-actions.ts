@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { readDraftPayloadPost, toDraftPayloadPost } from "@/lib/chatting-seo-draft-shared";
 import { getNextDashboardPublishingDate } from "@/lib/dashboard-publishing-cadence";
 import { getDashboardPublishingQueuedPosts } from "@/lib/dashboard-publishing-posts";
@@ -87,6 +88,16 @@ async function syncPlanItemPublishDate(input: {
   });
 }
 
+function revalidatePublishedBlogPaths(slug: string, authorSlug?: string | null) {
+  revalidatePath("/blog");
+  revalidatePath(`/blog/${slug}`);
+  revalidatePath("/sitemap.xml");
+
+  if (authorSlug) {
+    revalidatePath(`/blog/authors/${authorSlug}`);
+  }
+}
+
 async function handleApproveDraftAction(draftId: string): Promise<DashboardPublishingActionResult> {
   const { draft: existingDraft, user } = await loadPublishingDraft(draftId);
   if (!existingDraft) return publishingErrorResult("Draft not found.", "That draft may have been removed already.");
@@ -142,6 +153,9 @@ async function handlePublishDraftNowAction(draftId: string): Promise<DashboardPu
     approvedForScheduling: true,
     publishedAt: new Date().toISOString()
   });
+  if (!("ok" in updated)) {
+    revalidatePublishedBlogPaths(updated.slug, updated.author_slug);
+  }
   return "ok" in updated ? updated : { ok: true, tone: "success", title: "Draft published.", message: `/${updated.slug} is now live.` };
 }
 

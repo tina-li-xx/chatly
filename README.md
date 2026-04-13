@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Publishing a generated blog draft now refreshes the public blog, author page, post page, and sitemap immediately, and production builds no longer stall on workspace-backed blog draft lookups.
 - Workspace-access SQL helpers now import from their source repository instead of the mixed workspace barrel, avoiding Next server-route build failures around missing static re-exports.
 - The repo now includes reusable App Store screenshot source files, render scripts, and finished iPhone submission assets for future mobile releases.
 - Wrapped server routes now log request-scoped start, response, and failure entries, so route error alerts are easier to trace back to the exact request that triggered them.
@@ -199,6 +200,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Public Site & Auth
 
+- Publishing a blog draft now revalidates the public blog index, author page, post page, and sitemap immediately, while production builds skip workspace-backed generated-draft reads so blog static generation stays reliable.
 - Existing invited teammates now bypass the old choice screen, land directly on sign in with the invited email prefilled, and can finish a valid invite sign-in without getting stuck behind a separate verification step.
 - Shared auth-shell captions and supporting hero copy now use slightly darker secondary text for better legibility.
 - Shared social preview links now resolve through the live `/api/og` route again, so Chatting landing-page shares can return the intended branded image on X/Twitter and similar crawlers instead of a text-only card.
