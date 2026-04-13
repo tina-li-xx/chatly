@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Non-admin teammates now only see conversations assigned to them, and member inbox views stay focused on open and resolved assigned work instead of misleading all-chat filters.
 - Chatting now has a native iPhone team app with a mobile inbox, assignment handoff, settings, and push notifications for new conversations.
 - Dashboard and public multipart routes now share one form-data parsing helper, so uploads and route validation stay aligned without duplicated request parsing code.
 - Growth upgrades now show the full checkout amount up front, including the Stripe processing fee, and confirming the upgrade starts the paid plan instead of another trial.
@@ -259,6 +260,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Non-admin teammates now only see conversations assigned to them, and member inbox tabs stay focused on open and resolved assigned work instead of implying access to the whole shared queue.
 - Shared dashboard headers, settings cards, toggles, and nav descriptions now use slightly darker secondary text so lower-emphasis copy reads more clearly.
 - Email-template preview tests now use the hosted `https://usechatting.com` origin to match the current dashboard preview environment.
 - Live-event unit coverage now isolates Redis bridge bootstrapping while production dashboard updates still run through the strict Redis-backed bridge.

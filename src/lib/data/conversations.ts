@@ -532,11 +532,19 @@ export async function updateConversationEmail(conversationId: string, email: str
 }
 
 export async function getConversationEmail(conversationId: string, userId: string) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
+    return null;
+  }
+
   const workspace = await getWorkspaceAccess(userId);
   return findConversationEmailStateForUser(conversationId, workspace.ownerUserId);
 }
 
 export async function getConversationReplyDeliveryState(conversationId: string, userId: string) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
+    return null;
+  }
+
   const workspace = await getWorkspaceAccess(userId);
   return findConversationReplyDeliveryStateForUser(conversationId, workspace.ownerUserId);
 }
@@ -556,6 +564,10 @@ export async function updateConversationStatus(
   status: ConversationStatus,
   userId: string
 ) {
+  if (!(await hasScopedConversationAccess(conversationId, userId))) {
+    return null;
+  }
+
   const workspace = await getWorkspaceAccess(userId);
   return updateConversationStatusRecord(conversationId, workspace.ownerUserId, status);
 }

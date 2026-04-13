@@ -92,6 +92,31 @@ export function workspaceAccessClause(ownerColumn: string, ownerParam: string, v
   )`;
 }
 
+export function conversationAccessClause(
+  ownerColumn: string,
+  assignedUserColumn: string,
+  ownerParam: string,
+  viewerParam: string
+) {
+  return `(
+    ${ownerColumn} = ${ownerParam}
+    AND (
+      ${ownerParam} = ${viewerParam}
+      OR EXISTS (
+        SELECT 1
+        FROM team_memberships tm
+        WHERE tm.owner_user_id = ${ownerParam}
+          AND tm.member_user_id = ${viewerParam}
+          AND tm.status = 'active'
+          AND (
+            tm.role = 'admin'
+            OR ${assignedUserColumn} = ${viewerParam}
+          )
+      )
+    )
+  )`;
+}
+
 export async function findWorkspaceAccessRow(userId: string, ownerUserId?: string) {
   const params = ownerUserId ? [userId, ownerUserId] : [userId];
   const whereClause = ownerUserId ? "WHERE wa.owner_user_id = $2" : "";

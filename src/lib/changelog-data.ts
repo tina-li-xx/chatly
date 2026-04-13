@@ -12,7 +12,8 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     "Teammates can sign in on iPhone, open the inbox, read assigned conversations, send replies, and resolve chats from a mobile-first inbox.",
     "Push notifications now bring teams back into new conversations and assignment handoffs faster, with in-app notification controls and settings.",
     "Mobile settings now include profile, availability, notifications, appearance, support, and sign-out in one cleaner settings flow.",
-    "Assignment is now built into the conversation experience on mobile, so chats can be handed to the right teammate without leaving the thread."
+    "Assignment is now built into the conversation experience on mobile, so chats can be handed to the right teammate without leaving the thread.",
+    "Member visibility is now tighter on mobile and the dashboard, so non-admin teammates only see conversations assigned to them."
   ]),
   entry("April 2026", "Native iOS apps can now receive push-backed team replies", "Chatting can now send team replies back into native iPhone and iPad apps after the app has been backgrounded, so mobile conversations can continue without relying on the app staying open.", [
     "Native iOS apps can now register APNs device tokens against visitor sessions and conversations through Chatting.",

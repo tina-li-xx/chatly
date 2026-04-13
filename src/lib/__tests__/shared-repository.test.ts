@@ -34,6 +34,8 @@ describe("shared repository", () => {
     expect(mocks.query.mock.calls[0]?.[0]).toContain("WHERE s.user_id = $1");
     expect(mocks.query.mock.calls[0]?.[0]).toContain("ORDER BY s.created_at ASC");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("LEFT JOIN LATERAL");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("tm.role = 'admin'");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("c.assigned_user_id = $2");
     expect(mocks.query.mock.calls[1]?.[1]).toEqual(["user_1", "viewer_1"]);
   });
 
@@ -57,7 +59,7 @@ describe("shared repository", () => {
     expect(mocks.query.mock.calls[0]?.[1]).toEqual(["conv_1", "alex@example.com"]);
   });
 
-  it("checks conversation access through the workspace access clause", async () => {
+  it("checks conversation access through the assignment-aware workspace access clause", async () => {
     mocks.query.mockResolvedValueOnce({ rowCount: 1, rows: [{ id: "conv_1" }] });
     mocks.query.mockResolvedValueOnce({ rowCount: 0, rows: [] });
 
@@ -65,6 +67,8 @@ describe("shared repository", () => {
     await expect(hasConversationAccess("conv_2", "owner_1", "user_1")).resolves.toBe(false);
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("team_memberships");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("tm.role = 'admin'");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("c.assigned_user_id = $3");
     expect(mocks.query.mock.calls[0]?.[1]).toEqual(["conv_1", "owner_1", "user_1"]);
   });
 });

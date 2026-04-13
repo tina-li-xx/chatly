@@ -1,5 +1,6 @@
 const mocks = vi.hoisted(() => ({
   getWorkspaceAccess: vi.fn(),
+  hasConversationAccess: vi.fn(),
   findConversationIdentityForActivity: vi.fn(),
   findSiteRowForOwner: vi.fn(),
   findVisitorNoteRow: vi.fn(),
@@ -10,6 +11,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/workspace-access", () => ({ getWorkspaceAccess: mocks.getWorkspaceAccess }));
 vi.mock("@/lib/repositories/conversations-read-repository", () => ({
   findConversationIdentityForActivity: mocks.findConversationIdentityForActivity
+}));
+vi.mock("@/lib/data/shared", () => ({
+  hasConversationAccess: mocks.hasConversationAccess
 }));
 vi.mock("@/lib/repositories/visitor-notes-repository", () => ({
   deleteVisitorNoteRow: mocks.deleteVisitorNoteRow,
@@ -29,6 +33,7 @@ describe("visitor notes edge cases", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_123" });
+    mocks.hasConversationAccess.mockResolvedValue(true);
     mocks.findSiteRowForOwner.mockResolvedValue({ id: "site_1" });
   });
 

@@ -1,7 +1,7 @@
 import { query } from "@/lib/db";
 import type { Sender } from "@/lib/types";
 import { optionalText } from "@/lib/utils";
-import { workspaceAccessClause } from "@/lib/repositories/workspace-repository";
+import { conversationAccessClause } from "@/lib/repositories/workspace-repository";
 import {
   CONVERSATION_SUMMARY_FROM,
   CONVERSATION_SUMMARY_GROUP_BY,
@@ -36,6 +36,8 @@ export async function queryConversationSummaries(
   suffix: string,
   viewerUserId: string
 ) {
+  // Callers append the workspace owner id last so we can gate member visibility here.
+  const ownerUserParam = `$${values.length}`;
   const viewerUserParam = `$${values.length + 1}`;
 
   return query<SummaryRow>(
@@ -44,6 +46,7 @@ export async function queryConversationSummaries(
         ${CONVERSATION_SUMMARY_SELECT}
       ${CONVERSATION_SUMMARY_FROM.replaceAll("$VIEWER_USER_PARAM", viewerUserParam)}
       WHERE ${whereClause}
+        AND ${conversationAccessClause("s.user_id", "c.assigned_user_id", ownerUserParam, viewerUserParam)}
       GROUP BY
         ${CONVERSATION_SUMMARY_GROUP_BY}
       ${suffix}
@@ -58,6 +61,8 @@ export async function queryInboxConversationSummaries(
   suffix: string,
   viewerUserId: string
 ) {
+  // Callers append the workspace owner id last so we can gate member visibility here.
+  const ownerUserParam = `$${values.length}`;
   const viewerUserParam = `$${values.length + 1}`;
 
   return query<SummaryRow>(
@@ -66,6 +71,7 @@ export async function queryInboxConversationSummaries(
         ${INBOX_CONVERSATION_SUMMARY_SELECT}
       ${INBOX_CONVERSATION_SUMMARY_FROM.replaceAll("$VIEWER_USER_PARAM", viewerUserParam)}
       WHERE ${whereClause}
+        AND ${conversationAccessClause("s.user_id", "c.assigned_user_id", ownerUserParam, viewerUserParam)}
       ${suffix}
     `,
     [...values, viewerUserId]
@@ -121,7 +127,7 @@ export async function hasConversationAccess(conversationId: string, ownerUserId:
       INNER JOIN sites s
         ON s.id = c.site_id
       WHERE c.id = $1
-        AND ${workspaceAccessClause("s.user_id", "$2", "$3")}
+        AND ${conversationAccessClause("s.user_id", "c.assigned_user_id", "$2", "$3")}
       LIMIT 1
     `,
     [conversationId, ownerUserId, userId]

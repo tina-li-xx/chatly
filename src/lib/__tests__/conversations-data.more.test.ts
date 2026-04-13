@@ -240,11 +240,14 @@ describe("conversation data more", () => {
       .mockResolvedValueOnce(false)
       .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(false)
       .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
       .mockResolvedValueOnce(true);
 
     await expect(listConversationSummaries("user_1")).resolves.toEqual([{ id: "conv_1", email: "alex@example.com", pageUrl: "https://example.com" }]);

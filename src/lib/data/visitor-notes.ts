@@ -1,5 +1,6 @@
 import { getWorkspaceAccess } from "@/lib/workspace-access";
 import { findConversationIdentityForActivity } from "@/lib/repositories/conversations-read-repository";
+import { hasConversationAccess } from "./shared";
 import {
   deleteVisitorNoteRow,
   findSiteRowForOwner,
@@ -15,6 +16,16 @@ import {
 
 async function resolveConversationIdentity(conversationId: string, userId: string) {
   const workspace = await getWorkspaceAccess(userId);
+  const allowed = await hasConversationAccess(
+    conversationId,
+    workspace.ownerUserId,
+    userId
+  );
+
+  if (!allowed) {
+    return null;
+  }
+
   const identity = await findConversationIdentityForActivity(conversationId, workspace.ownerUserId);
   if (!identity) {
     return null;
