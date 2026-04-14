@@ -1,5 +1,6 @@
 export type AppEnvValidationGroup =
   | "apple-push"
+  | "fcm-push"
   | "startup-production-core"
   | "integrations"
   | "redis-live"
@@ -50,6 +51,12 @@ export const APP_ENV_DEFINITIONS = {
   DATABASE_URL: {
     exampleValue: "postgres://postgres:postgres@localhost:5432/chatly",
     requiredIn: ["startup-production-core"]
+  },
+  FCM_PROJECT_ID: {
+    exampleValue: "your-firebase-project-id"
+  },
+  FCM_IMPERSONATED_SERVICE_ACCOUNT: {
+    exampleValue: "fcm-sender@your-project.iam.gserviceaccount.com"
   },
   INTEGRATIONS_ENCRYPTION_KEY: {
     exampleValue: "",
@@ -144,13 +151,14 @@ export const APP_ENV_DEFINITIONS = {
     requiredIn: ["stripe-billing"]
   }
 } as const satisfies Record<string, AppEnvDefinition>;
-
 export type AppEnvName = keyof typeof APP_ENV_DEFINITIONS;
 
 export const APP_ENV_EXAMPLE_ORDER = [
   "APPLE_TEAM_ID",
   "APPLE_KEY_ID",
   "APPLE_PUSH_KEY_P8",
+  "FCM_PROJECT_ID",
+  "FCM_IMPERSONATED_SERVICE_ACCOUNT",
   "DATABASE_URL",
   "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_ZAPIER_APP_URL",
@@ -181,7 +189,6 @@ export const APP_ENV_EXAMPLE_ORDER = [
   "MINIMAX_MODEL",
   "MINIMAX_BASE_URL"
 ] as const satisfies readonly AppEnvName[];
-
 export function getEnvDefinition(name: string) {
   return (APP_ENV_DEFINITIONS as Record<string, AppEnvDefinition>)[name] || null;
 }

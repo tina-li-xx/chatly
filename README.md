@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Dashboard proxy auth now honors bearer-token requests without forcing a cookie redirect, and the shared env catalog now includes the FCM push settings used by native team delivery.
 - Publishing preview drafts can now be deleted from the switchboard, and linked plan topics return to Plans immediately when a draft is removed.
 - Trial-ended emails now show Growth pricing as stacked tier lines, so upgrade options are easier to scan at a glance.
 - Founder switchboard now combines SaaS CRM visibility and internal publishing controls under one hidden dashboard entry point, and legacy publishing links redirect into the matching switchboard section.
@@ -191,6 +192,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Platform & Runtime
 
+- Dashboard proxy auth now lets bearer-authenticated requests pass through without a cookie redirect, and the shared env catalog now documents the FCM push settings used by team mobile delivery.
 - Workspace access SQL helpers now resolve from their source repository instead of the mixed workspace barrel, so Next server and app-route builds no longer trip over missing static helper exports.
 - Wrapped server routes now emit request-scoped start, response, and failure logs, so alerting and timing are traceable back to one request id instead of a loose console trail.
 - Dashboard and public multipart routes now share a smaller route-form-data helper, and attachment extraction now accepts the narrower `getAll(...)` shape those server handlers actually use.

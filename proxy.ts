@@ -10,6 +10,10 @@ import {
 } from "@/lib/auth-redirect";
 import { isBlockedProbePath } from "@/lib/probe-paths";
 
+function hasBearerAuthorization(request: NextRequest) {
+  return request.headers.get("authorization")?.trim().toLowerCase().startsWith("bearer ") ?? false;
+}
+
 export function proxy(request: NextRequest) {
   if (isBlockedProbePath(request.nextUrl.pathname)) {
     return new NextResponse(null, { status: 404 });
@@ -19,7 +23,7 @@ export function proxy(request: NextRequest) {
 
   const hasSession = request.cookies.get(AUTH_SESSION_COOKIE_NAME)?.value;
 
-  if (isDashboardPath(request.nextUrl.pathname) && !hasSession) {
+  if (isDashboardPath(request.nextUrl.pathname) && !hasSession && !hasBearerAuthorization(request)) {
     return NextResponse.redirect(new URL(buildLoginPath(requestPath), request.url));
   }
 
