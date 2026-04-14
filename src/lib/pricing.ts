@@ -24,6 +24,11 @@ export const CHATTING_GROWTH_ANNUAL_PRICE = `${formatUsdFromCents(CHATTING_GROWT
 export const CHATTING_GROWTH_PLAN_LINE = `Growth: ${formatChattingGrowthPriceLabel("monthly")}`;
 export const CHATTING_PAID_PLANS_COPY = `Growth is ${formatChattingGrowthPriceLabel("monthly")}`;
 
+export type ChattingGrowthPriceBreakdownRow = {
+  rangeLabel: string;
+  priceLabel: string;
+};
+
 export function isGrowthContactSalesTeamSize(memberCount: number) {
   return normalizeGrowthMemberCount(memberCount) >= CHATTING_GROWTH_CONTACT_TEAM_SIZE;
 }
@@ -58,6 +63,20 @@ export function formatChattingGrowthPriceLabel(interval: ChattingPricingInterval
   return interval === "annual"
     ? `${CHATTING_GROWTH_ANNUAL_PRICE} for 1-3 members, then ${firstTierPrice}/member from 4-9, ${secondTierPrice}/member from 10-24, and ${thirdTierPrice}/member from 25-49`
     : `${CHATTING_GROWTH_MONTHLY_PRICE} for 1-3 members, then ${firstTierPrice}/member from 4-9, ${secondTierPrice}/member from 10-24, and ${thirdTierPrice}/member from 25-49`;
+}
+
+export function getChattingGrowthPriceBreakdown(
+  interval: ChattingPricingInterval
+): ChattingGrowthPriceBreakdownRow[] {
+  return [
+    {
+      rangeLabel: `Up to ${CHATTING_GROWTH_BASE_TEAM_LIMIT} members`,
+      priceLabel: interval === "annual" ? CHATTING_GROWTH_ANNUAL_PRICE : CHATTING_GROWTH_MONTHLY_PRICE
+    },
+    { rangeLabel: "4-9 members", priceLabel: `${formatUsdFromCents(getGrowthPerMemberCents(interval, 4) ?? 0)}/member` },
+    { rangeLabel: "10-24 members", priceLabel: `${formatUsdFromCents(getGrowthPerMemberCents(interval, 10) ?? 0)}/member` },
+    { rangeLabel: "25-49 members", priceLabel: `${formatUsdFromCents(getGrowthPerMemberCents(interval, 25) ?? 0)}/member` }
+  ];
 }
 
 export function getChattingGrowthDisplayPrice(interval: ChattingPricingInterval) {

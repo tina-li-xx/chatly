@@ -185,10 +185,11 @@ describe("chatting email design system", () => {
     expect(productUpdate.bodyHtml).toContain("Read Full Changelog");
     expectTableFirstSharedLayout(productUpdate.bodyHtml);
     expect(expired.bodyText).toContain("Growth pricing");
-    expect(expired.bodyText).toContain(
-      "Starts at $20/month for up to 3 members, then $6/member from 4-9, $5/member from 10-24, and $4/member from 25-49"
-    );
+    expect(expired.bodyText).toContain("Starts at $20/month for up to 3 members");
+    expect(expired.bodyText).toContain("$6/member for 4-9 members");
     expect(expired.bodyHtml).toContain("Growth pricing");
+    expect(expired.bodyHtml).toContain("$5/member");
+    expect(expired.bodyHtml).toContain("25-49 members");
     expect(expired.bodyHtml).toContain("Proactive chat");
     expect(expired.bodyHtml).toContain("1-3 team members included");
     expectTableFirstSharedLayout(expired.bodyHtml);

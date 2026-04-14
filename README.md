@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Trial-ended emails now show Growth pricing as stacked tier lines, so upgrade options are easier to scan at a glance.
 - Founder switchboard now combines SaaS CRM visibility and internal publishing controls under one hidden dashboard entry point, and legacy publishing links redirect into the matching switchboard section.
 - Dashboard tables now share one header-label style token across billing history, publishing queue, analytics, referrals, and team views for more consistent internal UI.
 - Publishing a generated blog draft now refreshes the public blog, author page, post page, and sitemap immediately, and production builds no longer stall on workspace-backed blog draft lookups.
@@ -325,6 +326,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Trial-ended emails now show Growth pricing in stacked tier rows instead of one wrapped sentence, making the upgrade path easier to scan after a trial ends.
 - Starter-to-Growth upgrades now show the plan subtotal, Stripe processing fee, checkout total, and due-today amount before redirecting to Stripe, and confirming the upgrade starts the paid plan immediately instead of beginning another Growth trial.
 - Growth billing now expands Stripe price tiers during validation so tiered Growth price checks run against the full Stripe payload.
 - Scheduled Zapier delivery jobs now retry due-delivery reads and delivery-state writes after transient Postgres auth timeouts.

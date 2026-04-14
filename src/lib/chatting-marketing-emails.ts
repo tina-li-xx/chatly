@@ -6,9 +6,11 @@ import {
   renderParagraph,
   renderSmallText,
   renderStack,
+  renderTextBlock,
   renderTitleText
 } from "@/lib/chatting-email-foundation";
-import { formatBillingPriceLabel, getBillingPlanDefinition } from "@/lib/billing-plans";
+import { getBillingPlanDefinition } from "@/lib/billing-plans";
+import { getChattingGrowthPriceBreakdown } from "@/lib/pricing";
 import { escapeHtml } from "@/lib/utils";
 
 type RenderedEmail = { subject: string; bodyText: string; bodyHtml: string };
@@ -58,18 +60,40 @@ export function renderTrialExpiredEmail(input: {
   reactivateUrl: string;
 }): RenderedEmail {
   const growthPlan = getBillingPlanDefinition("growth");
-  const growthPricing = `Starts at ${formatBillingPriceLabel("growth", "monthly").replace(
-    "for 1-3 members",
-    "for up to 3 members"
-  )}`;
+  const [growthBaseTier, ...growthSeatTiers] = getChattingGrowthPriceBreakdown("monthly");
   const growthHighlights = growthPlan.marketingFeatures.slice(0, 3);
+  const growthPricingLines = [
+    `Starts at ${growthBaseTier.priceLabel} for ${growthBaseTier.rangeLabel.toLowerCase()}`,
+    ...growthSeatTiers.map((tier) => `${tier.priceLabel} for ${tier.rangeLabel}`)
+  ];
+  const growthPricingHtml = renderStack(
+    [
+      renderTextBlock({
+        html: `Starts at <strong style="font-weight:600;color:#0F172A;">${escapeHtml(
+          growthBaseTier.priceLabel
+        )}</strong> for ${escapeHtml(growthBaseTier.rangeLabel.toLowerCase())}.`
+      }),
+      ...growthSeatTiers.map((tier) =>
+        renderTextBlock({
+          html: `<strong style="font-weight:600;color:#0F172A;">${escapeHtml(
+            tier.priceLabel
+          )}</strong> <span style="color:#64748B;">for ${escapeHtml(tier.rangeLabel)}</span>`,
+          fontSize: 14,
+          lineHeight: "1.6"
+        })
+      )
+    ],
+    { gap: "6px" }
+  );
 
   return {
     subject: "Your Chatting trial has ended",
     bodyText: joinEmailText([
       `Your trial has ended\n\nHey ${input.firstName},`,
       "Your Chatting trial ended today. Your widget is now paused, but all your conversations and settings are safe.",
-      `Ready to keep chatting?\nGrowth pricing\n${growthPricing}\n${growthHighlights.map((item) => `• ${item}`).join("\n")}`,
+      `Ready to keep chatting?\nGrowth pricing\n${growthPricingLines.join("\n")}\n${growthHighlights
+        .map((item) => `• ${item}`)
+        .join("\n")}`,
       `Reactivate Account: ${input.reactivateUrl}`,
       "Not ready? Your data stays safe for 30 days."
     ]),
@@ -83,7 +107,7 @@ export function renderTrialExpiredEmail(input: {
           html: renderStack(
             [
               renderLabelText("Growth pricing"),
-              renderParagraph(escapeHtml(growthPricing)),
+              growthPricingHtml,
               renderBulletList(growthHighlights)
             ],
             { gap: "10px" }
