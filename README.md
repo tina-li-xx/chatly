@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Commit approval now requires showing exact public changelog edits up front, and the public changelog dropped a vague email-polish bullet.
 - Dashboard proxy auth now honors bearer-token requests without forcing a cookie redirect, and the shared env catalog now includes the FCM push settings used by native team delivery.
 - Publishing preview drafts can now be deleted from the switchboard, and linked plan topics return to Plans immediately when a draft is removed.
 - Trial-ended emails now show Growth pricing as stacked tier lines, so upgrade options are easier to scan at a glance.
@@ -366,6 +367,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Contributor Docs
 
+- Repo agent instructions now require commit approval to show exact changelog entry edits up front instead of mentioning changelog work only at a summary level.
 - The Reddit reply generator now includes clearer automod-safety rules for subreddits where direct links, domains, or service mentions are likely to trigger removals.
 - Repo agent instructions now require a follow-up `npm run build` after any user-requested test run so verification stays consistent across tasks.
 - Added a guide writing standard for public docs so future guide pages follow the same setup-first structure, verification flow, and copy rules.

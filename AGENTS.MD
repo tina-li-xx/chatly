@@ -25,6 +25,7 @@
 - **Detail Lives In The Body**: Keep the title lean and put the full explanation in the grouped body sections
 - **Descriptive**: Message clearly explains what changed and why
 - **Commit Message Approval**: Before any `git add`/`git commit`, always present the full, comprehensive, well-indented commit message for approval and wait for explicit user confirmation.
+- **Changelog Approval**: Before any `git add`/`git commit`, always show the exact `src/lib/changelog-data.ts` entry or entry edits that will be included in that commit. If no public changelog update belongs in that commit, say that explicitly and explain why.
 
 #### Commit Scope Rules (Required)
 
@@ -49,6 +50,7 @@
   - Exact purpose of that single commit
   - Exact files to include
   - Exact files to leave out
+  - Exact public changelog entry or changelog-entry edits to include, or an explicit note that no changelog update belongs in that commit
   - Why the commit is atomic
 - Do not draft a final commit message until this grouping is complete
 - If the worktree still contains unrelated changes after grouping, keep them out of the proposed commit by default
@@ -119,6 +121,7 @@ Once user approves the commit:
 - Avoid filler phrasing like "polish pass", "reliability pass", "under-the-hood improvements", or "rough edges"
 - If a sentence would make a customer think "who cares?", rewrite it or delete it
 - Good changelog bullets describe visible impact; bad changelog bullets describe implementation
+- At commit-approval time, show all changelog entries or entry edits planned for that commit, not just a summary that one will be updated
 
 #### Quick Reference
 

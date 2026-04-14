@@ -14,6 +14,7 @@ function createId() {
   return globalThis.crypto?.randomUUID?.() ?? `contact-${Date.now()}`;
 }
 
+
 const LEGACY_CONTACT_STATUSES: ContactStatusDefinition[] = [
   { key: "lead", label: "Lead", color: "blue" },
   { key: "trial", label: "Trial", color: "purple" },
