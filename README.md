@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Digital marketing assets now include first-pass TikTok ICP notes plus a fresh set of iPhone simulator captures for App Store materials.
 - Commit approval now requires showing exact public changelog edits up front, and the public changelog dropped a vague email-polish bullet.
 - Dashboard proxy auth now honors bearer-token requests without forcing a cookie redirect, and the shared env catalog now includes the FCM push settings used by native team delivery.
 - Publishing preview drafts can now be deleted from the switchboard, and linked plan topics return to Plans immediately when a draft is removed.
@@ -200,6 +201,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Mobile App & Delivery
 
+- The iPhone marketing asset set now includes fresh simulator captures across inbox, chat, assignment, notification, and settings states for future App Store submissions.
 - The repo now includes reusable App Store screenshot source files, render scripts, and finished iPhone submission assets for future mobile releases.
 - Chatting now ships an Expo-based iPhone app with email/password sign-in, a dedicated inbox and thread flow, mobile settings, role-aware inbox filtering, assignment actions, and push-permission onboarding.
 - Mobile API routes now cover session bootstrap, availability, password recovery, profile edits, device registration, and notification preferences for the native app.
@@ -367,6 +369,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Contributor Docs
 
+- Digital marketing docs now include first-pass TikTok ICP notes for founder-led SaaS, e-commerce, and agency video concepts tied to Chatting's core positioning.
 - Repo agent instructions now require commit approval to show exact changelog entry edits up front instead of mentioning changelog work only at a summary level.
 - The Reddit reply generator now includes clearer automod-safety rules for subreddits where direct links, domains, or service mentions are likely to trigger removals.
 - Repo agent instructions now require a follow-up `npm run build` after any user-requested test run so verification stays consistent across tasks.
