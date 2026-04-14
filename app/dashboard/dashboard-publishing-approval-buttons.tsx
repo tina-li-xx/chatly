@@ -7,6 +7,7 @@ import {
   publishPublishingDraftNowAction
 } from "./dashboard-publishing-approval-actions";
 import { DashboardPublishingActionButton } from "./dashboard-publishing-action-button";
+import { DashboardPublishingDeleteDraftButton } from "./dashboard-publishing-delete-draft-button";
 import { buildPublishingSectionHref } from "./dashboard-publishing-section";
 
 function shouldShowApprove(workflowStatus: string, publicationStatus: string) {
@@ -21,6 +22,10 @@ function shouldShowPublish(publicationStatus: string) {
   return publicationStatus !== "published";
 }
 
+function shouldShowDelete(publicationStatus: string) {
+  return publicationStatus === "draft";
+}
+
 export function DashboardPublishingApprovalButtons({
   draftId,
   workflowStatus,
@@ -32,6 +37,7 @@ export function DashboardPublishingApprovalButtons({
 }) {
   const [isBusy, setIsBusy] = useState(false);
   const showApprove = shouldShowApprove(workflowStatus, publicationStatus);
+  const showDelete = shouldShowDelete(publicationStatus);
   const showSchedule = shouldShowSchedule(workflowStatus, publicationStatus);
   const showPublish = shouldShowPublish(publicationStatus);
   const sharedButtonProps = {
@@ -40,7 +46,7 @@ export function DashboardPublishingApprovalButtons({
     onComplete: () => setIsBusy(false)
   };
 
-  if (!showApprove && !showSchedule && !showPublish) {
+  if (!showApprove && !showDelete && !showSchedule && !showPublish) {
     return null;
   }
 
@@ -62,6 +68,7 @@ export function DashboardPublishingApprovalButtons({
           pendingLabel="Scheduling..."
         />
       ) : null}
+      {showDelete ? <DashboardPublishingDeleteDraftButton draftId={draftId} /> : null}
       {showPublish ? (
         <DashboardPublishingActionButton
           {...sharedButtonProps}

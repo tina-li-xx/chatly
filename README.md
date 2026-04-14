@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Publishing preview drafts can now be deleted from the switchboard, and linked plan topics return to Plans immediately when a draft is removed.
 - Trial-ended emails now show Growth pricing as stacked tier lines, so upgrade options are easier to scan at a glance.
 - Founder switchboard now combines SaaS CRM visibility and internal publishing controls under one hidden dashboard entry point, and legacy publishing links redirect into the matching switchboard section.
 - Dashboard tables now share one header-label style token across billing history, publishing queue, analytics, referrals, and team views for more consistent internal UI.
@@ -274,6 +275,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Publishing preview drafts can now be deleted directly from the switchboard, and removing a draft sends its linked topic back to Plans so it can be regenerated cleanly.
 - Dashboard tables now share a single header-label style token across billing history, publishing queue, analytics, referrals, and team views so internal reporting surfaces stay visually aligned.
 - Non-admin teammates now only see conversations assigned to them, and member inbox tabs stay focused on open and resolved assigned work instead of implying access to the whole shared queue.
 - Shared dashboard headers, settings cards, toggles, and nav descriptions now use slightly darker secondary text so lower-emphasis copy reads more clearly.

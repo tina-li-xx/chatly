@@ -7,6 +7,7 @@ vi.mock("@/lib/db", () => ({
 }));
 
 import {
+  deleteSeoGeneratedDraftRow,
   findSeoGeneratedDraftRow,
   insertSeoGeneratedDraftRow,
   listSeoGeneratedDraftRows,
@@ -60,5 +61,14 @@ describe("seo generated drafts repository", () => {
     expect(String(mocks.query.mock.calls[0]?.[0] ?? "")).toContain("INSERT INTO seo_generated_drafts");
     expect(mocks.query.mock.calls[0]?.[1]?.[15]).toBe("{\"sections\":[]}");
     expect(String(mocks.query.mock.calls[1]?.[0] ?? "")).toContain("UPDATE seo_generated_drafts");
+  });
+
+  it("deletes drafts by owner scope", async () => {
+    mocks.query.mockResolvedValueOnce({ rows: [{ id: "draft_1" }] });
+
+    await expect(deleteSeoGeneratedDraftRow("owner_1", "draft_1")).resolves.toEqual({ id: "draft_1" });
+
+    expect(String(mocks.query.mock.calls[0]?.[0] ?? "")).toContain("DELETE FROM seo_generated_drafts");
+    expect(mocks.query.mock.calls[0]?.[1]).toEqual(["owner_1", "draft_1"]);
   });
 });

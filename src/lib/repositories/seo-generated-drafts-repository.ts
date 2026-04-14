@@ -171,3 +171,18 @@ export async function updateSeoGeneratedDraftStatus(input: {
 
   return result.rows[0] ?? null;
 }
+
+export async function deleteSeoGeneratedDraftRow(ownerUserId: string, id: string) {
+  const result = await query<SeoGeneratedDraftRow>(
+    `
+      DELETE FROM seo_generated_drafts
+      WHERE owner_user_id = $1
+        AND id = $2
+      RETURNING
+        ${SEO_GENERATED_DRAFT_COLUMNS}
+    `,
+    [ownerUserId, id]
+  );
+
+  return result.rows[0] ?? null;
+}
