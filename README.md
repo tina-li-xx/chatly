@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- The desktop dashboard sidebar no longer shows the founder-only Switchboard entry, keeping the main team navigation focused on everyday workspace areas.
 - Plans & Billing no longer shows generic `Discard` and `Save changes` buttons in the header, keeping billing actions focused on plan, invoice, and portal controls.
 - The app icon now ships from a static `app/icon.png` asset, so production builds no longer warn that the icon route disables static generation.
 - Digital marketing assets now include first-pass TikTok ICP notes plus a fresh set of iPhone simulator captures for App Store materials.
@@ -283,6 +284,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- The desktop dashboard sidebar now hides the founder-only Switchboard entry so the main workspace nav stays focused on everyday team areas.
 - Publishing preview drafts can now be deleted directly from the switchboard, and removing a draft sends its linked topic back to Plans so it can be regenerated cleanly.
 - Dashboard tables now share a single header-label style token across billing history, publishing queue, analytics, referrals, and team views so internal reporting surfaces stay visually aligned.
 - Non-admin teammates now only see conversations assigned to them, and member inbox tabs stay focused on open and resolved assigned work instead of implying access to the whole shared queue.

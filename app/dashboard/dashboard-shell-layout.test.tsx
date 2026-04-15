@@ -91,7 +91,7 @@ describe("dashboard shell layout", () => {
     expect(sidebarHtml).toContain("People");
     expect(sidebarHtml).toContain("tina@usechatting.com");
     expect(sidebarHtml).toContain("Chatting");
-    expect(sidebarHtml).toContain("Switchboard");
+    expect(sidebarHtml).not.toContain("Switchboard");
     expect(restrictedMobileHtml).not.toContain("Switchboard");
     expect(restrictedSidebarHtml).not.toContain("Switchboard");
     expect(sidebarHtml).not.toContain("Teams");

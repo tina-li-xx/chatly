@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType, SVGProps } from "react";
+import { FOUNDER_SWITCHBOARD_ROUTE } from "@/lib/founder-switchboard-access";
 import { classNames } from "@/lib/utils";
 import {
   ChatBubbleIcon,
@@ -139,7 +140,7 @@ export function DesktopSidebar({
   displayName: string;
   userEmail: string;
 }) {
-  const settingsNav = getDashboardSettingsNav(userEmail);
+  const settingsNav = getDashboardSettingsNav(userEmail).filter((item) => item.href !== FOUNDER_SWITCHBOARD_ROUTE);
 
   return (
     <aside className="hidden border-r border-slate-200 bg-white lg:flex lg:h-screen lg:min-h-0 lg:flex-col lg:sticky lg:top-0">
