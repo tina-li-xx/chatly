@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- The app icon now ships from a static `app/icon.png` asset, so production builds no longer warn that the icon route disables static generation.
 - Digital marketing assets now include first-pass TikTok ICP notes plus a fresh set of iPhone simulator captures for App Store materials.
 - Commit approval now requires showing exact public changelog edits up front, and the public changelog dropped a vague email-polish bullet.
 - Dashboard proxy auth now honors bearer-token requests without forcing a cookie redirect, and the shared env catalog now includes the FCM push settings used by native team delivery.
@@ -194,6 +195,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Platform & Runtime
 
+- The app icon now resolves from a static `app/icon.png` asset instead of an Edge-runtime icon route, removing the static-generation warning from production builds.
 - Dashboard proxy auth now lets bearer-authenticated requests pass through without a cookie redirect, and the shared env catalog now documents the FCM push settings used by team mobile delivery.
 - Workspace access SQL helpers now resolve from their source repository instead of the mixed workspace barrel, so Next server and app-route builds no longer trip over missing static helper exports.
 - Wrapped server routes now emit request-scoped start, response, and failure logs, so alerting and timing are traceable back to one request id instead of a loose console trail.
