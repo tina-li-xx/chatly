@@ -131,6 +131,8 @@ describe("dashboard settings page", () => {
     expect(html).toContain("Advanced analytics");
     expect(html).toContain("API access");
     expect(html).toContain("Billing history");
+    expect(html).not.toContain("Discard");
+    expect(html).not.toContain("Save changes");
   });
 
   it("renders the referrals section", async () => {

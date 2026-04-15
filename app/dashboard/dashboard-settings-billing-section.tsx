@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import type { BillingInterval, BillingPlanKey, DashboardBillingSummary } from "@/lib/data/billing-types";
 import { CHATTING_GROWTH_CONTACT_TEAM_SIZE } from "@/lib/pricing";
 import { DashboardSettingsBillingBanners } from "./dashboard-settings-billing-banners";
@@ -22,7 +22,6 @@ function normalizeBillingPreviewSeatCount(value: number) {
 export function SettingsBillingSection({
   title,
   subtitle,
-  headerActions,
   billing,
   billingPlanPending,
   selectedInterval,
@@ -35,7 +34,6 @@ export function SettingsBillingSection({
 }: {
   title: string;
   subtitle: string;
-  headerActions?: ReactNode;
   billing: DashboardBillingSummary;
   billingPlanPending: string | null;
   selectedInterval: BillingInterval;
@@ -102,7 +100,7 @@ export function SettingsBillingSection({
 
   return (
     <div className="space-y-6">
-      <SettingsSectionHeader title={title} subtitle={subtitle} actions={headerActions} />
+      <SettingsSectionHeader title={title} subtitle={subtitle} />
 
       <DashboardSettingsBillingBanners
         billing={billing}

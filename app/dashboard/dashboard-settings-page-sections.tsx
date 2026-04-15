@@ -161,7 +161,6 @@ export function renderSettingsPageSection(input: RenderSettingsPageSectionInput)
       <SettingsBillingSection
         title={input.pageCopy.title}
         subtitle={input.pageCopy.subtitle}
-        headerActions={saveActions}
         billing={input.billing}
         billingPlanPending={input.billingPlanPending}
         selectedInterval={input.selectedBillingInterval}

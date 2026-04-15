@@ -38,7 +38,7 @@ async function loadSettingsPage(search = "") {
 describe("dashboard settings page sections", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("maps automation, notifications, ai assist, saved replies, integrations, reports, email, referrals, and invalid sections into the expected page props", async () => {
+  it("maps automation, notifications, ai assist, saved replies, integrations, billing, reports, email, referrals, and invalid sections into the expected page props", async () => {
     const automation = await loadSettingsPage("section=automation");
     automation.reactMocks.beginRender();
     renderToStaticMarkup(<automation.DashboardSettingsPage initialData={createInitialData()} />);
@@ -106,6 +106,15 @@ describe("dashboard settings page sections", () => {
     expect((integrations.captures.integrations as { title: string; subtitle: string; planKey: string }).title).toBe("Integrations");
     expect((integrations.captures.integrations as { subtitle: string }).subtitle).toBe("Connect Chatting to your favorite tools");
     expect((integrations.captures.integrations as { planKey: string }).planKey).toBe("starter");
+
+    const billing = await loadSettingsPage("section=billing");
+    billing.reactMocks.beginRender();
+    renderToStaticMarkup(<billing.DashboardSettingsPage initialData={createInitialData()} />);
+    await runMockEffects(billing.reactMocks.effects);
+    billing.reactMocks.beginRender();
+    renderToStaticMarkup(<billing.DashboardSettingsPage initialData={createInitialData()} />);
+    expect((billing.captures.billing as { title: string }).title).toBe("Plans & Billing");
+    expect((billing.captures.billing as { headerActions?: unknown }).headerActions).toBeUndefined();
 
     const referrals = await loadSettingsPage("section=referrals");
     referrals.reactMocks.beginRender();
