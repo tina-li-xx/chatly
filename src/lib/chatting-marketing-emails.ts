@@ -90,7 +90,7 @@ export function renderTrialExpiredEmail(input: {
     subject: "Your Chatting trial has ended",
     bodyText: joinEmailText([
       `Your trial has ended\n\nHey ${input.firstName},`,
-      "Your Chatting trial ended today. Your widget is now paused, but all your conversations and settings are safe.",
+      "Your Chatting trial ended today. Your workspace has moved to Starter, and all your conversations and settings are safe.",
       `Ready to keep chatting?\nGrowth pricing\n${growthPricingLines.join("\n")}\n${growthHighlights
         .map((item) => `• ${item}`)
         .join("\n")}`,
@@ -98,9 +98,9 @@ export function renderTrialExpiredEmail(input: {
       "Not ready? Your data stays safe for 30 days."
     ]),
     bodyHtml: renderChattingEmailPage({
-      preheader: "Your widget is paused, but your conversations are still safe.",
+      preheader: "Your workspace is now on Starter, and your conversations are still safe.",
       title: "Your trial has ended",
-      description: `Hey ${input.firstName}, your Chatting trial ended today. Your widget is now paused, but all your conversations and settings are safe.`,
+      description: `Hey ${input.firstName}, your Chatting trial ended today. Your workspace has moved to Starter, and all your conversations and settings are safe.`,
       sections: [
         {
           kind: "panel",

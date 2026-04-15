@@ -184,9 +184,11 @@ describe("chatting email design system", () => {
     expect(productUpdate.subject).toBe("New in Chatting: Smarter visitor routing");
     expect(productUpdate.bodyHtml).toContain("Read Full Changelog");
     expectTableFirstSharedLayout(productUpdate.bodyHtml);
+    expect(expired.bodyText).toContain("Your workspace has moved to Starter");
     expect(expired.bodyText).toContain("Growth pricing");
     expect(expired.bodyText).toContain("Starts at $20/month for up to 3 members");
     expect(expired.bodyText).toContain("$6/member for 4-9 members");
+    expect(expired.bodyHtml).toContain("Your workspace has moved to Starter");
     expect(expired.bodyHtml).toContain("Growth pricing");
     expect(expired.bodyHtml).toContain("$5/member");
     expect(expired.bodyHtml).toContain("25-49 members");

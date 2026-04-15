@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Trial-ended emails now say the workspace moves to Starter instead of incorrectly claiming the widget is paused, so billing lifecycle copy matches the actual post-trial behavior.
 - The desktop dashboard sidebar no longer shows the founder-only Switchboard entry, keeping the main team navigation focused on everyday workspace areas.
 - Plans & Billing no longer shows generic `Discard` and `Save changes` buttons in the header, keeping billing actions focused on plan, invoice, and portal controls.
 - The app icon now ships from a static `app/icon.png` asset, so production builds no longer warn that the icon route disables static generation.
@@ -338,6 +339,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Billing & Operations
 
+- Trial-ended lifecycle emails now describe the real fallback correctly by telling teams their workspace moved to Starter instead of saying the widget was paused.
 - Plans & Billing no longer shows generic save/discard buttons in the page header, so billing settings stay focused on plan changes, invoices, and portal actions.
 - Trial-ended emails now show Growth pricing in stacked tier rows instead of one wrapped sentence, making the upgrade path easier to scan after a trial ends.
 - Starter-to-Growth upgrades now show the plan subtotal, Stripe processing fee, checkout total, and due-today amount before redirecting to Stripe, and confirming the upgrade starts the paid plan immediately instead of beginning another Growth trial.
