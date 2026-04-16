@@ -71,7 +71,8 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   entry("Mid March 2026", "Conversation emails now bring visitors back into the same thread", "Email follow-ups now feel like a continuation of the same conversation, not a side channel.", [
     "Visitor emails can bring people back into the same hosted thread.",
     "Teammate mention emails link more directly to the right context.",
-    "Visitor follow-up templates now avoid repeating extra conversation-link instructions when that guidance is already in the email."
+    "Visitor follow-up templates now avoid repeating extra conversation-link instructions when that guidance is already in the email.",
+    "Teammate new-message emails now stay focused on the inbox action when a visitor replies from a hosted thread, so alert emails no longer show a redundant hosted-conversation URL."
   ]),
   entry("Early March 2026", "Joining your team got easier", "Teammates can get into the right Chatting workspace faster, and account setup is less likely to stall along the way.", [
     "Invite links now take teammates straight into the workspace that invited them.",

@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Team new-message emails now hide redundant hosted-conversation URLs when a visitor replies from the hosted thread, keeping the alert focused on the inbox action that actually handles the conversation.
 - Chatting now has a broader API reference that separates the supported Zapier integration endpoints from first-party widget and dashboard routes, giving Zapier reviewers and partners one clearer source of truth.
 - Trial-ended emails now say the workspace moves to Starter instead of incorrectly claiming the widget is paused, so billing lifecycle copy matches the actual post-trial behavior.
 - The desktop dashboard sidebar no longer shows the founder-only Switchboard entry, keeping the main team navigation focused on everyday workspace areas.
@@ -287,6 +288,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Team new-message emails now drop hosted conversation resume URLs from teammate alerts when the inbox CTA already opens the same thread, keeping notification emails focused on the actual inbox handoff.
 - The desktop dashboard sidebar now hides the founder-only Switchboard entry so the main workspace nav stays focused on everyday team areas.
 - Publishing preview drafts can now be deleted directly from the switchboard, and removing a draft sends its linked topic back to Plans so it can be regenerated cleanly.
 - Dashboard tables now share a single header-label style token across billing history, publishing queue, analytics, referrals, and team views so internal reporting surfaces stay visually aligned.

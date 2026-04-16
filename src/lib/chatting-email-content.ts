@@ -72,6 +72,7 @@ export function renderHeadingBlock(input: {
   title: string;
   eyebrow?: string;
   meta?: string;
+  metaHtml?: string;
   description?: string;
   align?: Align;
 }) {
@@ -98,7 +99,15 @@ export function renderHeadingBlock(input: {
         lineHeight: "1.25",
         fontWeight: 600
       }),
-      input.meta
+      input.metaHtml
+        ? renderTextBlock({
+            html: input.metaHtml,
+            align: input.align,
+            color: "#64748B",
+            fontSize: 13,
+            lineHeight: "1.5"
+          })
+        : input.meta
         ? renderTextBlock({
             html: escapeHtml(input.meta),
             align: input.align,

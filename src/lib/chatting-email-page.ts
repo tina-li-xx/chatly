@@ -71,6 +71,7 @@ export function renderChattingEmailPage(input: {
   title: string;
   eyebrow?: string;
   meta?: string;
+  metaHtml?: string;
   description?: string;
   align?: Align;
   hero?: ChattingEmailHero | null;
@@ -83,6 +84,7 @@ export function renderChattingEmailPage(input: {
     title: input.title,
     eyebrow: input.eyebrow,
     meta: input.meta,
+    metaHtml: input.metaHtml,
     description: input.description,
     align
   });

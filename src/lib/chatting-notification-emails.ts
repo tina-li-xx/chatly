@@ -3,6 +3,43 @@ import { escapeHtml } from "@/lib/utils";
 export { renderWeeklyPerformanceEmail } from "@/lib/chatting-weekly-performance-email";
 type RenderedEmail = { subject: string; bodyText: string; bodyHtml: string };
 
+function isHostedConversationPage(value: string | null) {
+  if (!value) return false;
+  try {
+    return new URL(value).pathname.startsWith("/conversation/");
+  } catch {
+    return value.startsWith("/conversation/");
+  }
+}
+
+function formatNotificationPageLabel(value: string) {
+  try {
+    const { host, pathname } = new URL(value);
+    return pathname === "/" ? host : `${host}${pathname}`;
+  } catch {
+    return value;
+  }
+}
+
+function renderNotificationMeta(visitorEmail: string | null, currentPage: string | null) {
+  const visitor = escapeHtml(visitorEmail || "Unknown email");
+
+  if (!currentPage || isHostedConversationPage(currentPage)) {
+    return visitor;
+  }
+  try {
+    const pageUrl = new URL(currentPage);
+    if (!/^https?:$/i.test(pageUrl.protocol)) {
+      return `${visitor} <span style="color:#94A3B8;">&bull;</span> Current page: ${escapeHtml(currentPage)}`;
+    }
+    const pageLabel = escapeHtml(formatNotificationPageLabel(currentPage));
+    const href = escapeHtml(pageUrl.toString());
+    return `${visitor} <span style="color:#94A3B8;">&bull;</span> Current page: <a href="${href}" target="_blank" rel="noopener noreferrer" style="color:#2563EB;text-decoration:underline;">${pageLabel}</a>`;
+  } catch {
+    return `${visitor} <span style="color:#94A3B8;">&bull;</span> Current page: ${escapeHtml(currentPage)}`;
+  }
+}
+
 export function renderNewMessageNotificationEmail(input: {
   visitorName: string;
   visitorEmail: string | null;
@@ -22,13 +59,10 @@ export function renderNewMessageNotificationEmail(input: {
   const tipText = replyByEmailEnabled
     ? "Tip: Reply directly to this email to respond."
     : "Tip: Open the inbox to respond.";
-  const meta = [input.visitorEmail || "Unknown email", input.currentPage || "Unknown page"].join(" • ");
+  const pageMeta = input.currentPage ? (!isHostedConversationPage(input.currentPage) ? `Current page: ${input.currentPage}` : null) : "Unknown page";
+  const meta = [input.visitorEmail || "Unknown email", pageMeta].filter(Boolean).join(" • ");
   const workspaceMeta =
-    input.workspaceName || typeof input.attachmentsCount === "number"
-      ? [`Workspace: ${input.workspaceName ?? "Unknown workspace"}`, `Attachments: ${input.attachmentsCount ?? 0}`].join(
-          "\n"
-        )
-      : "";
+    input.workspaceName || typeof input.attachmentsCount === "number" ? [`Workspace: ${input.workspaceName ?? "Unknown workspace"}`, `Attachments: ${input.attachmentsCount ?? 0}`].join("\n") : "";
   return {
     subject: `New message from ${input.visitorName}`,
     bodyText: joinEmailText([
@@ -47,6 +81,7 @@ export function renderNewMessageNotificationEmail(input: {
         : `"${input.messagePreview}" — Open in inbox to respond.`,
       title: `New message from ${input.visitorName}`,
       meta,
+      metaHtml: renderNotificationMeta(input.visitorEmail, input.currentPage),
       sections: [
         {
           kind: "panel",
