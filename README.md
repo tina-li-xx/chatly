@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Chatting now has a broader API reference that separates the supported Zapier integration endpoints from first-party widget and dashboard routes, giving Zapier reviewers and partners one clearer source of truth.
 - Trial-ended emails now say the workspace moves to Starter instead of incorrectly claiming the widget is paused, so billing lifecycle copy matches the actual post-trial behavior.
 - The desktop dashboard sidebar no longer shows the founder-only Switchboard entry, keeping the main team navigation focused on everyday workspace areas.
 - Plans & Billing no longer shows generic `Discard` and `Save changes` buttons in the header, keeping billing actions focused on plan, invoice, and portal controls.
@@ -214,6 +215,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Public Site & Auth
 
+- Chatting now includes a broader API reference guide that explains which endpoints are supported for external integrations and which routes are first-party widget or dashboard runtime paths.
 - Publishing a blog draft now revalidates the public blog index, author page, post page, and sitemap immediately, while production builds skip workspace-backed generated-draft reads so blog static generation stays reliable.
 - Existing invited teammates now bypass the old choice screen, land directly on sign in with the invited email prefilled, and can finish a valid invite sign-in without getting stuck behind a separate verification step.
 - Shared auth-shell captions and supporting hero copy now use slightly darker secondary text for better legibility.
