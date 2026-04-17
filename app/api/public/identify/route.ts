@@ -1,4 +1,4 @@
-import { identifyDashboardContact, recordVisitorPresence } from "@/lib/data";
+import { identifyDashboardContact, recordVisitorPresence } from "@/lib/services";
 import { extractVisitorMetadata } from "@/lib/conversation-io";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

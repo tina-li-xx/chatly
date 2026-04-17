@@ -1,6 +1,6 @@
 import { sendWelcomeTemplateEmail } from "@/lib/conversation-template-emails";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
-import { saveVisitorConversationEmail } from "@/lib/data";
+import { saveVisitorConversationEmail } from "@/lib/services";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function handleOPTIONS() {

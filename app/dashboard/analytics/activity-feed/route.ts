@@ -1,10 +1,8 @@
 import {
-  getAiAssistActivitySliceForWorkspace
-} from "@/lib/data/analytics-ai-assist-activity-slice";
-import {
+  getAiAssistActivitySliceForWorkspace,
   resolveAiAssistActivityCursorFromSearchParams,
   resolveAiAssistActivityFiltersFromSearchParams
-} from "@/lib/data/analytics-ai-assist-activity-query";
+} from "@/lib/services/ai-assist";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

@@ -1,5 +1,5 @@
 import { sendWelcomeTemplateEmail } from "@/lib/conversation-template-emails";
-import { updateConversationEmail } from "@/lib/data";
+import { updateConversationEmail } from "@/lib/services";
 import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

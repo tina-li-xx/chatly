@@ -1,4 +1,4 @@
-import { handoffPublicConversationToTeam } from "@/lib/data";
+import { handoffPublicConversationToTeam } from "@/lib/services";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

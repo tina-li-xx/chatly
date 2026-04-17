@@ -1,19 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import {
-  deleteWorkspaceIntegrationRow,
-  findWorkspaceIntegrationRow,
-  upsertWorkspaceIntegrationRow
-} from "@/lib/repositories/integrations-repository";
-import {
-  findActiveWorkspaceZapierApiKeyRow,
-  insertWorkspaceZapierApiKeyRow,
-  revokeWorkspaceZapierApiKeys
-} from "@/lib/repositories/zapier-api-keys-repository";
-import {
   countActiveWorkspaceZapierWebhookRows,
-  deactivateWorkspaceZapierWebhookRows
-} from "@/lib/repositories/zapier-webhooks-repository";
+  deleteWorkspaceIntegrationRow,
+  deactivateWorkspaceZapierWebhookRows,
+  findActiveWorkspaceZapierApiKeyRow,
+  findWorkspaceIntegrationRow,
+  insertWorkspaceZapierApiKeyRow,
+  revokeWorkspaceZapierApiKeys,
+  upsertWorkspaceIntegrationRow
+} from "@/lib/services/integrations";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import {
   buildZapierApiKeyPrefix,

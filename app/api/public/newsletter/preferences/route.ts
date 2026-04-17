@@ -1,4 +1,4 @@
-import { updateNewsletterPreferencesByToken } from "@/lib/data/newsletter";
+import { updateNewsletterPreferencesByToken } from "@/lib/services/newsletter";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

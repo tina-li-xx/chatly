@@ -1,4 +1,4 @@
-import { getConversationSummaryById, toggleTag } from "@/lib/data";
+import { getConversationSummaryById, toggleTag } from "@/lib/services";
 import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

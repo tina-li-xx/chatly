@@ -17,6 +17,15 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Postgres via `pg`
 - Amazon SES for outbound email and inbound reply threading
 
+## Architecture Conventions
+
+- Request-path code should follow `route -> service -> repository -> centralized db`.
+- Route handlers should own HTTP concerns only: auth, request parsing, validation, and response shaping.
+- Services should own business logic and orchestration, and should call repositories for persistence.
+- Canonical request-path service entrypoints should live under `src/lib/services/*`.
+- Repositories should own queries and database writes, and should be the request-path layer that talks to the centralized DB helpers in `src/lib/db.ts`.
+- `src/lib/data/*` is a legacy compatibility layer for older service implementations and should not be the namespace new route handlers import from directly.
+
 ## Recent Updates
 
 - Public-site requests to `www.usechatting.com` now permanently redirect to the apex host so Google sees one canonical marketing origin instead of duplicate host variants.

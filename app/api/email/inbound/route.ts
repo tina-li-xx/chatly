@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { addInboundReply, getConversationNotificationContext } from "@/lib/data";
+import {
+  addInboundReply,
+  getConversationNotificationContext,
+  listInboundReplyAuthorizedEmails
+} from "@/lib/services/inbound-email";
 import { publishConversationLive } from "@/lib/live-events";
 import { previewIncomingMessage } from "@/lib/notification-utils";
-import { listInboundReplyAuthorizedEmails } from "@/lib/repositories/conversation-inbound-email-repository";
 import { parseSesInboundReply } from "@/lib/ses-inbound";
 import { verifySnsWebhookPayload } from "@/lib/sns-webhook-auth";
 import { notifyIncomingVisitorMessage } from "@/lib/team-notifications";

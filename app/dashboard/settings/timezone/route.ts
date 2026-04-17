@@ -1,9 +1,9 @@
-import { upsertUserTimeZone } from "@/lib/repositories/user-timezone-repository";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import {
   attachPreferredTimeZoneCookieToResponse,
   normalizePreferredTimeZoneInput
 } from "@/lib/user-timezone-preference";
+import { upsertUserTimeZone } from "@/lib/services/timezone";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 async function handlePOST(request: Request) {

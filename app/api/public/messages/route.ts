@@ -2,7 +2,7 @@ import {
   bindSessionMobilePushDevicesToConversation,
   createUserMessage,
   getConversationSummaryById
-} from "@/lib/data";
+} from "@/lib/services";
 import { extractUploadedAttachments, extractVisitorMetadata } from "@/lib/conversation-io";
 import { sendWelcomeTemplateEmail } from "@/lib/conversation-template-emails";
 import { publishConversationLive } from "@/lib/live-events";

@@ -1,4 +1,4 @@
-import { getDashboardUnreadCount } from "@/lib/data";
+import { getDashboardUnreadCount } from "@/lib/services";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

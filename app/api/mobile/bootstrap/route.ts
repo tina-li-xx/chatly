@@ -1,10 +1,10 @@
-import { listDashboardTeamMembers } from "@/lib/data/dashboard-team-members";
 import {
+  getMobileProfile,
   getMobileAvailability,
-  getMobileNotificationPreferences
-} from "@/lib/data/mobile-preferences";
-import { getMobileProfile } from "@/lib/data/mobile-profile";
-import { listSavedReplies } from "@/lib/data/saved-replies";
+  getMobileNotificationPreferences,
+  listDashboardTeamMembers,
+  listSavedReplies
+} from "@/lib/services/mobile";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth";
-import { getAttachmentForPublic, getAttachmentForUser } from "@/lib/data";
+import { getAttachmentForPublic, getAttachmentForUser } from "@/lib/services";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 async function handleGET(

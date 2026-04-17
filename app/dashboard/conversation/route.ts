@@ -1,4 +1,4 @@
-import { getDashboardConversationThreadById } from "@/lib/data/dashboard-conversation-thread";
+import { getDashboardConversationThreadById } from "@/lib/services/dashboard";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

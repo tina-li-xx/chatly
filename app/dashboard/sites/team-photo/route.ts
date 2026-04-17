@@ -1,4 +1,4 @@
-import { removeSiteTeamPhoto, updateSiteTeamPhoto } from "@/lib/data";
+import { removeSiteTeamPhoto, updateSiteTeamPhoto } from "@/lib/services";
 import { getTeamPhotoConstraints } from "@/lib/r2";
 import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";

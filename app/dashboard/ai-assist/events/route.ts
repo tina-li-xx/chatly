@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { parseDashboardAiAssistEventName } from "@/lib/data/settings-ai-assist-usage";
-import { insertWorkspaceAiAssistEvent } from "@/lib/repositories/ai-assist-events-repository";
-import { hasConversationAccess } from "@/lib/repositories/shared-conversation-repository";
+import {
+  parseDashboardAiAssistEventName,
+  hasConversationAccess,
+  insertWorkspaceAiAssistEvent
+} from "@/lib/services/ai-assist";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { getWorkspaceAccess } from "@/lib/workspace-access";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

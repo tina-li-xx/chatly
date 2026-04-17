@@ -2,7 +2,7 @@ import {
   createDashboardBillingCheckoutSession,
   createDashboardBillingPortalSession,
   getDashboardBillingSummary
-} from "@/lib/data";
+} from "@/lib/services";
 import { isGrowthContactSalesTeamSize } from "@/lib/pricing";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

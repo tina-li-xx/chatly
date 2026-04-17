@@ -1,16 +1,18 @@
 import { randomUUID } from "node:crypto";
 import { maybeSendAiAssistWarningEmails } from "@/lib/ai-assist-warning-emails";
-import { getDashboardConversationThreadById } from "@/lib/data/dashboard-conversation-thread";
-import { getDashboardAiAssistBillingCycle } from "@/lib/data/dashboard-ai-assist-billing-cycle";
-import { getDashboardAiAssistAccess } from "@/lib/data/settings-ai-assist-access";
+import { getDashboardConversationThreadById } from "@/lib/services/dashboard";
 import { generateDashboardAiAssist } from "@/lib/dashboard-ai-assist-service";
+import {
+  countWorkspaceAiAssistRequestsForRange,
+  getDashboardAiAssistAccess,
+  getDashboardAiAssistBillingCycle,
+  insertWorkspaceAiAssistEvent,
+  listSavedReplyRows
+} from "@/lib/services/ai-assist";
 import {
   hasDashboardAiAssistAccess,
   validateDashboardAiAssistRequest
 } from "@/lib/dashboard-ai-assist";
-import { insertWorkspaceAiAssistEvent } from "@/lib/repositories/ai-assist-events-repository";
-import { countWorkspaceAiAssistRequestsForRange } from "@/lib/repositories/ai-assist-events-read-repository";
-import { listSavedReplyRows } from "@/lib/repositories/saved-replies-repository";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

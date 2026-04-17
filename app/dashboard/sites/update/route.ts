@@ -1,8 +1,8 @@
-import { updateSiteWidgetSettings, updateSiteWidgetTitle } from "@/lib/data";
+import { updateSiteWidgetSettings, updateSiteWidgetTitle } from "@/lib/services";
+import { findBillingAccountRow } from "@/lib/services/billing";
 import { getBillingPlanFeatures, normalizeBillingPlanKey } from "@/lib/billing-plans";
 import { readRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
-import { findBillingAccountRow } from "@/lib/repositories/billing-repository";
 import { createDefaultOperatingHours, normalizeSiteDomain } from "@/lib/widget-settings";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

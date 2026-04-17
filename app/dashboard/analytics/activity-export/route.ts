@@ -1,13 +1,11 @@
 import {
+  dashboardAiAssistActorLabel,
+  listWorkspaceAiAssistFilteredActivityRows,
+  normalizeDashboardAiAssistConversationSubject,
   resolveAiAssistActivityFiltersFromSearchParams,
   resolveAiAssistActivityQuery
-} from "@/lib/data/analytics-ai-assist-activity-query";
-import {
-  normalizeDashboardAiAssistConversationSubject
-} from "@/lib/data/settings-ai-assist-activity-copy";
-import { dashboardAiAssistActorLabel } from "@/lib/data/settings-ai-assist-activity-map";
+} from "@/lib/services/ai-assist";
 import { requireJsonRouteUser } from "@/lib/route-helpers";
-import { listWorkspaceAiAssistFilteredActivityRows } from "@/lib/repositories/ai-assist-activity-page-repository";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
 function toCsvValue(value: string | null) {

@@ -1,14 +1,12 @@
-import { getInboxConversationSummaryById } from "@/lib/data";
+import { getInboxConversationSummaryById } from "@/lib/services";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
-import {
-  findWorkspaceIntegrationRow
-} from "@/lib/repositories/integrations-repository";
 import { fetchShopifyCustomerContext } from "@/lib/shopify-customer-context";
 import {
   buildShopifyIntegrationState,
   readShopifyAccessToken
 } from "@/lib/shopify-integration-state";
+import { findWorkspaceIntegrationRow } from "@/lib/services/integrations";
 
 async function handleGET(request: Request) {
   const auth = await requireJsonRouteUser();

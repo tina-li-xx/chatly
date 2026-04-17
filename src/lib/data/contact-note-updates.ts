@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { ContactNote } from "@/lib/contact-types";
-import { query } from "@/lib/db";
+import { findAuthUserById } from "@/lib/repositories/auth-user-repository";
 import { displayNameFromEmail } from "@/lib/user-display";
 
 export async function resolveUpdatedContactNotes(input: {
@@ -30,10 +30,7 @@ export async function resolveUpdatedContactNotes(input: {
           : note
       );
     } else {
-      const authorEmail = (await query<{ email: string }>(
-        "SELECT email FROM users WHERE id = $1 LIMIT 1",
-        [input.userId]
-      )).rows[0]?.email ?? "";
+      const authorEmail = (await findAuthUserById(input.userId))?.email ?? "";
 
       notes.unshift({
         id: randomUUID(),

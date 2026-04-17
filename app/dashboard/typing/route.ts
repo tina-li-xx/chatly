@@ -1,4 +1,4 @@
-import { updateConversationTyping } from "@/lib/data";
+import { updateConversationTyping } from "@/lib/services";
 import { publishConversationLive, publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

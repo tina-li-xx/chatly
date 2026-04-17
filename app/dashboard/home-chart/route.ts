@@ -1,5 +1,7 @@
-import { getDashboardHomeChartData } from "@/lib/data/dashboard-home";
-import { resolveDashboardHomeRange } from "@/lib/data/dashboard-home-chart";
+import {
+  getDashboardHomeChartData,
+  resolveDashboardHomeRange
+} from "@/lib/services/dashboard";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

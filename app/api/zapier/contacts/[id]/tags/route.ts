@@ -1,5 +1,5 @@
-import { getDashboardContact, updateDashboardContact } from "@/lib/data";
-import { mergeDistinctValues } from "@/lib/data/contact-normalizers";
+import { getDashboardContact, updateDashboardContact } from "@/lib/services";
+import { mergeDistinctValues } from "@/lib/services/contacts";
 import { jsonError, jsonOk } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import { requireZapierApiAuth } from "@/lib/zapier-api-auth";

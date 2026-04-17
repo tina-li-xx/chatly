@@ -1,4 +1,4 @@
-import { getPublicConversationMessages } from "@/lib/data";
+import { getPublicConversationMessages } from "@/lib/services";
 import { subscribeConversationLive } from "@/lib/live-events";
 import { publicNoContentResponse } from "@/lib/public-api";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

@@ -1,4 +1,4 @@
-import { getPublicConversationState } from "@/lib/data";
+import { getPublicConversationState } from "@/lib/services";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

@@ -1,4 +1,4 @@
-import { listHelpCenterPreviewArticles } from "@/lib/data/help-center";
+import { listHelpCenterPreviewArticles } from "@/lib/services/dashboard";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

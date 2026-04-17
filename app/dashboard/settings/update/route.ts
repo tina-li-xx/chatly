@@ -1,4 +1,4 @@
-import { updateDashboardSettings } from "@/lib/data";
+import { updateDashboardSettings } from "@/lib/services";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

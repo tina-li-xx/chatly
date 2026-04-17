@@ -1,4 +1,4 @@
-import { getSiteByPublicId, markSiteWidgetInstallVerified } from "@/lib/data";
+import { getSiteByPublicId, markSiteWidgetInstallVerified } from "@/lib/services";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { verifySiteWidgetSnippet } from "@/lib/site-installation-verifier";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

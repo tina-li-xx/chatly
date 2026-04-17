@@ -1,4 +1,4 @@
-import { createDashboardBillingPortalSession } from "@/lib/data";
+import { createDashboardBillingPortalSession } from "@/lib/services";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

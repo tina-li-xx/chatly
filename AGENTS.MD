@@ -194,6 +194,13 @@ Chatting's philosophy is "Conversational, Not Corporate" — every interface sho
 
 - **Maximum File Length**: No code file (`.ts`, `.tsx`, `.js`, `.jsx`) should exceed **200 lines of code**. This is a strict requirement that must be met *before* any commit occurs. Use custom hooks, utility functions, and sub-components to modularize large files.
 - **DRY (Don't Repeat Yourself)**: Always minimize code duplication. Extract common logic into reusable hooks, utility functions, or services.
+- **Architecture Boundary (Required)**: Request-path code must always follow `route -> service -> repository -> centralized db`.
+- **Route Responsibility (Required)**: Route handlers are for auth, request parsing, validation, response shaping, and HTTP concerns only. Routes must not query the database directly and must not import repositories directly.
+- **Service Responsibility (Required)**: Services own business logic, orchestration, and cross-domain coordination. Services may call other services when necessary, but they should delegate persistence to repositories instead of embedding raw database calls.
+- **Service Location (Required)**: New request-path service entrypoints should live under `src/lib/services/*`. Route handlers should import services from that namespace, not from `src/lib/data/*`.
+- **Repository Responsibility (Required)**: Repositories own persistence and query logic. In request paths, repositories are the only layer allowed to talk to the centralized database helpers such as `src/lib/db.ts`.
+- **Legacy Data Modules (Required)**: `src/lib/data/*` is now a legacy compatibility layer for older service implementations. Do not add new route imports from that namespace; move or wrap request-path logic under `src/lib/services/*` instead.
+- **No Layer Skips (Required)**: Do not collapse `route + service`, `service + repository`, or `route + repository` into one module for convenience.
 - **Cleanup Pass Is Required By Default**: Unless the user explicitly says not to, always finish implementation with a behavior-preserving cleanup pass. Make the result lean and DRY, remove bloat, duplicate logic, dead code, and parallel code paths, and tighten oversized files where practical.
 - **Senior Engineering Mindset**: Act and code as a senior software engineer. Prioritize readability, modularity, and maintainability. Avoid "hacky" solutions; choose robust architectural patterns that scale.
 

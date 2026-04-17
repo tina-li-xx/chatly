@@ -5,7 +5,7 @@ import { requireZapierApiAuth } from "@/lib/zapier-api-auth";
 import {
   upsertWorkspaceZapierWebhookRow,
   type ZapierEventType
-} from "@/lib/repositories/zapier-webhooks-repository";
+} from "@/lib/services/integrations";
 
 const ZAPIER_EVENTS = new Set<ZapierEventType>([
   "conversation.created",

@@ -4,7 +4,7 @@ import {
   getConversationSummaryById,
   markConversationRead,
   updateConversationStatus
-} from "@/lib/data";
+} from "@/lib/services";
 import { publishConversationLive, publishDashboardLive } from "@/lib/live-events";
 import { readOptionalRouteFormData } from "@/lib/route-form-data";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";

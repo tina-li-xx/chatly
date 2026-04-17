@@ -1,4 +1,4 @@
-import { setUserOnboardingStep } from "@/lib/data";
+import { setUserOnboardingStep } from "@/lib/services";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import type { OnboardingStep } from "@/lib/types";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

@@ -9,7 +9,7 @@ import {
 } from "@/lib/conversation-transcript-email";
 import { shouldShowTranscriptViralFooter } from "@/lib/conversation-transcript-footer";
 import { renderVisitorConversationEmailTemplate } from "@/lib/conversation-visitor-email";
-import { getDashboardSettingsData } from "@/lib/data";
+import { getDashboardSettingsData } from "@/lib/services";
 import { getPublicAppUrl } from "@/lib/env";
 import { resolveConversationTemplateMailFrom } from "@/lib/mail-from-addresses";
 import { sendRenderedEmail } from "@/lib/rendered-email-delivery";

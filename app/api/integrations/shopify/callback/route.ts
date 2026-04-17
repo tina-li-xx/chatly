@@ -8,7 +8,7 @@ import {
 import {
   findWorkspaceIntegrationRow,
   upsertWorkspaceIntegrationRow
-} from "@/lib/repositories/integrations-repository";
+} from "@/lib/services/integrations";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import {
   exchangeShopifyOAuthCode,

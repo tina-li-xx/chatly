@@ -2,7 +2,7 @@ import {
   getMobileNotificationPreferences,
   type MobileNotificationSound,
   updateMobileNotificationPreferences
-} from "@/lib/data/mobile-preferences";
+} from "@/lib/services/mobile";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

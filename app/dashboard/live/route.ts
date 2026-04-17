@@ -1,6 +1,6 @@
 import type { DashboardLiveEvent } from "@/lib/live-events";
 import { subscribeDashboardLive } from "@/lib/live-events";
-import { hasConversationAccess } from "@/lib/repositories/shared-repository";
+import { hasConversationAccess } from "@/lib/services/live";
 import { requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

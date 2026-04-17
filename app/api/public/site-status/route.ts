@@ -1,5 +1,5 @@
 import { extractVisitorMetadata } from "@/lib/conversation-io";
-import { getSitePresenceStatus, recordSiteWidgetSeen } from "@/lib/data";
+import { getSitePresenceStatus, recordSiteWidgetSeen } from "@/lib/services";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

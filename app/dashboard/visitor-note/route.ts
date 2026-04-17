@@ -3,7 +3,7 @@ import {
   getSiteVisitorNote,
   updateConversationVisitorNote,
   updateSiteVisitorNote
-} from "@/lib/data";
+} from "@/lib/services";
 import {
   listMentionableTeammates,
   resolveVisitorNoteMentionResolution,

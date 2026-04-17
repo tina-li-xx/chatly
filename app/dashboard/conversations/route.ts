@@ -1,4 +1,4 @@
-import { listInboxConversationSummaries } from "@/lib/data";
+import { listInboxConversationSummaries } from "@/lib/services";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 

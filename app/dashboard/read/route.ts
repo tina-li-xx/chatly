@@ -1,4 +1,4 @@
-import { markConversationRead } from "@/lib/data";
+import { markConversationRead } from "@/lib/services";
 import { publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";

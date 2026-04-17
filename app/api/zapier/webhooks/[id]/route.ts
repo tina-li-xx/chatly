@@ -1,7 +1,7 @@
 import { jsonError, jsonOk } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 import { requireZapierApiAuth } from "@/lib/zapier-api-auth";
-import { deactivateWorkspaceZapierWebhookRow } from "@/lib/repositories/zapier-webhooks-repository";
+import { deactivateWorkspaceZapierWebhookRow } from "@/lib/services/integrations";
 
 async function handleDELETE(
   request: Request,

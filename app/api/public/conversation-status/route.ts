@@ -1,4 +1,4 @@
-import { getPublicConversationTypingStatus } from "@/lib/data";
+import { getPublicConversationTypingStatus } from "@/lib/services";
 import { publicJsonResponse, publicNoContentResponse } from "@/lib/public-api";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
