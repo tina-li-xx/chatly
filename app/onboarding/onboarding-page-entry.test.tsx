@@ -22,6 +22,8 @@ describe("onboarding page and entry", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
+    vi.doUnmock("./onboarding-entry");
+    vi.doUnmock("./onboarding-flow");
   });
 
   it("redirects anonymous users from the onboarding page", async () => {
@@ -29,6 +31,9 @@ describe("onboarding page and entry", () => {
     mocks.redirect.mockImplementation((url: string) => {
       throw new Error(url);
     });
+    vi.doMock("./onboarding-entry", () => ({
+      OnboardingEntry: () => <div>entry</div>
+    }));
 
     const OnboardingPage = (await import("./page")).default;
 
