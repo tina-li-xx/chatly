@@ -149,7 +149,6 @@ export function MobileAuthFlow({ baseUrl, onAuthenticated }: MobileAuthFlowProps
         setError(null);
         setMode("forgot");
       }}
-      onOpenSignUp={() => Linking.openURL(`${baseUrl}/signup`)}
       onSubmit={(input) => void handleLogin(input)}
     />
   );

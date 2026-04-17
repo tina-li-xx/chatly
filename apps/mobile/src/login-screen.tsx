@@ -11,7 +11,6 @@ type LoginScreenProps = {
   error: string | null;
   submitting: boolean;
   onForgotPassword(): void;
-  onOpenSignUp(): void;
   onSubmit(input: { email: string; password: string; rememberMe: boolean }): void;
 };
 
@@ -20,7 +19,6 @@ export function LoginScreen({
   error,
   submitting,
   onForgotPassword,
-  onOpenSignUp,
   onSubmit
 }: LoginScreenProps) {
   const passwordRef = useRef<TextInput>(null);
@@ -52,13 +50,7 @@ export function LoginScreen({
 
   return (
     <AuthShell
-      description=""
-      footer={(
-        <Text style={styles.footerText}>
-          Don&apos;t have an account?{" "}
-          <Text onPress={onOpenSignUp} style={styles.footerLink}>Sign up</Text>
-        </Text>
-      )}
+      description="Use your existing Chatting workspace account to sign in."
       title="Sign in to your inbox"
       withBrand
     >
@@ -114,6 +106,4 @@ const styles = StyleSheet.create({
     marginTop: -4
   },
   forgotLink: { ...mobileTheme.typography.small, color: mobileTheme.colors.blue, fontWeight: "500" },
-  footerText: { ...mobileTheme.typography.small, color: mobileTheme.colors.slate500, textAlign: "center" },
-  footerLink: { color: mobileTheme.colors.blue, fontWeight: "500" }
 });
