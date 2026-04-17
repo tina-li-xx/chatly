@@ -98,7 +98,14 @@ describe("blog data", () => {
   });
 
   it("resolves queued posts by slug and alias", () => {
-    expect(getQueuedBlogPostBySlug("zendesk-alternatives-small-teams")?.slug).toBe("zendesk-alternatives-small-teams");
-    expect(getQueuedBlogPostBySlug("zendesk-alternative-for-small-teams")?.slug).toBe("zendesk-alternatives-small-teams");
+    vi.useFakeTimers();
+    vi.setSystemTime(queuedBacklogNow);
+
+    try {
+      expect(getQueuedBlogPostBySlug("zendesk-alternatives-small-teams")?.slug).toBe("zendesk-alternatives-small-teams");
+      expect(getQueuedBlogPostBySlug("zendesk-alternative-for-small-teams")?.slug).toBe("zendesk-alternatives-small-teams");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
