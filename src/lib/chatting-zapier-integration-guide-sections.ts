@@ -1,6 +1,7 @@
 import { cta, faq, list, paragraph, section } from "@/lib/blog-block-factories";
 import {
   CHATTING_ZAPIER_API_REFERENCE_PATH,
+  CHATTING_ZAPIER_SUPPORT_URL,
   CHATTING_ZAPIER_STARTER_ZAPS_GUIDE_PATH
 } from "@/lib/chatting-zapier-starter-workflows";
 
@@ -45,6 +46,19 @@ export const chattingZapierIntegrationGuideSections = [
       "Confirm the mapped fields in Zapier match the latest Chatting sample data"
     ], true)
   ]),
+  section("troubleshooting", "Troubleshoot a broken Zap", [
+    list([
+      "If Zapier says the Chatting account is stale or expired, reconnect the Chatting account and test the step again.",
+      "If trigger fields are missing or out of date, load a fresh sample from Chatting and remap the fields in the Zap editor.",
+      "If a live Zap run fails even after reconnecting and retesting, use Zapier support so their team can inspect the Zap history with full account context."
+    ], true),
+    cta(
+      "Need Zapier to inspect a broken workflow?",
+      "Use Zapier support for broken Zaps, editor issues, or account-level workflow problems so their team gets the run history and setup context directly.",
+      "Contact Zapier support",
+      CHATTING_ZAPIER_SUPPORT_URL
+    )
+  ]),
   section("faq", "FAQ", [
     faq([
       {
@@ -58,6 +72,10 @@ export const chattingZapierIntegrationGuideSections = [
       {
         question: "Where do I get the Chatting API key?",
         answer: "Open `Settings → Integrations → Zapier` inside Chatting and copy the key shown there."
+      },
+      {
+        question: "Who should I contact if a Zap breaks?",
+        answer: `If the issue is with a Zap run, the Zap editor, or your Zapier account, contact Zapier at \`${CHATTING_ZAPIER_SUPPORT_URL}\` so their support team can inspect the workflow history directly.`
       }
     ]),
     cta(

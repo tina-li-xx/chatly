@@ -1,6 +1,10 @@
 "use client";
 
 import type { ZapierIntegrationState } from "./dashboard-integrations-types";
+import {
+  CHATTING_ZAPIER_SETUP_GUIDE_PATH,
+  CHATTING_ZAPIER_STARTER_ZAPS_GUIDE_PATH
+} from "@/lib/chatting-zapier-starter-workflows";
 import { SettingsIntegrationsCard } from "./dashboard-settings-integrations-card";
 import {
   ConfigureWebhooksAction,
@@ -34,6 +38,10 @@ export function ZapierIntegrationCard({
     return renderLockedCard(ZAPIER_CARD, onUpgrade);
   }
 
+  const links = [
+    { label: "Starter Zaps", href: CHATTING_ZAPIER_STARTER_ZAPS_GUIDE_PATH },
+    { label: "Setup guide", href: CHATTING_ZAPIER_SETUP_GUIDE_PATH }
+  ];
   const detail = zapier.connected
     ? `${zapier.activeZapCount} active Zaps`
     : zapier.apiKeyReady
@@ -61,7 +69,15 @@ export function ZapierIntegrationCard({
     />
   );
 
-  return <SettingsIntegrationsCard {...ZAPIER_CARD} detail={detail} badge={badge} actions={actions} />;
+  return (
+    <SettingsIntegrationsCard
+      {...ZAPIER_CARD}
+      detail={detail}
+      links={links}
+      badge={badge}
+      actions={actions}
+    />
+  );
 }
 
 export function WebhooksIntegrationCard({

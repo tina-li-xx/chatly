@@ -39,7 +39,8 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     "Chatting now also has a broader API reference that makes the supported external integration surface clearer, so Zapier reviewers and partners can distinguish the Zapier endpoints from first-party widget and dashboard routes.",
     "Starter Zap examples now cover Slack alerts, Google Sheets contact logging, lead imports with tagging, and automatic first replies inside Chatting.",
     "Locked integration cards now open the Growth confirmation modal in place, so teams can review member count and billing before unlocking Zapier, Slack, Shopify, or webhooks.",
-    "Zapier setup inside settings now includes direct guide links, the available trigger and action list, and starter workflow recipes in one clearer setup view."
+    "Zapier setup inside settings now includes direct guide links, the available trigger and action list, and starter workflow recipes in one clearer setup view.",
+    "The Zapier guides now include troubleshooting for stale connections, missing sample data, and broken workflows, and the integrations screen links more directly to the starter Zaps teams can copy first."
   ]),
   entry("Early April 2026", "AI Assist is now built into the inbox", "Chatting now includes AI Assist to help teams reply faster, with suggestions that stay human-controlled and grounded in the live conversation.", [
     "Teams can now generate reply suggestions, summarize longer threads, rewrite drafts, and get suggested tags directly inside the inbox.",

@@ -12,6 +12,7 @@ export const CHATTING_ZAPIER_API_REFERENCE_PATH =
   "/guides/chatting-zapier-api-reference";
 export const CHATTING_ZAPIER_STARTER_ZAPS_GUIDE_PATH =
   "/guides/chatting-zapier-starter-zaps";
+export const CHATTING_ZAPIER_SUPPORT_URL = "https://zapier.com/app/get-help";
 
 export const CHATTING_ZAPIER_STARTER_WORKFLOWS: ChattingZapierStarterWorkflow[] = [
   {
