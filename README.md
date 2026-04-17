@@ -19,6 +19,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Public-site requests to `www.usechatting.com` now permanently redirect to the apex host so Google sees one canonical marketing origin instead of duplicate host variants.
 - Zapier setup now links to starter Zaps straight from the integrations screen, and the Zapier guides now include troubleshooting plus a direct Zapier-support path for broken workflows.
 - Team new-message emails now hide redundant hosted-conversation URLs when a visitor replies from the hosted thread, keeping the alert focused on the inbox action that actually handles the conversation.
 - Chatting now has a broader API reference that separates the supported Zapier integration endpoints from first-party widget and dashboard routes, giving Zapier reviewers and partners one clearer source of truth.
@@ -217,6 +218,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Public Site & Auth
 
+- The public-site proxy now permanently redirects `www.usechatting.com` to the apex host so search crawlers only see one canonical marketing origin instead of duplicate host variants.
 - Zapier guides now include troubleshooting steps for stale connections, missing sample data, and broken workflows, along with a direct Zapier support path for live Zap issues.
 - Chatting now includes a broader API reference guide that explains which endpoints are supported for external integrations and which routes are first-party widget or dashboard runtime paths.
 - Publishing a blog draft now revalidates the public blog index, author page, post page, and sitemap immediately, while production builds skip workspace-backed generated-draft reads so blog static generation stays reliable.

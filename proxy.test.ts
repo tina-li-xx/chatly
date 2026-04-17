@@ -1,7 +1,18 @@
+vi.mock("@/lib/env", () => ({
+  getPublicAppUrl: () => "https://usechatting.com"
+}));
+
 import { NextRequest } from "next/server";
 import { proxy } from "./proxy";
 
 describe("proxy", () => {
+  it("permanently redirects www requests onto the canonical apex host", () => {
+    const response = proxy(new NextRequest("https://www.usechatting.com/blog?ref=search-console"));
+
+    expect(response.status).toBe(308);
+    expect(response.headers.get("location")).toBe("https://usechatting.com/blog?ref=search-console");
+  });
+
   it("returns a 404 for blocked probe paths", () => {
     const response = proxy(new NextRequest("https://usechatting.com/xmlrpc.php"));
 

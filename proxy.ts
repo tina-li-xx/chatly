@@ -8,13 +8,21 @@ import {
   buildRequestPath,
   isDashboardPath
 } from "@/lib/auth-redirect";
+import { getPublicAppUrl } from "@/lib/env";
 import { isBlockedProbePath } from "@/lib/probe-paths";
+
+const canonicalUrl = new URL(getPublicAppUrl());
+const canonicalWwwHost = `www.${canonicalUrl.hostname}`;
 
 function hasBearerAuthorization(request: NextRequest) {
   return request.headers.get("authorization")?.trim().toLowerCase().startsWith("bearer ") ?? false;
 }
 
 export function proxy(request: NextRequest) {
+  if (request.nextUrl.hostname === canonicalWwwHost) {
+    return NextResponse.redirect(new URL(`${request.nextUrl.pathname}${request.nextUrl.search}`, canonicalUrl), 308);
+  }
+
   if (isBlockedProbePath(request.nextUrl.pathname)) {
     return new NextResponse(null, { status: 404 });
   }
