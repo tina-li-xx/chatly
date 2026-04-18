@@ -29,6 +29,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## Recent Updates
 
 - Widget and dashboard presence now use quieter background beacons and one-tab heartbeats, cutting passive write churn while keeping live presence behavior intact.
+- The visitors page now patches live updates directly from richer SSE payloads and keeps member access checks off the per-event database hot path.
 - Blog artwork cards now keep visible copy in the bottom caption area only, and the registry build now rejects new blog SVGs that add body text inside the illustration.
 - Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates when roster access changes.
 - Public-site requests to `www.usechatting.com` now permanently redirect to the apex host so Google sees one canonical marketing origin instead of duplicate host variants.
@@ -305,6 +306,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Public API endpoints for conversation messages, status, typing, site config, and attachments.
 
 ### Dashboard
+- Visitors live updates now use richer SSE payloads plus cached member access checks, so the visitors page stays current without extra summary and session refetches on every event.
 - Dashboard presence now elects one visible tab to own teammate heartbeats, so multiple open tabs no longer duplicate the same presence writes.
 
 - Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates from the shared dashboard live stream.

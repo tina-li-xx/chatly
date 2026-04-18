@@ -1,4 +1,4 @@
-import { listConversationSummaries, listVisitorPresenceSessions } from "@/lib/services";
+import { listVisitorPresenceSessions, listVisitorsPageConversationSummaries } from "@/lib/services";
 import { jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
@@ -9,7 +9,7 @@ async function handleGET() {
   }
 
   const [conversations, liveSessions] = await Promise.all([
-    listConversationSummaries(auth.user.id),
+    listVisitorsPageConversationSummaries(auth.user.id),
     listVisitorPresenceSessions(auth.user.id)
   ]);
 

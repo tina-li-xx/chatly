@@ -107,7 +107,8 @@ async function handlePOST(request: Request) {
         attachmentsCount: attachments.length,
         isNewConversation: false,
         isNewVisitor: false,
-        highIntent: false
+        highIntent: false,
+        summary
       });
     }
 

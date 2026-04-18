@@ -25,6 +25,10 @@ export {
   updateConversationEmail
 } from "./data/conversations";
 export {
+  listConversationSummariesForVisitor,
+  listVisitorsPageConversationSummaries
+} from "./data/dashboard-visitors";
+export {
   getInboxConversationSummaryById,
   listInboxConversationSummaries
 } from "./data/inbox-conversations";

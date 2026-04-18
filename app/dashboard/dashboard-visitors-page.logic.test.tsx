@@ -1,86 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { createMockReactHooks, runMockEffects } from "./test-react-hooks";
-
-function createVisitorsData() {
-  const now = new Date().toISOString();
-  return {
-    conversations: [
-      {
-        id: "conv_1",
-        siteId: "site_1",
-        siteName: "Chatting",
-        email: "alex@example.com",
-        sessionId: "session_1",
-        status: "open" as const,
-        createdAt: now,
-        updatedAt: now,
-        pageUrl: "/pricing",
-        referrer: "google.com",
-        userAgent: "Chrome",
-        country: "United Kingdom",
-        region: "England",
-        city: "London",
-        timezone: "Europe/London",
-        locale: "en-GB",
-        lastMessageAt: now,
-        lastMessagePreview: "Pricing question",
-        unreadCount: 1,
-        rating: null,
-        tags: ["lead"]
-      }
-    ],
-    liveSessions: [
-      {
-        siteId: "site_1",
-        sessionId: "live_1",
-        conversationId: null,
-        email: null,
-        currentPageUrl: "/docs",
-        referrer: "https://google.com",
-        userAgent: "Safari",
-        country: "United Kingdom",
-        region: "England",
-        city: "London",
-        timezone: "Europe/London",
-        locale: "en-GB",
-        startedAt: now,
-        lastSeenAt: now
-      }
-    ]
-  };
-}
-
-async function flushAsyncWork(cycles = 6) {
-  for (let index = 0; index < cycles; index += 1) {
-    await Promise.resolve();
-  }
-}
-
-async function loadVisitorsPage() {
-  vi.resetModules();
-  const reactMocks = createMockReactHooks();
-  const captures: Record<string, unknown> = {};
-  const navigate = vi.fn();
-  const exportVisitors = vi.fn();
-
-  vi.doMock("react", () => reactMocks.moduleFactory());
-  vi.doMock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
-  vi.doMock("./dashboard-shell", () => ({ useDashboardNavigation: () => ({ navigate }) }));
-  vi.doMock("./dashboard-visitors-page-sections", () => ({
-    VisitorsToolbar: (props: unknown) => ((captures.toolbar = props), <div>toolbar</div>),
-    VisitorsFiltersPanel: (props: unknown) => ((captures.filters = props), <div>filters</div>),
-    LiveVisitorsSection: (props: unknown) => ((captures.live = props), <div>live</div>),
-    RecentVisitorsSection: (props: unknown) => ((captures.recent = props), <div>recent</div>),
-    VisitorDetailsDrawer: (props: unknown) => ((captures.drawer = props), <div>drawer</div>)
-  }));
-  vi.doMock("./dashboard-visitors-page.utils", async () => {
-    const actual = await vi.importActual<typeof import("./dashboard-visitors-page.utils")>("./dashboard-visitors-page.utils");
-    return { ...actual, exportVisitors };
-  });
-
-  const module = await import("./dashboard-visitors-page");
-  return { DashboardVisitorsPage: module.DashboardVisitorsPage, captures, exportVisitors, navigate, reactMocks };
-}
+import { createVisitorsData, flushAsyncWork, loadVisitorsPage } from "./dashboard-visitors-page.test-support";
+import { runMockEffects } from "./test-react-hooks";
 
 describe("dashboard visitors page logic", () => {
   afterEach(() => {
@@ -91,9 +11,7 @@ describe("dashboard visitors page logic", () => {
     const initial = createVisitorsData();
     const eventSources: Array<{ close: ReturnType<typeof vi.fn>; onmessage: ((event: { data: string }) => void) | null }> = [];
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, conversations: [], liveSessions: [] }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, summary: initial.conversations[0] }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, session: initial.liveSessions[0] }) });
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, conversations: [], liveSessions: [] }) });
     vi.stubGlobal("fetch", fetchMock);
     vi.stubGlobal("window", { setInterval: vi.fn().mockReturnValue(7), clearInterval: vi.fn() });
     vi.stubGlobal("EventSource", class {
@@ -105,11 +23,13 @@ describe("dashboard visitors page logic", () => {
     });
 
     const { DashboardVisitorsPage, captures, navigate, reactMocks } = await loadVisitorsPage();
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    const renderPage = () => {
+      reactMocks.beginRender();
+      renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    };
+    renderPage();
     const cleanups = await runMockEffects(reactMocks.effects);
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
 
     await (captures.recent as { onOpenConversation: (visitor: { latestConversationId: string }) => void }).onOpenConversation((captures.recent as {
       filteredVisitors: Array<{ latestConversationId: string }>;
@@ -117,34 +37,56 @@ describe("dashboard visitors page logic", () => {
     await (captures.live as { onOpenConversation: (visitor: { id: string; latestConversationId: string | null }) => void }).onOpenConversation((captures.live as {
       liveVisitors: Array<{ id: string; latestConversationId: string | null }>;
     }).liveVisitors.find((visitor) => !visitor.latestConversationId)!);
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
 
     expect(navigate).toHaveBeenCalledWith("/dashboard/inbox?id=conv_1");
     expect((captures.drawer as { visitor: unknown }).visitor).toBeTruthy();
 
     await (captures.live as { onRefresh: () => Promise<void> }).onRefresh();
     await flushAsyncWork();
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
     await runMockEffects(reactMocks.effects);
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
 
-    eventSources[0]?.onmessage?.({ data: JSON.stringify({ type: "message.created", sender: "user", conversationId: "conv_1" }) });
-    eventSources[0]?.onmessage?.({ data: JSON.stringify({ type: "visitor.presence.updated", siteId: "site_1", sessionId: "live_1" }) });
+    const liveSummary = {
+      ...initial.conversations[0],
+      updatedAt: "2026-04-17T10:15:00.000Z",
+      lastMessageAt: "2026-04-17T10:15:00.000Z",
+      lastMessagePreview: "Follow-up question",
+      unreadCount: 3,
+      tags: ["vip"]
+    };
+    const liveSession = {
+      ...initial.liveSessions[0],
+      conversationId: "conv_1",
+      email: "alex@example.com",
+      currentPageUrl: "/checkout",
+      lastSeenAt: "2026-04-17T10:15:00.000Z"
+    };
+
+    eventSources[0]?.onmessage?.({
+      data: JSON.stringify({
+        type: "message.created",
+        sender: "user",
+        conversationId: "conv_1",
+        summary: liveSummary
+      })
+    });
+    eventSources[0]?.onmessage?.({
+      data: JSON.stringify({
+        type: "visitor.presence.updated",
+        siteId: "site_1",
+        sessionId: "live_1",
+        session: liveSession
+      })
+    });
     await flushAsyncWork();
+    renderPage();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenNthCalledWith(1, "/dashboard/visitors-data", { method: "GET", cache: "no-store" });
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      "/dashboard/conversation-summary?conversationId=conv_1",
-      { method: "GET", cache: "no-store" }
-    );
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      3,
-      "/dashboard/visitor-session?siteId=site_1&sessionId=live_1",
-      { method: "GET", cache: "no-store" }
-    );
+    expect((captures.recent as { filteredVisitors: Array<{ tags: string[] }> }).filteredVisitors[0]?.tags).toEqual(["vip"]);
+    expect((captures.live as { liveVisitors: Array<{ email: string | null }> }).liveVisitors[0]?.email).toBe("alex@example.com");
     expect((captures.drawer as { visitor: unknown }).visitor).toBeNull();
     expect((captures.live as { refreshing: boolean }).refreshing).toBe(false);
 
@@ -159,34 +101,30 @@ describe("dashboard visitors page logic", () => {
     vi.stubGlobal("EventSource", class { close = vi.fn(); onmessage = null; });
 
     const { DashboardVisitorsPage, captures, exportVisitors, reactMocks } = await loadVisitorsPage();
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    const renderPage = () => {
+      reactMocks.beginRender();
+      renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    };
+    renderPage();
     await runMockEffects(reactMocks.effects);
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
 
     (captures.recent as { setCurrentPage: (page: number) => void }).setCurrentPage(2);
     (captures.toolbar as { onToggleFilters: () => void }).onToggleFilters();
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
     (captures.filters as { setDraftFilters: (updater: (current: { status: string }) => { status: string }) => void }).setDraftFilters(
       (current) => ({ ...current, status: "offline" })
     );
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
     (captures.filters as { applyFilters: () => void }).applyFilters();
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
     await runMockEffects(reactMocks.effects);
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
 
     (captures.recent as { onToggleSort: (key: string) => void }).onToggleSort("visitor");
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
     (captures.recent as { onToggleSort: (key: string) => void }).onToggleSort("visitor");
-    reactMocks.beginRender();
-    renderToStaticMarkup(<DashboardVisitorsPage initialConversations={initial.conversations} initialLiveSessions={initial.liveSessions} />);
+    renderPage();
     (captures.recent as { onExport: () => void }).onExport();
 
     expect((captures.filters as { visible: boolean }).visible).toBe(false);

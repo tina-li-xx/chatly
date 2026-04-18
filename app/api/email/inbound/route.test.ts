@@ -141,7 +141,8 @@ describe("ses inbound route", () => {
         conversationId: "conversation_1",
         preview: "Hello from email",
         attachmentsCount: 1,
-        location: "London, England, UK"
+        location: "London, England, UK",
+        summary: expect.objectContaining({ pageUrl: "/pricing" })
       })
     );
   });

@@ -239,6 +239,14 @@ describe("public messages route", () => {
       "conv_1",
       expect.objectContaining({ type: "message.created", sender: "team" })
     );
+    expect(mocks.getConversationSummaryById).toHaveBeenCalledWith("conv_1", "user_1");
+    expect(mocks.notifyIncomingVisitorMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: "user_1",
+        conversationId: "conv_1",
+        summary: expect.objectContaining({ email: "visitor@example.com" })
+      })
+    );
   });
 
   it("passes visitor profile fields from multipart widget posts into metadata extraction", async () => {

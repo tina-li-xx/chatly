@@ -1,5 +1,6 @@
 const mocks = vi.hoisted(() => ({
-  hasConversationAccess: vi.fn(),
+  canStreamEvent: vi.fn(),
+  createDashboardLiveAuthorizer: vi.fn(),
   requireJsonRouteUser: vi.fn(),
   subscribeDashboardLive: vi.fn(),
   unsubscribe: vi.fn()
@@ -9,8 +10,8 @@ vi.mock("@/lib/live-events", () => ({
   subscribeDashboardLive: mocks.subscribeDashboardLive
 }));
 
-vi.mock("@/lib/repositories/shared-repository", () => ({
-  hasConversationAccess: mocks.hasConversationAccess
+vi.mock("@/lib/services/live", () => ({
+  createDashboardLiveAuthorizer: mocks.createDashboardLiveAuthorizer
 }));
 
 vi.mock("@/lib/route-helpers", () => ({
@@ -22,6 +23,10 @@ import { GET } from "./route";
 describe("dashboard live route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.createDashboardLiveAuthorizer.mockResolvedValue({
+      canStreamEvent: mocks.canStreamEvent
+    });
+    mocks.canStreamEvent.mockResolvedValue(true);
   });
 
   it("returns the auth response when the request is not authorized", async () => {
@@ -50,17 +55,28 @@ describe("dashboard live route", () => {
     expect(body).toContain('"type":"connected"');
     expect(body).toContain('"type":"message.created"');
     expect(mocks.subscribeDashboardLive).toHaveBeenCalledWith("owner_1", expect.any(Function));
+    expect(mocks.createDashboardLiveAuthorizer).toHaveBeenCalledWith({
+      id: "owner_1",
+      workspaceOwnerId: "owner_1",
+      workspaceRole: "owner"
+    });
     expect(mocks.unsubscribe).toHaveBeenCalled();
   });
 
-  it("filters member events for conversations they cannot access", async () => {
+  it("filters member events through the live authorizer", async () => {
     const controller = new AbortController();
     mocks.requireJsonRouteUser.mockResolvedValueOnce({
       user: { id: "member_1", workspaceOwnerId: "owner_1", workspaceRole: "member" }
     });
-    mocks.hasConversationAccess.mockResolvedValueOnce(false);
+    mocks.canStreamEvent.mockResolvedValueOnce(false);
     mocks.subscribeDashboardLive.mockImplementationOnce((_ownerId, onEvent) => {
-      onEvent({ type: "conversation.updated", conversationId: "conv_2", status: "open", updatedAt: "2026-04-12T00:00:00.000Z" });
+      onEvent({
+        type: "conversation.updated",
+        conversationId: "conv_2",
+        status: "open",
+        updatedAt: "2026-04-12T00:00:00.000Z",
+        assignedUserId: "member_2"
+      });
       return mocks.unsubscribe;
     });
 
@@ -72,6 +88,13 @@ describe("dashboard live route", () => {
 
     expect(body).toContain('"type":"connected"');
     expect(body).not.toContain('"conversationId":"conv_2"');
-    expect(mocks.hasConversationAccess).toHaveBeenCalledWith("conv_2", "owner_1", "member_1");
+    expect(mocks.createDashboardLiveAuthorizer).toHaveBeenCalledWith({
+      id: "member_1",
+      workspaceOwnerId: "owner_1",
+      workspaceRole: "member"
+    });
+    expect(mocks.canStreamEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: "conv_2", assignedUserId: "member_2" })
+    );
   });
 });

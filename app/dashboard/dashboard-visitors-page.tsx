@@ -37,7 +37,7 @@ export function DashboardVisitorsPage({
 }) {
   const searchParams = useSearchParams();
   const dashboardNavigation = useDashboardNavigation();
-  const { conversations, liveSessions, refreshing, refreshVisitors } = useDashboardVisitorsData({
+  const { conversations, liveSessions, loadVisitorDetails, refreshing, refreshVisitors } = useDashboardVisitorsData({
     initialConversations,
     initialLiveSessions
   });
@@ -51,10 +51,7 @@ export function DashboardVisitorsPage({
   const [filters, setFilters] = useState<VisitorFilterState>(DEFAULT_VISITOR_FILTERS);
   const [draftFilters, setDraftFilters] = useState<VisitorFilterState>(DEFAULT_VISITOR_FILTERS);
   const [currentPage, setCurrentPage] = useState(1);
-  const requestedTab =
-    searchParams.get("tab") === "contacts" || searchParams.get("contact")
-      ? "contacts"
-      : "live";
+  const requestedTab = searchParams.get("tab") === "contacts" || searchParams.get("contact") ? "contacts" : "live";
   const [activeTab, setActiveTab] = useState<DashboardPeopleTab>(requestedTab);
   const deeplinkContactId = searchParams.get("contact");
 
@@ -90,10 +87,15 @@ export function DashboardVisitorsPage({
       return;
     }
 
+    const selected = visitors.find((visitor) => visitor.id === selectedVisitorId);
+    if (selected) {
+      void loadVisitorDetails(selected);
+    }
+
     if (!visitors.some((visitor) => visitor.id === selectedVisitorId)) {
       setSelectedVisitorId(null);
     }
-  }, [selectedVisitorId, visitors]);
+  }, [loadVisitorDetails, selectedVisitorId, visitors]);
 
   useEffect(() => {
     setActiveTab(requestedTab);

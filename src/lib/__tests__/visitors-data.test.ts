@@ -98,7 +98,15 @@ describe("visitors data", () => {
 
     expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
       "owner_1",
-      expect.objectContaining({ type: "visitor.presence.updated", pageUrl: "/pricing" })
+      expect.objectContaining({
+        type: "visitor.presence.updated",
+        pageUrl: "/pricing",
+        session: expect.objectContaining({
+          sessionId: "sess_1",
+          currentPageUrl: "/pricing",
+          email: "hello@example.com"
+        })
+      })
     );
   });
 

@@ -91,11 +91,12 @@ async function handlePOST(request: Request) {
       });
     }
 
+    const summary =
+      result.isNewConversation || !result.deferTeamNotification
+        ? await getConversationSummaryById(result.conversationId, result.siteUserId)
+        : null;
+
     if (result.isNewConversation) {
-      const summary = await getConversationSummaryById(
-        result.conversationId,
-        result.siteUserId
-      );
       await deliverZapierEvent({
         ownerUserId: result.siteUserId,
         eventType: "conversation.created",
@@ -115,7 +116,8 @@ async function handlePOST(request: Request) {
     if (!result.deferTeamNotification) {
       await notifyIncomingVisitorMessage({
         ...result.notification,
-        ownerUserId: result.siteUserId
+        ownerUserId: result.siteUserId,
+        summary
       });
     }
 

@@ -48,7 +48,8 @@ async function handlePOST(request: Request) {
     type: "conversation.updated",
     conversationId,
     status: updatedStatus,
-    updatedAt
+    updatedAt,
+    assignedUserId: summary?.assignedUserId ?? null
   });
 
   if (updatedStatus === "resolved") {

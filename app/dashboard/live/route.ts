@@ -1,6 +1,6 @@
 import type { DashboardLiveEvent } from "@/lib/live-events";
 import { subscribeDashboardLive } from "@/lib/live-events";
-import { hasConversationAccess } from "@/lib/services/live";
+import { createDashboardLiveAuthorizer } from "@/lib/services/live";
 import { requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
 
@@ -15,10 +15,6 @@ function sseHeaders() {
   };
 }
 
-function readConversationId(event: DashboardLiveEvent) {
-  return "conversationId" in event ? event.conversationId ?? null : null;
-}
-
 async function handleGET(request: Request) {
   const auth = await requireJsonRouteUser();
   if ("response" in auth) {
@@ -26,6 +22,7 @@ async function handleGET(request: Request) {
   }
 
   const encoder = new TextEncoder();
+  const authorizer = await createDashboardLiveAuthorizer(auth.user);
 
   const stream = new ReadableStream({
     start(controller) {
@@ -39,14 +36,14 @@ async function handleGET(request: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
       };
 
-      const sendIfAllowed = async (event: DashboardLiveEvent) => {
-        const conversationId = readConversationId(event);
+      if (request.signal.aborted) {
+        closed = true;
+        controller.close();
+        return;
+      }
 
-        if (
-          auth.user.workspaceRole !== "member" ||
-          !conversationId ||
-          (await hasConversationAccess(conversationId, auth.user.workspaceOwnerId, auth.user.id))
-        ) {
+      const sendIfAllowed = async (event: DashboardLiveEvent) => {
+        if (await authorizer.canStreamEvent(event)) {
           send(event);
         }
       };

@@ -61,15 +61,20 @@ const baseInput = {
   userId: "user_123",
   conversationId: "conv_123",
   createdAt: "2026-03-29T08:30:00.000Z",
-  preview: "Need help with pricing",
-  siteName: "Acme",
-  visitorLabel: "alex@example.com",
-  pageUrl: "https://acme.example/pricing",
-  location: "London",
+  preview: "Need help with pricing", siteName: "Acme", visitorLabel: "alex@example.com",
+  pageUrl: "https://acme.example/pricing", location: "London",
   attachmentsCount: 0,
-  isNewConversation: true,
-  isNewVisitor: true,
-  highIntent: true
+  isNewConversation: true, isNewVisitor: true, highIntent: true
+};
+
+const liveSummary = {
+  id: "conv_123", siteId: "site_1", siteName: "Acme", email: "alex@example.com", assignedUserId: null,
+  sessionId: "session_1", status: "open" as const, createdAt: "2026-03-29T08:20:00.000Z",
+  updatedAt: "2026-03-29T08:30:00.000Z", pageUrl: "https://acme.example/pricing",
+  recordedPageUrl: "https://acme.example/pricing", referrer: "https://google.com", userAgent: "Chrome",
+  country: "UK", region: "England", city: "London", timezone: "Europe/London", locale: "en-GB",
+  lastMessageAt: "2026-03-29T08:30:00.000Z", lastMessagePreview: "Need help with pricing", unreadCount: 1,
+  rating: null, tags: ["pricing"]
 };
 
 describe("team notifications", () => {
@@ -100,11 +105,19 @@ describe("team notifications", () => {
       emailNotifications: false,
       notificationEmail: "team@usechatting.com"
     });
+    const input = { ...baseInput, summary: liveSummary };
 
-    await notifyIncomingVisitorMessage(baseInput);
+    await notifyIncomingVisitorMessage(input);
 
     expect(mocks.sendTeamNewMessageEmail).not.toHaveBeenCalled();
-    expect(mocks.maybeSendSlackConversationNotification).toHaveBeenCalledWith(baseInput);
+    expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
+      "user_123",
+      expect.objectContaining({
+        type: "message.created",
+        summary: expect.objectContaining({ id: "conv_123", unreadCount: 1 })
+      })
+    );
+    expect(mocks.maybeSendSlackConversationNotification).toHaveBeenCalledWith(input);
     expect(mocks.sendTeamMobilePushNotifications).toHaveBeenCalledWith({
       body: "Need help with pricing",
       userId: "user_123",

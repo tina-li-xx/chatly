@@ -9,6 +9,7 @@ import { publishDashboardLive } from "@/lib/live-events";
 import { findBillingAccountRow, findBillingUsageRow } from "@/lib/repositories/billing-repository";
 import { maybeSendSlackConversationNotification } from "@/lib/slack-conversation-notifications";
 import { sendTeamMobilePushNotifications } from "@/lib/team-mobile-push";
+import type { ConversationSummary } from "@/lib/types";
 
 export type IncomingVisitorMessageNotificationInput = {
   ownerUserId?: string;
@@ -24,6 +25,7 @@ export type IncomingVisitorMessageNotificationInput = {
   isNewConversation: boolean;
   isNewVisitor: boolean;
   highIntent: boolean;
+  summary?: ConversationSummary | null;
 };
 
 export async function notifyIncomingVisitorMessage(
@@ -41,7 +43,8 @@ export async function notifyIncomingVisitorMessage(
     visitorLabel: input.visitorLabel,
     isNewConversation: input.isNewConversation,
     isNewVisitor: input.isNewVisitor,
-    highIntent: input.highIntent
+    highIntent: input.highIntent,
+    ...(input.summary ? { summary: input.summary } : {})
   });
 
   try {

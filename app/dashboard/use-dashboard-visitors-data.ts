@@ -1,28 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ConversationSummary, VisitorPresenceSession } from "@/lib/types";
 import { subscribeDashboardLiveClient } from "./dashboard-live-client";
+import { fetchVisitorConversationSummaries, fetchVisitorsData } from "./dashboard-visitors-requests";
 import {
   upsertVisitorConversationSummary,
   upsertVisitorPresenceSession
 } from "./dashboard-visitors-live-state";
-
-type VisitorsDataResponse = {
-  ok: true;
-  conversations: ConversationSummary[];
-  liveSessions: VisitorPresenceSession[];
-};
-
-type ConversationSummaryResponse = {
-  ok: true;
-  summary: ConversationSummary;
-};
-
-type VisitorSessionResponse = {
-  ok: true;
-  session: VisitorPresenceSession;
-};
+import type { VisitorRecord } from "./visitors-data";
 
 export function useDashboardVisitorsData(input: {
   initialConversations: ConversationSummary[];
@@ -32,25 +18,88 @@ export function useDashboardVisitorsData(input: {
   const [liveSessions, setLiveSessions] = useState(input.initialLiveSessions);
   const [refreshing, setRefreshing] = useState(false);
   const [, setClockTick] = useState(0);
+  const hydratedVisitorIdsRef = useRef(new Set<string>());
   const intervalIdRef = useRef<number | null>(null);
   const unsubscribeLiveRef = useRef<(() => void) | null>(null);
+  const flushLivePatchesQueuedRef = useRef(false);
+  const pendingConversationSummariesRef = useRef<ConversationSummary[]>([]);
+  const pendingLiveSessionsRef = useRef<VisitorPresenceSession[]>([]);
 
-  async function refreshVisitors(manual = false) {
+  const flushLivePatches = useCallback(() => {
+    flushLivePatchesQueuedRef.current = false;
+
+    if (pendingConversationSummariesRef.current.length) {
+      const pendingSummaries = pendingConversationSummariesRef.current;
+      pendingConversationSummariesRef.current = [];
+      setConversations((current) =>
+        pendingSummaries.reduce(upsertVisitorConversationSummary, current)
+      );
+    }
+
+    if (pendingLiveSessionsRef.current.length) {
+      const pendingSessions = pendingLiveSessionsRef.current;
+      pendingLiveSessionsRef.current = [];
+      setLiveSessions((current) =>
+        pendingSessions.reduce(upsertVisitorPresenceSession, current)
+      );
+    }
+  }, []);
+
+  const queueLivePatchFlush = useCallback(() => {
+    if (flushLivePatchesQueuedRef.current) {
+      return;
+    }
+
+    flushLivePatchesQueuedRef.current = true;
+    void Promise.resolve().then(flushLivePatches);
+  }, [flushLivePatches]);
+
+  const queueConversationSummaryPatch = useCallback((summary: ConversationSummary) => {
+    pendingConversationSummariesRef.current.push(summary);
+    queueLivePatchFlush();
+  }, [queueLivePatchFlush]);
+
+  const queueLiveSessionPatch = useCallback((session: VisitorPresenceSession) => {
+    pendingLiveSessionsRef.current.push(session);
+    queueLivePatchFlush();
+  }, [queueLivePatchFlush]);
+
+  const loadVisitorDetails = useCallback(async (visitor: VisitorRecord) => {
+    if ((!visitor.hasConversation && !visitor.hasEmail) || hydratedVisitorIdsRef.current.has(visitor.id)) {
+      return false;
+    }
+
+    const payload = await fetchVisitorConversationSummaries({
+      email: visitor.email,
+      sessionId: visitor.sessionId,
+      siteId: visitor.siteId
+    });
+    if (!payload) {
+      return false;
+    }
+
+    hydratedVisitorIdsRef.current.add(visitor.id);
+    setConversations((current) =>
+      payload.summaries.reduce(upsertVisitorConversationSummary, current)
+    );
+    return true;
+  }, []);
+
+  const refreshVisitors = useCallback(async (manual = false) => {
     if (manual) {
       setRefreshing(true);
     }
 
     try {
-      const response = await fetch("/dashboard/visitors-data", {
-        method: "GET",
-        cache: "no-store"
-      });
-
-      if (!response.ok) {
+      const payload = await fetchVisitorsData();
+      if (!payload) {
         return;
       }
 
-      const payload = (await response.json()) as VisitorsDataResponse;
+      flushLivePatchesQueuedRef.current = false;
+      pendingConversationSummariesRef.current = [];
+      pendingLiveSessionsRef.current = [];
+      hydratedVisitorIdsRef.current.clear();
       setConversations(payload.conversations);
       setLiveSessions(payload.liveSessions);
     } catch {
@@ -60,53 +109,13 @@ export function useDashboardVisitorsData(input: {
         setRefreshing(false);
       }
     }
-  }
-
-  async function refreshConversationSummary(conversationId: string) {
-    try {
-      const response = await fetch(
-        `/dashboard/conversation-summary?conversationId=${encodeURIComponent(conversationId)}`,
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const payload = (await response.json()) as ConversationSummaryResponse;
-      setConversations((current) => upsertVisitorConversationSummary(current, payload.summary));
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async function refreshLiveSession(siteId: string, sessionId: string) {
-    try {
-      const response = await fetch(
-        `/dashboard/visitor-session?siteId=${encodeURIComponent(siteId)}&sessionId=${encodeURIComponent(sessionId)}`,
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const payload = (await response.json()) as VisitorSessionResponse;
-      setLiveSessions((current) => upsertVisitorPresenceSession(current, payload.session));
-      return true;
-    } catch {
-      return false;
-    }
-  }
+  }, []);
 
   useEffect(() => {
+    flushLivePatchesQueuedRef.current = false;
+    pendingConversationSummariesRef.current = [];
+    pendingLiveSessionsRef.current = [];
+    hydratedVisitorIdsRef.current.clear();
     setConversations(input.initialConversations);
     setLiveSessions(input.initialLiveSessions);
   }, [input.initialConversations, input.initialLiveSessions]);
@@ -139,21 +148,13 @@ export function useDashboardVisitorsData(input: {
         void refreshVisitors();
       },
       onMessage(event) {
-        if (event.type === "visitor.presence.updated") {
-          void refreshLiveSession(event.siteId, event.sessionId).then((ok) => {
-            if (!ok) {
-              void refreshVisitors();
-            }
-          });
+        if (event.type === "visitor.presence.updated" && event.session) {
+          queueLiveSessionPatch(event.session);
           return;
         }
 
-        if (event.type === "message.created" && event.sender === "user" && event.conversationId) {
-          void refreshConversationSummary(event.conversationId).then((ok) => {
-            if (!ok) {
-              void refreshVisitors();
-            }
-          });
+        if (event.type === "message.created" && event.sender === "user" && event.summary) {
+          queueConversationSummaryPatch(event.summary);
         }
       }
     });
@@ -163,11 +164,12 @@ export function useDashboardVisitorsData(input: {
       unsubscribeLiveRef.current?.();
       unsubscribeLiveRef.current = null;
     };
-  }, []);
+  }, [queueConversationSummaryPatch, queueLiveSessionPatch, refreshVisitors]);
 
   return {
     conversations,
     liveSessions,
+    loadVisitorDetails,
     refreshing,
     refreshVisitors
   };

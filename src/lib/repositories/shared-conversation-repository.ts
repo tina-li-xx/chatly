@@ -135,3 +135,19 @@ export async function hasConversationAccess(conversationId: string, ownerUserId:
 
   return Boolean(result.rowCount);
 }
+
+export async function listAssignedConversationIdsForMember(ownerUserId: string, userId: string) {
+  const result = await query<{ id: string }>(
+    `
+      SELECT c.id
+      FROM conversations c
+      INNER JOIN sites s
+        ON s.id = c.site_id
+      WHERE s.user_id = $1
+        AND c.assigned_user_id = $2
+    `,
+    [ownerUserId, userId]
+  );
+
+  return result.rows.map((row) => row.id);
+}

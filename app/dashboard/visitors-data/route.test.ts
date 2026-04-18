@@ -1,11 +1,11 @@
 const mocks = vi.hoisted(() => ({
-  listConversationSummaries: vi.fn(),
+  listVisitorsPageConversationSummaries: vi.fn(),
   listVisitorPresenceSessions: vi.fn(),
   requireJsonRouteUser: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({
-  listConversationSummaries: mocks.listConversationSummaries,
+vi.mock("@/lib/services", () => ({
+  listVisitorsPageConversationSummaries: mocks.listVisitorsPageConversationSummaries,
   listVisitorPresenceSessions: mocks.listVisitorPresenceSessions
 }));
 
@@ -35,12 +35,12 @@ describe("dashboard visitors-data route", () => {
   });
 
   it("returns conversations and live visitor sessions", async () => {
-    mocks.listConversationSummaries.mockResolvedValueOnce([{ id: "conv_1" }]);
+    mocks.listVisitorsPageConversationSummaries.mockResolvedValueOnce([{ id: "conv_1" }]);
     mocks.listVisitorPresenceSessions.mockResolvedValueOnce([{ siteId: "site_1", sessionId: "session_1" }]);
 
     const response = await GET();
 
-    expect(mocks.listConversationSummaries).toHaveBeenCalledWith("user_123");
+    expect(mocks.listVisitorsPageConversationSummaries).toHaveBeenCalledWith("user_123");
     expect(mocks.listVisitorPresenceSessions).toHaveBeenCalledWith("user_123");
     expect(await response.json()).toEqual({
       ok: true,

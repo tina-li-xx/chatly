@@ -55,6 +55,7 @@ describe("dashboard status route", () => {
       }
     });
     mocks.getConversationSummaryById.mockResolvedValue({
+      assignedUserId: "member_1",
       updatedAt: "2026-03-27T12:00:00.000Z"
     });
     mocks.getConversationById.mockResolvedValue({
@@ -140,6 +141,14 @@ describe("dashboard status route", () => {
     expect(mocks.markConversationRead).not.toHaveBeenCalled();
     expect(mocks.sendResolvedConversationTemplateEmails).not.toHaveBeenCalled();
     expect(mocks.deliverZapierEvent).not.toHaveBeenCalled();
+    expect(liveEventMocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({
+        type: "conversation.updated",
+        conversationId: "conv_1",
+        assignedUserId: "member_1"
+      })
+    );
     expect(await response.json()).toEqual({
       ok: true,
       conversationId: "conv_1",

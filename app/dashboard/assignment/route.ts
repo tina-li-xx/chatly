@@ -38,7 +38,8 @@ async function handlePOST(request: Request) {
       type: "conversation.updated",
       conversationId,
       status: summary?.status ?? "open",
-      updatedAt: summary?.updatedAt ?? new Date().toISOString()
+      updatedAt: summary?.updatedAt ?? new Date().toISOString(),
+      assignedUserId: summary?.assignedUserId ?? updated.assignedUserId
     });
     if (updated.assignedUserId && updated.assignedUserId !== auth.user.id) {
       await sendTeamMobilePushNotifications({

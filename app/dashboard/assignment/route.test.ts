@@ -45,6 +45,7 @@ describe("dashboard assignment route", () => {
       }
     });
     mocks.getConversationSummaryById.mockResolvedValue({
+      assignedUserId: "member_1",
       status: "open",
       updatedAt: "2026-03-27T12:00:00.000Z"
     });
@@ -114,6 +115,7 @@ describe("dashboard assignment route", () => {
       expect.objectContaining({
         type: "conversation.updated",
         conversationId: "conv_1",
+        assignedUserId: "member_1",
         status: "open",
         updatedAt: "2026-03-27T12:00:00.000Z"
       })
