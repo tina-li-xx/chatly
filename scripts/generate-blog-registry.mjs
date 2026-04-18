@@ -1,10 +1,12 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { validateBlogSvgCaptionPolicy } from "./blog-svg-policy.mjs";
 
 const root = process.cwd();
 const libDir = path.join(root, "src", "lib");
 const outputPath = path.join(libDir, "generated-blog-posts.ts");
 const blogPostExport = /export const\s+([A-Za-z0-9_]+)\s*:\s*BlogPost\s*=/g;
+const blogImageSrc = /image:\s*\{[\s\S]*?\bsrc:\s*"([^"]+)"/;
 
 function isBlogPostModule(fileName) {
   return fileName.startsWith("blog-post-") && fileName.endsWith(".ts");
@@ -22,6 +24,7 @@ async function readBlogPostModules() {
     const fullPath = path.join(libDir, entry.name);
     const source = await readFile(fullPath, "utf8");
     const matches = [...source.matchAll(blogPostExport)];
+    const imageSourceMatch = source.match(blogImageSrc);
 
     if (matches.length === 0) {
       continue;
@@ -33,7 +36,8 @@ async function readBlogPostModules() {
 
     modules.push({
       exportName: matches[0][1],
-      fileName: entry.name
+      fileName: entry.name,
+      imageSrc: imageSourceMatch?.[1] ?? null
     });
   }
 
@@ -60,6 +64,20 @@ function buildRegistrySource(modules) {
   ].join("\n");
 }
 
+async function validateBlogArtwork(modules) {
+  const failures = (
+    await Promise.all(
+      modules.map(({ fileName, imageSrc }) =>
+        imageSrc ? validateBlogSvgCaptionPolicy({ rootDir: root, fileName, imageSrc }) : null
+      )
+    )
+  ).filter(Boolean);
+
+  if (failures.length > 0) {
+    throw new Error(failures.join("\n"));
+  }
+}
+
 async function main() {
   const modules = await readBlogPostModules();
 
@@ -67,6 +85,7 @@ async function main() {
     throw new Error("No BlogPost exports were found in src/lib/blog-post-*.ts files.");
   }
 
+  await validateBlogArtwork(modules);
   await writeFile(outputPath, buildRegistrySource(modules), "utf8");
   console.log(`Generated blog registry with ${modules.length} posts at ${path.relative(root, outputPath)}.`);
 }

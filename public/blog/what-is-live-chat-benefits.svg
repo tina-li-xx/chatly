@@ -11,9 +11,8 @@
   <rect x="146" y="304" width="212" height="22" rx="11" fill="#CBD5E1"/>
   <rect x="126" y="346" width="252" height="18" rx="9" fill="#E2E8F0"/>
   <rect x="162" y="380" width="180" height="18" rx="9" fill="#E2E8F0"/>
-  <text x="624" y="168" text-anchor="middle" fill="#FFFFFF" font-family="DM Sans, Arial, sans-serif" font-size="30" font-weight="700">
-    Live chat helps
-  </text>
+  <rect x="534" y="144" width="180" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.94"/>
+  <rect x="560" y="176" width="128" height="12" rx="6" fill="#60A5FA"/>
   <rect x="532" y="206" width="184" height="18" rx="9" fill="#1D4ED8"/>
   <rect x="550" y="238" width="148" height="14" rx="7" fill="#60A5FA"/>
   <circle cx="548" cy="384" r="22" fill="#10B981"/>
@@ -21,25 +20,24 @@
   <rect x="590" y="366" width="138" height="18" rx="9" fill="#0F172A"/>
   <rect x="590" y="400" width="160" height="16" rx="8" fill="#CBD5E1"/>
   <rect x="590" y="428" width="124" height="16" rx="8" fill="#E2E8F0"/>
-  <text x="971" y="178" text-anchor="middle" fill="#0F172A" font-family="DM Sans, Arial, sans-serif" font-size="24" font-weight="700">
-    Support
-  </text>
+  <rect x="882" y="166" width="152" height="18" rx="9" fill="#0F172A"/>
+  <rect x="882" y="196" width="110" height="12" rx="6" fill="#CBD5E1"/>
   <rect x="882" y="204" width="178" height="38" rx="19" fill="#EFF6FF"/>
-  <text x="971" y="229" text-anchor="middle" fill="#2563EB" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
-    faster replies
-  </text>
+  <circle cx="912" cy="223" r="8" fill="#2563EB"/>
+  <rect x="934" y="219" width="84" height="8" rx="4" fill="#2563EB"/>
+  <rect x="934" y="232" width="56" height="6" rx="3" fill="#93C5FD"/>
   <rect x="882" y="262" width="178" height="38" rx="19" fill="#DCFCE7"/>
-  <text x="971" y="287" text-anchor="middle" fill="#166534" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
-    more revenue
-  </text>
+  <circle cx="912" cy="281" r="8" fill="#16A34A"/>
+  <rect x="934" y="277" width="92" height="8" rx="4" fill="#166534" fill-opacity="0.9"/>
+  <rect x="934" y="290" width="62" height="6" rx="3" fill="#86EFAC"/>
   <rect x="882" y="320" width="178" height="38" rx="19" fill="#FEF3C7"/>
-  <text x="971" y="345" text-anchor="middle" fill="#92400E" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
-    lower costs
-  </text>
+  <circle cx="912" cy="339" r="8" fill="#D97706"/>
+  <rect x="934" y="335" width="88" height="8" rx="4" fill="#92400E" fill-opacity="0.92"/>
+  <rect x="934" y="348" width="60" height="6" rx="3" fill="#FCD34D"/>
   <rect x="882" y="378" width="178" height="38" rx="19" fill="#EDE9FE"/>
-  <text x="971" y="403" text-anchor="middle" fill="#6D28D9" font-family="DM Sans, Arial, sans-serif" font-size="18" font-weight="700">
-    better insight
-  </text>
+  <circle cx="912" cy="397" r="8" fill="#7C3AED"/>
+  <rect x="934" y="393" width="94" height="8" rx="4" fill="#6D28D9" fill-opacity="0.92"/>
+  <rect x="934" y="406" width="66" height="6" rx="3" fill="#C4B5FD"/>
   <text x="88" y="554" fill="#0F172A" font-family="Fraunces, Georgia, serif" font-size="48" font-weight="700">
     What is live chat?
   </text>
