@@ -49,6 +49,25 @@ describe("dashboard home and growth data", () => {
         ]
       })
     }));
+    vi.doMock("@/lib/data/dashboard-team-members", () => ({
+      listDashboardTeamPresenceMembersForWorkspace: vi.fn().mockResolvedValue([
+        {
+          id: "user_1",
+          name: "Tina",
+          email: "tina@example.com",
+          initials: "T",
+          role: "owner",
+          status: "online",
+          lastActiveLabel: "Just now",
+          lastSeenAt: "2026-03-31T09:00:00.000Z",
+          isCurrentUser: true,
+          avatarDataUrl: null
+        }
+      ])
+    }));
+    vi.doMock("@/lib/data/settings-team-invites", () => ({
+      listTeamInvites: vi.fn().mockResolvedValue([{ id: "invite_1" }])
+    }));
 
     const module = await import("@/lib/data/dashboard-home");
     await expect(module.getDashboardHomeData("user_1")).resolves.toMatchObject({
@@ -58,6 +77,8 @@ describe("dashboard home and growth data", () => {
       resolvedToday: 2,
       avgResponseSeconds: 45,
       satisfactionPercent: 90,
+      teamMembers: [expect.objectContaining({ id: "user_1" })],
+      pendingTeamInvites: 1,
       chartPending: false,
       chart: {
         rangeDays: 7,

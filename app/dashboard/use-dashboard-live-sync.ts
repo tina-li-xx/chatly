@@ -3,17 +3,6 @@
 import { useEffect, type Dispatch, type MutableRefObject, type SetStateAction } from "react";
 import { subscribeDashboardLiveClient } from "./dashboard-live-client";
 
-type LiveEvent = {
-  type: string;
-  conversationId?: string;
-  siteId?: string;
-  sessionId?: string;
-  pageUrl?: string | null;
-  sender?: "user" | "team";
-  actor?: "visitor" | "team";
-  typing?: boolean;
-};
-
 export function useDashboardLiveSync({
   activeConversationIdRef,
   recentOptimisticReplyAtRef,
@@ -44,6 +33,10 @@ export function useDashboardLiveSync({
         setLiveConnectionState("connected");
 
         if (event.type === "connected") {
+          return;
+        }
+
+        if (event.type === "team.presence.updated" || event.type === "team.members.updated") {
           return;
         }
 

@@ -1,11 +1,14 @@
 import {
   getDashboardHomeConversationRange
 } from "@/lib/repositories/dashboard-home-repository";
+import type { DashboardTeamPresenceMember, DashboardTeamStatusResponse } from "@/lib/dashboard-team-status";
 import { getDashboardHomeSnapshot } from "@/lib/repositories/dashboard-home-snapshot-repository";
 import { isSiteWidgetInstalled } from "@/lib/site-installation";
 import type { ConversationSummary } from "@/lib/types";
 import { resolvePreferredTimeZoneForUserWithSource } from "../user-timezone-preference";
+import { listDashboardTeamPresenceMembersForWorkspace } from "./dashboard-team-members";
 import { listRecentInboxConversationSummaries } from "./inbox-conversations";
+import { listTeamInvites } from "./settings-team-invites";
 import {
   buildDashboardHomeChart,
   calculatePercentChange,
@@ -30,6 +33,8 @@ export type DashboardHomeData = DashboardHomeChartData & {
   avgResponseDeltaPercent: number | null;
   satisfactionPercent: number | null;
   satisfactionDeltaPercent: number | null;
+  teamMembers: DashboardTeamPresenceMember[];
+  pendingTeamInvites: number;
   recentConversations: ConversationSummary[];
 };
 
@@ -59,6 +64,22 @@ export async function getDashboardHomeChartData(
   };
 }
 
+export async function getDashboardHomeTeamStatusData(
+  userId: string,
+  workspaceOwnerId?: string
+): Promise<DashboardTeamStatusResponse> {
+  const ownerUserId = workspaceOwnerId ?? userId;
+  const [teamMembers, teamInvites] = await Promise.all([
+    listDashboardTeamPresenceMembersForWorkspace(userId, ownerUserId),
+    listTeamInvites(ownerUserId)
+  ]);
+
+  return {
+    teamMembers,
+    pendingInviteCount: teamInvites.length
+  };
+}
+
 export async function getDashboardHomeData(
   userId: string,
   input: {
@@ -69,10 +90,11 @@ export async function getDashboardHomeData(
   const rangeDays = input.rangeDays ?? 7;
   const ownerUserId = input.workspaceOwnerId ?? userId;
   const timeZone = await resolvePreferredTimeZoneForUserWithSource(userId);
-  const [snapshot, recentConversations, sites] = await Promise.all([
+  const [snapshot, recentConversations, sites, teamStatus] = await Promise.all([
     getDashboardHomeSnapshot(ownerUserId, timeZone.timeZone, rangeDays),
     listRecentInboxConversationSummaries(userId, 4, input.workspaceOwnerId),
-    listSitesForUser(userId, input.workspaceOwnerId)
+    listSitesForUser(userId, input.workspaceOwnerId),
+    getDashboardHomeTeamStatusData(userId, ownerUserId)
   ]);
 
   const currentAvgResponse = roundToWhole(toNumber(snapshot.response.current_avg_seconds));
@@ -98,6 +120,8 @@ export async function getDashboardHomeData(
     avgResponseDeltaPercent,
     satisfactionPercent: currentSatisfaction,
     satisfactionDeltaPercent: calculatePercentChange(currentSatisfaction, previousSatisfaction),
+    teamMembers: teamStatus.teamMembers,
+    pendingTeamInvites: teamStatus.pendingInviteCount,
     recentConversations,
     chartPending: timeZone.source === "site" || timeZone.source === "utc",
     chart: buildDashboardHomeChart(snapshot.chart.rows, snapshot.chart.previousTotal, rangeDays)

@@ -1,4 +1,9 @@
-import type { ConversationStatus, Sender } from "@/lib/types";
+import type {
+  ConversationStatus,
+  ConversationSummary,
+  Sender,
+  VisitorPresenceSession
+} from "@/lib/types";
 
 export type DashboardTypingActor = "visitor" | "team";
 
@@ -16,12 +21,14 @@ export type DashboardLiveEvent =
       isNewConversation?: boolean;
       isNewVisitor?: boolean;
       highIntent?: boolean;
+      summary?: ConversationSummary | null;
     }
   | {
       type: "conversation.updated";
       conversationId: string;
       status: ConversationStatus;
       updatedAt: string;
+      assignedUserId?: string | null;
     }
   | {
       type: "conversation.read";
@@ -35,12 +42,22 @@ export type DashboardLiveEvent =
       typing: boolean;
     }
   | {
+      type: "team.presence.updated";
+      userId: string;
+      updatedAt: string;
+    }
+  | {
+      type: "team.members.updated";
+      updatedAt: string;
+    }
+  | {
       type: "visitor.presence.updated";
       siteId: string;
       sessionId: string;
       conversationId: string | null;
       pageUrl: string | null;
       updatedAt: string;
+      session?: VisitorPresenceSession | null;
     };
 
 export type PublicConversationLiveEvent =

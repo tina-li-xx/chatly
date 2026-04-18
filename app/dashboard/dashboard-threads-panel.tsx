@@ -1,6 +1,7 @@
 "use client";
 
 import { classNames } from "@/lib/utils";
+import { canAssignConversation } from "./dashboard-conversation-assignee";
 import {
   getThreadCounts,
   renderThreadsHeader,
@@ -26,7 +27,7 @@ export function DashboardThreadsPanel(props: DashboardThreadsPanelProps) {
         counts,
         threadFilter: props.threadFilter,
         assignmentFilter: props.assignmentFilter,
-        showAssignmentFilter: (props.teamMembers?.length ?? 0) > 1,
+        showAssignmentFilter: canAssignConversation(props.teamMembers ?? []),
         searchQuery: props.searchQuery,
         searchInputId: props.searchInputId,
         onThreadFilterChange: props.onThreadFilterChange,

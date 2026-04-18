@@ -8,6 +8,11 @@ const entry = (period: string, title: string, summary: string, bullets: string[]
 });
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  entry("April 2026", "Dashboard home now shows live team availability", "Owners and admins can now see who is active from the dashboard home page, with live updates when teammate presence or team access changes.", [
+    "The Team status card on dashboard home now uses the real workspace roster instead of placeholder rows.",
+    "Presence updates now flow into that card live when teammates become active, invites are sent, or invited teammates join the workspace.",
+    "Member workspaces no longer see management-focused team status or assignment controls they cannot act on, keeping their dashboard focused on their own work."
+  ]),
   entry("April 2026", "Chatting now has a native mobile inbox for iPhone", "Teams can now stay on top of customer conversations away from their desk with a dedicated iPhone app built for quick replies, assignment handoffs, and mobile notifications.", [
     "Teammates can sign in on iPhone, open the inbox, read assigned conversations, send replies, and resolve chats from a mobile-first inbox.",
     "Push notifications now bring teams back into new conversations and assignment handoffs faster, with in-app notification controls and settings.",

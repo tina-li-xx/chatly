@@ -1,5 +1,6 @@
 const mocks = vi.hoisted(() => ({
   createTeamInvite: vi.fn(),
+  publishDashboardLive: vi.fn(),
   resendTeamInvite: vi.fn(),
   revokeTeamInvite: vi.fn(),
   updateTeamInviteRole: vi.fn(),
@@ -11,6 +12,9 @@ vi.mock("@/lib/data", () => ({
   resendTeamInvite: mocks.resendTeamInvite,
   revokeTeamInvite: mocks.revokeTeamInvite,
   updateTeamInviteRole: mocks.updateTeamInviteRole
+}));
+vi.mock("@/lib/live-events", () => ({
+  publishDashboardLive: mocks.publishDashboardLive
 }));
 
 vi.mock("@/lib/route-helpers", () => ({
@@ -57,6 +61,10 @@ describe("dashboard team route", () => {
       role: "admin",
       message: "Welcome"
     });
+    expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({ type: "team.members.updated" })
+    );
     expect(await response.json()).toEqual({ ok: true, invites: [{ id: "invite_1" }] });
   });
 
@@ -81,6 +89,10 @@ describe("dashboard team route", () => {
       })
     );
     expect(mocks.resendTeamInvite).toHaveBeenCalledWith("owner_123", "invite_1");
+    expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({ type: "team.members.updated" })
+    );
     expect((await response.json()).invites).toEqual([{ id: "invite_resend" }]);
 
     mocks.revokeTeamInvite.mockResolvedValueOnce([{ id: "invite_remove" }]);
@@ -91,6 +103,10 @@ describe("dashboard team route", () => {
       })
     );
     expect(mocks.revokeTeamInvite).toHaveBeenCalledWith("owner_123", "invite_1");
+    expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({ type: "team.members.updated" })
+    );
     expect((await response.json()).invites).toEqual([{ id: "invite_remove" }]);
 
     mocks.updateTeamInviteRole.mockResolvedValueOnce([{ id: "invite_role" }]);
@@ -101,6 +117,10 @@ describe("dashboard team route", () => {
       })
     );
     expect(mocks.updateTeamInviteRole).toHaveBeenCalledWith("owner_123", "invite_1", "admin");
+    expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({ type: "team.members.updated" })
+    );
     expect((await response.json()).invites).toEqual([{ id: "invite_role" }]);
   });
 

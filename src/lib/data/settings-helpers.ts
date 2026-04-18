@@ -3,6 +3,10 @@ import type {
   DashboardSettingsNotifications,
   DashboardTeamMember
 } from "@/lib/data/settings-types";
+import {
+  formatDashboardTeamLastActiveLabel,
+  isDashboardTeamMemberOnline
+} from "@/lib/dashboard-team-status";
 import type { Site } from "@/lib/types";
 import { displayNameFromEmail, firstNameFromDisplayName, initialsFromLabel } from "@/lib/user-display";
 import { optionalText } from "@/lib/utils";
@@ -40,39 +44,8 @@ export function splitSettingsName(
   };
 }
 
-export function formatSettingsLastActiveLabel(lastSeenAt: string | null) {
-  if (!lastSeenAt) {
-    return "Never";
-  }
-
-  const diffMs = Date.now() - new Date(lastSeenAt).getTime();
-  const minutes = Math.max(0, Math.round(diffMs / (60 * 1000)));
-
-  if (minutes <= 1) {
-    return "Just now";
-  }
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    month: "short",
-    day: "numeric"
-  }).format(new Date(lastSeenAt));
-}
-
-export function isSettingsUserOnline(lastSeenAt: string | null) {
-  if (!lastSeenAt) {
-    return false;
-  }
-
-  return Date.now() - new Date(lastSeenAt).getTime() <= 5 * 60 * 1000;
-}
+export const formatSettingsLastActiveLabel = formatDashboardTeamLastActiveLabel;
+export const isSettingsUserOnline = isDashboardTeamMemberOnline;
 
 export function mapDashboardNotificationSettings(
   row: Pick<

@@ -1,4 +1,7 @@
 export function createHomeData(overrides: Record<string, unknown> = {}) {
+  const ownerLastSeenAt = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+  const memberLastSeenAt = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+
   return {
     openConversations: 6,
     openConversationsDelta: 2,
@@ -8,6 +11,33 @@ export function createHomeData(overrides: Record<string, unknown> = {}) {
     avgResponseDeltaPercent: 12,
     satisfactionPercent: 94,
     satisfactionDeltaPercent: 3,
+    teamMembers: [
+      {
+        id: "user_123",
+        name: "Tina Bauer",
+        email: "tina@chatting.example",
+        initials: "TB",
+        role: "owner",
+        status: "online",
+        lastActiveLabel: "Just now",
+        lastSeenAt: ownerLastSeenAt,
+        isCurrentUser: true,
+        avatarDataUrl: null
+      },
+      {
+        id: "member_2",
+        name: "Alex Rivera",
+        email: "alex@chatting.example",
+        initials: "AR",
+        role: "admin",
+        status: "offline",
+        lastActiveLabel: "2h ago",
+        lastSeenAt: memberLastSeenAt,
+        isCurrentUser: false,
+        avatarDataUrl: null
+      }
+    ],
+    pendingTeamInvites: 1,
     recentConversations: [
       {
         id: "conv_1",

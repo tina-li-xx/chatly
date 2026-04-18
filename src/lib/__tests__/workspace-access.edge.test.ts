@@ -9,9 +9,13 @@ const workspaceRepoMocks = vi.hoisted(() => ({
 const onboardingMocks = vi.hoisted(() => ({
   updateUserOnboardingStep: vi.fn()
 }));
+const liveEventMocks = vi.hoisted(() => ({
+  publishDashboardLive: vi.fn()
+}));
 
 vi.mock("@/lib/repositories/workspace-repository", () => workspaceRepoMocks);
 vi.mock("@/lib/repositories/onboarding-repository", () => onboardingMocks);
+vi.mock("@/lib/live-events", () => liveEventMocks);
 
 import {
   acceptTeamInvite,
@@ -105,6 +109,7 @@ describe("workspace access edge cases", () => {
       alreadyAccepted: true
     });
     expect(onboardingMocks.updateUserOnboardingStep).toHaveBeenCalledWith("member_123", "done");
+    expect(liveEventMocks.publishDashboardLive).not.toHaveBeenCalled();
     expect(workspaceRepoMocks.upsertActiveTeamMembership).not.toHaveBeenCalled();
   });
 

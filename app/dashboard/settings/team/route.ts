@@ -4,8 +4,16 @@ import {
   revokeTeamInvite,
   updateTeamInviteRole
 } from "@/lib/services";
+import { publishDashboardLive } from "@/lib/live-events";
 import { jsonError, jsonOk, requireJsonRouteUser } from "@/lib/route-helpers";
 import { withRouteErrorAlerting } from "@/lib/route-error-alerting";
+
+function publishTeamMembersUpdated(ownerUserId: string) {
+  publishDashboardLive(ownerUserId, {
+    type: "team.members.updated",
+    updatedAt: new Date().toISOString()
+  });
+}
 
 async function handlePOST(request: Request) {
   const auth = await requireJsonRouteUser();
@@ -28,6 +36,7 @@ async function handlePOST(request: Request) {
         role: payload.role === "admin" ? "admin" : "member",
         message: String(payload.message ?? "")
       });
+      publishTeamMembersUpdated(auth.user.workspaceOwnerId);
       return jsonOk({ invites });
     }
 
@@ -38,11 +47,13 @@ async function handlePOST(request: Request) {
 
     if (action === "resend") {
       const invites = await resendTeamInvite(auth.user.workspaceOwnerId, inviteId);
+      publishTeamMembersUpdated(auth.user.workspaceOwnerId);
       return jsonOk({ invites });
     }
 
     if (action === "remove") {
       const invites = await revokeTeamInvite(auth.user.workspaceOwnerId, inviteId);
+      publishTeamMembersUpdated(auth.user.workspaceOwnerId);
       return jsonOk({ invites });
     }
 
@@ -52,6 +63,7 @@ async function handlePOST(request: Request) {
         inviteId,
         payload.role === "admin" ? "admin" : "member"
       );
+      publishTeamMembersUpdated(auth.user.workspaceOwnerId);
       return jsonOk({ invites });
     }
 

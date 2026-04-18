@@ -1,10 +1,14 @@
 const mocks = vi.hoisted(() => ({
+  publishDashboardLive: vi.fn(),
   recordUserPresence: vi.fn(),
   requireJsonRouteUser: vi.fn()
 }));
 
 vi.mock("@/lib/data", () => ({
   recordUserPresence: mocks.recordUserPresence
+}));
+vi.mock("@/lib/live-events", () => ({
+  publishDashboardLive: mocks.publishDashboardLive
 }));
 
 vi.mock("@/lib/route-helpers", () => ({
@@ -18,7 +22,12 @@ import { POST } from "./route";
 describe("dashboard presence route", () => {
   beforeEach(() => {
     mocks.requireJsonRouteUser.mockResolvedValue({
-      user: { id: "user_123", email: "hello@chatting.example", createdAt: "2026-03-27T00:00:00.000Z" }
+      user: {
+        id: "user_123",
+        email: "hello@chatting.example",
+        createdAt: "2026-03-27T00:00:00.000Z",
+        workspaceOwnerId: "owner_123"
+      }
     });
   });
 
@@ -35,6 +44,13 @@ describe("dashboard presence route", () => {
     const response = await POST();
 
     expect(mocks.recordUserPresence).toHaveBeenCalledWith("user_123");
+    expect(mocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({
+        type: "team.presence.updated",
+        userId: "user_123"
+      })
+    );
     expect(await response.json()).toEqual({ ok: true, recorded: true });
   });
 });

@@ -47,9 +47,9 @@ describe("dashboard home", () => {
 
     const html = renderToStaticMarkup(
       await DashboardHome({
-        userEmail: "tina@chatting.example",
         userId: "user_123",
-        workspaceOwnerId: "owner_123"
+        workspaceOwnerId: "owner_123",
+        canManageTeam: true
       })
     );
 
@@ -68,6 +68,11 @@ describe("dashboard home", () => {
     expect(html).not.toContain("Unlock deeper analytics and API access");
     expect(html).toContain("Recent conversations");
     expect(html).toContain("Quick question about pricing...");
+    expect(html).toContain("Tina Bauer");
+    expect(html).toContain("1 online");
+    expect(html).toContain("1 pending invite");
+    expect(html).toContain('href="/dashboard/team"');
+    expect(html).toContain("Invite teammate");
     expect(html).not.toContain("Widget install needed");
     expect(html).not.toContain("Widget is live");
     expect(html).not.toContain("Customize widget");
@@ -84,6 +89,7 @@ describe("dashboard home", () => {
       satisfactionPercent: null,
       satisfactionDeltaPercent: null,
       recentConversations: [],
+      pendingTeamInvites: 0,
       chart: {
         rangeDays: 7,
         changePercent: null,
@@ -101,9 +107,9 @@ describe("dashboard home", () => {
 
     const html = renderToStaticMarkup(
       await DashboardHome({
-        userEmail: "tina@chatting.example",
         userId: "user_123",
-        workspaceOwnerId: "owner_123"
+        workspaceOwnerId: "owner_123",
+        canManageTeam: false
       })
     );
 
@@ -112,6 +118,8 @@ describe("dashboard home", () => {
     expect(html).not.toContain("Activation is blocked until the widget is live");
     expect(html).not.toContain("Customer health score");
     expect(html).not.toContain("View all");
+    expect(html).not.toContain("Team status");
+    expect(html).not.toContain("View team");
     expect(html).toContain("Widget install needed");
   });
 
@@ -124,9 +132,9 @@ describe("dashboard home", () => {
 
     const html = renderToStaticMarkup(
       await DashboardHome({
-        userEmail: "tina@chatting.example",
         userId: "user_123",
-        workspaceOwnerId: "owner_123"
+        workspaceOwnerId: "owner_123",
+        canManageTeam: true
       })
     );
 

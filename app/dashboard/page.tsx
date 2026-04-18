@@ -6,9 +6,9 @@ export default async function DashboardPage() {
 
   return (
     <DashboardHome
-      userEmail={user.email}
       userId={user.id}
       workspaceOwnerId={user.workspaceOwnerId}
+      canManageTeam={user.workspaceRole !== "member"}
     />
   );
 }

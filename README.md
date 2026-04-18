@@ -29,6 +29,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## Recent Updates
 
 - Blog artwork cards now keep visible copy in the bottom caption area only, and the registry build now rejects new blog SVGs that add body text inside the illustration.
+- Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates when roster access changes.
 - Public-site requests to `www.usechatting.com` now permanently redirect to the apex host so Google sees one canonical marketing origin instead of duplicate host variants.
 - Zapier setup now links to starter Zaps straight from the integrations screen, and the Zapier guides now include troubleshooting plus a direct Zapier-support path for broken workflows.
 - Team new-message emails now hide redundant hosted-conversation URLs when a visitor replies from the hosted thread, keeping the alert focused on the inbox action that actually handles the conversation.
@@ -303,6 +304,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ### Dashboard
 
+- Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates from the shared dashboard live stream.
 - The Zapier integration card now links directly to the starter-Zaps and setup-guide pages, so teams can find recommended workflows without opening the setup modal first.
 - Team new-message emails now drop hosted conversation resume URLs from teammate alerts when the inbox CTA already opens the same thread, keeping notification emails focused on the actual inbox handoff.
 - The desktop dashboard sidebar now hides the founder-only Switchboard entry so the main workspace nav stays focused on everyday team areas.

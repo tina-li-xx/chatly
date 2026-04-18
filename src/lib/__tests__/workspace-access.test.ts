@@ -9,9 +9,13 @@ const workspaceRepoMocks = vi.hoisted(() => ({
 const onboardingMocks = vi.hoisted(() => ({
   updateUserOnboardingStep: vi.fn()
 }));
+const liveEventMocks = vi.hoisted(() => ({
+  publishDashboardLive: vi.fn()
+}));
 
 vi.mock("@/lib/repositories/workspace-repository", () => workspaceRepoMocks);
 vi.mock("@/lib/repositories/onboarding-repository", () => onboardingMocks);
+vi.mock("@/lib/live-events", () => liveEventMocks);
 
 import {
   acceptTeamInvite,
@@ -171,6 +175,10 @@ describe("workspace access", () => {
     });
     expect(workspaceRepoMocks.acceptTeamInviteRecord).toHaveBeenCalledWith("invite_123", "member_123");
     expect(onboardingMocks.updateUserOnboardingStep).toHaveBeenCalledWith("member_123", "done");
+    expect(liveEventMocks.publishDashboardLive).toHaveBeenCalledWith(
+      "owner_123",
+      expect.objectContaining({ type: "team.members.updated" })
+    );
   });
 
 });

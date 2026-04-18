@@ -10,12 +10,12 @@ import {
   type WorkspaceAccessRow
 } from "@/lib/repositories/workspace-repository";
 import { updateUserOnboardingStep } from "@/lib/repositories/onboarding-repository";
+import { publishDashboardLive } from "@/lib/live-events";
 import { displayNameFromEmail } from "@/lib/user-display";
 import {
   getCurrentSessionActiveWorkspaceOwnerId,
   setCurrentSessionActiveWorkspaceOwnerId
 } from "@/lib/workspace-session";
-
 const TEAM_INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export type WorkspaceAccess = {
@@ -94,7 +94,7 @@ export const getWorkspaceAccess = cache(async (
 export async function listUserWorkspaces(userId: string): Promise<UserWorkspace[]> {
   const [activeWorkspace, rows] = await Promise.all([
     getWorkspaceAccess(userId),
-    listWorkspaceAccessRows(userId)
+    listWorkspaceAccessRows(userId),
   ]);
 
   return rows.map((row) => ({
@@ -179,15 +179,12 @@ export async function acceptTeamInvite(input: {
   email: string;
 }) {
   const row = await findTeamInviteAccessRow(input.inviteId);
-
   if (row?.status === "accepted" && row.accepted_by_user_id === input.userId) {
     await updateUserOnboardingStep(input.userId, "done");
     return { ownerUserId: row.owner_user_id, alreadyAccepted: true };
   }
-
   const invite = assertPendingInvite(row, input.email);
   if (invite.owner_user_id === input.userId) throw new Error("INVITE_OWNER_CONFLICT");
-
   await upsertActiveTeamMembership({
     ownerUserId: invite.owner_user_id,
     memberUserId: input.userId,
@@ -195,6 +192,9 @@ export async function acceptTeamInvite(input: {
   });
   await acceptTeamInviteRecord(invite.id, input.userId);
   await updateUserOnboardingStep(input.userId, "done");
-
+  publishDashboardLive(invite.owner_user_id, {
+    type: "team.members.updated",
+    updatedAt: new Date().toISOString()
+  });
   return { ownerUserId: invite.owner_user_id, alreadyAccepted: false };
 }

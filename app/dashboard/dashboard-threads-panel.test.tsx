@@ -38,6 +38,31 @@ const TEAM_MEMBERS = [
   }
 ];
 
+const MEMBER_TEAM_MEMBERS = [
+  {
+    id: "user_1",
+    name: "Tina",
+    email: "tina@example.com",
+    initials: "TI",
+    role: "member" as const,
+    status: "online" as const,
+    lastActiveLabel: "Now",
+    isCurrentUser: true,
+    avatarDataUrl: null
+  },
+  {
+    id: "user_2",
+    name: "Marcus",
+    email: "marcus@example.com",
+    initials: "MA",
+    role: "admin" as const,
+    status: "offline" as const,
+    lastActiveLabel: "5m ago",
+    isCurrentUser: false,
+    avatarDataUrl: null
+  }
+];
+
 async function loadThreadsPanel() {
   vi.resetModules();
   const reactMocks = createMockReactHooks();
@@ -131,6 +156,27 @@ describe("dashboard threads panel", () => {
     expect(installedEmptyHtml).not.toContain("Install widget");
     expect(searchHtml).toContain("No conversations found");
     expect(searchHtml).toContain("Showing 0 of 1 conversations");
+  });
+
+  it("hides the assignment filter for member workspaces", () => {
+    const html = renderToStaticMarkup(
+      <DashboardThreadsPanel
+        allConversations={[createConversationSummary()]}
+        conversations={[createConversationSummary()]}
+        initialWidgetInstalled={false}
+        widgetSiteIds={["site_1"]}
+        teamMembers={MEMBER_TEAM_MEMBERS}
+        threadFilter="all"
+        assignmentFilter="all"
+        searchQuery=""
+        onThreadFilterChange={vi.fn()}
+        onAssignmentFilterChange={vi.fn()}
+        onSearchQueryChange={vi.fn()}
+      />
+    );
+
+    expect(html).not.toContain("Assignment");
+    expect(html).not.toContain("All assignments");
   });
 
   it("renders active, unread, and resolved threads with search footer counts", () => {
