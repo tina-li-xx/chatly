@@ -1,5 +1,7 @@
 import { query } from "@/lib/db";
 
+const WIDGET_TOUCH_THROTTLE_MS = 5 * 60 * 1000;
+
 export async function findSiteTeamPhotoRecord(siteId: string, userId: string) {
   const result = await query<{
     id: string;
@@ -101,6 +103,7 @@ export async function findSitePresenceRow(siteId: string) {
 }
 
 export async function touchSiteWidgetSeenRecord(siteId: string, pageUrl: string | null) {
+  const oldestAllowedTouch = new Date(Date.now() - WIDGET_TOUCH_THROTTLE_MS).toISOString();
   await query(
     `
       UPDATE sites
@@ -108,7 +111,12 @@ export async function touchSiteWidgetSeenRecord(siteId: string, pageUrl: string 
         widget_last_seen_at = NOW(),
         widget_last_seen_url = COALESCE($2, widget_last_seen_url)
       WHERE id = $1
+        AND (
+          widget_last_seen_at IS NULL
+          OR widget_last_seen_at <= $3
+          OR COALESCE($2, widget_last_seen_url) IS DISTINCT FROM widget_last_seen_url
+        )
     `,
-    [siteId, pageUrl]
+    [siteId, pageUrl, oldestAllowedTouch]
   );
 }

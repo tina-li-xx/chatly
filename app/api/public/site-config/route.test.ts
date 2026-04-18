@@ -1,11 +1,9 @@
 const mocks = vi.hoisted(() => ({
-  getSiteWidgetConfig: vi.fn(),
-  recordSiteWidgetSeen: vi.fn()
+  getPublicSiteWidgetConfig: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({
-  getSiteWidgetConfig: mocks.getSiteWidgetConfig,
-  recordSiteWidgetSeen: mocks.recordSiteWidgetSeen
+vi.mock("@/lib/services/public-sites", () => ({
+  getPublicSiteWidgetConfig: mocks.getPublicSiteWidgetConfig
 }));
 
 import { GET } from "./route";
@@ -19,7 +17,7 @@ describe("public site-config route", () => {
   });
 
   it("returns the widget config including free-plan branding fields", async () => {
-    mocks.getSiteWidgetConfig.mockResolvedValueOnce({
+    mocks.getPublicSiteWidgetConfig.mockResolvedValueOnce({
       id: "site_123",
       widgetTitle: "Talk to the team",
       autoOpenPaths: [],
@@ -37,31 +35,8 @@ describe("public site-config route", () => {
       brandingUrl: "https://chatting.example"
     });
 
-    const response = await GET(
-      new Request(
-        "http://localhost/api/public/site-config?siteId=site_123&pageUrl=https://example.com/pricing&sessionId=session_123&conversationId=conv_123&email=alex%40example.com&referrer=https%3A%2F%2Fgoogle.com&timezone=Europe%2FLondon&locale=en-GB",
-        {
-          headers: {
-            "user-agent": "Mozilla/5.0"
-          }
-        }
-      )
-    );
+    const response = await GET(new Request("http://localhost/api/public/site-config?siteId=site_123"));
 
-    expect(mocks.recordSiteWidgetSeen).toHaveBeenCalledWith({
-      siteId: "site_123",
-      pageUrl: "https://example.com/pricing",
-      sessionId: "session_123",
-      conversationId: "conv_123",
-      email: "alex@example.com",
-      referrer: "https://google.com",
-      userAgent: "Mozilla/5.0",
-      country: null,
-      region: null,
-      city: null,
-      timezone: "Europe/London",
-      locale: "en-GB"
-    });
     expect(await response.json()).toEqual({
       ok: true,
       site: {
@@ -82,5 +57,6 @@ describe("public site-config route", () => {
         brandingUrl: "https://chatting.example"
       }
     });
+    expect(response.headers.get("cache-control")).toBe("public, max-age=60, stale-while-revalidate=300");
   });
 });

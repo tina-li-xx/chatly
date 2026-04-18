@@ -1,11 +1,9 @@
 const mocks = vi.hoisted(() => ({
-  getSitePresenceStatus: vi.fn(),
-  recordSiteWidgetSeen: vi.fn()
+  getPublicSitePresenceStatus: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({
-  getSitePresenceStatus: mocks.getSitePresenceStatus,
-  recordSiteWidgetSeen: mocks.recordSiteWidgetSeen
+vi.mock("@/lib/services/public-sites", () => ({
+  getPublicSitePresenceStatus: mocks.getPublicSitePresenceStatus
 }));
 
 import { GET } from "./route";
@@ -31,7 +29,7 @@ describe("public site-status route", () => {
   });
 
   it("returns a not-found response when the site does not exist", async () => {
-    mocks.getSitePresenceStatus.mockResolvedValueOnce(null);
+    mocks.getPublicSitePresenceStatus.mockResolvedValueOnce(null);
 
     const response = await GET(new Request("http://localhost/api/public/site-status?siteId=missing"));
 
@@ -39,37 +37,14 @@ describe("public site-status route", () => {
     expect(await response.json()).toEqual({ error: "Site not found." });
   });
 
-  it("records passive visitor session presence while returning status", async () => {
-    mocks.getSitePresenceStatus.mockResolvedValueOnce({
+  it("returns status without recording widget presence", async () => {
+    mocks.getPublicSitePresenceStatus.mockResolvedValueOnce({
       online: true,
       lastSeenAt: "2026-03-29T12:00:00.000Z"
     });
 
-    const response = await GET(
-      new Request(
-        "http://localhost/api/public/site-status?siteId=site_123&pageUrl=https://example.com/pricing&sessionId=session_123&conversationId=conv_123&email=alex%40example.com&referrer=https%3A%2F%2Fgoogle.com&timezone=Europe%2FLondon&locale=en-GB",
-        {
-          headers: {
-            "user-agent": "Mozilla/5.0"
-          }
-        }
-      )
-    );
+    const response = await GET(new Request("http://localhost/api/public/site-status?siteId=site_123"));
 
-    expect(mocks.recordSiteWidgetSeen).toHaveBeenCalledWith({
-      siteId: "site_123",
-      pageUrl: "https://example.com/pricing",
-      sessionId: "session_123",
-      conversationId: "conv_123",
-      email: "alex@example.com",
-      referrer: "https://google.com",
-      userAgent: "Mozilla/5.0",
-      country: null,
-      region: null,
-      city: null,
-      timezone: "Europe/London",
-      locale: "en-GB"
-    });
     expect(await response.json()).toEqual({
       ok: true,
       online: true,
@@ -78,7 +53,7 @@ describe("public site-status route", () => {
   });
 
   it("maps unexpected failures to a stable error response", async () => {
-    mocks.getSitePresenceStatus.mockRejectedValueOnce(new Error("boom"));
+    mocks.getPublicSitePresenceStatus.mockRejectedValueOnce(new Error("boom"));
 
     const response = await GET(new Request("http://localhost/api/public/site-status?siteId=site_123"));
 

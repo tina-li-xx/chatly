@@ -1,5 +1,6 @@
 import type { VisitorPresenceSession } from "@/lib/types";
 import { syncDashboardContactFromPresence } from "@/lib/data/contacts";
+import { shouldSyncVisitorContact } from "@/lib/data/visitor-contact-sync-policy";
 import { publishDashboardLive } from "@/lib/live-events";
 import {
   findSiteOwnerRow,
@@ -91,11 +92,7 @@ export async function syncVisitorContact(input: {
 export async function recordVisitorPresence(input: RecordVisitorPresenceInput) {
   const sessionId = input.sessionId.trim();
   if (!input.siteId || !sessionId) return null;
-  const [owner, previous] = await Promise.all([
-    findSiteOwnerRow(input.siteId),
-    findVisitorPresenceSessionRow(input.siteId, sessionId)
-  ]);
-
+  const [owner, previous] = await Promise.all([findSiteOwnerRow(input.siteId), findVisitorPresenceSessionRow(input.siteId, sessionId)]);
   const next = mapVisitorPresenceSession(
     await upsertVisitorPresenceSessionRow({
       siteId: input.siteId,
@@ -115,7 +112,7 @@ export async function recordVisitorPresence(input: RecordVisitorPresenceInput) {
     })
   );
 
-  if (next?.email) {
+  if (next && shouldSyncVisitorContact(previous, next)) {
     const sessionDurationSeconds = Math.max(
       0,
       Math.round((new Date(next.lastSeenAt).getTime() - new Date(next.startedAt).getTime()) / 1000)
@@ -153,7 +150,8 @@ export async function recordVisitorPresence(input: RecordVisitorPresenceInput) {
       sessionId: next.sessionId,
       conversationId: next.conversationId,
       pageUrl: next.currentPageUrl,
-      updatedAt: next.lastSeenAt
+      updatedAt: next.lastSeenAt,
+      session: next
     });
   }
 

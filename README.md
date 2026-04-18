@@ -28,6 +28,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 
 ## Recent Updates
 
+- Widget and dashboard presence now use quieter background beacons and one-tab heartbeats, cutting passive write churn while keeping live presence behavior intact.
 - Blog artwork cards now keep visible copy in the bottom caption area only, and the registry build now rejects new blog SVGs that add body text inside the illustration.
 - Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates when roster access changes.
 - Public-site requests to `www.usechatting.com` now permanently redirect to the apex host so Google sees one canonical marketing origin instead of duplicate host variants.
@@ -295,6 +296,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Public mobile device registration, Expo push-backed team reply delivery, and shared `DELETE`-capable CORS helpers now support mobile register and unregister flows.
 - Chatting now includes a first-party iOS SDK with Swift Package Manager and CocoaPods support, covering visitor session storage, live conversation sync, email capture, identify flows, and a lightweight SwiftUI chat surface for native apps.
 - Hosted conversation resume replies now keep the composer focused during sends, and public follow-up replies can now emit consistent reply activity events for funnel analysis.
+- Public widget presence now writes through a dedicated beacon path, background polling backs off harder when chat is idle, and site-level last-seen updates now skip duplicate same-page touches.
 - Embeddable widget with optimistic sending, typing, conversation polling, and install detection.
 - The shipped widget runtime now reads branding-aware site config, sends fuller visitor context to public config/status routes, and refreshes site state on route changes.
 - The live widget now runs Automation FAQ suggestions, proactive prompts, and profile-aware routing inputs from the public automation payload.
@@ -303,6 +305,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Public API endpoints for conversation messages, status, typing, site config, and attachments.
 
 ### Dashboard
+- Dashboard presence now elects one visible tab to own teammate heartbeats, so multiple open tabs no longer duplicate the same presence writes.
 
 - Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates from the shared dashboard live stream.
 - The Zapier integration card now links directly to the starter-Zaps and setup-guide pages, so teams can find recommended workflows without opening the setup modal first.

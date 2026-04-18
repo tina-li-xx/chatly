@@ -143,23 +143,37 @@ describe("sites repository", () => {
   });
 
   it("marks widget verification, reads presence, and tracks widget sighting", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-29T10:05:00.000Z"));
     mocks.query
       .mockResolvedValueOnce({ rows: [{ id: "site_1" }] })
       .mockResolvedValueOnce({ rows: [{ last_seen_at: "2026-03-29T10:00:00.000Z" }] })
       .mockResolvedValueOnce(undefined);
 
-    await expect(markSiteWidgetInstallVerifiedRecord("site_1", "user_1", "https://usechatting.com")).resolves.toBe(true);
-    await expect(findSitePresenceRow("site_1")).resolves.toEqual({
-      last_seen_at: "2026-03-29T10:00:00.000Z"
-    });
-    await touchSiteWidgetSeenRecord("site_1", "/pricing");
+    try {
+      await expect(markSiteWidgetInstallVerifiedRecord("site_1", "user_1", "https://usechatting.com")).resolves.toBe(true);
+      await expect(findSitePresenceRow("site_1")).resolves.toEqual({
+        last_seen_at: "2026-03-29T10:00:00.000Z"
+      });
+      await touchSiteWidgetSeenRecord("site_1", "/pricing");
 
-    expect(mocks.query.mock.calls[0]?.[0]).toContain("widget_install_verified_at = NOW()");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("MAX(up.last_seen_at) AS last_seen_at");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("FROM team_memberships tm");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("tm.status = 'active'");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("GROUP BY s.id");
-    expect(mocks.query.mock.calls[2]?.[0]).toContain("widget_last_seen_url = COALESCE($2, widget_last_seen_url)");
-    expect(mocks.query.mock.calls[2]?.[1]).toEqual(["site_1", "/pricing"]);
+      expect(mocks.query.mock.calls[0]?.[0]).toContain("widget_install_verified_at = NOW()");
+      expect(mocks.query.mock.calls[1]?.[0]).toContain("MAX(up.last_seen_at) AS last_seen_at");
+      expect(mocks.query.mock.calls[1]?.[0]).toContain("FROM team_memberships tm");
+      expect(mocks.query.mock.calls[1]?.[0]).toContain("tm.status = 'active'");
+      expect(mocks.query.mock.calls[1]?.[0]).toContain("GROUP BY s.id");
+      expect(mocks.query.mock.calls[2]?.[0]).toContain("widget_last_seen_url = COALESCE($2, widget_last_seen_url)");
+      expect(mocks.query.mock.calls[2]?.[0]).toContain("widget_last_seen_at <= $3");
+      expect(mocks.query.mock.calls[2]?.[0]).toContain(
+        "COALESCE($2, widget_last_seen_url) IS DISTINCT FROM widget_last_seen_url"
+      );
+      expect(mocks.query.mock.calls[2]?.[1]).toEqual([
+        "site_1",
+        "/pricing",
+        "2026-03-29T10:00:00.000Z"
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

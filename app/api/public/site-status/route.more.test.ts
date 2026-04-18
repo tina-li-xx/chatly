@@ -1,11 +1,9 @@
 const mocks = vi.hoisted(() => ({
-  getSitePresenceStatus: vi.fn(),
-  recordSiteWidgetSeen: vi.fn()
+  getPublicSitePresenceStatus: vi.fn()
 }));
 
-vi.mock("@/lib/data", () => ({
-  getSitePresenceStatus: mocks.getSitePresenceStatus,
-  recordSiteWidgetSeen: mocks.recordSiteWidgetSeen
+vi.mock("@/lib/services/public-sites", () => ({
+  getPublicSitePresenceStatus: mocks.getPublicSitePresenceStatus
 }));
 
 import { GET } from "./route";
@@ -15,35 +13,16 @@ describe("public site-status route more", () => {
     vi.clearAllMocks();
   });
 
-  it("records optional params as null when they are absent", async () => {
-    mocks.getSitePresenceStatus.mockResolvedValueOnce({ online: false, lastSeenAt: null });
+  it("returns optional status fields when they are absent", async () => {
+    mocks.getPublicSitePresenceStatus.mockResolvedValueOnce({ online: false, lastSeenAt: null });
 
-    const response = await GET(
-      new Request("http://localhost/api/public/site-status?siteId=site_123", {
-        headers: { "user-agent": "Mozilla/5.0" }
-      })
-    );
+    const response = await GET(new Request("http://localhost/api/public/site-status?siteId=site_123"));
 
-    expect(mocks.recordSiteWidgetSeen).toHaveBeenCalledWith({
-      siteId: "site_123",
-      pageUrl: null,
-      sessionId: undefined,
-      conversationId: null,
-      email: null,
-      referrer: null,
-      userAgent: "Mozilla/5.0",
-      country: null,
-      region: null,
-      city: null,
-      timezone: null,
-      locale: null
-    });
     expect(await response.json()).toEqual({ ok: true, online: false, lastSeenAt: null });
   });
 
-  it("returns a stable 500 when recording widget activity fails", async () => {
-    mocks.getSitePresenceStatus.mockResolvedValueOnce({ online: true, lastSeenAt: "2026-03-29T12:00:00.000Z" });
-    mocks.recordSiteWidgetSeen.mockRejectedValueOnce(new Error("boom"));
+  it("returns a stable 500 when loading site status fails", async () => {
+    mocks.getPublicSitePresenceStatus.mockRejectedValueOnce(new Error("boom"));
 
     const response = await GET(new Request("http://localhost/api/public/site-status?siteId=site_123"));
     expect(response.status).toBe(500);
