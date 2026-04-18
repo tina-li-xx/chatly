@@ -1,3 +1,4 @@
+import { JOB_SCHEDULES } from "@/lib/job-schedules";
 import type { DashboardEmailTemplateKey } from "@/lib/email-templates";
 
 export type ReplyAttachment = {
@@ -21,9 +22,11 @@ export type RetryQueuedConversationTemplateEmailInput = {
   attachments?: ReplyAttachment[];
 };
 
-const INITIAL_RETRY_DELAY_MS = 5 * 60 * 1000;
-const MAX_RETRY_DELAY_MS = 6 * 60 * 60 * 1000;
-const RETRY_LEASE_MS = 5 * 60 * 1000;
+const {
+  initialDelayMs: INITIAL_RETRY_DELAY_MS,
+  leaseMs: RETRY_LEASE_MS,
+  maxDelayMs: MAX_RETRY_DELAY_MS
+} = JOB_SCHEDULES.conversationTemplateEmail.retry;
 
 export function buildInitialConversationTemplateRetryAt(now = new Date()) {
   return new Date(now.getTime() + INITIAL_RETRY_DELAY_MS);

@@ -1,3 +1,4 @@
+import { JOB_SCHEDULES } from "@/lib/job-schedules";
 import {
   createCompletedWindowRunner,
   flushSchedulerAsyncWork,
@@ -26,7 +27,7 @@ describe("daily digest scheduler", () => {
 
     dailyDigestScheduler.start();
     expect(setIntervalSpy).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    await vi.advanceTimersByTimeAsync(JOB_SCHEDULES.dailyDigest.intervalMs);
     await flushSchedulerAsyncWork();
 
     expect(runScheduledDailyDigests.mock.calls.length).toBeGreaterThan(afterStart);
@@ -58,7 +59,7 @@ describe("daily digest scheduler", () => {
 
     dailyDigestScheduler.start();
     await flushSchedulerAsyncWork();
-    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    await vi.advanceTimersByTimeAsync(JOB_SCHEDULES.dailyDigest.intervalMs);
     await flushSchedulerAsyncWork();
 
     expect(runScheduledDailyDigests).toHaveBeenCalledTimes(1);

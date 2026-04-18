@@ -1,3 +1,4 @@
+import { JOB_SCHEDULES } from "@/lib/job-schedules";
 import {
   createCompletedWindowRunner,
   flushSchedulerAsyncWork,
@@ -26,7 +27,7 @@ describe("growth lifecycle scheduler", () => {
 
     growthLifecycleScheduler.start();
     expect(setIntervalSpy).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    await vi.advanceTimersByTimeAsync(JOB_SCHEDULES.growthLifecycle.intervalMs);
     await flushSchedulerAsyncWork();
 
     expect(runScheduledGrowthLifecycleEmails.mock.calls.length).toBeGreaterThan(afterStart);
@@ -58,7 +59,7 @@ describe("growth lifecycle scheduler", () => {
 
     growthLifecycleScheduler.start();
     await flushSchedulerAsyncWork();
-    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    await vi.advanceTimersByTimeAsync(JOB_SCHEDULES.growthLifecycle.intervalMs);
     await flushSchedulerAsyncWork();
 
     expect(runScheduledGrowthLifecycleEmails).toHaveBeenCalledTimes(1);

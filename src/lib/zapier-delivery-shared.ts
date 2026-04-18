@@ -1,11 +1,12 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import { JOB_SCHEDULES } from "@/lib/job-schedules";
 import type { ZapierEventPayload } from "@/lib/zapier-event-payloads";
 
-const ZAPIER_RETRY_DELAYS_MS = [60_000, 5 * 60_000, 30 * 60_000];
+const ZAPIER_RETRY_DELAYS_MS = JOB_SCHEDULES.zapierDelivery.retryDelaysMs;
 
-export const ZAPIER_DELIVERY_BATCH_SIZE = 25;
+export const ZAPIER_DELIVERY_BATCH_SIZE = JOB_SCHEDULES.zapierDelivery.batchSize;
 export const ZAPIER_DELIVERY_MAX_ATTEMPTS = ZAPIER_RETRY_DELAYS_MS.length;
 
 export function trimZapierResponseBody(body: string) {

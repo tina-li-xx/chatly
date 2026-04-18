@@ -31,6 +31,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 - Widget and dashboard presence now use quieter background beacons and one-tab heartbeats, cutting passive write churn while keeping live presence behavior intact.
 - The visitors page now patches live updates directly from richer SSE payloads and keeps member access checks off the per-event database hot path.
 - Dashboard unread counts now use stored per-viewer snapshots instead of recounting visitor messages in the hot summary and shell queries, cutting repeat inbox read work while keeping unread badges in sync on message, read, and assignment changes.
+- Low-priority background schedulers now use centralized timing controls, slower low-usage cadences, and production-only auto-start defaults outside production.
 - Blog artwork cards now keep visible copy in the bottom caption area only, and the registry build now rejects new blog SVGs that add body text inside the illustration.
 - Dashboard home now shows owners and admins a live Team status card with real teammate presence, pending invites, and automatic updates when roster access changes.
 - Public-site requests to `www.usechatting.com` now permanently redirect to the apex host so Google sees one canonical marketing origin instead of duplicate host variants.
@@ -215,6 +216,7 @@ Async team chat for high-intent visitors. This MVP gives each SaaS account:
 ## 🚀 Key Modules
 
 ### Platform & Runtime
+- Runtime scheduler timing now lives in one shared schedule file, and non-production environments now keep background jobs off by default unless they are explicitly re-enabled.
 
 - The app icon now resolves from a static `app/icon.png` asset instead of an Edge-runtime icon route, removing the static-generation warning from production builds.
 - Dashboard proxy auth now lets bearer-authenticated requests pass through without a cookie redirect, and the shared env catalog now documents the FCM push settings used by team mobile delivery.

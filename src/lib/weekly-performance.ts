@@ -7,6 +7,16 @@ import { buildWeeklySnapshotRequest, cleanupClaimedWeeklyPerformanceDelivery, cr
 
 type WeeklyPerformanceSendStatus = "sent" | "too-early" | "already-sent";
 
+function hasWeeklyDeliveryWindowAligned(
+  now: Date,
+  recipientTimeZone?: string | null,
+  teamTimeZone?: string | null
+) {
+  const recipientZone = resolveReportTimeZone(recipientTimeZone);
+  const workspaceZone = resolveReportTimeZone(teamTimeZone ?? recipientTimeZone);
+  return previousLocalWeekStartDateKey(now, recipientZone) === previousLocalWeekStartDateKey(now, workspaceZone);
+}
+
 export function shouldRunWeeklyPerformanceEmails(
   now = new Date(),
   recipientTimeZone?: string | null,
@@ -14,11 +24,9 @@ export function shouldRunWeeklyPerformanceEmails(
   sendHour = 9,
   sendMinute = 0
 ) {
-  const recipientZone = resolveReportTimeZone(recipientTimeZone);
-  const workspaceZone = resolveReportTimeZone(teamTimeZone ?? recipientTimeZone);
   return (
-    shouldRunWeeklyReport(now, recipientZone, sendHour, sendMinute) &&
-    previousLocalWeekStartDateKey(now, recipientZone) === previousLocalWeekStartDateKey(now, workspaceZone)
+    shouldRunWeeklyReport(now, recipientTimeZone, sendHour, sendMinute) &&
+    hasWeeklyDeliveryWindowAligned(now, recipientTimeZone, teamTimeZone)
   );
 }
 
@@ -61,7 +69,15 @@ export async function sendUserWeeklyPerformanceEmail(input: {
   const now = input.now ?? new Date();
   const teamTimeZone = resolveReportTimeZone(input.teamTimeZone ?? input.recipientTimeZone);
 
-  if (!shouldRunWeeklyPerformanceEmails(now, input.recipientTimeZone, teamTimeZone, input.weeklyReportSendHour ?? 9, input.weeklyReportSendMinute ?? 0)) {
+  if (
+    !shouldRunWeeklyPerformanceEmails(
+      now,
+      input.recipientTimeZone,
+      teamTimeZone,
+      input.weeklyReportSendHour ?? 9,
+      input.weeklyReportSendMinute ?? 0
+    )
+  ) {
     return "too-early";
   }
 

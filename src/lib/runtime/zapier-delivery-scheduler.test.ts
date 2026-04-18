@@ -1,3 +1,4 @@
+import { JOB_SCHEDULES } from "@/lib/job-schedules";
 import {
   createCompletedWindowRunner,
   flushSchedulerAsyncWork,
@@ -28,7 +29,7 @@ describe("zapier delivery scheduler", () => {
 
     zapierDeliveryScheduler.start();
     expect(setIntervalSpy).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(15 * 1000);
+    await vi.advanceTimersByTimeAsync(JOB_SCHEDULES.zapierDelivery.intervalMs);
     await flushSchedulerAsyncWork();
 
     expect(runScheduledZapierDeliveries.mock.calls.length).toBeGreaterThan(afterStart);

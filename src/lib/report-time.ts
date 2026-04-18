@@ -1,11 +1,9 @@
+import { REPORT_SEND_TIME } from "@/lib/job-schedules";
 import { DEFAULT_TIME_ZONE, normalizeTimeZone } from "@/lib/timezones";
 import {
   clampWeeklyReportSendHour,
   clampWeeklyReportSendMinute
 } from "@/lib/weekly-report-send-time";
-
-const REPORT_SEND_HOUR = 9;
-const REPORT_SEND_MINUTE = 0;
 
 function getPartValue(
   value: Date,
@@ -62,8 +60,8 @@ function hasReachedLocalSendTime(
 ) {
   const hour = localHour(now, timeZone);
   const minute = localMinute(now, timeZone);
-  const targetHour = clampWeeklyReportSendHour(sendHour ?? REPORT_SEND_HOUR);
-  const targetMinute = clampWeeklyReportSendMinute(sendMinute ?? REPORT_SEND_MINUTE);
+  const targetHour = clampWeeklyReportSendHour(sendHour ?? REPORT_SEND_TIME.hour);
+  const targetMinute = clampWeeklyReportSendMinute(sendMinute ?? REPORT_SEND_TIME.minute);
 
   return hour > targetHour || (hour === targetHour && minute >= targetMinute);
 }
@@ -86,8 +84,8 @@ export function formatDateKeyLabel(value: string, month: "long" | "short" = "lon
 export function shouldRunDailyReport(
   now = new Date(),
   timeZone: string | null | undefined = DEFAULT_TIME_ZONE,
-  sendHour = REPORT_SEND_HOUR,
-  sendMinute = REPORT_SEND_MINUTE
+  sendHour: number = REPORT_SEND_TIME.hour,
+  sendMinute: number = REPORT_SEND_TIME.minute
 ) {
   return hasReachedLocalSendTime(now, resolveReportTimeZone(timeZone), sendHour, sendMinute);
 }
@@ -115,8 +113,8 @@ export function weekStartDateKey(value: string) {
 export function shouldRunWeeklyReport(
   now = new Date(),
   timeZone: string | null | undefined = DEFAULT_TIME_ZONE,
-  sendHour = REPORT_SEND_HOUR,
-  sendMinute = REPORT_SEND_MINUTE
+  sendHour: number = REPORT_SEND_TIME.hour,
+  sendMinute: number = REPORT_SEND_TIME.minute
 ) {
   const resolvedTimeZone = resolveReportTimeZone(timeZone);
   const localDateKey = dateKeyInTimeZone(now, resolvedTimeZone);

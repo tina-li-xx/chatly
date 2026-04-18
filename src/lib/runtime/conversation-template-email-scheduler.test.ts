@@ -1,3 +1,4 @@
+import { JOB_SCHEDULES } from "@/lib/job-schedules";
 import {
   createCompletedWindowRunner,
   flushSchedulerAsyncWork,
@@ -28,7 +29,7 @@ describe("conversation template email scheduler", () => {
 
     conversationTemplateEmailScheduler.start();
     expect(setIntervalSpy).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(60 * 1000);
+    await vi.advanceTimersByTimeAsync(JOB_SCHEDULES.conversationTemplateEmail.intervalMs);
     await flushSchedulerAsyncWork();
 
     expect(runScheduledConversationTemplateEmailRetries.mock.calls.length).toBeGreaterThan(afterStart);
