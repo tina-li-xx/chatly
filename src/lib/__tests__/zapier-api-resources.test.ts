@@ -60,7 +60,7 @@ describe("zapier api resources", () => {
     expect(mocks.queryConversationSummaries).toHaveBeenCalledWith(
       "s.user_id = $1",
       ["owner_1"],
-      "ORDER BY latest.created_at DESC NULLS LAST, c.updated_at DESC LIMIT 5",
+      "ORDER BY c.last_message_at DESC NULLS LAST, c.updated_at DESC LIMIT 5",
       "owner_1"
     );
   });

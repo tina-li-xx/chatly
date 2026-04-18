@@ -44,7 +44,7 @@ export async function listZapierConversations(
   const result = await queryConversationSummaries(
     "s.user_id = $1",
     [ownerUserId],
-    `ORDER BY latest.created_at DESC NULLS LAST, c.updated_at DESC LIMIT ${normalizeLimit(limit)}`,
+    `ORDER BY c.last_message_at DESC NULLS LAST, c.updated_at DESC LIMIT ${normalizeLimit(limit)}`,
     ownerUserId
   );
   const conversations = result.rows.map(mapSummary);

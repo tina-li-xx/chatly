@@ -429,7 +429,7 @@ export async function listConversationSummaries(userId: string) {
   const result = await queryConversationSummaries(
     "s.user_id = $1",
     [workspace.ownerUserId],
-    "ORDER BY latest.created_at DESC NULLS LAST, c.updated_at DESC",
+    "ORDER BY c.last_message_at DESC NULLS LAST, c.updated_at DESC",
     userId
   );
 

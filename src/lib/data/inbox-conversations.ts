@@ -22,7 +22,7 @@ async function queryWorkspaceInboxSummaries(
 export async function listInboxConversationSummaries(userId: string): Promise<ConversationSummary[]> {
   return queryWorkspaceInboxSummaries(
     userId,
-    "ORDER BY latest.created_at DESC NULLS LAST, c.updated_at DESC"
+    "ORDER BY c.last_message_at DESC NULLS LAST, c.updated_at DESC"
   );
 }
 
@@ -34,7 +34,7 @@ export async function listRecentInboxConversationSummaries(
   const normalizedLimit = Math.max(1, Math.floor(limit));
   return queryWorkspaceInboxSummaries(
     userId,
-    `ORDER BY latest.created_at DESC NULLS LAST, c.updated_at DESC LIMIT ${normalizedLimit}`,
+    `ORDER BY c.last_message_at DESC NULLS LAST, c.updated_at DESC LIMIT ${normalizedLimit}`,
     ownerUserId
   );
 }
