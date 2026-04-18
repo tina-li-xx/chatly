@@ -2,9 +2,9 @@ import { query } from "@/lib/db";
 import { conversationAccessClause } from "@/lib/repositories/workspace-access-repository";
 import type { Sender } from "@/lib/types";
 import { optionalText } from "@/lib/utils";
+import { enrichConversationSummaryRows } from "./conversation-summary-enrichment";
 import {
   CONVERSATION_SUMMARY_FROM,
-  CONVERSATION_SUMMARY_GROUP_BY,
   CONVERSATION_SUMMARY_SELECT,
   INBOX_CONVERSATION_SUMMARY_FROM,
   INBOX_CONVERSATION_SUMMARY_SELECT,
@@ -40,19 +40,26 @@ export async function queryConversationSummaries(
   const ownerUserParam = `$${values.length}`;
   const viewerUserParam = `$${values.length + 1}`;
 
-  return query<SummaryRow>(
+  const result = await query<SummaryRow>(
     `
       SELECT
         ${CONVERSATION_SUMMARY_SELECT}
       ${CONVERSATION_SUMMARY_FROM.replaceAll("$VIEWER_USER_PARAM", viewerUserParam)}
       WHERE ${whereClause}
         AND ${conversationAccessClause("s.user_id", "c.assigned_user_id", ownerUserParam, viewerUserParam)}
-      GROUP BY
-        ${CONVERSATION_SUMMARY_GROUP_BY}
       ${suffix}
     `,
     [...values, viewerUserId]
   );
+
+  if (!result.rows.length) {
+    return result;
+  }
+
+  return {
+    ...result,
+    rows: await enrichConversationSummaryRows(result.rows)
+  };
 }
 
 export async function queryInboxConversationSummaries(

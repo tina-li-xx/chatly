@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   insertMessage: vi.fn(),
   isHighIntentPage: vi.fn(),
   migrateVisitorNoteIdentity: vi.fn(),
+  overlayConversationSummaryWithLivePresence: vi.fn(),
   previewIncomingMessage: vi.fn(),
   queryConversationSummaries: vi.fn(),
   recordVisitorPresence: vi.fn(),
@@ -54,6 +55,7 @@ vi.mock("@/lib/data/shared", () => ({
   mapAttachment: vi.fn(),
   mapMessage: vi.fn(),
   mapSummary: (row: Record<string, unknown>) => ({ id: row.id, pageUrl: row.page_url, city: row.city, region: row.region, country: row.country }),
+  overlayConversationSummaryWithLivePresence: mocks.overlayConversationSummaryWithLivePresence,
   queryConversationSummaries: mocks.queryConversationSummaries,
   updateConversationEmailValue: mocks.updateConversationEmailValue
 }));
@@ -72,6 +74,7 @@ describe("conversation data edge cases", () => {
     mocks.findConversationFaqHandoffState.mockResolvedValue(null);
     mocks.findConversationNotificationContextRow.mockResolvedValue(null);
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1" });
+    mocks.overlayConversationSummaryWithLivePresence.mockImplementation(async (summary: unknown) => summary);
     mocks.insertMessage.mockResolvedValue({ id: "msg_1" });
     mocks.queryConversationSummaries.mockResolvedValue({ rowCount: 0, rows: [] });
   });

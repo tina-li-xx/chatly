@@ -1,6 +1,12 @@
 import { query } from "@/lib/db";
 import type { ConversationRating, ConversationStatus } from "@/lib/types";
 import type { MessageRow } from "@/lib/repositories/shared-repository";
+import {
+  syncConversationMessageSummaryRecord,
+  syncConversationRecordedSummaryRecord
+} from "@/lib/repositories/conversation-summary-write-repository";
+
+export { upsertConversationRead } from "@/lib/repositories/conversation-unread-repository";
 
 export async function insertConversationRecord(input: {
   conversationId: string;
@@ -113,6 +119,8 @@ export async function upsertConversationMetadataRecord(input: {
       input.locale
     ]
   );
+
+  await syncConversationRecordedSummaryRecord(input);
 }
 
 export async function insertMessageRecord(input: {
@@ -134,16 +142,33 @@ export async function insertMessageRecord(input: {
   return result.rows[0];
 }
 
-export async function touchConversationAfterMessage(conversationId: string, reopenConversation: boolean) {
-  await query(
-    `
-      UPDATE conversations
-      SET updated_at = NOW()
-        ${reopenConversation ? ", status = 'open'" : ""}
-      WHERE id = $1
-    `,
-    [conversationId]
-  );
+export async function touchConversationAfterMessage(
+  conversationId: string,
+  reopenConversation: boolean,
+  lastMessage?: {
+    createdAt: string;
+    preview: string;
+  }
+) {
+  if (!lastMessage) {
+    await query(
+      `
+        UPDATE conversations
+        SET updated_at = NOW()
+          ${reopenConversation ? ", status = 'open'" : ""}
+        WHERE id = $1
+      `,
+      [conversationId]
+    );
+    return;
+  }
+
+  await syncConversationMessageSummaryRecord({
+    conversationId,
+    createdAt: lastMessage.createdAt,
+    preview: lastMessage.preview,
+    reopenConversation
+  });
 }
 
 export async function insertAttachmentRecord(input: {
@@ -222,20 +247,6 @@ export async function upsertConversationFeedback(conversationId: string, rating:
       DO UPDATE SET rating = EXCLUDED.rating, created_at = NOW()
     `,
     [conversationId, rating]
-  );
-}
-
-export async function upsertConversationRead(userId: string, conversationId: string) {
-  await query(
-    `
-      INSERT INTO conversation_reads (user_id, conversation_id, last_read_at, updated_at)
-      VALUES ($1, $2, NOW(), NOW())
-      ON CONFLICT (user_id, conversation_id)
-      DO UPDATE SET
-        last_read_at = NOW(),
-        updated_at = NOW()
-    `,
-    [userId, conversationId]
   );
 }
 

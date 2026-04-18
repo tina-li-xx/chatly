@@ -58,6 +58,7 @@ export const conversationReads = pgTable("conversation_reads", {
     userId: text("user_id").notNull(),
     conversationId: text("conversation_id").notNull(),
     lastReadAt: timestamp("last_read_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
+    unreadCount: integer("unread_count").notNull().default(0),
     updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" }).notNull().defaultNow(),
   }, (table) => ({
     conversationReadsPkey: primaryKey({ name: "conversation_reads_pkey", columns: [table.userId, table.conversationId] }),

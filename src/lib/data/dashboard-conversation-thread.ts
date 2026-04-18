@@ -7,6 +7,7 @@ import {
 import {
   hasConversationAccess,
   mapSummary,
+  overlayConversationSummaryWithLivePresence,
   queryConversationSummaries
 } from "./shared";
 
@@ -34,8 +35,16 @@ export async function getDashboardConversationThreadById(
     return null;
   }
 
+  const summary = await overlayConversationSummaryWithLivePresence(
+    mapSummary(summaryResult.rows[0]),
+    {
+      ownerUserId: workspace.ownerUserId,
+      viewerUserId: userId
+    }
+  );
+
   return {
-    ...mapSummary(summaryResult.rows[0]),
+    ...summary,
     messages,
     visitorActivity
   };

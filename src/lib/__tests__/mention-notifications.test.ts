@@ -1,5 +1,5 @@
 const mocks = vi.hoisted(() => ({
-  getConversationSummaryById: vi.fn(),
+  getConversationCoreSummaryById: vi.fn(),
   getPublicAppUrl: vi.fn(),
   listWorkspaceMentionNotificationRows: vi.fn(),
   sendMentionNotificationEmail: vi.fn()
@@ -8,8 +8,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/chatting-notification-email-senders", () => ({
   sendMentionNotificationEmail: mocks.sendMentionNotificationEmail
 }));
-vi.mock("@/lib/data/conversations", () => ({
-  getConversationSummaryById: mocks.getConversationSummaryById
+vi.mock("@/lib/data/conversation-core-summary", () => ({
+  getConversationCoreSummaryById: mocks.getConversationCoreSummaryById
 }));
 vi.mock("@/lib/env", () => ({
   getPublicAppUrl: mocks.getPublicAppUrl
@@ -111,7 +111,7 @@ describe("mention notifications", () => {
         mention_notifications: true
       }
     ]);
-    mocks.getConversationSummaryById.mockResolvedValue({
+    mocks.getConversationCoreSummaryById.mockResolvedValue({
       email: "alex@example.com",
       pageUrl: "https://usechatting.com/pricing"
     });

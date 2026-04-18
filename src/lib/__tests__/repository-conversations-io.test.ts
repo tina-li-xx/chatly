@@ -18,13 +18,18 @@ import {
 import { findConversationReplyDeliveryStateForUser } from "@/lib/repositories/conversation-reply-delivery-repository";
 import { findNextRoundRobinAssigneeUserId } from "@/lib/repositories/conversation-assignment-repository";
 import {
+  incrementConversationUnreadSnapshots,
+  syncAssignedConversationUnreadSnapshot,
+  upsertConversationRead
+} from "@/lib/repositories/conversation-unread-repository";
+import {
   deleteConversationTag,
   insertAttachmentRecord,
   insertConversationRecord,
   insertConversationTag,
+  touchConversationAfterMessage,
   upsertConversationFeedback,
-  upsertConversationMetadataRecord,
-  upsertConversationRead
+  upsertConversationMetadataRecord
 } from "@/lib/repositories/conversations-write-repository";
 
 describe("conversation read and write repositories", () => {
@@ -75,19 +80,45 @@ describe("conversation read and write repositories", () => {
   it("writes conversation records, metadata, attachments, tags, feedback, and reads", async () => {
     await insertConversationRecord({ conversationId: "conv_1", siteId: "site_1", email: "hello@example.com", sessionId: "session_1" });
     await upsertConversationMetadataRecord({ conversationId: "conv_1", pageUrl: "/pricing", referrer: "https://google.com", userAgent: "Mozilla", country: "GB", region: "England", city: "London", timezone: "Europe/London", locale: "en-GB" });
+    await touchConversationAfterMessage("conv_1", true, {
+      createdAt: "2026-03-29T10:05:00.000Z",
+      preview: "Happy to help"
+    });
     await insertAttachmentRecord({ attachmentId: "attachment_1", messageId: "msg_1", fileName: "doc.pdf", contentType: "application/pdf", sizeBytes: 12, content: Buffer.from("hello") });
     await deleteConversationTag("conv_1", "vip");
     await insertConversationTag("conv_1", "vip");
     await upsertConversationFeedback("conv_1", 5);
+    await incrementConversationUnreadSnapshots("conv_1");
     await upsertConversationRead("user_1", "conv_1");
+    await syncAssignedConversationUnreadSnapshot({
+      conversationId: "conv_1",
+      ownerUserId: "owner_1",
+      assignedUserId: "member_1"
+    });
 
-    expect(mocks.query).toHaveBeenCalledTimes(7);
+    expect(mocks.query).toHaveBeenCalledTimes(11);
     expect(mocks.query.mock.calls[0]?.[0]).toContain("INSERT INTO conversations");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("INSERT INTO conversation_metadata");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("page_url = COALESCE(conversation_metadata.page_url, EXCLUDED.page_url)");
-    expect(mocks.query.mock.calls[2]?.[0]).toContain("INSERT INTO message_attachments");
-    expect(mocks.query.mock.calls[4]?.[0]).toContain("ON CONFLICT (conversation_id, tag) DO NOTHING");
-    expect(mocks.query.mock.calls[6]?.[0]).toContain("INSERT INTO conversation_reads");
+    expect(mocks.query.mock.calls[2]?.[0]).toContain("recorded_page_url = COALESCE(recorded_page_url, $2)");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("last_message_at = $2");
+    expect(mocks.query.mock.calls[3]?.[0]).toContain("last_message_preview = $3");
+    expect(mocks.query.mock.calls[4]?.[0]).toContain("INSERT INTO message_attachments");
+    expect(mocks.query.mock.calls[6]?.[0]).toContain("ON CONFLICT (conversation_id, tag) DO NOTHING");
+    expect(mocks.query.mock.calls[8]?.[0]).toContain("tm.role = 'admin'");
+    expect(mocks.query.mock.calls[8]?.[0]).toContain("unread_count = conversation_reads.unread_count + 1");
+    expect(mocks.query.mock.calls[9]?.[0]).toContain("unread_count = 0");
+    expect(mocks.query.mock.calls[10]?.[0]).toContain("LEFT JOIN LATERAL");
+  });
+
+  it("skips assigned unread sync when no assignee is provided", async () => {
+    await syncAssignedConversationUnreadSnapshot({
+      conversationId: "conv_1",
+      ownerUserId: "owner_1",
+      assignedUserId: null
+    });
+
+    expect(mocks.query).not.toHaveBeenCalled();
   });
 
   it("selects the least recently assigned teammate for round robin routing", async () => {

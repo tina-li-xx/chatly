@@ -1,5 +1,6 @@
 export { querySites } from "./shared-site-repository";
 export type { SiteRow } from "./shared-site-repository";
+export { queryCoreConversationSummaries } from "./core-conversation-summary-repository";
 export {
   hasConversationAccess,
   listAssignedConversationIdsForMember,

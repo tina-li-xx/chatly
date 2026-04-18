@@ -169,6 +169,20 @@
       "when": 1776096000000,
       "tag": "0023_seo_keyword_history",
       "breakpoints": false
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1776470400000,
+      "tag": "0025_conversation_summary_snapshots",
+      "breakpoints": false
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1776474000000,
+      "tag": "0026_conversation_unread_snapshots",
+      "breakpoints": false
     }
   ]
 }

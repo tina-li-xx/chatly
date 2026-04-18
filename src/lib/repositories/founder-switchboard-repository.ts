@@ -172,15 +172,13 @@ export async function listFounderRecentConversationRows(limit = 10) {
         c.email AS visitor_email,
         c.created_at,
         c.status,
-        cm.page_url,
+        c.recorded_page_url AS page_url,
         first_user.content AS first_message_preview
       FROM conversations c
       INNER JOIN sites s
         ON s.id = c.site_id
       INNER JOIN owner_workspaces ow
         ON ow.owner_user_id = s.user_id
-      LEFT JOIN conversation_metadata cm
-        ON cm.conversation_id = c.id
       LEFT JOIN LATERAL (
         SELECT m.content
         FROM messages m

@@ -39,6 +39,7 @@ export {
   querySites,
   updateConversationEmailValue
 };
+export { overlayConversationSummaryWithLivePresence } from "./conversation-summary-live-presence";
 
 export type CreateUserMessageInput = {
   siteId: string;

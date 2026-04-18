@@ -29,6 +29,7 @@ const mocks = vi.hoisted(() => ({
   insertMessage: vi.fn(),
   loadConversationMessages: vi.fn(),
   migrateVisitorNoteIdentity: vi.fn(),
+  overlayConversationSummaryWithLivePresence: vi.fn(),
   previewIncomingMessage: vi.fn(),
   queryConversationSummaries: vi.fn(),
   recordVisitorPresence: vi.fn(),
@@ -113,6 +114,7 @@ vi.mock("@/lib/data/shared", () => ({
   mapAttachment: vi.fn(),
   mapMessage: vi.fn(),
   mapSummary: (row: Record<string, unknown>) => ({ id: row.id, pageUrl: row.page_url, city: row.city, region: row.region, country: row.country }),
+  overlayConversationSummaryWithLivePresence: mocks.overlayConversationSummaryWithLivePresence,
   queryConversationSummaries: mocks.queryConversationSummaries,
   updateConversationEmailValue: mocks.updateConversationEmailValue
 }));
@@ -130,6 +132,7 @@ describe("conversation data", () => {
     mocks.previewIncomingMessage.mockReturnValue("Hello there");
     mocks.ensureConversation.mockResolvedValue({ conversationId: "conv_1", createdConversation: true, emailCaptured: true });
     mocks.getWorkspaceAccess.mockResolvedValue({ ownerUserId: "owner_1" });
+    mocks.overlayConversationSummaryWithLivePresence.mockImplementation(async (summary: unknown) => summary);
     mocks.getSiteByPublicId.mockResolvedValue({
       id: "site_1",
       userId: "owner_1",
@@ -538,6 +541,10 @@ describe("conversation data", () => {
       messages: [{ id: "msg_1" }],
       visitorActivity: { matchType: "email" }
     });
+    expect(mocks.overlayConversationSummaryWithLivePresence).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "conv_1", pageUrl: "https://example.com/pricing" }),
+      { ownerUserId: "owner_1", viewerUserId: "user_1" }
+    );
   });
 
   it("updates visitor typing by inserting or deleting the typing record", async () => {

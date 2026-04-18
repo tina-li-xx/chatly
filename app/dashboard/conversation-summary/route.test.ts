@@ -1,10 +1,10 @@
 const mocks = vi.hoisted(() => ({
-  getConversationSummaryById: vi.fn(),
+  getConversationCoreSummaryById: vi.fn(),
   requireJsonRouteUser: vi.fn()
 }));
 
 vi.mock("@/lib/data", () => ({
-  getConversationSummaryById: mocks.getConversationSummaryById
+  getConversationCoreSummaryById: mocks.getConversationCoreSummaryById
 }));
 
 vi.mock("@/lib/route-helpers", () => ({
@@ -44,7 +44,7 @@ describe("dashboard conversation summary route", () => {
   });
 
   it("returns not found when the conversation does not exist", async () => {
-    mocks.getConversationSummaryById.mockResolvedValueOnce(null);
+    mocks.getConversationCoreSummaryById.mockResolvedValueOnce(null);
 
     const response = await GET(
       new Request("http://localhost/dashboard/conversation-summary?conversationId=conv_404")
@@ -55,13 +55,13 @@ describe("dashboard conversation summary route", () => {
   });
 
   it("returns the requested conversation summary", async () => {
-    mocks.getConversationSummaryById.mockResolvedValueOnce({ id: "conv_1" });
+    mocks.getConversationCoreSummaryById.mockResolvedValueOnce({ id: "conv_1" });
 
     const response = await GET(
       new Request("http://localhost/dashboard/conversation-summary?conversationId=conv_1")
     );
 
-    expect(mocks.getConversationSummaryById).toHaveBeenCalledWith("conv_1", "user_123");
+    expect(mocks.getConversationCoreSummaryById).toHaveBeenCalledWith("conv_1", "user_123");
     expect(await response.json()).toEqual({
       ok: true,
       summary: { id: "conv_1" }

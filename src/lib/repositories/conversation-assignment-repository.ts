@@ -1,4 +1,5 @@
 import { query } from "@/lib/db";
+import { syncAssignedConversationUnreadSnapshot } from "@/lib/repositories/conversation-unread-repository";
 
 export async function updateConversationAssignmentRecord(input: {
   conversationId: string;
@@ -19,7 +20,17 @@ export async function updateConversationAssignmentRecord(input: {
     [input.conversationId, input.ownerUserId, input.assignedUserId]
   );
 
-  return result.rows[0]?.assigned_user_id;
+  const assignedUserId = result.rows[0]?.assigned_user_id ?? null;
+
+  if (assignedUserId) {
+    await syncAssignedConversationUnreadSnapshot({
+      conversationId: input.conversationId,
+      ownerUserId: input.ownerUserId,
+      assignedUserId
+    });
+  }
+
+  return assignedUserId;
 }
 
 export async function findNextRoundRobinAssigneeUserId(ownerUserId: string) {

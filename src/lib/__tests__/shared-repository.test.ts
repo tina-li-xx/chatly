@@ -8,6 +8,7 @@ vi.mock("@/lib/db", () => ({
 
 import {
   hasConversationAccess,
+  queryCoreConversationSummaries,
   queryConversationSummaries,
   queryMessageAttachmentRows,
   querySites,
@@ -22,21 +23,35 @@ describe("shared repository", () => {
   it("runs the shared site and conversation summary queries with caller clauses", async () => {
     mocks.query
       .mockResolvedValueOnce({ rows: [{ id: "site_1" }] })
-      .mockResolvedValueOnce({ rows: [{ id: "conv_1" }] });
+      .mockResolvedValueOnce({ rows: [{ id: "conv_1", rating: null, tags: [] }], rowCount: 1 })
+      .mockResolvedValueOnce({ rows: [{ conversation_id: "conv_1", tags: ["vip"] }] })
+      .mockResolvedValueOnce({ rows: [{ conversation_id: "conv_1", rating: 5 }] })
+      .mockResolvedValueOnce({ rows: [{ id: "conv_core_1" }], rowCount: 1 });
 
     await expect(querySites("s.user_id = $1", ["user_1"], "ORDER BY s.created_at ASC")).resolves.toEqual({
       rows: [{ id: "site_1" }]
     });
     await expect(
       queryConversationSummaries("s.user_id = $1", ["user_1"], "ORDER BY c.updated_at DESC", "viewer_1")
-    ).resolves.toEqual({ rows: [{ id: "conv_1" }] });
+    ).resolves.toMatchObject({ rows: [{ id: "conv_1", tags: ["vip"], rating: 5 }] });
+    await expect(
+      queryCoreConversationSummaries("s.user_id = $1", ["user_1"], "ORDER BY c.updated_at DESC", "viewer_1")
+    ).resolves.toEqual({ rows: [{ id: "conv_core_1" }], rowCount: 1 });
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("WHERE s.user_id = $1");
     expect(mocks.query.mock.calls[0]?.[0]).toContain("ORDER BY s.created_at ASC");
-    expect(mocks.query.mock.calls[1]?.[0]).toContain("LEFT JOIN LATERAL");
+    expect(mocks.query.mock.calls[1]?.[0]).toContain("LEFT JOIN conversation_reads cr");
+    expect(mocks.query.mock.calls[1]?.[0]).not.toContain("FROM messages m");
+    expect(mocks.query.mock.calls[1]?.[0]).not.toContain("COUNT(*)::text AS unread_count");
+    expect(mocks.query.mock.calls[1]?.[0]).not.toContain("LEFT JOIN conversation_metadata cm");
+    expect(mocks.query.mock.calls[1]?.[0]).not.toContain("FROM visitor_presence_sessions vps");
+    expect(mocks.query.mock.calls[1]?.[0]).not.toContain("LEFT JOIN feedback");
+    expect(mocks.query.mock.calls[1]?.[0]).not.toContain("LEFT JOIN tags");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("tm.role = 'admin'");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("c.assigned_user_id = $2");
     expect(mocks.query.mock.calls[1]?.[1]).toEqual(["user_1", "viewer_1"]);
+    expect(mocks.query.mock.calls[4]?.[0]).not.toContain("LEFT JOIN LATERAL");
+    expect(mocks.query.mock.calls[4]?.[0]).not.toContain("LEFT JOIN conversation_metadata cm");
   });
 
   it("skips empty attachment lookups and otherwise fetches them in created order", async () => {

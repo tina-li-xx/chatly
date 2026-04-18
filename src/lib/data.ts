@@ -28,6 +28,7 @@ export {
   listConversationSummariesForVisitor,
   listVisitorsPageConversationSummaries
 } from "./data/dashboard-visitors";
+export { getConversationCoreSummaryById } from "./data/conversation-core-summary";
 export {
   getInboxConversationSummaryById,
   listInboxConversationSummaries

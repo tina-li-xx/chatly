@@ -5,8 +5,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/chatting-notification-email-senders", () => ({
   sendMentionNotificationEmail: vi.fn()
 }));
-vi.mock("@/lib/data/conversations", () => ({
-  getConversationSummaryById: vi.fn()
+vi.mock("@/lib/data/conversation-core-summary", () => ({
+  getConversationCoreSummaryById: vi.fn()
 }));
 vi.mock("@/lib/env", () => ({
   getPublicAppUrl: vi.fn(() => "https://usechatting.com")

@@ -26,8 +26,8 @@ export async function listAnalyticsConversations(userId: string) {
         c.created_at,
         c.updated_at,
         c.status,
-        cm.page_url,
-        cm.referrer,
+        c.recorded_page_url AS page_url,
+        c.recorded_referrer AS referrer,
         f.rating,
         CASE
           WHEN fr.first_reply_at IS NOT NULL
@@ -45,8 +45,6 @@ export async function listAnalyticsConversations(userId: string) {
       FROM conversations c
       INNER JOIN sites s
         ON s.id = c.site_id
-      LEFT JOIN conversation_metadata cm
-        ON cm.conversation_id = c.id
       LEFT JOIN feedback f
         ON f.conversation_id = c.id
       LEFT JOIN LATERAL (

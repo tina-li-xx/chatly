@@ -4,6 +4,7 @@ import {
   findConversationIdentityForActivity,
   findPreviousConversationByIdentity,
   hasPublicConversationAccessRecord,
+  incrementConversationUnreadSnapshots,
   insertAttachmentRecord,
   insertConversationRecord,
   insertMessageRecord,
@@ -175,7 +176,13 @@ export async function insertMessage(
   });
 
   await insertAttachments(messageId, attachments);
-  await touchConversationAfterMessage(conversationId, Boolean(options?.reopenConversation));
+  await touchConversationAfterMessage(conversationId, Boolean(options?.reopenConversation), {
+    createdAt: inserted.created_at,
+    preview: inserted.content
+  });
+  if (sender === "user") {
+    await incrementConversationUnreadSnapshots(conversationId);
+  }
 
   const attachmentRows = await queryMessageAttachmentRows([messageId]);
   return mapMessage(

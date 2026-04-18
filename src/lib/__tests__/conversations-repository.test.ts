@@ -95,7 +95,10 @@ describe("conversations repository", () => {
     mocks.query.mockResolvedValueOnce({ rows: [{ id: "conv_1" }], rowCount: 1 });
     mocks.query.mockResolvedValueOnce({ rows: [{ status: "resolved" }] });
 
-    await touchConversationAfterMessage("conv_1", true);
+    await touchConversationAfterMessage("conv_1", true, {
+      createdAt: "2026-03-29T10:05:00.000Z",
+      preview: "Happy to help"
+    });
     await expect(
       updateVisitorConversationEmailRecord({
         conversationId: "conv_1",
@@ -107,6 +110,8 @@ describe("conversations repository", () => {
     await expect(updateConversationStatusRecord("conv_1", "user_1", "resolved")).resolves.toBe("resolved");
 
     expect(mocks.query.mock.calls[0]?.[0]).toContain("status = 'open'");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("last_message_at = $2");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("last_message_preview = $3");
     expect(mocks.query.mock.calls[1]?.[0]).toContain("AND session_id = $3");
     expect(mocks.query.mock.calls[2]?.[0]).toContain("RETURNING c.status");
   });

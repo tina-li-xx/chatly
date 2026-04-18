@@ -23,6 +23,7 @@ const mocks = vi.hoisted(() => ({
   insertMessage: vi.fn(),
   loadConversationMessages: vi.fn(),
   migrateVisitorNoteIdentity: vi.fn(),
+  overlayConversationSummaryWithLivePresence: vi.fn(),
   queryConversationSummaries: vi.fn(),
   recordVisitorPresence: vi.fn(),
   syncVisitorContact: vi.fn(),
@@ -85,6 +86,7 @@ vi.mock("@/lib/data/shared", () => ({
   mapAttachment: vi.fn(),
   mapMessage: vi.fn(),
   mapSummary: (row: Record<string, unknown>) => ({ id: row.id, email: row.email ?? null, pageUrl: row.page_url ?? null }),
+  overlayConversationSummaryWithLivePresence: mocks.overlayConversationSummaryWithLivePresence,
   queryConversationSummaries: mocks.queryConversationSummaries,
   updateConversationEmailValue: mocks.updateConversationEmailValue
 }));
@@ -118,6 +120,7 @@ describe("conversation data more", () => {
     mocks.getPublicConversationAccess.mockResolvedValue(true);
     mocks.findConversationFaqHandoffState.mockResolvedValue(null);
     mocks.queryConversationSummaries.mockResolvedValue({ rowCount: 1, rows: [{ id: "conv_1", page_url: "https://example.com" }] });
+    mocks.overlayConversationSummaryWithLivePresence.mockImplementation(async (summary: unknown) => summary);
     mocks.getConversationVisitorActivity.mockResolvedValue({ matchType: "email" });
   });
 
@@ -197,6 +200,10 @@ describe("conversation data more", () => {
       siteName: "Main site",
       summary: { id: "conv_1", email: null, pageUrl: "https://example.com" }
     });
+    expect(mocks.overlayConversationSummaryWithLivePresence).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "conv_1", pageUrl: "https://example.com" }),
+      { ownerUserId: "owner_1", viewerUserId: "owner_1" }
+    );
     expect(mocks.migrateVisitorNoteIdentity).toHaveBeenCalledWith(expect.objectContaining({ previousEmail: "before@example.com", nextEmail: "alex@example.com" }));
     expect(mocks.syncVisitorContact).toHaveBeenCalledWith({
       siteId: "site_1",

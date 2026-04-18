@@ -16,18 +16,14 @@ export type DashboardShellRow = Pick<
 
 function dashboardUnreadCountSql(ownerParam: string, viewerParam: string) {
   return `
-    SELECT COUNT(*)::text
-    FROM messages m
-    INNER JOIN conversations c
-      ON c.id = m.conversation_id
+    SELECT COALESCE(SUM(COALESCE(cr.unread_count, 0)), 0)::text AS unread_count
+    FROM conversations c
     INNER JOIN sites s
       ON s.id = c.site_id
     LEFT JOIN conversation_reads cr
       ON cr.user_id = ${viewerParam}
      AND cr.conversation_id = c.id
     WHERE ${workspaceAccessClause("s.user_id", ownerParam, viewerParam)}
-      AND m.sender = 'user'
-      AND m.created_at > COALESCE(cr.last_read_at, TO_TIMESTAMP(0))
   `;
 }
 

@@ -1,5 +1,5 @@
 import { sendMentionNotificationEmail } from "@/lib/chatting-notification-email-senders";
-import { getConversationSummaryById } from "@/lib/data/conversations";
+import { getConversationCoreSummaryById } from "@/lib/data/conversation-core-summary";
 import { getPublicAppUrl } from "@/lib/env";
 import {
   buildMentionDisplayName,
@@ -99,7 +99,7 @@ export async function sendConversationMentionNotifications(input: {
     return mentionResolution;
   }
 
-  const summary = await getConversationSummaryById(input.conversationId, input.mentionerUserId);
+  const summary = await getConversationCoreSummaryById(input.conversationId, input.mentionerUserId);
   const senderRow = rows.find((row) => row.user_id === input.mentionerUserId);
   const mentionerName = senderRow
     ? buildMentionDisplayName(senderRow)

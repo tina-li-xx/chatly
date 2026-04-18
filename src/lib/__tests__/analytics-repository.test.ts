@@ -16,7 +16,7 @@ describe("analytics repository", () => {
     vi.clearAllMocks();
   });
 
-  it("lists analytics conversations with joined metadata", async () => {
+  it("lists analytics conversations from recorded conversation snapshots", async () => {
     mocks.query.mockResolvedValueOnce({
       rows: [
         {
@@ -35,7 +35,9 @@ describe("analytics repository", () => {
     });
 
     await expect(listAnalyticsConversations("user_1")).resolves.toHaveLength(1);
-    expect(mocks.query.mock.calls[0]?.[0]).toContain("LEFT JOIN conversation_metadata cm");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("c.recorded_page_url AS page_url");
+    expect(mocks.query.mock.calls[0]?.[0]).toContain("c.recorded_referrer AS referrer");
+    expect(mocks.query.mock.calls[0]?.[0]).not.toContain("LEFT JOIN conversation_metadata cm");
     expect(mocks.query.mock.calls[0]?.[0]).toContain("ARRAY_AGG(t.tag ORDER BY t.tag)");
   });
 

@@ -46,6 +46,7 @@ import {
   mapAttachment,
   mapMessage,
   mapSummary,
+  overlayConversationSummaryWithLivePresence,
   queryConversationSummaries,
   updateConversationEmailValue,
   type CreateUserMessageInput,
@@ -445,7 +446,14 @@ export async function getConversationSummaryById(id: string, userId: string) {
     userId
   );
 
-  return result.rowCount ? mapSummary(result.rows[0]) : null;
+  if (!result.rowCount) {
+    return null;
+  }
+
+  return overlayConversationSummaryWithLivePresence(mapSummary(result.rows[0]), {
+    ownerUserId: workspace.ownerUserId,
+    viewerUserId: userId
+  });
 }
 
 export async function getConversationById(id: string, userId: string) {
@@ -463,9 +471,16 @@ export async function getConversationById(id: string, userId: string) {
     id,
     (attachmentId) => `/api/files/${attachmentId}?conversationId=${encodeURIComponent(id)}`
   );
+  const summary = await overlayConversationSummaryWithLivePresence(
+    mapSummary(summaryResult.rows[0]),
+    {
+      ownerUserId: workspace.ownerUserId,
+      viewerUserId: userId
+    }
+  );
 
   return {
-    ...mapSummary(summaryResult.rows[0]),
+    ...summary,
     messages,
     visitorActivity
   } satisfies ConversationThread;
